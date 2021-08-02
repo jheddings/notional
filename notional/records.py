@@ -1,10 +1,15 @@
 """Wrapper for Notion API objects."""
+
+import logging
+
 from datetime import datetime
 
 from .types import NativePropertyValue, RichText
 from .types import notion_to_python, python_to_notion
 
 from .iterator import EndpointIterator
+
+log = logging.getLogger(__name__)
 
 # TODO support optional 'name' in Attribute and Property (like SQLAlchemy)
 # TODO create class generator method and pass client there (like SQLAlchemy)
@@ -17,6 +22,8 @@ def Attribute(name, cls=str):
     :param name: the attribute key in the Record
     :param cls: the data type for the property
     """
+
+    log.debug("creating new Attribute: %s", name)
 
     # TODO make sure we are being called from a Record object
 
@@ -45,6 +52,8 @@ def Property(name, cls=RichText, default=None):
     :param cls: the data type for the property (default = RichText)
     :param default: a default value when creating new objects
     """
+
+    log.debug("creating new Property: %s", name)
 
     # TODO make sure we are being called from a Page object
 
@@ -132,7 +141,7 @@ class Page(Record):
     def __init__(self, session, **data):
         """Initialize the Record object."""
         super().__init__(session, **data)
-        self._dirty_props = dict()
+        self._pending = dict()
 
     @classmethod
     def __getitem__(self, key):
@@ -189,19 +198,21 @@ class Page(Record):
 
         prop.update(value)
 
-        self._dirty_props[name] = prop
+        self._pending[name] = prop
 
     @classmethod
     def commit(self):
         """Commit any pending changes to this Page object."""
-        if self._data is None or len(self._dirty_props) == 0:
+        if self._data is None or len(self._pending) == 0:
             return
 
         page_id = self._data["id"]  # FIXME why can't we use self.id here??
-        self._session.pages.update(page_id, properties=self._dirty_props)
-        self._dirty_props.clear()
+        log.debug("committing %d changes to page %s", len(self._pending), page_id)
+        self._session.pages.update(page_id, properties=self._pending)
+        self._pending.clear()
 
     @classmethod
     def append(self, *children):
         page_id = self._data["id"]  # FIXME why can't we use self.id here??
+        log.debug("appending %d blocks to page %s", len(children), page_id)
         return self._session.blocks.children.append(block_id=page_id, children=children)

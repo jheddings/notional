@@ -1,8 +1,12 @@
 """Iterator classes for notional."""
 
+import logging
+
 from abc import ABC, abstractmethod
 
 CONTENT_PAGE_SIZE = 100
+
+log = logging.getLogger(__name__)
 
 
 class ContentIterator(ABC):
@@ -12,6 +16,7 @@ class ContentIterator(ABC):
         self.page = None
         self.index = -1
         self.pagenum = 0
+        self.log = log.getChild("ContentIterator")
 
     def __iter__(self):
         """Initialize the iterator."""
@@ -55,6 +60,7 @@ class ResultSetIterator(ContentIterator, ABC):
         """Initialize the iterator."""
         super().__init__()
         self.cursor = None
+        self.log = log.getChild("ResultSetIterator")
 
     def load_next_page(self):
         """Return the next page of content."""
@@ -66,6 +72,8 @@ class ResultSetIterator(ContentIterator, ABC):
         if self.cursor:
             params["start_cursor"] = self.cursor
 
+        self.log.debug("loading next page - start cursor: %s", self.cursor)
+
         # TODO error checking on result
         result = self.get_page(params)
 
@@ -73,6 +81,10 @@ class ResultSetIterator(ContentIterator, ABC):
             self.cursor = result["next_cursor"]
         else:
             self.cursor = False
+
+        results = result["results"]
+
+        self.log.debug("loaded %d results; next cursor: %s", len(results), self.cursor)
 
         return result["results"]
 
@@ -97,6 +109,7 @@ class EndpointIterator(ResultSetIterator):
         super().__init__()
         self.endpoint = endpoint
         self.params = params
+        self.log = log.getChild("EndpointIterator")
 
     def get_page(self, params):
         """Return the next page with given parameters."""
