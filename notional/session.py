@@ -12,7 +12,7 @@ class Session(object):
     def __init__(self, **kwargs):
         self.client = notion_client.Client(**kwargs)
         self.log = log.getChild("Session")
-        self.log("initialized Notion SDK client"
+        self.log.info("Initialized Notion SDK client")
 
     @property
     def databases(self):

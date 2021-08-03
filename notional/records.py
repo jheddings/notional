@@ -204,15 +204,16 @@ class Page(Record):
     def commit(self):
         """Commit any pending changes to this Page object."""
         if self._data is None or len(self._pending) == 0:
+            log.debug("no pending changes to commit")
             return
 
         page_id = self._data["id"]  # FIXME why can't we use self.id here??
-        log.debug("committing %d changes to page %s", len(self._pending), page_id)
+        log.info("Committing %d changes to page %s...", len(self._pending), page_id)
         self._session.pages.update(page_id, properties=self._pending)
         self._pending.clear()
 
     @classmethod
     def append(self, *children):
         page_id = self._data["id"]  # FIXME why can't we use self.id here??
-        log.debug("appending %d blocks to page %s", len(children), page_id)
+        log.info("Appending %d blocks to page %s...", len(children), page_id)
         return self._session.blocks.children.append(block_id=page_id, children=children)
