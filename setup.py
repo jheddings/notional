@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fp:
     readme = fp.read()
 
-requirements = ["notion-client>=0.4"]
+requirements = ["notion-client>=0.5"]
 
 setup(
     name="notional",
