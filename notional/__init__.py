@@ -1,8 +1,7 @@
 """Provide a simple ORM for Notion objects."""
 
+from .version import __version__
 from .session import Session
-
-__version__ = "0.0.3"
 
 
 def connect(auth):
