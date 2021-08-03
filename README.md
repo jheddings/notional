@@ -66,7 +66,8 @@ given endpoint.
 
 ## Query Builder ###
 
-Notional provides a query builder for interating with the Notion API.
+Notional provides a query builder for interating with the Notion API.  Query targets can be
+either a specific database ID or a custom ORM type (with a `__database__` property).
 
 ```python
 notion = notional.connect(auth=auth_token)
@@ -85,20 +86,17 @@ For more information about querying,
 This library has support for defining custom data types that wrap Notion pages. Typically,
 these pages are entries in a database (collection) with a consistent schema.
 
-Currently, there is not a good way to iterate or query with custom data types.  This
-will be fixed in a future release.
-
 ```python
 from notional import types
 from notional.records import Page, Property
 
 class Task(Page):
+    __database__ = NOTION_DATABASE_ID
     Title = Property('Title', types.Title)
     Priority = Property('Priority', types.SelectOne)
     DueDate = Property('Due Date', types.Date)
 
-for data in tasks:
-    task = Task(**data)
+for task in notion.query(Task).execute():
     print(f"{task.Title} => {task.Priority}")
     task.DueDate = date.today()
     task.commit()
