@@ -1,6 +1,7 @@
 # notional #
 
-A simplified object model for the Notion SDK.
+A simplified object model for the Notion SDK.  This is loosely modeled after concepts
+found in [SQLAlchemy](https://www.sqlalchemy.org).
 
 > :warning: **Work In Progress**: The interfaces in this module are still in development
 and are likely to change frequently.  Furthermore, documentation is pretty sparse so use
@@ -31,8 +32,6 @@ import notional
 notion = notional.connect(auth=AUTH_TOKEN)
 
 # do some things
-
-notion.commit()
 ```
 
 ## Iterators ###
@@ -65,13 +64,29 @@ for data in tasks:
 Note that the parameters to the iterator follow the standard API parameters for the
 given endpoint.
 
+## Query Builder ###
+
+Notional provides a query builder for interating with the Notion API.
+
+```python
+notion = notional.connect(auth=auth_token)
+sorts = [{"direction": "ascending", "property": "Last Update"}]
+query = notion.query(dbid).sort(sorts)
+
+for data in query.execute():
+    # something magic happens
+```
+
+For more information about querying,
+[read the official documentation](https://developers.notion.com/reference/post-database-query).
+
 ## ORM ###
 
 This library has support for defining custom data types that wrap Notion pages. Typically,
 these pages are entries in a database (collection) with a consistent schema.
 
-Currently, there is not a good way to iterate over custom data types.  This will be fixed
-in a future release.
+Currently, there is not a good way to iterate or query with custom data types.  This
+will be fixed in a future release.
 
 ```python
 from notional import types
