@@ -20,6 +20,10 @@ class Session(object):
         """Initialized a new Query object with the target data class."""
         return Query(self, cls)
 
+    def commit(self):
+        """Commit any pending changes back to Notion - reserved for future use."""
+        raise NotImplemented("nothing to do here (yet)")
+
     @property
     def databases(self):
         """Direct access to the databases API endpoint."""
