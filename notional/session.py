@@ -16,9 +16,12 @@ class Session(object):
         self.log = log.getChild("Session")
         self.log.info("Initialized Notion SDK client")
 
-    def query(self, cls):
-        """Initialized a new Query object with the target data class."""
-        return Query(self, cls)
+    def query(self, target):
+        """Initialized a new Query object with the target data class.
+
+        :param target: either a string with the database ID or an ORM class
+        """
+        return Query(self, target)
 
     def commit(self):
         """Commit any pending changes back to Notion - reserved for future use."""

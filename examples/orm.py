@@ -7,12 +7,12 @@ import notional
 from notional import types
 from notional.records import Page, Property
 
-dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 
 class Task(Page):
     """Defines a Task data type for a Notion page."""
+    __database__ = sys.argv[1]
 
     Title = Property("Title", types.Title)
     Priority = Property("Priority", types.SelectOne)
@@ -21,11 +21,9 @@ class Task(Page):
 
 
 notion = notional.connect(auth=auth_token)
-data = notion.pages.retrieve(page_id)
+sort = {"direction": "ascending", "property": "Last Update"}
 
-sorts = [{"direction": "ascending", "property": "Last Update"}]
-
-for task in notion.query(dbid, Task).sort(sorts).execute():
+for task in notion.query(Task).sort(sort).execute():
     print(f"{task.Title} => {task.Priority}")
 
     task.Complete = True
