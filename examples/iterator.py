@@ -9,10 +9,10 @@ from notional.iterator import EndpointIterator
 dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
-session = notional.connect(auth=auth_token)
+notion = notional.connect(auth=auth_token)
 
 tasks = EndpointIterator(
-    endpoint=session.databases.query,
+    endpoint=notion.databases.query,
     database_id=dbid,
     sorts=[{"direction": "ascending", "property": "Last Update"}],
 )

@@ -7,6 +7,9 @@ import notional
 from notional import types
 from notional.records import Page, Property
 
+dbid = sys.argv[1]
+auth_token = os.getenv("NOTION_AUTH_TOKEN")
+
 
 class Task(Page):
     """Defines a Task data type for a Notion page."""
@@ -17,14 +20,13 @@ class Task(Page):
     Complete = Property("Complete", types.Checkbox)
 
 
-page_id = sys.argv[1]
-auth_token = os.getenv("NOTION_AUTH_TOKEN")
+notion = notional.connect(auth=auth_token)
+data = notion.pages.retrieve(page_id)
 
-session = notional.connect(auth=auth_token)
-data = session.pages.retrieve(page_id)
-task = Task(session, **data)
+sorts = [{"direction": "ascending", "property": "Last Update"}]
 
-print(f"{task.Title} => {task.Priority}")
+for task in notion.query(dbid, Task).sort(sorts).execute():
+    print(f"{task.Title} => {task.Priority}")
 
-task.Complete = True
-task.commit()
+    task.Complete = True
+    task.commit()

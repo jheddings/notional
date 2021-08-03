@@ -7,7 +7,7 @@ requirements = ["notion-client>=0.5"]
 
 setup(
     name="notional",
-    version="0.0.1",
+    version="0.0.2",
     author="Jason Heddings",
     author_email="jheddings@gmail.com",
     description="An object model for the Notion SDK.",

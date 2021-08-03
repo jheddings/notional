@@ -3,6 +3,8 @@
 import logging
 import notion_client
 
+from .query import Query
+
 log = logging.getLogger(__name__)
 
 
@@ -13,6 +15,10 @@ class Session(object):
         self.client = notion_client.Client(**kwargs)
         self.log = log.getChild("Session")
         self.log.info("Initialized Notion SDK client")
+
+    def query(self, cls):
+        """Initialized a new Query object with the target data class."""
+        return Query(self, cls)
 
     @property
     def databases(self):
