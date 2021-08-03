@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import os
 import sys
+import os
 import json
 import notional
 
@@ -9,9 +9,9 @@ dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 notion = notional.connect(auth=auth_token)
-sorts = [{"direction": "ascending", "property": "Last Update"}]
+sort = {"direction": "ascending", "property": "Last Update"}
 
-query = notion.query(dbid).sort(sorts)
+query = notion.query(dbid).sort(sort)
 
 data = query.first()
 print("== First Result ==")
