@@ -32,8 +32,6 @@ import notional
 notion = notional.connect(auth=AUTH_TOKEN)
 
 # do some things
-
-notion.commit()
 ```
 
 ## Iterators ###
@@ -78,6 +76,9 @@ query = notion.query(dbid).sort(sorts)
 for data in query.execute():
     # something magic happens
 ```
+
+For more information about querying,
+[read the official documentation](https://developers.notion.com/reference/post-database-query].
 
 ## ORM ###
 
