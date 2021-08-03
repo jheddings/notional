@@ -12,6 +12,7 @@ auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 class Task(Page):
     """Defines a Task data type for a Notion page."""
+
     __database__ = sys.argv[1]
 
     Title = Property("Title", types.Title)

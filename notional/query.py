@@ -80,9 +80,11 @@ class Query(object):
 
         log.debug("executing query - %s", params)
 
-        iter = EndpointIterator(**params)
+        # FIXME in order to use start and limit, we need a different
+        # mechanism for iterating on results
+        items = EndpointIterator(**params)
 
-        return Result(session=self.session, iter=iter, cls=cls)
+        return Result(session=self.session, src=items, cls=cls)
 
     def first(self):
         """Execute the current query and return the first result only."""
@@ -95,18 +97,18 @@ class Query(object):
 
 
 class Result(object):
-    """A result set from a specific query."""
+    """A result for a specific query."""
 
-    def __init__(self, session, iter, cls=None):
+    def __init__(self, session, src, cls=None):
         self.session = session
-        self.iter = iter
+        self.source = src
         self.cls = cls
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        item = next(self.iter)
+        item = next(self.source)
 
         if self.cls:
             item = self.cls(self.session, **item)
