@@ -78,7 +78,7 @@ for data in query.execute():
 ```
 
 For more information about querying,
-[read the official documentation](https://developers.notion.com/reference/post-database-query].
+[read the official documentation](https://developers.notion.com/reference/post-database-query).
 
 ## ORM ###
 
