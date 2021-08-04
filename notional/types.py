@@ -164,9 +164,9 @@ class Date(PropertyValue):
 
 
 class Text(PropertyValue):
-    """Notion text properties."""
+    """Standard Notion text properties."""
 
-    def __init__(self, type, id=None, text=list()):
+    def __init__(self, type, id, text=list()):
         super().__init__(type, id)
         self.text = text
 
