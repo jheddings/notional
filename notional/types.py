@@ -132,10 +132,8 @@ class Checkbox(NativePropertyValue):
 class Date(PropertyValue):
     """Notion date type."""
 
-    # TODO handle timestamps
-
     @classmethod
-    def __init__(self, id, start, end):
+    def __init__(self, id, start, end=None):
         """Initialize the object."""
         super().__init__("date", id)
         self.start = start
