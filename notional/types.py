@@ -2,19 +2,17 @@
 from abc import ABC, abstractmethod
 from datetime import date, datetime
 
+from .text import RichTextElement
+
 
 class NotionDataType(object):
     """Base class for Notion data types."""
 
     def __init__(self, cls):
-        """Initialize the object.
-
-        :param cls: the type of data represented in this object
-        """
         self.type = cls
 
-    @staticmethod
-    def from_json(data):
+    @classmethod
+    def from_json(cls, data):
         """Deserialize this data from a JSON object."""
         raise NotImplementedError()
 
@@ -23,20 +21,23 @@ class PropertyValue(NotionDataType, ABC):
     """Base class for Notion properties."""
 
     def __init__(self, cls, id):
-        """Initialize the object.
-
-        :param id: the short ID for the property, usually provided in the API response
-        """
         super().__init__(cls)
         self.id = id
 
     @abstractmethod
-    def to_json(self):
+    def to_json(self, **fields):
         """Serialize this value as a JSON object."""
-        pass
+        data = {"type": self.type}
 
-    @staticmethod
-    def from_json(data):
+        if self.id is not None:
+            data["id"] = self.id
+
+        data.update(fields)
+
+        return data
+
+    @classmethod
+    def from_json(cls, data):
         """Deserialize this data from a JSON object."""
         raise NotImplementedError()
 
@@ -50,7 +51,6 @@ class NativePropertyValue(PropertyValue):
     """Wrapper for classes that support native type assignments."""
 
     def __init__(self, cls, id, value):
-        """Initialize the object."""
         super().__init__(cls, id)
         self.value = value
 
@@ -80,12 +80,7 @@ class NativePropertyValue(PropertyValue):
 
     def to_json(self):
         """Convert this data type to JSON, suitable for sending to the API."""
-        data = {"type": self.type, self.type: self.value}
-
-        if self.id is not None:
-            data["id"] = self.id
-
-        return data
+        return super().to_json(**{self.type: self.value})
 
     @classmethod
     def from_value(cls, value):
@@ -96,34 +91,31 @@ class NativePropertyValue(PropertyValue):
 class Number(NativePropertyValue):
     """Simple number type."""
 
-    def __init__(self, id, value):
-        """Initialize the object."""
+    def __init__(self, id, value=None):
         super().__init__("number", id, value)
 
-    @staticmethod
-    def from_json(data):
+    @classmethod
+    def from_json(cls, data):
         """Deserialize this data from a JSON object."""
-        return Number(id=data["id"], value=data["number"])
+        return cls(id=data["id"], value=data["number"])
 
 
 class Checkbox(NativePropertyValue):
     """Simple checkbox type; represented as a boolean."""
 
     def __init__(self, id, value=False):
-        """Initialize the object."""
         super().__init__("checkbox", id, value)
 
-    @staticmethod
-    def from_json(data):
+    @classmethod
+    def from_json(cls, data):
         """Deserialize this data from a JSON object."""
-        return Checkbox(id=data["id"], value=data["checkbox"])
+        return cls(id=data["id"], value=data["checkbox"])
 
 
 class Date(PropertyValue):
-    """Notion date type."""
+    """Notion complex date type - may include timestamp and/or be a date range."""
 
     def __init__(self, id, start, end=None):
-        """Initialize the object."""
         super().__init__("date", id)
         self.start = start
         self.end = end
@@ -132,8 +124,8 @@ class Date(PropertyValue):
         """Return a string representation of this object."""
         return f"{self.start} :: {self.end}"
 
-    @staticmethod
-    def from_json(data):
+    @classmethod
+    def from_json(cls, data):
         """Deserialize this data from a JSON object."""
         content = data["date"]
 
@@ -146,7 +138,7 @@ class Date(PropertyValue):
         if "end" in content:
             end = content["end"]
 
-        return Date(id=data["id"], start=start, end=end)
+        return cls(id=data["id"], start=start, end=end)
 
     @classmethod
     def from_value(cls, value):
@@ -155,14 +147,12 @@ class Date(PropertyValue):
 
     def to_json(self):
         """Convert this data type to JSON, suitable for sending to the API."""
-        start = self.start.isoformat()
-        end = self.end.isoformat() if self.end else None
-
-        return {
-            "type": self.type,
-            "id": self.id,
-            "date": {"start": start, "end": end},
-        }
+        return super().to_json(
+            date={
+                "start": self.start.isoformat(),
+                "end": self.end.isoformat() if self.end else None,
+            }
+        )
 
     @staticmethod
     def parse_date_string(string):
@@ -173,19 +163,16 @@ class Date(PropertyValue):
         return date.fromisoformat(string)
 
 
-class RichText(PropertyValue):
-    """Notion rich text type."""
+class Text(PropertyValue):
+    """Notion text properties."""
 
-    # TODO make elements into RichTextElement objects, rather than simple dict's
-
-    def __init__(self, id, text=list()):
-        """Initialize the object."""
-        super().__init__("rich_text", id)
+    def __init__(self, type, id=None, text=list()):
+        super().__init__(type, id)
         self.text = text
 
     def __str__(self):
         """Return a string representation of this object."""
-        return "".join(chunk["plain_text"] for chunk in self.text)
+        return "".join(str(elem) for elem in self.text)
 
     def __len__(self):
         """Return the number of elements in the RichText object."""
@@ -193,56 +180,46 @@ class RichText(PropertyValue):
 
     def to_json(self):
         """Convert this data type to JSON, suitable for sending to the API."""
-        return {"type": self.type, "id": self.id, self.type: self.text}
-
-    @staticmethod
-    def from_json(data):
-        """Deserialize this data from a JSON object."""
-        return RichText(id=data["id"], text=data["rich_text"])
+        rtf = [elem.to_json() for elem in self.text]
+        return super().to_json(**{self.type: rtf})
 
     @classmethod
     def from_value(cls, value):
         """Create a new RichText from the native string value."""
-        text = [{"type": "text", "plain_text": value, "text": {"content": value}}]
-        return cls(id=None, text=text)
+        rtf = TextElement(text=value)
+        return cls(id=None, text=[rtf])
 
 
-class Title(PropertyValue):
-    """Notion title type."""
-
-    # XXX wouldn't this make more sense as a simple string rather than rich text?
-    # TODO make elements into RichTextElement objects, rather than simple dict's
+class RichText(Text):
+    """Notion rich text type."""
 
     def __init__(self, id, text=list()):
-        """Initialize the object."""
-        super().__init__("title", id)
-        self.text = text
-
-    def __str__(self):
-        """Return a string representation of this object."""
-        return "".join(chunk["plain_text"] for chunk in self.text)
-
-    def to_json(self):
-        """Convert this data type to JSON, suitable for sending to the API."""
-        return {"type": self.type, "id": self.id, self.type: self.text}
-
-    @staticmethod
-    def from_json(data):
-        """Deserialize this data from a JSON object."""
-        return Title(id=data["id"], text=data["title"])
+        super().__init__(type="rich_text", id=id, text=text)
 
     @classmethod
-    def from_value(value):
-        """Create a new Title from the native value."""
-        text = [{"type": "text", "plain_text": value, "text": {"content": value}}]
-        return cls(id=None, text=text)
+    def from_json(cls, data):
+        """Deserialize this data from a JSON object."""
+        rtf = [RichTextElement.from_json(elem) for elem in data["rich_text"]]
+        return cls(id=data["id"], text=rtf)
+
+
+class Title(Text):
+    """Notion title type."""
+
+    def __init__(self, id, text=list()):
+        super().__init__(type="title", id=id, text=text)
+
+    @classmethod
+    def from_json(cls, data):
+        """Deserialize this data from a JSON object."""
+        rtf = [RichTextElement.from_json(elem) for elem in data["title"]]
+        return cls(id=data["id"], text=rtf)
 
 
 class SelectOne(PropertyValue):
     """Notion select type."""
 
     def __init__(self, id, name, option_id, color=None):
-        """Initialize the object."""
         super().__init__("select", id)
 
         if name is None and option_id is None:
@@ -256,8 +233,14 @@ class SelectOne(PropertyValue):
         """Return a string representation of this object."""
         return self.name or self.option_id or ""
 
-    @staticmethod
-    def from_json(data):
+    def to_json(self):
+        """Convert this data type to JSON, suitable for sending to the API."""
+        return super().to_json(
+            select={"id": self.option_id} if self.option_id else {"name": self.name}
+        )
+
+    @classmethod
+    def from_json(cls, data):
         """Deserialize this data from a JSON object."""
         content = data["select"]
 
@@ -265,17 +248,7 @@ class SelectOne(PropertyValue):
         option_id = content["id"] if "id" in content else None
         color = content["color"] if "color" in content else None
 
-        return SelectOne(id=data["id"], name=name, option_id=option_id, color=color)
-
-    def to_json(self):
-        """Convert this data type to JSON, suitable for sending to the API."""
-        selected = {"id": self.option_id} if self.option_id else {"name": self.name}
-
-        return {
-            "type": self.type,
-            "id": self.id,
-            "select": selected,
-        }
+        return cls(id=data["id"], name=name, option_id=option_id, color=color)
 
     @classmethod
     def from_value(cls, value):

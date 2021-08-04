@@ -76,6 +76,8 @@ def Property(name, cls=RichText, default=None):
         if not isinstance(self, Page):
             raise TypeError("Properties must be used in a Page object")
 
+        # TODO only set the value if it has changed from the existing
+
         try:
             data = python_to_notion(value, cls)
         except TypeError:
