@@ -1,43 +1,22 @@
 """Wrapper for Notion API data types."""
-from abc import ABC, abstractmethod
 from datetime import date, datetime
 
 from .text import RichTextElement, TextElement
 
 
-class DataObject(object):
-    """Base class for working with Notion data objects."""
-
-    def __init__(self, data):
-        self.__data__ = data
-
-
-class DataType(object):
-    """Base class for Notion data types."""
-
-    def __init__(self, type):
-        self.type = type
-
-    @classmethod
-    def from_json(cls, data):
-        """Deserialize this data from a JSON object."""
-        raise NotImplementedError()
-
-
-class PropertyValue(DataType, ABC):
+class PropertyValue(object):
     """Base class for Notion properties."""
 
     def __init__(self, type, id):
-        super().__init__(type)
+        self.type = type
         self.id = id
 
-    @abstractmethod
     def to_json(self, **fields):
         """Serialize this value as a JSON object."""
-        data = {"type": self.type}
 
-        if self.id is not None:
-            data["id"] = self.id
+        # XXX it would be nice to leave id out of here if it is None, however
+        # that causes problems for the to/from methods later on...
+        data = {"type": self.type, "id": self.id}
 
         data.update(fields)
 
@@ -45,12 +24,12 @@ class PropertyValue(DataType, ABC):
 
     @classmethod
     def from_json(cls, data):
-        """Deserialize this data from a JSON object."""
+        """Deserialize this property from a JSON object."""
         raise NotImplementedError()
 
     @classmethod
     def from_value(cls, value):
-        """Create a new instance of this property from the native value."""
+        """Create a new instance of this property from the given value."""
         raise NotImplementedError()
 
 

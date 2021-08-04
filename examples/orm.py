@@ -21,6 +21,7 @@ class Task(Page):
     Priority = Property("Priority", types.SelectOne)
     DueDate = Property("Due Date", types.Date)
     Complete = Property("Complete", types.Checkbox)
+    Reference = Property("Reference", types.Number)
     Status = Property("Status")
 
 
@@ -35,4 +36,5 @@ for task in notion.query(Task).sort(sort).execute():
 
     task.Complete = False
     task.Priority = "High"
+
     task.commit()
