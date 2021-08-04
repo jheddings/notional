@@ -6,7 +6,6 @@ from datetime import date, datetime
 class NotionDataType(object):
     """Base class for Notion data types."""
 
-    @classmethod
     def __init__(self, cls):
         """Initialize the object.
 
@@ -23,7 +22,6 @@ class NotionDataType(object):
 class PropertyValue(NotionDataType, ABC):
     """Base class for Notion properties."""
 
-    @classmethod
     def __init__(self, cls, id):
         """Initialize the object.
 
@@ -42,8 +40,8 @@ class PropertyValue(NotionDataType, ABC):
         """Deserialize this data from a JSON object."""
         raise NotImplementedError()
 
-    @staticmethod
-    def from_value(value):
+    @classmethod
+    def from_value(cls, value):
         """Create a new instance of this property from the native value."""
         raise NotImplementedError()
 
@@ -51,23 +49,19 @@ class PropertyValue(NotionDataType, ABC):
 class NativePropertyValue(PropertyValue):
     """Wrapper for classes that support native type assignments."""
 
-    @classmethod
     def __init__(self, cls, id, value):
         """Initialize the object."""
         super().__init__(cls, id)
         self.value = value
 
-    @classmethod
     def __repr__(self):
         """Return an explicit representation of this object."""
         return self.value
 
-    @classmethod
     def __str__(self):
         """Return a string representation of this object."""
         return str(self.value)
 
-    @classmethod
     def __eq__(self, other):
         """Determine if this property is equal to the given object.
 
@@ -76,7 +70,6 @@ class NativePropertyValue(PropertyValue):
         """
         return self.value == other
 
-    @classmethod
     def __ne__(self, other):
         """Determine if this property is not equal to the given object.
 
@@ -85,16 +78,24 @@ class NativePropertyValue(PropertyValue):
         """
         return self.value != other
 
-    @classmethod
     def to_json(self):
         """Convert this data type to JSON, suitable for sending to the API."""
-        return {"type": self.type, "id": self.id, self.type: self.value}
+        data = {"type": self.type, self.type: self.value}
+
+        if self.id is not None:
+            data["id"] = self.id
+
+        return data
+
+    @classmethod
+    def from_value(cls, value):
+        """Create a new value from the native value."""
+        return cls(id=None, value=value)
 
 
 class Number(NativePropertyValue):
     """Simple number type."""
 
-    @classmethod
     def __init__(self, id, value):
         """Initialize the object."""
         super().__init__("number", id, value)
@@ -104,16 +105,10 @@ class Number(NativePropertyValue):
         """Deserialize this data from a JSON object."""
         return Number(id=data["id"], value=data["number"])
 
-    @staticmethod
-    def from_value(value):
-        """Create a new Number from the native value."""
-        return Number(id=None, value=value)
-
 
 class Checkbox(NativePropertyValue):
     """Simple checkbox type; represented as a boolean."""
 
-    @classmethod
     def __init__(self, id, value=False):
         """Initialize the object."""
         super().__init__("checkbox", id, value)
@@ -123,23 +118,16 @@ class Checkbox(NativePropertyValue):
         """Deserialize this data from a JSON object."""
         return Checkbox(id=data["id"], value=data["checkbox"])
 
-    @staticmethod
-    def from_value(value):
-        """Create a new Checkbox from the native value."""
-        return Checkbox(id=None, value=value)
-
 
 class Date(PropertyValue):
     """Notion date type."""
 
-    @classmethod
     def __init__(self, id, start, end=None):
         """Initialize the object."""
         super().__init__("date", id)
         self.start = start
         self.end = end
 
-    @classmethod
     def __str__(self):
         """Return a string representation of this object."""
         return f"{self.start} :: {self.end}"
@@ -160,12 +148,11 @@ class Date(PropertyValue):
 
         return Date(id=data["id"], start=start, end=end)
 
-    @staticmethod
-    def from_value(value):
-        """Create a new Date from the native value."""
-        return Date(id=None, start=value)
-
     @classmethod
+    def from_value(cls, value):
+        """Create a new Date from the native value."""
+        return cls(id=None, start=value)
+
     def to_json(self):
         """Convert this data type to JSON, suitable for sending to the API."""
         start = self.start.isoformat()
@@ -191,23 +178,19 @@ class RichText(PropertyValue):
 
     # TODO make elements into RichTextElement objects, rather than simple dict's
 
-    @classmethod
     def __init__(self, id, text=list()):
         """Initialize the object."""
         super().__init__("rich_text", id)
         self.text = text
 
-    @classmethod
     def __str__(self):
         """Return a string representation of this object."""
         return "".join(chunk["plain_text"] for chunk in self.text)
 
-    @classmethod
     def __len__(self):
         """Return the number of elements in the RichText object."""
         return len(self.text)
 
-    @classmethod
     def to_json(self):
         """Convert this data type to JSON, suitable for sending to the API."""
         return {"type": self.type, "id": self.id, self.type: self.text}
@@ -217,11 +200,11 @@ class RichText(PropertyValue):
         """Deserialize this data from a JSON object."""
         return RichText(id=data["id"], text=data["rich_text"])
 
-    @staticmethod
-    def from_value(value):
+    @classmethod
+    def from_value(cls, value):
         """Create a new RichText from the native string value."""
         text = [{"type": "text", "plain_text": value, "text": {"content": value}}]
-        return RichText(id=None, text=text)
+        return cls(id=None, text=text)
 
 
 class Title(PropertyValue):
@@ -230,18 +213,15 @@ class Title(PropertyValue):
     # XXX wouldn't this make more sense as a simple string rather than rich text?
     # TODO make elements into RichTextElement objects, rather than simple dict's
 
-    @classmethod
     def __init__(self, id, text=list()):
         """Initialize the object."""
         super().__init__("title", id)
         self.text = text
 
-    @classmethod
     def __str__(self):
         """Return a string representation of this object."""
         return "".join(chunk["plain_text"] for chunk in self.text)
 
-    @classmethod
     def to_json(self):
         """Convert this data type to JSON, suitable for sending to the API."""
         return {"type": self.type, "id": self.id, self.type: self.text}
@@ -251,17 +231,16 @@ class Title(PropertyValue):
         """Deserialize this data from a JSON object."""
         return Title(id=data["id"], text=data["title"])
 
-    @staticmethod
+    @classmethod
     def from_value(value):
         """Create a new Title from the native value."""
         text = [{"type": "text", "plain_text": value, "text": {"content": value}}]
-        return Title(id=None, text=text)
+        return cls(id=None, text=text)
 
 
 class SelectOne(PropertyValue):
     """Notion select type."""
 
-    @classmethod
     def __init__(self, id, name, option_id, color=None):
         """Initialize the object."""
         super().__init__("select", id)
@@ -273,7 +252,6 @@ class SelectOne(PropertyValue):
         self.option_id = option_id
         self.color = color
 
-    @classmethod
     def __str__(self):
         """Return a string representation of this object."""
         return self.name or self.option_id or ""
@@ -289,7 +267,6 @@ class SelectOne(PropertyValue):
 
         return SelectOne(id=data["id"], name=name, option_id=option_id, color=color)
 
-    @classmethod
     def to_json(self):
         """Convert this data type to JSON, suitable for sending to the API."""
         selected = {"id": self.option_id} if self.option_id else {"name": self.name}
@@ -300,10 +277,10 @@ class SelectOne(PropertyValue):
             "select": selected,
         }
 
-    @staticmethod
-    def from_value(value):
+    @classmethod
+    def from_value(cls, value):
         """Create a new SelectOne from the given string."""
-        return SelectOne(id=None, name=value, option_id=None)
+        return cls(id=None, name=value, option_id=None)
 
 
 property_type_map = {
