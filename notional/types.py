@@ -11,6 +11,7 @@ class DataObject(object):
     def __init__(self, data):
         self.__data__ = data
 
+
 class DataType(object):
     """Base class for Notion data types."""
 
@@ -54,7 +55,13 @@ class PropertyValue(DataType, ABC):
 
 
 class NativePropertyValue(PropertyValue):
-    """Wrapper for classes that support native type assignments."""
+    """Wrapper for classes that support native type assignments.
+
+    For example, things like strings and numbers are represented by standard Python
+    types.  This class makes assignment between the native Python type and the complex
+    Notion type look better.  In general, where native types are possible they should
+    be used in place of the complex type.
+    """
 
     def __init__(self, type, id, value):
         super().__init__(type, id)
@@ -130,6 +137,15 @@ class Date(PropertyValue):
         """Return a string representation of this object."""
         return f"{self.start} :: {self.end}"
 
+    def to_json(self):
+        """Convert this data type to JSON, suitable for sending to the API."""
+        return super().to_json(
+            date={
+                "start": self.start.isoformat(),
+                "end": self.end.isoformat() if self.end else None,
+            }
+        )
+
     @classmethod
     def from_json(cls, data):
         """Deserialize this data from a JSON object."""
@@ -150,15 +166,6 @@ class Date(PropertyValue):
     def from_value(cls, value):
         """Create a new Date from the native value."""
         return cls(id=None, start=value)
-
-    def to_json(self):
-        """Convert this data type to JSON, suitable for sending to the API."""
-        return super().to_json(
-            date={
-                "start": self.start.isoformat(),
-                "end": self.end.isoformat() if self.end else None,
-            }
-        )
 
     @staticmethod
     def parse_date_string(string):
@@ -293,12 +300,16 @@ def python_to_notion(value, cls):
 
     This will raise a TypeError if a conversion is not found.
     """
-    if isinstance(value, cls):
-        return value.to_json()
 
-    try:
-        obj = cls.from_value(value)
-    except NotImplementedError:
-        raise TypeError(f"Unsupported data type - {cls}")
+    # if the given value is already of the expected class type...
+    if isinstance(value, cls):
+        obj = value
+
+    # otherwise, ask the class to convert from the given value
+    else:
+        try:
+            obj = cls.from_value(value)
+        except NotImplementedError:
+            raise TypeError(f"Unsupported data type - {cls}")
 
     return obj.to_json()

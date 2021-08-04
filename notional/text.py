@@ -4,8 +4,8 @@
 class Annotations(object):
     """Style information for RichTextElement's."""
 
-    #bold = Attribute("bold", False)
-    #italic = Attribute("italic", False)
+    # bold = Attribute("bold", False)
+    # italic = Attribute("italic", False)
 
     def __init__(self):
         self.bold = False
