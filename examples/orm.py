@@ -3,10 +3,12 @@
 import os
 import sys
 import notional
+import logging
 
 from notional import types
-from notional.records import Page, Property
+from notional.blocks import Page, Property
 
+logging.basicConfig(level=logging.INFO)
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 
@@ -27,5 +29,6 @@ sort = {"direction": "ascending", "property": "Last Update"}
 for task in notion.query(Task).sort(sort).execute():
     print(f"{task.Title} => {task.Priority}")
 
-    task.Complete = True
+    task.Complete = False
+    task.Priority = "High"
     task.commit()

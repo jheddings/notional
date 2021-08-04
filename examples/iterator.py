@@ -3,8 +3,11 @@
 import os
 import sys
 import notional
+import logging
 
 from notional.iterator import EndpointIterator
+
+logging.basicConfig(level=logging.INFO)
 
 dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
