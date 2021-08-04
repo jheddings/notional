@@ -2,14 +2,20 @@
 from abc import ABC, abstractmethod
 from datetime import date, datetime
 
-from .text import RichTextElement
+from .text import RichTextElement, TextElement
 
 
-class NotionDataType(object):
+class DataObject(object):
+    """Base class for working with Notion data objects."""
+
+    def __init__(self, data):
+        self.__data__ = data
+
+class DataType(object):
     """Base class for Notion data types."""
 
-    def __init__(self, cls):
-        self.type = cls
+    def __init__(self, type):
+        self.type = type
 
     @classmethod
     def from_json(cls, data):
@@ -17,11 +23,11 @@ class NotionDataType(object):
         raise NotImplementedError()
 
 
-class PropertyValue(NotionDataType, ABC):
+class PropertyValue(DataType, ABC):
     """Base class for Notion properties."""
 
-    def __init__(self, cls, id):
-        super().__init__(cls)
+    def __init__(self, type, id):
+        super().__init__(type)
         self.id = id
 
     @abstractmethod
@@ -50,8 +56,8 @@ class PropertyValue(NotionDataType, ABC):
 class NativePropertyValue(PropertyValue):
     """Wrapper for classes that support native type assignments."""
 
-    def __init__(self, cls, id, value):
-        super().__init__(cls, id)
+    def __init__(self, type, id, value):
+        super().__init__(type, id)
         self.value = value
 
     def __repr__(self):
@@ -185,7 +191,7 @@ class Text(PropertyValue):
 
     @classmethod
     def from_value(cls, value):
-        """Create a new RichText from the native string value."""
+        """Create a new Text value from the native string value."""
         rtf = TextElement(text=value)
         return cls(id=None, text=[rtf])
 

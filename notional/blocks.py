@@ -12,7 +12,7 @@ from .iterator import EndpointIterator
 log = logging.getLogger(__name__)
 
 
-def Attribute(name, cls=str):
+def Attribute(name, cls=str, default=None):
     """Define a data attribute for a Notion Record.
 
     :param name: the attribute key in the Record
@@ -30,6 +30,9 @@ def Attribute(name, cls=str):
             return None
 
         value = self.__data__.get(name, None)
+
+        if value is None:
+            return default
 
         # TODO support type conversion
         return value
@@ -208,12 +211,20 @@ class Page(Record):
         log.info("Committing %d changes to page %s...", num_changes, page_id)
 
         if len(self._pending_props) > 0:
-            log.debug("=> committing %d properties...", len(self._pending_props))
+            log.debug(
+                "=> committing %d properties :: %s",
+                len(self._pending_props),
+                self._pending_props,
+            )
             self._session.pages.update(page_id, properties=self._pending_props)
             self._pending_props.clear()
 
         if len(self._pending_children) > 0:
-            log.debug("=> committing %d children...", len(self._pending_children))
+            log.debug(
+                "=> committing %d children :: %s",
+                len(self._pending_children),
+                self._pending_children,
+            )
             self._session.blocks.children.append(
                 block_id=page_id, children=self._pending_children
             )

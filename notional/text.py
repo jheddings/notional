@@ -2,7 +2,10 @@
 
 
 class Annotations(object):
-    """Style information for a RichTextElement."""
+    """Style information for RichTextElement's."""
+
+    #bold = Attribute("bold", False)
+    #italic = Attribute("italic", False)
 
     def __init__(self):
         self.bold = False
@@ -11,17 +14,6 @@ class Annotations(object):
         self.underline = False
         self.code = False
         self.color = None
-
-    def to_json(self):
-        """Convert this data type to JSON, suitable for sending to the API."""
-        return {
-            "bold": self.bold,
-            "italic": self.italic,
-            "strikethrough": self.strikethrough,
-            "underline": self.underline,
-            "code": self.code,
-            "color": self.color,
-        }
 
     @property
     def is_plain(self):
@@ -35,9 +27,20 @@ class Annotations(object):
             return False
         if self.code:
             return False
-        if self.color:
+        if self.color is not None:
             return False
         return True
+
+    def to_json(self):
+        """Convert this data type to JSON, suitable for sending to the API."""
+        return {
+            "bold": self.bold,
+            "italic": self.italic,
+            "strikethrough": self.strikethrough,
+            "underline": self.underline,
+            "code": self.code,
+            "color": self.color,
+        }
 
     @classmethod
     def from_json(cls, data):
@@ -66,7 +69,7 @@ class Annotations(object):
 
 
 class RichTextElement(object):
-    """Notion rich text element."""
+    """Base class for Notion rich text elements."""
 
     def __init__(self, type, text, style=None, href=None):
         self.type = type
@@ -78,9 +81,19 @@ class RichTextElement(object):
         """Return a string representation of this object."""
         return self.plain_text
 
-    def to_json(self):
+    def to_json(self, **fields):
         """Convert this data type to JSON, suitable for sending to the API."""
-        return {"type": self.type, "id": self.id, self.type: self.text}
+        data = {"type": self.type, "plain_text": self.plain_text}
+
+        if self.href:
+            data["href"] = self.href
+
+        if self.annotations:
+            data["annotations"] = self.annotations.to_json()
+
+        data.update(fields)
+
+        return data
 
     @classmethod
     def from_json(cls, data):
@@ -101,5 +114,16 @@ class RichTextElement(object):
 class TextElement(RichTextElement):
     """Notion text element."""
 
-    def __init__(self, text):
-        self.type = type
+    def __init__(self, text, style=None, href=None):
+        super().__init__("text", text, style, href)
+
+    def to_json(self):
+        data = super().to_json(text={"content": self.plain_text})
+
+        if self.href is not None:
+            data["link"] = {
+                "type": url,
+                "url": self.href,
+            }
+
+        return data
