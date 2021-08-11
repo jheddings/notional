@@ -24,10 +24,29 @@ class TypedObject(DataObject):
     attribute to ensure that the correct object is created.
     """
 
+    _subtypes_ = {}
+
     type: str
 
-    # using method found on pydantic feature request (#619)
-    # https://github.com/samuelcolvin/pydantic/issues/619#issuecomment-713508861
+    # following the method found in these examples:
+    # - https://github.com/samuelcolvin/pydantic/discussions/3091
+
+    def __init_subclass__(cls, type=None, **kwargs):
+        """Register the subtype by name for faster lookup."""
+        super().__init_subclass__(**kwargs)
+
+        if type is not None:
+            sub_type = type
+
+        elif hasattr(cls, "__type__"):
+            sub_type = getattr(cls, "__type__")
+
+        else:
+            sub_type = cls.__name__.lower()
+
+        log.debug("registered new subtype: %s => %s", sub_type, cls)
+
+        cls._subtypes_[sub_type] = cls
 
     @classmethod
     def __get_validators__(cls):
@@ -35,33 +54,28 @@ class TypedObject(DataObject):
 
     @classmethod
     def _convert_to_real_type_(cls, data):
+        """Instantiate the correct object based on the 'type' field."""
+
         data_type = data.get("type")
 
         if data_type is None:
             raise ValueError("Missing 'type' in TypedObject")
 
-        for sub in cls.__subclasses__():
-            if hasattr(sub, "type"):
-                sub_type = getattr(sub, "type")
-            elif hasattr(sub, "__type__"):
-                sub_type = getattr(sub, "__type__")
-            elif hasattr(sub, "__fields__"):
-                sub_type = sub.__fields__["type"].default
-            else:
-                raise TypeError("Unable to find 'type' identifier in class")
+        sub = cls._subtypes_.get(data_type)
 
-            if data_type == sub_type:
-                log.debug("converting type %s :: %s => %s", data_type, cls, sub)
-                return sub(**data)
+        if sub is None:
+            raise TypeError(f"Unsupport sub-type: {data_type}")
 
-        raise TypeError(f"Unsupport sub-type: {data_type}")
+        log.debug("converting type %s :: %s => %s", data_type, cls, sub)
+
+        return sub(**data)
 
 
 class NestedObject(DataObject):
     """Represents an API object with nested data.
 
-    These objects require a 'type' property in the outer data and a matching property
-    of the same name in the inner data.
+    These objects require a 'type' property and a matching property of the same
+    name, which holds additional data.
 
     For example, this contains a nested 'text' object:
 
@@ -76,5 +90,7 @@ class NestedObject(DataObject):
     Currently, this is a convenience class for clarity - it does not provide additional
     functionality at this time.
     """
+
+    # XXX can we somehow help provide pass-through access from the outer class?
 
     pass
