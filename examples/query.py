@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import sys
-import os
 import json
-import notional
 import logging
+import os
+import sys
+
+import notional
 
 logging.basicConfig(level=logging.INFO)
 

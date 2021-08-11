@@ -1,7 +1,8 @@
 """Provides an interactive query builder for Notion databases."""
 
-import logging
 import inspect
+import logging
+
 import notion_client
 
 from .iterator import EndpointIterator

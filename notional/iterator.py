@@ -1,7 +1,6 @@
 """Iterator classes for notional."""
 
 import logging
-
 from abc import ABC, abstractmethod
 
 CONTENT_PAGE_SIZE = 100

@@ -1,139 +1,116 @@
 """Wrapper for Notion API objects."""
 
 import logging
-
+from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Dict, List
 
-from .types import NativePropertyValue, RichText
-from .types import notion_to_python, python_to_notion
-
+from .core import DataObject, TypedObject
 from .iterator import EndpointIterator
+from .schema import PropertyObject, Schema
+from .types import (
+    NativePropertyValue,
+    PropertyValue,
+    RichText,
+    RichTextElement,
+    notion_to_python,
+    python_to_notion,
+)
 
 log = logging.getLogger(__name__)
 
 
-def Attribute(name, cls=str, default=None):
-    """Define a data attribute for a Notion Record.
+@dataclass
+class BlockRef(TypedObject):
+    """Reference another block."""
 
-    :param name: the attribute key in the Record
-    :param cls: the data type for the property
-    """
-
-    log.debug("creating new Attribute: %s", name)
-
-    def fget(self):
-        """Return the current value of the attribute."""
-        if not isinstance(self, Record):
-            raise TypeError("Attributes must be used in a Record object")
-
-        if self.__data__ is None:
-            return None
-
-        value = self.__data__.get(name, None)
-
-        if value is None:
-            return default
-
-        # TODO support type conversion
-        return value
-
-    return property(fget)
+    type: str
 
 
-def Property(name, cls=RichText, default=None):
-    """Define a property for a Notion Page object.
+@dataclass
+class DatabaseRef(BlockRef):
+    """Reference a database."""
 
-    These must be stored in the 'properties' attribute of the Notion data.
+    __type__ = "database_id"
 
-    :param name: the Notion table property name
-    :param cls: the data type for the property (default = RichText)
-    :param default: a default value when creating new objects
-    """
-
-    log.debug("creating new Property: %s", name)
-
-    def fget(self):
-        """Return the current value of the property as a python object."""
-        if not isinstance(self, Page):
-            raise TypeError("Properties must be used in a Page object")
-
-        data = self.get_property(name)
-        if data is None:
-            return default
-
-        value = notion_to_python(data)
-
-        if not isinstance(value, cls):
-            raise TypeError(
-                f"Type mismatch: expected '{cls}' but found '{type(value)}'"
-            )
-
-        # convert native objects to expected types
-        if isinstance(value, NativePropertyValue):
-            value = value.value
-
-        return value
-
-    def fset(self, value):
-        """Set the property to the given value."""
-        if not isinstance(self, Page):
-            raise TypeError("Properties must be used in a Page object")
-
-        # TODO only set the value if it has changed from the existing
-
-        try:
-            data = python_to_notion(value, cls)
-        except TypeError:
-            raise TypeError(
-                f"Type mismatch: expected '{cls}' but found '{type(value)}'"
-            )
-
-        # to change the value of a property, we simply need to update the value in the
-        # internal data structure...  future calls to fget will "do the right thing"
-
-        self.set_property(name, data)
-
-    return property(fget, fset)
+    database_id: str
 
 
-class Record(object):
-    """The base type for all API objects."""
+@dataclass
+class PageRef(BlockRef):
+    """Reference a page."""
 
-    id = Attribute("id")
-    object = Attribute("object")
-    created_time = Attribute("created_time", cls=datetime)
-    last_edited_time = Attribute("last_edited_time", cls=datetime)
+    __type__ = "page_id"
 
-    def __init__(self, session, **data):
-        """Initialize the Record object.
-
-        :param session: the active Notion SDK session
-        :param data: the raw data from the API for this record
-        """
-        self._session = session
-        self.__data__ = data
-
-    # TODO - update this object from the Notion API
-    # def refresh(self):
+    page_id: str
 
 
-class Database(Record):
+@dataclass
+class WorkspaceRef(BlockRef):
+    """Reference the workspace."""
+
+    __type__ = "workspace"
+
+    workspace: bool = True
+
+
+@dataclass
+class UrlRef(BlockRef):
+    """Reference a URL."""
+
+    __type__ = "url"
+
+    url: str = None
+
+
+@dataclass
+class Block(DataObject):
+    """The base type for all Notion blocks."""
+
+    object: str = "block"
+    id: str = None
+    created_time: datetime = None
+    last_edited_time: datetime = None
+    has_children: bool = False
+
+    # TODO - update this object from the given data
+    # def update(self, **data):
+
+
+@dataclass
+class Database(Block):
     """A database record type."""
 
-    title = Attribute("title")
-    parent = None  # TODO lazy-load reference
+    object: str = "database"
+    title: List[RichText] = None
+    parent: BlockRef = None
+    properties: Schema = field(default_factory=Schema)
+
+    @classmethod
+    def from_json(cls, data):
+        if "title" in data and data["title"] is not None:
+            data["title"] = [RichTextElement.from_json(text) for text in data["title"]]
+
+        if "properties" in data and data["properties"] is not None:
+            data["properties"] = {
+                key: PropertyObject.from_json(prop)
+                for key, prop in data["properties"].items()
+            }
+
+        return super().from_json(data)
 
 
-class Page(Record):
+@dataclass
+class Page(Block):
     """A standard Notion page object."""
 
-    archived = Attribute("archived", cls=bool)
-    parent = None  # TODO lazy-load reference
+    object: str = "page"
+    archived: bool = False
+    parent: BlockRef = None
+    url: str = None
+    properties: Dict[str, PropertyValue] = field(default_factory=dict)
 
-    def __init__(self, session, **data):
-        """Initialize the Record object."""
-        super().__init__(session, **data)
-
+    def __post_init__(self):
         self._pending_props = dict()
         self._pending_children = list()
 
@@ -155,14 +132,28 @@ class Page(Record):
         self.append(child)
 
     @property
+    def Title(self):
+        # TODO would it be better to return an empty object for setting?
+        if self.properties is None:
+            return None
+
+        for prop in self.properties:
+            if prop.id == "title":
+                return prop
+
+        return None
+
+    @property
     def children(self):
         """Return an iterator for all child blocks of this Page."""
+
         return EndpointIterator(
             endpoint=self._session.blocks.children.list, block_id=self.id
         )
 
     def get_property(self, name):
         """Return the raw API data for the given property name."""
+
         if self.__data__ is None:
             return None
 
@@ -174,6 +165,7 @@ class Page(Record):
 
     def set_property(self, name, value):
         """Set the raw data for the given property name."""
+
         if self.__data__ is None:
             self.__data__ = dict()
 
@@ -197,10 +189,14 @@ class Page(Record):
         self._pending_props[name] = prop
 
     def append(self, *children):
-        self._pending_children.extend(children)
+        """Append the given blocks as children of this Page."""
+        if children is not None and len(children) > 0:
+            self._pending_children.extend(children)
+            self.has_children = True
 
     def commit(self):
         """Commit any pending changes to this Page object."""
+
         num_changes = len(self._pending_props) + len(self._pending_children)
 
         if num_changes == 0:

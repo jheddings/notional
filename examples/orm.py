@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
+import logging
 import os
 import sys
-import notional
-import logging
 
+import notional
 from notional import types
 from notional.blocks import Page, Property
 

@@ -25,6 +25,7 @@ publish: build
 .PHONY: preflight
 
 preflight: venv-configured
+	isort "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests"
 	black "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests"
 
 ################################################################################

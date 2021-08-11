@@ -6,19 +6,15 @@ import sys
 
 import notional
 from notional.iterator import EndpointIterator
+from notional.user import User
 
 logging.basicConfig(level=logging.INFO)
 
-dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
-
 notion = notional.connect(auth=auth_token)
 
-tasks = EndpointIterator(
-    endpoint=notion.databases.query,
-    database_id=dbid,
-    sorts=[{"direction": "ascending", "property": "Last Update"}],
-)
+users = EndpointIterator(endpoint=notion.users.list)
 
-for data in tasks:
-    print(f"{data['id']} => {data['url']}")
+for user_data in users:
+    user = User.from_json(user_data)
+    print(f"{user.name} => {user.type}")

@@ -1,11 +1,15 @@
 """Wrapper for Notion API data types."""
-from datetime import date, datetime
 
+from dataclasses import dataclass, field
+from datetime import date, datetime
+from typing import Dict, List, Union
+
+from .core import DataObject
 from .text import RichTextElement, TextElement
 
 
 class PropertyValue(object):
-    """Base class for Notion properties."""
+    """Base class for Notion property values."""
 
     def __init__(self, type, id):
         self.type = type
