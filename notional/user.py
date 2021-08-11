@@ -2,7 +2,7 @@
 
 import logging
 
-from .core import TypedObject, NestedObject
+from .core import NestedObject, TypedObject
 
 log = logging.getLogger(__name__)
 

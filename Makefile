@@ -10,9 +10,14 @@ VENVDIR ?= $(BASEDIR)/.venv
 #TWINE_REPO ?= --repository-url https://test.pypi.org/legacy/
 
 ################################################################################
+.PHONY: all
+
+all: build test
+
+################################################################################
 .PHONY: build
 
-build: venv-configured preflight
+build: venv-configured preflight test
 	python3 setup.py sdist bdist_wheel
 
 ################################################################################
@@ -27,6 +32,12 @@ publish: build
 preflight: venv-configured
 	isort "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests"
 	black "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests"
+
+################################################################################
+.PHONY: test
+
+test: venv-configured
+	python3 -m unittest discover -v -s "$(BASEDIR)/tests"
 
 ################################################################################
 .PHONY: venv
