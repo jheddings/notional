@@ -17,4 +17,4 @@ users = EndpointIterator(endpoint=notion.users.list)
 
 for user_data in users:
     user = User(**user_data)
-    print(f"{user.name} => {user.type}")
+    print(f"{user.name} => {user.type} :: {type(user)}")

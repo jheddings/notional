@@ -61,12 +61,11 @@ class RichTextObject(TypedObject):
 class TextObject(RichTextObject):
     """Notion text element."""
 
-    __type__ = "text"
-
     class NestedText(NestedObject):
         content: str
         link: LinkObject = None
 
+    type: str = "text"
     text: NestedText = None
 
     def __str__(self):
@@ -85,8 +84,6 @@ class PageRef(DataObject):
 class MentionObject(RichTextObject):
     """Notion mention element."""
 
-    __type__ = "mention"
-
     class NestedMention(NestedObject, TypedObject):
         pass
 
@@ -99,17 +96,17 @@ class MentionObject(RichTextObject):
     class MentionDatabase(NestedMention):
         database: PageRef
 
+    type: str = "mention"
     mention: NestedMention = None
 
 
 class EquationObject(RichTextObject):
     """Notion equation element."""
 
-    __type__ = "equation"
-
     class NestedEquation(NestedObject):
         expression: str
 
+    type: str = "equation"
     equation: NestedEquation = None
 
     def __str__(self):
@@ -141,8 +138,7 @@ class PropertyValue(TypedObject):
 class Title(PropertyValue):
     """Notion title type."""
 
-    __type__ = "title"
-
+    type: str = "title"
     title: List[RichTextObject] = []
 
     def __str__(self):
@@ -157,8 +153,7 @@ class Title(PropertyValue):
 class RichText(PropertyValue):
     """Notion rich text type."""
 
-    __type__ = "rich_text"
-
+    type: str = "rich_text"
     rich_text: List[RichTextObject] = []
 
     def __str__(self):
@@ -173,8 +168,7 @@ class RichText(PropertyValue):
 class Number(PropertyValue):
     """Simple number type."""
 
-    __type__ = "number"
-
+    type: str = "number"
     number: Union[int, float] = None
 
     def __str__(self):
@@ -206,8 +200,7 @@ class Number(PropertyValue):
 class Checkbox(PropertyValue):
     """Simple checkbox type; represented as a boolean."""
 
-    __type__ = "checkbox"
-
+    type: str = "checkbox"
     checkbox: bool = None
 
     def __str__(self):
@@ -231,12 +224,11 @@ class Checkbox(PropertyValue):
 class Date(PropertyValue):
     """Notion complex date type - may include timestamp and/or be a date range."""
 
-    __type__ = "date"
-
     class NestedDate(NestedObject):
         start: Union[date, datetime]
         end: Optional[Union[date, datetime]] = None
 
+    type: str = "date"
     date: NestedDate = None
 
     def __str__(self):
@@ -260,8 +252,7 @@ class Date(PropertyValue):
 class SelectOne(PropertyValue):
     """Notion select type."""
 
-    __type__ = "select"
-
+    type: str = "select"
     select: SelectOption = None
 
     def __post_init__(self):
@@ -285,8 +276,7 @@ class SelectOne(PropertyValue):
 class MultiSelect(PropertyValue):
     """Notion multi-select type."""
 
-    __type__ = "multi_select"
-
+    type: str = "multi_select"
     multi_select: List[SelectOption] = []
 
     def __str__(self):
@@ -300,26 +290,26 @@ class MultiSelect(PropertyValue):
 
 
 class People(PropertyValue):
-    __type__ = "people"
 
+    type: str = "people"
     people: List[User] = []
 
 
 class URL(PropertyValue):
-    __type__ = "url"
 
+    type: str = "url"
     url: str = None
 
 
 class Email(PropertyValue):
-    __type__ = "email"
 
+    type: str = "email"
     email: str = None
 
 
 class PhoneNumber(PropertyValue):
-    __type__ = "phone_number"
 
+    type: str = "phone_number"
     phone_number: str = None
 
 
@@ -328,56 +318,56 @@ class FormulaObject(TypedObject):
 
 
 class StringFormula(FormulaObject):
-    __type__ = "string"
 
+    type: str = "string"
     string: str = None
 
 
 class NumberFormula(FormulaObject):
-    __type__ = "number"
 
+    type: str = "number"
     string: Union[int, float] = None
 
 
 class DateFormula(FormulaObject):
-    __type__ = "date"
 
+    type: str = "date"
     date: Date = None
 
 
 class Formula(PropertyValue):
-    __type__ = "formula"
 
+    type: str = "formula"
     formula: FormulaObject = None
 
 
 class Relation(PropertyValue):
-    __type__ = "relation"
 
+    type: str = "relation"
     relation: List[str] = []
 
 
 class CreatedTime(PropertyValue):
-    __type__ = "created_time"
 
+    type: str = "created_time"
     created_time: datetime = None
 
 
 class CreatedBy(PropertyValue):
-    __type__ = "created_by"
 
+    type: str = "created_by"
     created_by: User = None
 
 
 class LastEditedTime(PropertyValue):
-    __type__ = "last_edited_time"
 
+    type: str = "last_edited_time"
     last_edited_time: datetime = None
 
 
 class LastEditedBy(PropertyValue):
-    __type__ = "last_edited_by"
 
+    type: str = "last_edited_by"
     last_edited_by: User = None
 
 

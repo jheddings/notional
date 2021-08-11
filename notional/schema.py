@@ -19,27 +19,24 @@ Schema = Dict[str, PropertyObject]
 class TitleProperty(PropertyObject):
     """Defines the title configuration for a database property."""
 
-    __type__ = "title"
-
+    type: str = "title"
     title: Any = None
 
 
 class RichTextProperty(PropertyObject):
     """Defines the rich text configuration for a database property."""
 
-    __type__ = "rich_text"
-
+    type: str = "rich_text"
     rich_text: Any = None
 
 
 class NumberProperty(PropertyObject):
     """Defines the number configuration for a database property."""
 
-    __type__ = "number"
-
     class NestedNumber(NestedObject):
         format: str = "number"
 
+    type: str = "number"
     number: NestedNumber = None
 
 
@@ -54,109 +51,96 @@ class SelectOption(DataObject):
 class SelectProperty(PropertyObject):
     """Defines the select configuration for a database property."""
 
-    __type__ = "select"
-
     class NestedSelect(NestedObject):
         options: List[SelectOption] = []
 
+    type: str = "select"
     select: NestedSelect = None
 
 
 class MultiSelectProperty(PropertyObject):
     """Defines the multi-select configuration for a database property."""
 
-    __type__ = "multi_select"
-
     class NestedSelect(NestedObject):
         options: List[SelectOption] = []
 
+    type: str = "multi_select"
     multi_select: NestedSelect = None
 
 
 class DateProperty(PropertyObject):
     """Defines the date configuration for a database property."""
 
-    __type__ = "date"
-
+    type: str = "date"
     date: Any = None
 
 
 class PeopleProperty(PropertyObject):
     """Defines the people configuration for a database property."""
 
-    __type__ = "people"
-
+    type: str = "people"
     people: Any = None
 
 
 class FilesProperty(PropertyObject):
     """Defines the files configuration for a database property."""
 
-    __type__ = "files"
-
+    type: str = "files"
     files: Any = None
 
 
 class CheckboxProperty(PropertyObject):
     """Defines the checkbox configuration for a database property."""
 
-    __type__ = "checkbox"
-
+    type: str = "checkbox"
     checkbox: Any = None
 
 
 class EmailProperty(PropertyObject):
     """Defines the email configuration for a database property."""
 
-    __type__ = "email"
-
+    type: str = "email"
     email: Any = None
 
 
 class UrlProperty(PropertyObject):
     """Defines the URL configuration for a database property."""
 
-    __type__ = "url"
-
+    type: str = "url"
     url: Any = None
 
 
 class PhoneNumber(PropertyObject):
     """Defines the phone number configuration for a database property."""
 
-    __type__ = "phone_number"
-
+    type: str = "phone_number"
     phone_number: Any = None
 
 
 class FormulaProperty(PropertyObject):
     """Defines the formula configuration for a database property."""
 
-    __type__ = "formula"
-
     class NestedFormula(NestedObject):
         expression: str
 
+    type: str = "formula"
     formula: NestedFormula = None
 
 
 class RelationProperty(PropertyObject):
     """Defines the relation configuration for a database property."""
 
-    __type__ = "relation"
-
     class NestedRelation(NestedObject):
         database_id: str
         synced_property_name: str = None
         synced_property_id: str = None
 
+    type: str = "relation"
     relation: NestedRelation = None
 
 
 class RollupProperty(PropertyObject):
     """Defines the rollup configuration for a database property."""
-
-    __type__ = "rollup"
 
     class NestedRollup(NestedObject):
         relation_property_name: str
@@ -165,36 +149,33 @@ class RollupProperty(PropertyObject):
         rollup_property_id: str
         function: str
 
+    type: str = "rollup"
     rollup: NestedRollup = None
 
 
 class CreatedTimeProperty(PropertyObject):
     """Defines the created-time configuration for a database property."""
 
-    __type__ = "created_time"
-
+    type: str = "created_time"
     created_time: Any = None
 
 
 class CreatedByProperty(PropertyObject):
     """Defines the created-by configuration for a database property."""
 
-    __type__ = "created_by"
-
+    type: str = "created_by"
     created_by: Any = None
 
 
 class LastEditedByProperty(PropertyObject):
     """Defines the last-edited-by configuration for a database property."""
 
-    __type__ = "last_edited_by"
-
+    type: str = "last_edited_by"
     last_edited_by: Any = None
 
 
 class LastEditedTimeProperty(PropertyObject):
     """Defines the last-edited-time configuration for a database property."""
 
-    __type__ = "last_edited_time"
-
+    type: str = "last_edited_time"
     last_edited_time: Any = None

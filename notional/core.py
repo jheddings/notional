@@ -20,8 +20,8 @@ class TypedObject(DataObject):
     """A type-referenced object.
 
     Many objects in the Notion API follow a generic->specific pattern with a 'type'
-    parameter followed by additional data.  These objects require a `__type__` attribute
-    to ensure that the correct object is created.
+    parameter followed by additional data.  These objects must specify a `type`
+    attribute to ensure that the correct object is created.
     """
 
     type: str
@@ -41,7 +41,16 @@ class TypedObject(DataObject):
             raise ValueError("Missing 'type' in TypedObject")
 
         for sub in cls.__subclasses__():
-            if data_type == sub.__type__:
+            if hasattr(sub, "type"):
+                sub_type = getattr(sub, "type")
+            elif hasattr(sub, "__type__"):
+                sub_type = getattr(sub, "__type__")
+            elif hasattr(sub, "__fields__"):
+                sub_type = sub.__fields__["type"].default
+            else:
+                raise TypeError("Unable to find 'type' identifier in class")
+
+            if data_type == sub_type:
                 log.debug("converting type %s :: %s => %s", data_type, cls, sub)
                 return sub(**data)
 

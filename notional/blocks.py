@@ -23,24 +23,21 @@ class BlockRef(TypedObject):
 class DatabaseRef(BlockRef):
     """Reference a database."""
 
-    __type__ = "database_id"
-
+    type: str = "database_id"
     database_id: str
 
 
 class PageRef(BlockRef):
     """Reference a page."""
 
-    __type__ = "page_id"
-
+    type: str = "page_id"
     page_id: str
 
 
 class WorkspaceRef(BlockRef):
     """Reference the workspace."""
 
-    __type__ = "workspace"
-
+    type: str = "workspace"
     workspace: bool = True
 
 

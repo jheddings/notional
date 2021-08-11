@@ -6,6 +6,7 @@ import os
 import sys
 
 import notional
+from notional.blocks import DatabaseRef
 
 logging.basicConfig(level=logging.INFO)
 

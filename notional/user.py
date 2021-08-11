@@ -2,17 +2,16 @@
 
 import logging
 
-from .core import DataObject, NestedObject
+from .core import TypedObject, NestedObject
 
 log = logging.getLogger(__name__)
 
 
-class User(DataObject):
+class User(TypedObject):
     """Represents a User in Notion."""
 
     object: str = "user"
     id: str = None
-    type: str = None
     name: str = None
     avatar_url: str = None
 
@@ -23,10 +22,8 @@ class Person(User):
     class NestedPerson(NestedObject):
         email: str
 
+    type: str = "person"
     person: NestedPerson = None
-
-    def __post_init__(self):
-        self.type = "person"
 
     def __getitem__(self, key):
         return self.person[key]
@@ -38,10 +35,8 @@ class Bot(User):
     class NestedBot(NestedObject):
         pass
 
+    type: str = "bot"
     bot: NestedBot = None
-
-    def __post_init__(self):
-        self.type = "bot"
 
     def __getitem__(self, key):
         return self.bot[key]
