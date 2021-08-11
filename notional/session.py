@@ -47,22 +47,22 @@ class Session(object):
     def page(self, page_id):
         """Returns the Page with the given ID."""
         data = self.pages.retrieve(page_id)
-        return Page.from_json(data)
+        return Page(**data)
 
     def database(self, database_id):
         """Returns the Database with the given ID."""
         data = self.databases.retrieve(database_id)
-        return Database.from_json(data)
+        return Database(**data)
 
     def user(self, user_id):
         """Returns the User with the given ID."""
         data = self.users.retrieve(user_id)
-        return User.from_json(data)
+        return User(**data)
 
     def block(self, block_id):
         """Returns the Block with the given ID."""
         data = self.blocks.retrieve(block_id)
-        return Block.from_json(data)
+        return Block(**data)
 
     def query(self, target):
         """Initialized a new Query object with the target data class.

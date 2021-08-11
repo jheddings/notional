@@ -1,70 +1,53 @@
 """Base classes for working with the Notion API."""
 
-import dataclasses
 import logging
-from dataclasses import dataclass, is_dataclass
+
+from pydantic import BaseModel
 
 log = logging.getLogger(__name__)
 
 
-class DataObject(object):
+class DataObject(BaseModel):
     """The base for all API objects."""
 
-    def to_json(self):
-        """Convert this data type to JSON, suitable for sending to the Notion API."""
-        if is_dataclass(self):
-            return dataclasses.asdict(self)
+    class Config:
+        """pydantic model configuration"""
 
-        raise TypeError("unable to convert object to JSON")
-
-    @classmethod
-    def from_json(cls, data):
-        """Deserialize this data from a JSON object, typically from the Notion API."""
-        print(data)
-        if is_dataclass(cls):
-            return cls._expand_dataclass(data)
-
-        raise TypeError("unable to convert JSON to object")
-
-    @classmethod
-    def _expand_dataclass(cls, data):
-        """Convert data in dict to more complex data classes."""
-
-        # replace simple types with complex types where posssible...
-        for field in dataclasses.fields(cls):
-            log.debug("expanding %s => %s", field.name, field.type)
-
-            # TODO find a way to handle List and Dict types automatically...
-
-            convert = getattr(field.type, "from_json", None)
-            if convert is not None and callable(convert):
-                raw = data.get(field.name)
-                rich = convert(raw)
-                data[field.name] = rich
-
-                log.debug("converted %s => %s", field.type, rich)
-
-        return cls(**data)
+        underscore_attrs_are_private = False
 
 
-@dataclass
 class TypedObject(DataObject):
+    """A type-referenced object.
+
+    Many objects in the Notion API follow a generic->specific pattern with a 'type'
+    parameter followed by additional data.  These objects require a `__type__` attribute
+    to ensure that the correct object is created.
+    """
+
+    type: str
+
+    # using method found on pydantic feature request (#619)
+    # https://github.com/samuelcolvin/pydantic/issues/619#issuecomment-713508861
+
     @classmethod
-    def from_json(cls, data):
-        """Override the default method to provide a factory for subclass types."""
+    def __get_validators__(cls):
+        yield cls._convert_to_real_type_
 
-        # prevent infinite loops from subclasses...
-        if issubclass(cls, TypedObject):
-            data_type = data.get("type")
+    @classmethod
+    def _convert_to_real_type_(cls, data):
+        data_type = data.get("type")
 
-            for sub in cls.__subclasses__():
-                if data_type == sub.__type__:
-                    return sub.from_json(data)
+        if data_type is None:
+            raise ValueError("Missing 'type' in TypedObject")
 
-        return super().from_json(data)
+        for sub in cls.__subclasses__():
+            if data_type == sub.__type__:
+                log.debug("converting type %s :: %s => %s", data_type, cls, sub)
+                return sub(**data)
+
+        raise TypeError(f"Unsupport sub-type: {data_type}")
 
 
-@dataclass
 class NestedObject(DataObject):
     """Represents an API object with nested data.
 

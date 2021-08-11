@@ -16,5 +16,5 @@ notion = notional.connect(auth=auth_token)
 users = EndpointIterator(endpoint=notion.users.list)
 
 for user_data in users:
-    user = User.from_json(user_data)
+    user = User(**user_data)
     print(f"{user.name} => {user.type}")

@@ -1,14 +1,12 @@
 """Wrapper for Notion User objects."""
 
 import logging
-from dataclasses import dataclass
 
 from .core import DataObject, NestedObject
 
 log = logging.getLogger(__name__)
 
 
-@dataclass
 class User(DataObject):
     """Represents a User in Notion."""
 
@@ -18,28 +16,10 @@ class User(DataObject):
     name: str = None
     avatar_url: str = None
 
-    @classmethod
-    def from_json(cls, data):
-        """Override the default method to provide a factory for subclass types."""
 
-        # prevent infinite loops from subclasses...
-        if cls == User:
-            data_type = data.get("type")
-
-            if data_type == "person":
-                return Person.from_json(data)
-
-            if data_type == "bot":
-                return Bot.from_json(data)
-
-        return super().from_json(data)
-
-
-@dataclass
 class Person(User):
     """Represents a Person in Notion."""
 
-    @dataclass
     class NestedPerson(NestedObject):
         email: str
 
@@ -52,11 +32,9 @@ class Person(User):
         return self.person[key]
 
 
-@dataclass
 class Bot(User):
     """Represents a Bot in Notion."""
 
-    @dataclass
     class NestedBot(NestedObject):
         pass
 

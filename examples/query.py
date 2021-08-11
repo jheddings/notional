@@ -13,7 +13,7 @@ dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 notion = notional.connect(auth=auth_token)
-sort = {"direction": "ascending", "property": "Last Update"}
+sort = {"direction": "ascending", "property": "Title"}
 
 query = notion.query(dbid).sort(sort)
 

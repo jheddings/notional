@@ -1,33 +1,25 @@
 """Wrapper for Notion API objects."""
 
 import logging
-from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict, List
 
 from .core import DataObject, TypedObject
 from .iterator import EndpointIterator
-from .schema import PropertyObject, Schema
-from .types import (
-    NativePropertyValue,
-    PropertyValue,
-    RichText,
-    RichTextElement,
-    notion_to_python,
-    python_to_notion,
-)
+from .schema import Schema
+from .types import PropertyValue, RichTextObject
 
 log = logging.getLogger(__name__)
 
 
-@dataclass
 class BlockRef(TypedObject):
     """Reference another block."""
 
-    type: str
+    pass
+
+    # TODO method / property to resolve the reference?
 
 
-@dataclass
 class DatabaseRef(BlockRef):
     """Reference a database."""
 
@@ -36,7 +28,6 @@ class DatabaseRef(BlockRef):
     database_id: str
 
 
-@dataclass
 class PageRef(BlockRef):
     """Reference a page."""
 
@@ -45,7 +36,6 @@ class PageRef(BlockRef):
     page_id: str
 
 
-@dataclass
 class WorkspaceRef(BlockRef):
     """Reference the workspace."""
 
@@ -54,16 +44,6 @@ class WorkspaceRef(BlockRef):
     workspace: bool = True
 
 
-@dataclass
-class UrlRef(BlockRef):
-    """Reference a URL."""
-
-    __type__ = "url"
-
-    url: str = None
-
-
-@dataclass
 class Block(DataObject):
     """The base type for all Notion blocks."""
 
@@ -77,30 +57,19 @@ class Block(DataObject):
     # def update(self, **data):
 
 
-@dataclass
 class Database(Block):
     """A database record type."""
 
     object: str = "database"
-    title: List[RichText] = None
+    title: List[RichTextObject] = None
     parent: BlockRef = None
-    properties: Schema = field(default_factory=Schema)
+    properties: Schema = None
 
-    @classmethod
-    def from_json(cls, data):
-        if "title" in data and data["title"] is not None:
-            data["title"] = [RichTextElement.from_json(text) for text in data["title"]]
-
-        if "properties" in data and data["properties"] is not None:
-            data["properties"] = {
-                key: PropertyObject.from_json(prop)
-                for key, prop in data["properties"].items()
-            }
-
-        return super().from_json(data)
+    @property
+    def Title(self):
+        return None if self.title is None else "".join(str(text) for text in self.title)
 
 
-@dataclass
 class Page(Block):
     """A standard Notion page object."""
 
@@ -108,7 +77,7 @@ class Page(Block):
     archived: bool = False
     parent: BlockRef = None
     url: str = None
-    properties: Dict[str, PropertyValue] = field(default_factory=dict)
+    properties: Dict[str, PropertyValue] = None
 
     def __post_init__(self):
         self._pending_props = dict()
@@ -137,7 +106,7 @@ class Page(Block):
         if self.properties is None:
             return None
 
-        for prop in self.properties:
+        for prop in self.properties.values():
             if prop.id == "title":
                 return prop
 
@@ -154,10 +123,13 @@ class Page(Block):
     def get_property(self, name):
         """Return the raw API data for the given property name."""
 
+        log.debug("get property :: {%s} %s", self.id, name)
+
         if self.__data__ is None:
             return None
 
         props = self.__data__.get("properties", None)
+
         if props is None:
             return None
 
@@ -166,10 +138,10 @@ class Page(Block):
     def set_property(self, name, value):
         """Set the raw data for the given property name."""
 
+        log.debug("set property :: {%s} %s => %s", self.id, name, value)
+
         if self.__data__ is None:
             self.__data__ = dict()
-
-        log.debug("set property :: {%s} %s => %s", self.id, name, value)
 
         props = self.__data__.get("properties")
 

@@ -6,13 +6,13 @@ import sys
 
 import notional
 from notional import types
-from notional.blocks import Page, Property
+from notional.orm import CustomPage, Property
 
 logging.basicConfig(level=logging.INFO)
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 
-class Task(Page):
+class Task(CustomPage):
     """Defines a Task data type for a Notion page."""
 
     __database__ = sys.argv[1]
@@ -26,7 +26,7 @@ class Task(Page):
 
 
 notion = notional.connect(auth=auth_token)
-sort = {"direction": "ascending", "property": "Last Update"}
+sort = {"direction": "ascending", "property": "Title"}
 
 for task in notion.query(Task).sort(sort).execute():
     print(f"== {task.Title} ==")

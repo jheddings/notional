@@ -1,35 +1,136 @@
 """Wrapper for Notion API data types."""
 
-from dataclasses import dataclass, field
 from datetime import date, datetime
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
-from .core import DataObject
-from .text import RichTextElement, TextElement
+from .core import DataObject, NestedObject, TypedObject
+from .schema import SelectOption
+from .user import User
 
 
-class PropertyValue(object):
-    """Base class for Notion property values."""
+class Annotations(DataObject):
+    """Style information for RichTextObject's."""
 
-    def __init__(self, type, id):
-        self.type = type
-        self.id = id
+    bold: bool = False
+    italic: bool = False
+    strikethrough: bool = False
+    underline: bool = False
+    code: bool = False
+    color: str = None
 
-    def to_json(self, **fields):
-        """Serialize this value as a JSON object."""
+    @property
+    def is_plain(self):
+        if self.bold:
+            return False
+        if self.italic:
+            return False
+        if self.strikethrough:
+            return False
+        if self.underline:
+            return False
+        if self.code:
+            return False
+        if self.color is not None:
+            return False
+        return True
 
-        # XXX it would be nice to leave id out of here if it is None, however
-        # that causes problems for the to/from methods later on...
-        data = {"type": self.type, "id": self.id}
 
-        data.update(fields)
+class LinkObject(DataObject):
+    """Reference a URL."""
 
-        return data
+    type: str = "url"
+    url: str = None
+
+
+class RichTextObject(TypedObject):
+    """Base class for Notion rich text elements."""
+
+    plain_text: str
+    href: str = None
+    annotations: Annotations = None
+
+    def __str__(self):
+        """Return a string representation of this object."""
+
+        if self.href is None:
+            return self.plain_text
+
+        return f"[{self.plain_text}]({self.href})"
+
+
+class TextObject(RichTextObject):
+    """Notion text element."""
+
+    __type__ = "text"
+
+    class NestedText(NestedObject):
+        content: str
+        link: LinkObject = None
+
+    text: NestedText = None
+
+    def __str__(self):
+        """Return a string representation of this object."""
+
+        if self.text is None:
+            return None
+
+        return self.text.content
+
+
+class PageRef(DataObject):
+    id: str
+
+
+class MentionObject(RichTextObject):
+    """Notion mention element."""
+
+    __type__ = "mention"
+
+    class NestedMention(NestedObject, TypedObject):
+        pass
+
+    class MentionUser(NestedMention):
+        user: User
+
+    class MentionPage(NestedMention):
+        page: PageRef
+
+    class MentionDatabase(NestedMention):
+        database: PageRef
+
+    mention: NestedMention = None
+
+
+class EquationObject(RichTextObject):
+    """Notion equation element."""
+
+    __type__ = "equation"
+
+    class NestedEquation(NestedObject):
+        expression: str
+
+    equation: NestedEquation = None
+
+    def __str__(self):
+        """Return a string representation of this object."""
+
+        if self.equation is None:
+            return None
+
+        return self.equation.expression
 
     @classmethod
-    def from_json(cls, data):
-        """Deserialize this property from a JSON object."""
-        raise NotImplementedError()
+    def from_value(cls, value):
+        """Create a new Equation mention from the given LaTeX string."""
+        inner = NestedEquation(expression=value)
+        return cls(equation=inner)
+
+
+class PropertyValue(TypedObject):
+    """Base class for Notion property values."""
+
+    id: str = None
 
     @classmethod
     def from_value(cls, value):
@@ -37,129 +138,250 @@ class PropertyValue(object):
         raise NotImplementedError()
 
 
-class NativePropertyValue(PropertyValue):
-    """Wrapper for classes that support native type assignments.
+class Title(PropertyValue):
+    """Notion title type."""
 
-    For example, things like strings and numbers are represented by standard Python
-    types.  This class makes assignment between the native Python type and the complex
-    Notion type look better.  In general, where native types are possible they should
-    be used in place of the complex type.
-    """
+    __type__ = "title"
 
-    def __init__(self, type, id, value):
-        super().__init__(type, id)
-        self.value = value
-
-    def __repr__(self):
-        """Return an explicit representation of this object."""
-        return self.value
+    title: List[RichTextObject] = []
 
     def __str__(self):
         """Return a string representation of this object."""
-        return str(self.value)
+
+        if self.title is None:
+            return None
+
+        return "".join(str(text) for text in self.title)
+
+
+class RichText(PropertyValue):
+    """Notion rich text type."""
+
+    __type__ = "rich_text"
+
+    rich_text: List[RichTextObject] = []
+
+    def __str__(self):
+        """Return a string representation of this object."""
+
+        if self.rich_text is None:
+            return None
+
+        return "".join(str(rich_text) for text in self.rich_text)
+
+
+class Number(PropertyValue):
+    """Simple number type."""
+
+    __type__ = "number"
+
+    number: Union[int, float] = None
+
+    def __str__(self):
+        """Return a string representation of this object."""
+        return str(self.number)
 
     def __eq__(self, other):
-        """Determine if this property is equal to the given object.
-
-        The objects are considered equal if the value wrapped in this property is
-        equal to the provided value.
-        """
-        return self.value == other
+        """Determine if this property is equal to the given object."""
+        return self.number == other
 
     def __ne__(self, other):
-        """Determine if this property is not equal to the given object.
+        """Determine if this property is not equal to the given object."""
+        return self.number != other
 
-        The objects are considered unequal if the value wrapped in this property is
-        unequal to the provided value.
-        """
-        return self.value != other
+    def __iadd__(self, other):
+        """Add the given value to this Number."""
+        self.number += other
 
-    def to_json(self):
-        """Convert this data type to JSON, suitable for sending to the API."""
-        return super().to_json(**{self.type: self.value})
+    def __isub__(self, other):
+        """Subtract the given value from this Number."""
+        self.number -= other
 
     @classmethod
     def from_value(cls, value):
-        """Create a new value from the native value."""
-        return cls(id=None, value=value)
+        """Create a new Number from the native value."""
+        return cls(number=value)
 
 
-class Number(NativePropertyValue):
-    """Simple number type."""
-
-    def __init__(self, id, value=None):
-        super().__init__("number", id, value)
-
-    @classmethod
-    def from_json(cls, data):
-        """Deserialize this data from a JSON object."""
-        return cls(id=data["id"], value=data["number"])
-
-
-class Checkbox(NativePropertyValue):
+class Checkbox(PropertyValue):
     """Simple checkbox type; represented as a boolean."""
 
-    def __init__(self, id, value=False):
-        super().__init__("checkbox", id, value)
+    __type__ = "checkbox"
+
+    checkbox: bool = None
+
+    def __str__(self):
+        """Return a string representation of this object."""
+        return str(self.checkbox)
+
+    def __eq__(self, other):
+        """Determine if this property is equal to the given object."""
+        return self.checkbox == other
+
+    def __ne__(self, other):
+        """Determine if this property is not equal to the given object."""
+        return self.checkbox != other
 
     @classmethod
-    def from_json(cls, data):
-        """Deserialize this data from a JSON object."""
-        return cls(id=data["id"], value=data["checkbox"])
+    def from_value(cls, value):
+        """Create a new Checkbox from the native value."""
+        return cls(checkbox=value)
 
 
 class Date(PropertyValue):
     """Notion complex date type - may include timestamp and/or be a date range."""
 
-    def __init__(self, id, start, end=None):
-        super().__init__("date", id)
-        self.start = start
-        self.end = end
+    __type__ = "date"
+
+    class NestedDate(NestedObject):
+        start: Union[date, datetime]
+        end: Optional[Union[date, datetime]] = None
+
+    date: NestedDate = None
 
     def __str__(self):
         """Return a string representation of this object."""
-        return f"{self.start} :: {self.end}"
 
-    def to_json(self):
-        """Convert this data type to JSON, suitable for sending to the API."""
-        return super().to_json(
-            date={
-                "start": self.start.isoformat(),
-                "end": self.end.isoformat() if self.end else None,
-            }
-        )
+        if self.date is None:
+            return None
 
-    @classmethod
-    def from_json(cls, data):
-        """Deserialize this data from a JSON object."""
-        content = data["date"]
+        if self.date.end is None:
+            return f"{self.date.start}"
 
-        if "start" not in content:
-            raise ValueError('missing "start" in date object')
-
-        start = content["start"]
-        end = None
-
-        if "end" in content:
-            end = content["end"]
-
-        return cls(id=data["id"], start=start, end=end)
+        return f"{self.date.start} :: {self.date.end}"
 
     @classmethod
     def from_value(cls, value):
         """Create a new Date from the native value."""
-        return cls(id=None, start=value)
-
-    @staticmethod
-    def parse_date_string(string):
-        """Parse a date string into a simple date or date with timestamp."""
-        if "T" in string or " " in string or ":" in string:
-            return datetime.fromisoformat(string)
-
-        return date.fromisoformat(string)
+        inner = NestedDate(start=value)
+        return cls(date=inner)
 
 
-class Text(PropertyValue):
+class SelectOne(PropertyValue):
+    """Notion select type."""
+
+    __type__ = "select"
+
+    select: SelectOption = None
+
+    def __post_init__(self):
+        if self.select is None:
+            raise ValueError("missing select object")
+
+        if self.select.name is None and self.select.option_id is None:
+            raise ValueError('must provide at least one of "name" or "option_id"')
+
+    def __str__(self):
+        """Return a string representation of this object."""
+        return self.select.name or self.select.option_id or None
+
+    @classmethod
+    def from_value(cls, value):
+        """Create a new SelectOne from the given string."""
+        inner = SelectOption(name=value)
+        return cls(select=inner)
+
+
+class MultiSelect(PropertyValue):
+    """Notion multi-select type."""
+
+    __type__ = "multi_select"
+
+    multi_select: List[SelectOption] = []
+
+    def __str__(self):
+        """Return a string representation of this object."""
+        return ", ".join(self.multi_select)
+
+    @classmethod
+    def from_value(cls, value):
+        """Create a new SelectOne from the given string."""
+        return cls(id=None, name=value, option_id=None)
+
+
+class People(PropertyValue):
+    __type__ = "people"
+
+    people: List[User] = []
+
+
+class URL(PropertyValue):
+    __type__ = "url"
+
+    url: str = None
+
+
+class Email(PropertyValue):
+    __type__ = "email"
+
+    email: str = None
+
+
+class PhoneNumber(PropertyValue):
+    __type__ = "phone_number"
+
+    phone_number: str = None
+
+
+class FormulaObject(TypedObject):
+    pass
+
+
+class StringFormula(FormulaObject):
+    __type__ = "string"
+
+    string: str = None
+
+
+class NumberFormula(FormulaObject):
+    __type__ = "number"
+
+    string: Union[int, float] = None
+
+
+class DateFormula(FormulaObject):
+    __type__ = "date"
+
+    date: Date = None
+
+
+class Formula(PropertyValue):
+    __type__ = "formula"
+
+    formula: FormulaObject = None
+
+
+class Relation(PropertyValue):
+    __type__ = "relation"
+
+    relation: List[str] = []
+
+
+class CreatedTime(PropertyValue):
+    __type__ = "created_time"
+
+    created_time: datetime = None
+
+
+class CreatedBy(PropertyValue):
+    __type__ = "created_by"
+
+    created_by: User = None
+
+
+class LastEditedTime(PropertyValue):
+    __type__ = "last_edited_time"
+
+    last_edited_time: datetime = None
+
+
+class LastEditedBy(PropertyValue):
+    __type__ = "last_edited_by"
+
+    last_edited_by: User = None
+
+
+class Text(object):
     """Standard Notion text properties."""
 
     def __init__(self, type, id, text=list()):
@@ -182,74 +404,8 @@ class Text(PropertyValue):
     @classmethod
     def from_value(cls, value):
         """Create a new Text value from the native string value."""
-        rtf = TextElement(text=value)
+        rtf = TextObject(text=value)
         return cls(id=None, text=[rtf])
-
-
-class RichText(Text):
-    """Notion rich text type."""
-
-    def __init__(self, id, text=list()):
-        super().__init__(type="rich_text", id=id, text=text)
-
-    @classmethod
-    def from_json(cls, data):
-        """Deserialize this data from a JSON object."""
-        rtf = [RichTextElement.from_json(elem) for elem in data["rich_text"]]
-        return cls(id=data["id"], text=rtf)
-
-
-class Title(Text):
-    """Notion title type."""
-
-    def __init__(self, id, text=list()):
-        super().__init__(type="title", id=id, text=text)
-
-    @classmethod
-    def from_json(cls, data):
-        """Deserialize this data from a JSON object."""
-        rtf = [RichTextElement.from_json(elem) for elem in data["title"]]
-        return cls(id=data["id"], text=rtf)
-
-
-class SelectOne(PropertyValue):
-    """Notion select type."""
-
-    def __init__(self, id, name, option_id, color=None):
-        super().__init__("select", id)
-
-        if name is None and option_id is None:
-            raise ValueError('must provide at least one of "name" or "option_id"')
-
-        self.name = name
-        self.option_id = option_id
-        self.color = color
-
-    def __str__(self):
-        """Return a string representation of this object."""
-        return self.name or self.option_id or ""
-
-    def to_json(self):
-        """Convert this data type to JSON, suitable for sending to the API."""
-        return super().to_json(
-            select={"id": self.option_id} if self.option_id else {"name": self.name}
-        )
-
-    @classmethod
-    def from_json(cls, data):
-        """Deserialize this data from a JSON object."""
-        content = data["select"]
-
-        name = content["name"] if "name" in content else None
-        option_id = content["id"] if "id" in content else None
-        color = content["color"] if "color" in content else None
-
-        return cls(id=data["id"], name=name, option_id=option_id, color=color)
-
-    @classmethod
-    def from_value(cls, value):
-        """Create a new SelectOne from the given string."""
-        return cls(id=None, name=value, option_id=None)
 
 
 property_type_map = {
