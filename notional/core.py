@@ -42,7 +42,10 @@ class TypedObject(DataObject):
             sub_type = getattr(cls, "__type__")
 
         else:
-            sub_type = cls.__name__.lower()
+            sub_type = cls.__name__
+
+        # if sub_type in cls._subtypes_:
+        #    raise ValueError(f"Duplicate subtype: {sub_type} {cls}")
 
         log.debug("registered new subtype: %s => %s", sub_type, cls)
 

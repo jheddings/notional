@@ -16,26 +16,24 @@ class User(TypedObject):
     avatar_url: str = None
 
 
-class Person(User):
+class Person(User, type="person"):
     """Represents a Person in Notion."""
 
     class NestedPerson(NestedObject):
         email: str
 
-    type: str = "person"
     person: NestedPerson = None
 
     def __getitem__(self, key):
         return self.person[key]
 
 
-class Bot(User):
+class Bot(User, type="bot"):
     """Represents a Bot in Notion."""
 
     class NestedBot(NestedObject):
         pass
 
-    type: str = "bot"
     bot: NestedBot = None
 
     def __getitem__(self, key):
