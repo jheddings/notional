@@ -16,7 +16,6 @@ TIGER = """{
   "age": 9
 }"""
 
-
 FLUFFY = """{
   "type": "dog",
   "name": "Fluffy the Dog",
@@ -25,11 +24,16 @@ FLUFFY = """{
   "breed": "rottweiler"
 }"""
 
+ACE = """{
+  "type": "eagle",
+  "age": 245,
+  "color": "gray",
+  "species": "bald"
+}"""
 
 ALICE = """{
   "name": "Alice the Person"
 }"""
-
 
 BOB = f"""{{
   "name": "Bob the Person",
@@ -40,41 +44,45 @@ BOB = f"""{{
 
 
 class Animal(TypedObject):
-    """Basic data for a TypedObject."""
 
-    name: str
     age: int
     color: str = None
 
 
-class Cat(Animal, type="cat"):
-    """Additional data for a Cat."""
+class Pet(Animal):
+
+    name: str
+
+
+class Cat(Pet, type="cat"):
 
     hairless: bool = False
 
 
-class Dog(Animal, type="dog"):
-    """Additional data for a Dog."""
+class Dog(Pet, type="dog"):
 
     breed: str
 
 
+class Eagle(Animal, type="eagle"):
+
+    species: str
+
+
 class Person(DataObject):
-    """Basic data for a Person."""
 
     name: str
-    pets: List[Animal] = None
+    pets: List[Pet] = None
 
 
 class CustomTypes(str, Enum):
+
     TYPE_ONE = "one"
     TYPE_TWO = "two"
     TYPE_THREE = "three"
 
 
 class ComplexDataObject(DataObject):
-    """Represents a complex data object from the API."""
-
     class NestedData(NestedObject):
         key: str
         value: str = None
@@ -98,15 +106,23 @@ class DataObjectTest(unittest.TestCase):
     def test_ParseTypedDataObject(self):
         """TypedObject parsing."""
 
-        tiger = Cat.parse_raw(TIGER)
+        tiger = Animal.parse_raw(TIGER)
+        self.assertEqual(type(tiger), Cat)
         self.assertEqual(tiger.type, "cat")
         self.assertEqual(tiger.name, "Tiger the Cat")
         self.assertFalse(tiger.hairless)
 
-        fluffy = Dog.parse_raw(FLUFFY)
+        fluffy = Animal.parse_raw(FLUFFY)
+        self.assertEqual(type(fluffy), Dog)
         self.assertEqual(fluffy.type, "dog")
         self.assertEqual(fluffy.name, "Fluffy the Dog")
         self.assertEqual(fluffy.breed, "rottweiler")
+
+        ace = Animal.parse_raw(ACE)
+        self.assertEqual(type(ace), Eagle)
+        self.assertEqual(ace.type, "eagle")
+        self.assertEqual(ace.age, 245)
+        self.assertEqual(ace.species, "bald")
 
         # silly test just to make sure...
         self.assertNotEqual(tiger, fluffy)

@@ -1,18 +1,16 @@
 """Provides an interactive query builder for Notion databases."""
 
-import inspect
 import logging
 
 import notion_client
 
 from .iterator import EndpointIterator
+from .orm import ConnectedPageBase
 
 log = logging.getLogger(__name__)
 
 # TODO add support for start_cursor and page_size - the challenge is that we are using
 # EndpointIterator for the results, which overrides those parameters for all results
-
-# TODO look for a better way to handle results with custom data types
 
 
 class Query(object):
@@ -61,9 +59,18 @@ class Query(object):
 
         if isinstance(self.target, str):
             params["database_id"] = self.target
-        elif inspect.isclass(self.target):
+
+        elif issubclass(self.target, ConnectedPageBase):
             cls = self.target
-            params["database_id"] = cls.__database__
+
+            if cls._orm_session_ != self.session:
+                raise ValueError("ConnectedPage belongs to a different session")
+
+            if cls._orm_database_id_ is None:
+                raise ValueError("ConnectedPage has no database")
+
+            params["database_id"] = cls._orm_database_id_
+
         else:
             raise ValueError("unsupported query target")
 
@@ -112,6 +119,6 @@ class Result(object):
         item = next(self.source)
 
         if self.cls:
-            item = self.cls(self.session, **item)
+            item = self.cls(**item)
 
         return item

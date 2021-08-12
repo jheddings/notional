@@ -53,9 +53,14 @@ class RichTextObject(TypedObject):
         """Return a string representation of this object."""
 
         if self.href is None:
-            return self.plain_text
+            text = self.plain_text
+        else:
+            text = f"[{self.plain_text}]({self.href})"
 
-        return f"[{self.plain_text}]({self.href})"
+        # TODO add markdown for annotations
+        # e.g. something like: text = markup(text, self.annotations)
+
+        return text
 
 
 class TextObject(RichTextObject, type="text"):
@@ -67,13 +72,14 @@ class TextObject(RichTextObject, type="text"):
 
     text: NestedText = None
 
-    def __str__(self):
-        """Return a string representation of this object."""
+    @classmethod
+    def from_str(cls, string):
+        """Return a TextObject from the native string."""
 
-        if self.text is None:
-            return None
+        # TODO support markdown in the text string
 
-        return self.text.content
+        text = cls.NestedText(content=string)
+        return cls(plain_text=string, text=text)
 
 
 class MentionPageRef(DataObject):
@@ -114,11 +120,32 @@ class EquationObject(RichTextObject, type="equation"):
 
         return self.equation.expression
 
-    @classmethod
-    def from_value(cls, value):
-        """Create a new Equation mention from the given LaTeX string."""
-        inner = NestedEquation(expression=value)
-        return cls(equation=inner)
+
+class NativeTypeMixin(object):
+    """Mixin class for properties that can be represented as native Python types."""
+
+    def __str__(self):
+        """Return a string representation of this object."""
+
+        return str(self.Value or "")
+
+    def __eq__(self, other):
+        """Determine if this property is equal to the given object."""
+
+        return self.Value == other
+
+    def __ne__(self, other):
+        """Determine if this property is not equal to the given object."""
+
+        return self.Value != other
+
+    @property
+    def Value(self):
+        raise NotImplementedError()
+
+    @Value.setter
+    def Value(self, value):
+        raise NotImplementedError()
 
 
 class PropertyValue(TypedObject):
@@ -126,23 +153,13 @@ class PropertyValue(TypedObject):
 
     id: str = None
 
-    @classmethod
-    def from_value(cls, value):
-        """Create a new instance of this property from the given value."""
-        raise NotImplementedError()
 
-
-class Title(PropertyValue, type="title"):
+class Title(PropertyValue, NativeTypeMixin, type="title"):
     """Notion title type."""
 
     # TODO figure out how to combine with RichText
 
     title: List[RichTextObject] = []
-
-    def __str__(self):
-        """Return a string representation of this object."""
-
-        return self.Text or ""
 
     def __len__(self):
         """Return the number of object in the Title object."""
@@ -150,7 +167,7 @@ class Title(PropertyValue, type="title"):
         return len(self.title)
 
     @property
-    def Text(self):
+    def Value(self):
         """Return the plain text from this Title."""
 
         if self.title is None:
@@ -158,25 +175,17 @@ class Title(PropertyValue, type="title"):
 
         return "".join(str(text) for text in self.title)
 
-    @classmethod
-    def from_value(cls, value):
-        """Create a new Text value from the native string value."""
-
-        inner = RichTextObject(plain_text=value)
-        return cls(text=[rtf])
+    @Value.setter
+    def Value(self, value):
+        self.title = [TextObject.from_str(value)]
 
 
-class RichText(PropertyValue, type="rich_text"):
+class RichText(PropertyValue, NativeTypeMixin, type="rich_text"):
     """Notion rich text type."""
 
     # TODO figure out how to combine with Title
 
     rich_text: List[RichTextObject] = []
-
-    def __str__(self):
-        """Return a string representation of this object."""
-
-        return self.Text or ""
 
     def __len__(self):
         """Return the number of object in the RichText object."""
@@ -184,7 +193,7 @@ class RichText(PropertyValue, type="rich_text"):
         return len(self.rich_text)
 
     @property
-    def Text(self):
+    def Value(self):
         """Return the plain text from this RichText."""
 
         if self.rich_text is None:
@@ -192,33 +201,15 @@ class RichText(PropertyValue, type="rich_text"):
 
         return "".join(str(text) for text in self.rich_text)
 
-    @classmethod
-    def from_value(cls, value):
-        """Create a new RichText value from the native string value."""
-
-        inner = RichTextObject(plain_text=value)
-        return cls(text=[rtf])
+    @Value.setter
+    def Value(self, value):
+        self.rich_text = [TextObject.from_str(value)]
 
 
-class Number(PropertyValue, type="number"):
+class Number(PropertyValue, NativeTypeMixin, type="number"):
     """Simple number type."""
 
     number: Union[int, float] = None
-
-    def __str__(self):
-        """Return a string representation of this object."""
-
-        return str(self.number)
-
-    def __eq__(self, other):
-        """Determine if this property is equal to the given object."""
-
-        return self.number == other
-
-    def __ne__(self, other):
-        """Determine if this property is not equal to the given object."""
-
-        return self.number != other
 
     def __iadd__(self, other):
         """Add the given value to this Number."""
@@ -232,34 +223,27 @@ class Number(PropertyValue, type="number"):
         self.number -= other
         return self
 
-    @classmethod
-    def from_value(cls, value):
-        """Create a new Number from the native value."""
+    @property
+    def Value(self):
+        return self.number
 
-        return cls(number=value)
+    @Value.setter
+    def Value(self, value):
+        self.number = value
 
 
-class Checkbox(PropertyValue, type="checkbox"):
+class Checkbox(PropertyValue, NativeTypeMixin, type="checkbox"):
     """Simple checkbox type; represented as a boolean."""
 
     checkbox: bool = None
 
-    def __str__(self):
-        """Return a string representation of this object."""
-        return str(self.checkbox)
+    @property
+    def Value(self):
+        return self.checkbox
 
-    def __eq__(self, other):
-        """Determine if this property is equal to the given object."""
-        return self.checkbox == other
-
-    def __ne__(self, other):
-        """Determine if this property is not equal to the given object."""
-        return self.checkbox != other
-
-    @classmethod
-    def from_value(cls, value):
-        """Create a new Checkbox from the native value."""
-        return cls(checkbox=value)
+    @Value.setter
+    def Value(self, value):
+        self.checkbox = value
 
 
 class DateRange(DataObject):
@@ -320,7 +304,7 @@ class Date(PropertyValue, type="date"):
         return cls(date=inner)
 
 
-class SelectOne(PropertyValue, type="select"):
+class SelectOne(PropertyValue, NativeTypeMixin, type="select"):
     """Notion select type."""
 
     select: SelectOption = None
@@ -347,11 +331,9 @@ class SelectOne(PropertyValue, type="select"):
 
         return self.select.name or self.select.option_id or None
 
-    @classmethod
-    def from_value(cls, value):
-        """Create a new SelectOne from the given string."""
-        inner = SelectOption(name=value)
-        return cls(select=inner)
+    @Value.setter
+    def Value(self, value):
+        self.select = SelectOption(name=value)
 
 
 class MultiSelect(PropertyValue, type="multi_select"):
@@ -580,49 +562,3 @@ class LastEditedBy(PropertyValue, type="last_edited_by"):
     """A Notion last-edited-by property value."""
 
     last_edited_by: User = None
-
-
-property_type_map = {
-    "title": Title,
-    "number": Number,
-    "date": Date,
-    "checkbox": Checkbox,
-    "select": SelectOne,
-    "rich_text": RichText,
-}
-
-
-def notion_to_python(data):
-    """Convert the raw data from Notion to a python object."""
-    if data is None:
-        return None
-
-    if "type" not in data:
-        raise ValueError("unable to determine content type")
-
-    cls = property_type_map.get(data["type"], None)
-
-    if cls is None:
-        raise TypeError(f'unsupported data type: {data["type"]}')
-
-    return cls.from_json(data)
-
-
-def python_to_notion(value, cls):
-    """Convert the python object to Notion API data.
-
-    This will raise a TypeError if a conversion is not found.
-    """
-
-    # if the given value is already of the expected class type...
-    if isinstance(value, cls):
-        obj = value
-
-    # otherwise, ask the class to convert from the given value
-    else:
-        try:
-            obj = cls.from_value(value)
-        except NotImplementedError:
-            raise TypeError(f"Unsupported data type - {cls}")
-
-    return obj.to_json()

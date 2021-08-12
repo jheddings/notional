@@ -4,18 +4,19 @@ import logging
 import os
 import sys
 
+logging.basicConfig(level=logging.DEBUG)
+
 import notional
 from notional import types
-from notional.orm import CustomPage, Property
+from notional.orm import Property, connected_page
 
-logging.basicConfig(level=logging.INFO)
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
+notion = notional.connect(auth=auth_token)
+CustomPage = connected_page(notion)
 
 
-class Task(CustomPage):
+class Task(CustomPage, database=sys.argv[1]):
     """Defines a Task data type for a Notion page."""
-
-    __database__ = sys.argv[1]
 
     Title = Property("Title", types.Title)
     Priority = Property("Priority", types.SelectOne)
@@ -25,7 +26,6 @@ class Task(CustomPage):
     Status = Property("Status")
 
 
-notion = notional.connect(auth=auth_token)
 sort = {"direction": "ascending", "property": "Title"}
 
 for task in notion.query(Task).sort(sort).execute():

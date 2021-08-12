@@ -1,32 +1,51 @@
 """Utilities for working with Notion as an ORM."""
 
+import logging
 
-def Attribute(name, cls=str, default=None):
-    """Define a data attribute for a Notion Block.
+from .blocks import Block, Page
+from .types import NativeTypeMixin, RichText
 
-    :param name: the attribute key in the Block
-    :param cls: the data type for the property
-    """
+log = logging.getLogger(__name__)
 
-    log.debug("creating new Attribute: %s", name)
 
-    def fget(self):
-        """Return the current value of the attribute."""
-        if not isinstance(self, Block):
-            raise TypeError("Attributes must be used in a Block object")
+class ConnectedPageBase(object):
+    def __init__(self, **data):
+        self._pending_props_ = dict()
+        self._pending_children_ = list()
 
-        if self.__data__ is None:
-            return None
+        self.page = Page(**data)
 
-        value = self.__data__.get(name, None)
+    def commit(self):
+        """Commit any pending changes to this ConnectedPageBase."""
 
-        if value is None:
-            return default
+        num_changes = len(self._pending_props_) + len(self._pending_children_)
 
-        # TODO support type conversion
-        return value
+        if num_changes == 0:
+            log.debug("no pending changes for page %s; nothing to do", num_changes)
+            return
 
-    return property(fget)
+        page_id = self.__data__["id"]  # FIXME why can't we use self.id here??
+        log.info("Committing %d changes to page %s...", num_changes, page_id)
+
+        if len(self._pending_props_) > 0:
+            log.debug(
+                "=> committing %d properties :: %s",
+                len(self._pending_props_),
+                self._pending_props_,
+            )
+            self._session.pages.update(page_id, properties=self._pending_props_)
+            self._pending_props_.clear()
+
+        if len(self._pending_children_) > 0:
+            log.debug(
+                "=> committing %d children :: %s",
+                len(self._pending_children_),
+                self._pending_children_,
+            )
+            self._session.blocks.children.append(
+                block_id=page_id, children=self._pending_children_
+            )
+            self._pending_children_.clear()
 
 
 def Property(name, cls=RichText, default=None):
@@ -43,44 +62,64 @@ def Property(name, cls=RichText, default=None):
 
     def fget(self):
         """Return the current value of the property as a python object."""
-        if not isinstance(self, Page):
-            raise TypeError("Properties must be used in a Page object")
+        if not isinstance(self, ConnectedPageBase):
+            raise TypeError("Properties must be used in a ConnectedPage object")
 
-        data = self.get_property(name)
-        if data is None:
+        try:
+            prop = self.page[name]
+
+        except AttributeError:
+            log.debug(f"property '{name}' does not exist in Page; returning default")
             return default
 
-        value = notion_to_python(data)
-
-        if not isinstance(value, cls):
-            raise TypeError(
-                f"Type mismatch: expected '{cls}' but found '{type(value)}'"
-            )
+        if not isinstance(prop, cls):
+            raise TypeError(f"Type mismatch: expected '{cls}' but found '{type(prop)}'")
 
         # convert native objects to expected types
-        if isinstance(value, NativePropertyValue):
-            value = value.value
+        if isinstance(prop, NativeTypeMixin):
+            return prop.Value
 
-        return value
+        return prop
 
     def fset(self, value):
         """Set the property to the given value."""
 
-        if not isinstance(self, Page):
-            raise TypeError("Properties must be used in a Page object")
+        if not isinstance(self, ConnectedPageBase):
+            raise TypeError("Properties must be used in a ConnectedPage object")
 
         # TODO only set the value if it has changed from the existing
 
-        try:
-            data = python_to_notion(value, cls)
-        except TypeError:
-            raise TypeError(
-                f"Type mismatch: expected '{cls}' but found '{type(value)}'"
-            )
+        # convert from native objects to expected types
+        if isinstance(prop, NativeTypeMixin):
+            prop.Value = Value
 
-        # to change the value of a property, we simply need to update the value in the
-        # internal data structure...  future calls to fget will "do the right thing"
+        self.page[name] = prop
 
-        self.set_property(name, data)
+        self._pending_props_ += prop
 
     return property(fget, fset)
+
+
+def connected_page(session, bind=ConnectedPageBase):
+    """Returns a base class for "connected" pages through the Notion API."""
+
+    if not issubclass(bind, ConnectedPageBase):
+        raise ValueError("bind class must subclass ConnectedPageBase")
+
+    class _ConnectedPage(bind):
+        _orm_session_ = session
+        _orm_database_id_ = None
+
+        def __init_subclass__(cls, database, **kwargs):
+            super().__init_subclass__(**kwargs)
+
+            if database is None:
+                raise ValueError("Missing 'database' for ConnectedPage: {cls}")
+
+            if cls._orm_database_id_ is not None:
+                raise TypeError("Object {cls} registered to: {database}")
+
+            cls._orm_database_id_ = database
+            log.debug(f"registered connected page :: {cls} => {database}")
+
+    return _ConnectedPage

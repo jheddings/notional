@@ -25,7 +25,11 @@ class PropertyValueTest(unittest.TestCase):
         title = types.Title.parse_obj(self.props["Title"])
 
         self.assertEqual(title.id, "title")
-        self.assertEqual(title.Text, "Buy milk")
+        self.assertEqual(title.Value, "Buy milk")
+
+        title.Value = "Get more milk"
+
+        self.assertEqual(title.Value, "Get more milk")
 
     def test_RichText(self):
         """Verify RichText property values."""
@@ -33,15 +37,23 @@ class PropertyValueTest(unittest.TestCase):
         rtf = types.RichText.parse_obj(self.props["Status"])
 
         self.assertEqual(rtf.type, "rich_text")
-        self.assertEqual(rtf.Text, "Our milk is very old.")
+        self.assertEqual(rtf.Value, "Our milk is very old.")
+
+        rtf.Value = "We have new milk."
+
+        self.assertEqual(rtf.Value, "We have new milk.")
 
     def test_Number(self):
         """Verify Number property values."""
 
-        rtf = types.Number.parse_obj(self.props["Index"])
+        num = types.Number.parse_obj(self.props["Index"])
 
-        self.assertEqual(rtf.type, "number")
-        self.assertEqual(rtf.number, 42)
+        self.assertEqual(num.type, "number")
+        self.assertEqual(num.number, 42)
+
+        num.Value = 86
+
+        self.assertEqual(num.Value, 86)
 
     def test_Checkbox(self):
         """Verify Checkbox property values."""
@@ -50,6 +62,10 @@ class PropertyValueTest(unittest.TestCase):
 
         self.assertEqual(check.type, "checkbox")
         self.assertFalse(check.checkbox)
+
+        check.Value = True
+
+        self.assertTrue(check.Value)
 
     def test_Date(self):
         """Verify complex Date property values."""
