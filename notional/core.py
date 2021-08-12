@@ -94,6 +94,12 @@ class TypedObject(DataObject):
     def _convert_to_real_type_(cls, data):
         """Instantiate the correct object based on the 'type' field."""
 
+        if isinstance(data, cls):
+            return data
+
+        if not isinstance(data, dict):
+            raise ValueError("Invalid 'data' object")
+
         data_type = data.get("type")
 
         if data_type is None:
