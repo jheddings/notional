@@ -3,7 +3,7 @@ import logging
 import unittest
 from datetime import date, datetime, timezone
 
-from pydantic import BaseModel
+from pydantic import ValidationError
 
 from notional import types, user
 
@@ -23,37 +23,37 @@ class PropertyValueTest(unittest.TestCase):
         """Verify Title property values."""
 
         title = types.Title.parse_obj(self.props["Title"])
-
         self.assertEqual(title.id, "title")
         self.assertEqual(title.Value, "Buy milk")
 
-        title.Value = "Get more milk"
-
+        title = types.Title.from_value("Get more milk")
         self.assertEqual(title.Value, "Get more milk")
 
     def test_RichText(self):
         """Verify RichText property values."""
 
         rtf = types.RichText.parse_obj(self.props["Status"])
-
         self.assertEqual(rtf.type, "rich_text")
         self.assertEqual(rtf.Value, "Our milk is very old.")
 
-        rtf.Value = "We have new milk."
-
+        rtf = types.RichText.from_value("We have new milk.")
         self.assertEqual(rtf.Value, "We have new milk.")
 
     def test_Number(self):
         """Verify Number property values."""
 
         num = types.Number.parse_obj(self.props["Index"])
-
         self.assertEqual(num.type, "number")
         self.assertEqual(num.number, 42)
 
-        num.Value = 86
+        num = types.Number.from_value(2.718281828)
+        self.assertEqual(num.Value, 2.718281828)
 
-        self.assertEqual(num.Value, 86)
+        num = types.Number.from_value("100.00")
+        self.assertEqual(num.Value, 100)
+
+        with self.assertRaises(ValidationError):
+            types.Number.from_value("twelve")
 
     def test_Checkbox(self):
         """Verify Checkbox property values."""
@@ -63,9 +63,14 @@ class PropertyValueTest(unittest.TestCase):
         self.assertEqual(check.type, "checkbox")
         self.assertFalse(check.checkbox)
 
-        check.Value = True
-
+        check = types.Checkbox.from_value(True)
         self.assertTrue(check.Value)
+
+        check = types.Checkbox.from_value("no")
+        self.assertFalse(check.Value)
+
+        with self.assertRaises(ValidationError):
+            types.Checkbox.from_value("foo")
 
     def test_Date(self):
         """Verify complex Date property values."""

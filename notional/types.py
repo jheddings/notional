@@ -143,8 +143,8 @@ class NativeTypeMixin(object):
     def Value(self):
         raise NotImplementedError()
 
-    @Value.setter
-    def Value(self, value):
+    @classmethod
+    def from_value(cls, value):
         raise NotImplementedError()
 
 
@@ -156,8 +156,6 @@ class PropertyValue(TypedObject):
 
 class Title(PropertyValue, NativeTypeMixin, type="title"):
     """Notion title type."""
-
-    # TODO figure out how to combine with RichText
 
     title: List[RichTextObject] = []
 
@@ -175,15 +173,14 @@ class Title(PropertyValue, NativeTypeMixin, type="title"):
 
         return "".join(str(text) for text in self.title)
 
-    @Value.setter
-    def Value(self, value):
-        self.title = [TextObject.from_str(value)]
+    @classmethod
+    def from_value(cls, value):
+        text = TextObject(plain_text=value)
+        return cls(title=[text])
 
 
 class RichText(PropertyValue, NativeTypeMixin, type="rich_text"):
     """Notion rich text type."""
-
-    # TODO figure out how to combine with Title
 
     rich_text: List[RichTextObject] = []
 
@@ -201,15 +198,16 @@ class RichText(PropertyValue, NativeTypeMixin, type="rich_text"):
 
         return "".join(str(text) for text in self.rich_text)
 
-    @Value.setter
-    def Value(self, value):
-        self.rich_text = [TextObject.from_str(value)]
+    @classmethod
+    def from_value(cls, value):
+        text = TextObject(plain_text=value)
+        return cls(rich_text=[text])
 
 
 class Number(PropertyValue, NativeTypeMixin, type="number"):
     """Simple number type."""
 
-    number: Union[int, float] = None
+    number: Union[float, int] = None
 
     def __iadd__(self, other):
         """Add the given value to this Number."""
@@ -227,9 +225,9 @@ class Number(PropertyValue, NativeTypeMixin, type="number"):
     def Value(self):
         return self.number
 
-    @Value.setter
-    def Value(self, value):
-        self.number = value
+    @classmethod
+    def from_value(cls, value):
+        return cls(number=value)
 
 
 class Checkbox(PropertyValue, NativeTypeMixin, type="checkbox"):
@@ -241,9 +239,9 @@ class Checkbox(PropertyValue, NativeTypeMixin, type="checkbox"):
     def Value(self):
         return self.checkbox
 
-    @Value.setter
-    def Value(self, value):
-        self.checkbox = value
+    @classmethod
+    def from_value(cls, value):
+        return cls(checkbox=value)
 
 
 class DateRange(DataObject):
@@ -331,9 +329,9 @@ class SelectOne(PropertyValue, NativeTypeMixin, type="select"):
 
         return self.select.name or self.select.option_id or None
 
-    @Value.setter
-    def Value(self, value):
-        self.select = SelectOption(name=value)
+    @classmethod
+    def from_value(cls, value):
+        return cls(select=SelectOption(name=value))
 
 
 class MultiSelect(PropertyValue, type="multi_select"):
