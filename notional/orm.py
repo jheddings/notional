@@ -24,7 +24,7 @@ class ConnectedPageBase(object):
             log.debug("no pending changes for page %s; nothing to do", num_changes)
             return
 
-        page_id = self.__data__["id"]  # FIXME why can't we use self.id here??
+        page_id = self.page.id
         log.info("Committing %d changes to page %s...", num_changes, page_id)
 
         if len(self._pending_props_) > 0:
@@ -33,7 +33,7 @@ class ConnectedPageBase(object):
                 len(self._pending_props_),
                 self._pending_props_,
             )
-            self._session.pages.update(page_id, properties=self._pending_props_)
+            self._orm_session_.pages.update(page_id, properties=self._pending_props_)
             self._pending_props_.clear()
 
         if len(self._pending_children_) > 0:
@@ -42,7 +42,7 @@ class ConnectedPageBase(object):
                 len(self._pending_children_),
                 self._pending_children_,
             )
-            self._session.blocks.children.append(
+            self._orm_session_.blocks.children.append(
                 block_id=page_id, children=self._pending_children_
             )
             self._pending_children_.clear()
@@ -62,6 +62,7 @@ def Property(name, cls=RichText, default=None):
 
     def fget(self):
         """Return the current value of the property as a python object."""
+
         if not isinstance(self, ConnectedPageBase):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
@@ -88,14 +89,18 @@ def Property(name, cls=RichText, default=None):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
         # TODO only set the value if it has changed from the existing
+        log.debug(f"set {cls} [{name}] => {value} {type(value)}")
 
         # convert from native objects to expected types
-        if isinstance(prop, NativeTypeMixin):
-            prop.Value = Value
+        if isinstance(value, cls):
+            prop = value
+        elif issubclass(cls, NativeTypeMixin):
+            prop = cls.from_value(value)
+        else:
+            raise ValueError(f"Value does not match expected type: {cls}")
 
         self.page[name] = prop
-
-        self._pending_props_ += prop
+        self._pending_props_[name] = prop.dict(exclude_none=True)
 
     return property(fget, fset)
 
