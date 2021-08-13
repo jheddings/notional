@@ -1,11 +1,14 @@
 """Wrapper for Notion API data types."""
 
+import logging
 from datetime import date, datetime
 from typing import Dict, List, Optional, Union
 
 from .core import DataObject, NestedObject, TypedObject
 from .schema import SelectOption
 from .user import User
+
+log = logging.getLogger(__name__)
 
 
 class Annotations(DataObject):
@@ -141,10 +144,25 @@ class NativeTypeMixin(object):
 
     @property
     def Value(self):
+        """Get the current value of this property as a native Python type."""
+
+        cls = self.__class__
+
+        # check to see if the object has a field with the type-name
+        # (this is assigned by TypedObject during subclass creation)
+        if hasattr(cls, "type") and hasattr(self, cls.type):
+            return getattr(self, cls.type)
+
         raise NotImplementedError()
 
     @classmethod
     def from_value(cls, value):
+        """Build the property value from the native Python value."""
+
+        # use type-name field to instantiate the class when possible
+        if hasattr(cls, "type"):
+            return cls(**{cls.type: value})
+
         raise NotImplementedError()
 
 
@@ -221,27 +239,11 @@ class Number(PropertyValue, NativeTypeMixin, type="number"):
         self.number -= other
         return self
 
-    @property
-    def Value(self):
-        return self.number
-
-    @classmethod
-    def from_value(cls, value):
-        return cls(number=value)
-
 
 class Checkbox(PropertyValue, NativeTypeMixin, type="checkbox"):
     """Simple checkbox type; represented as a boolean."""
 
     checkbox: bool = None
-
-    @property
-    def Value(self):
-        return self.checkbox
-
-    @classmethod
-    def from_value(cls, value):
-        return cls(checkbox=value)
 
 
 class DateRange(DataObject):
@@ -325,8 +327,6 @@ class SelectOne(PropertyValue, NativeTypeMixin, type="select"):
 
     @property
     def Value(self):
-        """Return the value of the Select option as either the name or ID."""
-
         return self.select.name or self.select.option_id or None
 
     @classmethod
@@ -409,19 +409,19 @@ class People(PropertyValue, type="people"):
         return False
 
 
-class URL(PropertyValue, type="url"):
+class URL(PropertyValue, NativeTypeMixin, type="url"):
     """Notion URL type."""
 
     url: str = None
 
 
-class Email(PropertyValue, type="email"):
+class Email(PropertyValue, NativeTypeMixin, type="email"):
     """Notion email type."""
 
     email: str = None
 
 
-class PhoneNumber(PropertyValue, type="phone_number"):
+class PhoneNumber(PropertyValue, NativeTypeMixin, type="phone_number"):
     """Notion phone type."""
 
     phone_number: str = None
@@ -543,14 +543,6 @@ class CreatedTime(PropertyValue, NativeTypeMixin, type="created_time"):
 
     created_time: datetime = None
 
-    @property
-    def Value(self):
-        return self.created_time
-
-    @classmethod
-    def from_value(cls, value):
-        self.created_time = value
-
 
 class CreatedBy(PropertyValue, type="created_by"):
     """A Notion created-by property value."""
@@ -562,14 +554,6 @@ class LastEditedTime(PropertyValue, NativeTypeMixin, type="last_edited_time"):
     """A Notion last-edited-time property value."""
 
     last_edited_time: datetime = None
-
-    @property
-    def Value(self):
-        return self.last_edited_time
-
-    @classmethod
-    def from_value(cls, value):
-        self.last_edited_time = value
 
 
 class LastEditedBy(PropertyValue, type="last_edited_by"):

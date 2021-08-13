@@ -25,8 +25,8 @@ class ConnectedPageBase(object):
         parent_id = {"database_id": cls._orm_database_id_}
 
         # TODO convert properties to a dict for create...
-        props = { }
-        #name: prop.dict(exclude_none=True) for name, prop in properties.items()
+        props = {}
+        # name: prop.dict(exclude_none=True) for name, prop in properties.items()
 
         data = cls._orm_session_.pages.create(parent=parent_id, properties=props)
 
