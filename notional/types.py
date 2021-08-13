@@ -538,10 +538,18 @@ class Relation(PropertyValue, type="relation"):
     relation: List[str] = []
 
 
-class CreatedTime(PropertyValue, type="created_time"):
+class CreatedTime(PropertyValue, NativeTypeMixin, type="created_time"):
     """A Notion created-time property value."""
 
     created_time: datetime = None
+
+    @property
+    def Value(self):
+        return self.created_time
+
+    @classmethod
+    def from_value(cls, value):
+        self.created_time = value
 
 
 class CreatedBy(PropertyValue, type="created_by"):
@@ -550,10 +558,18 @@ class CreatedBy(PropertyValue, type="created_by"):
     created_by: User = None
 
 
-class LastEditedTime(PropertyValue, type="last_edited_time"):
+class LastEditedTime(PropertyValue, NativeTypeMixin, type="last_edited_time"):
     """A Notion last-edited-time property value."""
 
     last_edited_time: datetime = None
+
+    @property
+    def Value(self):
+        return self.last_edited_time
+
+    @classmethod
+    def from_value(cls, value):
+        self.last_edited_time = value
 
 
 class LastEditedBy(PropertyValue, type="last_edited_by"):

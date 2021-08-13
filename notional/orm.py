@@ -15,6 +15,23 @@ class ConnectedPageBase(object):
 
         self.page = Page(**data)
 
+    @classmethod
+    def create(cls, **properties):
+        """Creates a new instance of the ConnectedPage type."""
+        # TODO add support for properties...
+
+        log.debug(f"creating new {cls} :: {cls._orm_database_id_}")
+
+        parent_id = {"database_id": cls._orm_database_id_}
+
+        # TODO convert properties to a dict for create...
+        props = { }
+        #name: prop.dict(exclude_none=True) for name, prop in properties.items()
+
+        data = cls._orm_session_.pages.create(parent=parent_id, properties=props)
+
+        return cls(**data)
+
     def commit(self):
         """Commit any pending changes to this ConnectedPageBase."""
 
@@ -114,7 +131,7 @@ def connected_page(session, bind=ConnectedPageBase):
         raise ValueError("bind class must subclass ConnectedPageBase")
 
     class _ConnectedPage(bind):
-        _orm_session_ = session
+        _orm_session_ = None
         _orm_database_id_ = None
 
         def __init_subclass__(cls, database, **kwargs):
@@ -126,6 +143,7 @@ def connected_page(session, bind=ConnectedPageBase):
             if cls._orm_database_id_ is not None:
                 raise TypeError("Object {cls} registered to: {database}")
 
+            cls._orm_session_ = session
             cls._orm_database_id_ = database
 
             log.debug(f"registered connected page :: {cls} => {database}")
