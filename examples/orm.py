@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.FATAL)
 
 import notional
 from notional import types
@@ -30,8 +30,6 @@ sort = {"direction": "ascending", "property": "Title"}
 
 for task in notion.query(Task).sort(sort).execute():
     print(f"== {task.Title} ==")
-    print(f"Priority: {task.Priority}")
-    print(f"Due Date: {task.DueDate}")
     print(task.Status)
 
     task.Complete = False

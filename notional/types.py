@@ -73,7 +73,7 @@ class TextObject(RichTextObject, type="text"):
     text: NestedText = None
 
     @classmethod
-    def from_str(cls, string):
+    def from_value(cls, string):
         """Return a TextObject from the native string."""
 
         # TODO support markdown in the text string
@@ -175,7 +175,7 @@ class Title(PropertyValue, NativeTypeMixin, type="title"):
 
     @classmethod
     def from_value(cls, value):
-        text = TextObject(plain_text=value)
+        text = TextObject.from_value(value)
         return cls(title=[text])
 
 
@@ -200,7 +200,7 @@ class RichText(PropertyValue, NativeTypeMixin, type="rich_text"):
 
     @classmethod
     def from_value(cls, value):
-        text = TextObject(plain_text=value)
+        text = TextObject.from_value(value)
         return cls(rich_text=[text])
 
 

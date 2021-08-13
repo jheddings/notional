@@ -100,6 +100,8 @@ def Property(name, cls=RichText, default=None):
             raise ValueError(f"Value does not match expected type: {cls}")
 
         self.page[name] = prop
+
+        # add the object data to pending props for commit...
         self._pending_props_[name] = prop.dict(exclude_none=True)
 
     return property(fget, fset)
@@ -125,6 +127,7 @@ def connected_page(session, bind=ConnectedPageBase):
                 raise TypeError("Object {cls} registered to: {database}")
 
             cls._orm_database_id_ = database
+
             log.debug(f"registered connected page :: {cls} => {database}")
 
     return _ConnectedPage
