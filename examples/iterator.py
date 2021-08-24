@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 
+"""This script demonstrates using iterators in Notional.
+
+The script accepts a single command line option, which is a database ID.  It will then
+use the query endpoint to display all records in the database.
+
+The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
+"""
+
 import logging
 import os
 import sys

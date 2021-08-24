@@ -133,27 +133,29 @@ class PropertyValueTest(unittest.TestCase):
         """Verify SelectOne property values."""
 
         priority = types.SelectOne.parse_obj(self.props["Priority"])
-
         self.assertEqual(priority.type, "select")
         self.assertEqual(priority, "High")
         self.assertEqual(priority.Value, "High")
+
+        priority = types.SelectOne.from_value("URGENT")
+        self.assertEqual(priority, "URGENT")
 
     def test_MultiSelect(self):
         """Verify MultiSelect property values."""
 
         tags = types.MultiSelect.parse_obj(self.props["Tags"])
-
         self.assertEqual(tags.type, "multi_select")
         self.assertIn("Grocery", tags)
 
         tags += "TEMPORARY"
-
         self.assertIn("TEMPORARY", tags)
 
         tags -= "TEMPORARY"
-
         self.assertNotIn("TEMPORARY", tags)
-        self.assertListEqual(tags.Values, ["Grocery"])
+        self.assertListEqual(tags.Value, ["Grocery"])
+
+        tags = types.MultiSelect.from_value(["foo", None, "bar"])
+        self.assertEqual(tags, ["foo", "bar"])
 
     def test_People(self):
         """Verify People property values."""

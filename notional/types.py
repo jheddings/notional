@@ -5,7 +5,6 @@ from datetime import date, datetime
 from typing import Dict, List, Optional, Union
 
 from .core import DataObject, NestedObject, TypedObject
-from .schema import SelectOption
 from .user import User
 
 log = logging.getLogger(__name__)
@@ -172,7 +171,7 @@ class PropertyValue(TypedObject):
     id: str = None
 
 
-class Title(PropertyValue, NativeTypeMixin, type="title"):
+class Title(NativeTypeMixin, PropertyValue, type="title"):
     """Notion title type."""
 
     title: List[RichTextObject] = []
@@ -197,7 +196,7 @@ class Title(PropertyValue, NativeTypeMixin, type="title"):
         return cls(title=[text])
 
 
-class RichText(PropertyValue, NativeTypeMixin, type="rich_text"):
+class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
     """Notion rich text type."""
 
     rich_text: List[RichTextObject] = []
@@ -222,7 +221,7 @@ class RichText(PropertyValue, NativeTypeMixin, type="rich_text"):
         return cls(rich_text=[text])
 
 
-class Number(PropertyValue, NativeTypeMixin, type="number"):
+class Number(NativeTypeMixin, PropertyValue, type="number"):
     """Simple number type."""
 
     number: Union[float, int] = None
@@ -240,7 +239,7 @@ class Number(PropertyValue, NativeTypeMixin, type="number"):
         return self
 
 
-class Checkbox(PropertyValue, NativeTypeMixin, type="checkbox"):
+class Checkbox(NativeTypeMixin, PropertyValue, type="checkbox"):
     """Simple checkbox type; represented as a boolean."""
 
     checkbox: bool = None
@@ -304,15 +303,23 @@ class Date(PropertyValue, type="date"):
         return cls(date=inner)
 
 
-class SelectOne(PropertyValue, NativeTypeMixin, type="select"):
+class SelectValue(DataObject):
+    """Values for select & multi-select properties."""
+
+    name: str
+    id: str = None
+    color: str = None
+
+
+class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
     """Notion select type."""
 
-    select: SelectOption = None
+    select: SelectValue = None
 
     def __str__(self):
         """Return a string representation of this object."""
 
-        return self.select.name or self.select.option_id or ""
+        return self.select.name or self.select.id or ""
 
     def __eq__(self, other):
         """Determine if this property is equal to the given object.
@@ -327,17 +334,20 @@ class SelectOne(PropertyValue, NativeTypeMixin, type="select"):
 
     @property
     def Value(self):
-        return self.select.name or self.select.option_id or None
+        if self.select is None:
+            return None
+
+        return self.select.name or self.select.id
 
     @classmethod
     def from_value(cls, value):
-        return cls(select=SelectOption(name=value))
+        return cls(select=SelectValue(name=value))
 
 
-class MultiSelect(PropertyValue, type="multi_select"):
+class MultiSelect(NativeTypeMixin, PropertyValue, type="multi_select"):
     """Notion multi-select type."""
 
-    multi_select: List[SelectOption] = []
+    multi_select: List[SelectValue] = []
 
     def __str__(self):
         """Return a string representation of this object."""
@@ -349,7 +359,7 @@ class MultiSelect(PropertyValue, type="multi_select"):
         if other in self:
             raise ValueError(f"Item already selected: {other}")
 
-        opt = SelectOption(name=other)
+        opt = SelectValue(name=other)
         self.multi_select.append(opt)
 
         return self
@@ -374,11 +384,26 @@ class MultiSelect(PropertyValue, type="multi_select"):
         return False
 
     @property
-    def Values(self):
-        """Return the values of this MultiSelect as either names or ID's."""
+    def Value(self):
+        if self.multi_select is None:
+            return None
 
-        # TODO don't return None values
-        return [select.name or select.id for select in self.multi_select]
+        values = list()
+
+        for select in self.multi_select:
+            if select.name is not None:
+                values.append(select.name)
+            elif select.id is not None:
+                values.append(select.id)
+
+        return values
+
+    @classmethod
+    def from_value(cls, value):
+
+        values = [SelectValue(name=item) for item in value if item is not None]
+
+        return cls(multi_select=values)
 
 
 class People(PropertyValue, type="people"):
@@ -409,19 +434,19 @@ class People(PropertyValue, type="people"):
         return False
 
 
-class URL(PropertyValue, NativeTypeMixin, type="url"):
+class URL(NativeTypeMixin, PropertyValue, type="url"):
     """Notion URL type."""
 
     url: str = None
 
 
-class Email(PropertyValue, NativeTypeMixin, type="email"):
+class Email(NativeTypeMixin, PropertyValue, type="email"):
     """Notion email type."""
 
     email: str = None
 
 
-class PhoneNumber(PropertyValue, NativeTypeMixin, type="phone_number"):
+class PhoneNumber(NativeTypeMixin, PropertyValue, type="phone_number"):
     """Notion phone type."""
 
     phone_number: str = None
@@ -538,7 +563,7 @@ class Relation(PropertyValue, type="relation"):
     relation: List[str] = []
 
 
-class CreatedTime(PropertyValue, NativeTypeMixin, type="created_time"):
+class CreatedTime(NativeTypeMixin, PropertyValue, type="created_time"):
     """A Notion created-time property value."""
 
     created_time: datetime = None
@@ -550,7 +575,7 @@ class CreatedBy(PropertyValue, type="created_by"):
     created_by: User = None
 
 
-class LastEditedTime(PropertyValue, NativeTypeMixin, type="last_edited_time"):
+class LastEditedTime(NativeTypeMixin, PropertyValue, type="last_edited_time"):
     """A Notion last-edited-time property value."""
 
     last_edited_time: datetime = None

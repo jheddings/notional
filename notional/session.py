@@ -4,8 +4,9 @@ import logging
 
 import notion_client
 
-from .blocks import Database, Page
+from .blocks import BlockRef, Database, Page
 from .query import Query
+from .types import TextObject
 from .user import User
 
 log = logging.getLogger(__name__)
@@ -22,55 +23,116 @@ class Session(object):
     @property
     def databases(self):
         """Direct access to the databases API endpoint."""
+
         return self.client.databases
 
     @property
     def users(self):
         """Direct access to the users API endpoint."""
+
         return self.client.users
 
     @property
     def pages(self):
         """Direct access to the pages API endpoint."""
+
         return self.client.pages
 
     @property
     def blocks(self):
         """Direct access to the blocks API endpoint."""
+
         return self.client.blocks
 
     @property
     def search(self):
         """Direct access to the search API endpoint."""
+
         return self.client.search
 
-    def page(self, page_id):
+    def get_page(self, page_id):
         """Returns the Page with the given ID."""
+
+        if page_id is None:
+            raise ValueError("'page_id' must be provided")
+
         data = self.pages.retrieve(page_id)
+
         return Page(**data)
 
-    def database(self, database_id):
+    def add_page(self, parent, title=None):
+        """Adds a page to the given parent (Page or Database)."""
+
+        if parent is None:
+            raise ValueError("'parent' must be provided")
+
+        parent_id = get_parent_id(parent)
+
+        props = dict()
+
+        if title is not None:
+            text = TextObject.from_value(title)
+            props["title"] = [text.dict(exclude_none=True)]
+
+        data = self.pages.create(parent=parent_id, properties=props)
+
+        return Page(**data)
+
+    def get_database(self, database_id):
         """Returns the Database with the given ID."""
+
         data = self.databases.retrieve(database_id)
         return Database(**data)
 
-    def user(self, user_id):
+    def get_user(self, user_id):
         """Returns the User with the given ID."""
+
         data = self.users.retrieve(user_id)
         return User(**data)
 
-    def block(self, block_id):
+    def get_block(self, block_id):
         """Returns the Block with the given ID."""
+
         data = self.blocks.retrieve(block_id)
         return Block(**data)
+
+    def add_blocks(self, parent, *blocks):
+        """Adds the given blocks as children of the given parent."""
+
+        parent_id = parent.id
+
+        children = [
+            block.dict(exclude_none=True) for block in blocks if block is not None
+        ]
+
+        print(children)
+
+        return self.blocks.children.append(block_id=parent_id, children=children)
 
     def query(self, target):
         """Initialized a new Query object with the target data class.
 
         :param target: either a string with the database ID or an ORM class
         """
+
         return Query(self, target)
 
-    def commit(self):
-        """Commit any pending changes back to Notion - reserved for future use."""
-        raise NotImplemented("nothing to do here (yet)")
+    def save(self, block):
+        """Save the block to Notion."""
+
+        if not isinstance(block, Block):
+            raise ValueError("'block' must be a subclass of Block")
+
+
+def get_parent_id(parent):
+    """Return the correct parent ID based on the object type."""
+
+    if isinstance(parent, BlockRef):
+        return parent.dict()
+    elif isinstance(parent, Page):
+        return {"type": "page_id", "page_id": parent.id}
+    elif isinstance(parent, Database):
+        return {"type": "database_id", "database_id": parent.id}
+
+    # TODO should we support adding to the workspace?
+    raise ValueError("Unrecognized 'parent' attribute")

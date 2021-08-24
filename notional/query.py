@@ -31,12 +31,22 @@ class Query(object):
 
     def filter(self, *filters):
         """Add the given filter elements to the query."""
+
+        # XXX see notes on sort()...
+
         self._filter.extend(filters)
+
         return self
 
     def sort(self, *sorts):
         """Add the given sort elements to the query."""
+
+        # XXX should this support ORM properties also?
+        # e.g. - query.sort(Task.Title, query.ASC)
+        # but users won't always use ORM for queries...
+
         self._sort.extend(sorts)
+
         return self
 
     # def start_at(self, page_id):
@@ -51,9 +61,8 @@ class Query(object):
 
     def execute(self):
         """Execute the current query and return an iterator for the results."""
-        params = {
-            "endpoint": self.session.databases.query,
-        }
+
+        params = {"endpoint": self.session.databases.query}
 
         cls = None
 
@@ -96,6 +105,7 @@ class Query(object):
 
     def first(self):
         """Execute the current query and return the first result only."""
+
         try:
             return next(self.execute())
         except StopIteration:

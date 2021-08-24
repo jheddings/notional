@@ -4,18 +4,16 @@ import logging
 from datetime import datetime
 from typing import Dict, List
 
-from .core import DataObject, TypedObject
+from .core import DataObject, NestedObject, TypedObject
 from .iterator import EndpointIterator
 from .schema import Schema
-from .types import PropertyValue, RichTextObject
+from .types import PropertyValue, RichTextObject, TextObject
 
 log = logging.getLogger(__name__)
 
 
 class BlockRef(TypedObject):
     """Reference another block."""
-
-    pass
 
     # TODO method / property to resolve the reference?
 
@@ -92,10 +90,6 @@ class Page(Block):
         """Set the object data for the given property."""
         self.properties[key] = prop
 
-    def __iadd__(self, child):
-        """Append the given child to this Page."""
-        self.append(child)
-
     @property
     def Title(self):
         # TODO would it be better to return an empty object for setting?
@@ -108,41 +102,27 @@ class Page(Block):
 
         return None
 
-    @property
-    def children(self):
-        """Return an iterator for all child blocks of this Page."""
 
-        return EndpointIterator(
-            endpoint=self._session.blocks.children.list, block_id=self.id
-        )
+class TextBlock(Block, TypedObject):
+    """A standard text block in Notion."""
 
-    def set_property(self, name, value):
-        """Set the raw data for the given property name."""
+    @classmethod
+    def from_text(cls, text):
+        text = TextObject.from_value(text)
 
-        log.debug("set property :: {%s} %s => %s", self.id, name, value)
+        if not hasattr(cls, "type") or cls.type is None:
+            raise TypeError(f"class type is not defined: {cls}")
 
-        if self.__data__ is None:
-            self.__data__ = dict()
+        # text types have a nested object with 'type' name and a 'text' child
 
-        props = self.__data__.get("properties")
+        return cls(**{cls.type: {"text": [text]}})
 
-        if props is None:
-            props = dict()
-            self.__data__["properties"] = props
 
-        prop = props.get(name)
+class Paragraph(TextBlock, type="paragraph"):
+    """A paragraph block in Notion."""
 
-        # TODO we should reference the page schema here...
-        if prop is None:
-            prop = dict()
-            props[name] = prop
+    class NestedParagraph(NestedObject):
+        text: List[RichTextObject] = None
+        children: List[Block] = None
 
-        prop.update(value)
-
-        self._pending_props[name] = prop
-
-    def append(self, *children):
-        """Append the given blocks as children of this Page."""
-        if children is not None and len(children) > 0:
-            self._pending_children.extend(children)
-            self.has_children = True
+    paragraph: NestedParagraph = None
