@@ -4,8 +4,9 @@ import logging
 
 import notion_client
 
-from .blocks import BlockRef, Database, Page
-from .query import Query
+from .blocks import Block, BlockRef, Database, Page
+from .iterator import EndpointIterator
+from .query import Query, ResultSet
 from .types import TextObject
 from .user import User
 
@@ -58,7 +59,7 @@ class Session(object):
 
         data = self.pages.retrieve(page_id)
 
-        return Page(**data)
+        return Page.parse_obj(data)
 
     def add_page(self, parent, title=None):
         """Adds a page to the given parent (Page or Database)."""
@@ -76,25 +77,32 @@ class Session(object):
 
         data = self.pages.create(parent=parent_id, properties=props)
 
-        return Page(**data)
+        return Page.parse_obj(data)
 
     def get_database(self, database_id):
         """Returns the Database with the given ID."""
 
         data = self.databases.retrieve(database_id)
-        return Database(**data)
+        return Database.parse_obj(data)
 
     def get_user(self, user_id):
         """Returns the User with the given ID."""
 
         data = self.users.retrieve(user_id)
-        return User(**data)
+        return User.parse_obj(data)
 
     def get_block(self, block_id):
         """Returns the Block with the given ID."""
 
         data = self.blocks.retrieve(block_id)
-        return Block(**data)
+        return Block.parse_obj(data)
+
+    def get_page_blocks(self, page):
+        """Returns all Blocks contained on the given Page."""
+
+        blocks = EndpointIterator(endpoint=self.blocks.children.list, block_id=page.id)
+
+        return ResultSet(session=self, src=blocks, cls=Block)
 
     def add_blocks(self, parent, *blocks):
         """Adds the given blocks as children of the given parent."""
@@ -104,8 +112,6 @@ class Session(object):
         children = [
             block.dict(exclude_none=True) for block in blocks if block is not None
         ]
-
-        print(children)
 
         return self.blocks.children.append(block_id=parent_id, children=children)
 

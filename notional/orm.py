@@ -105,6 +105,10 @@ class ConnectedPageBase(object):
 
         return cls(**data)
 
+    @classmethod
+    def parse_obj(cls, data):
+        return cls(**data)
+
 
 def Property(name, cls=RichText, default=None):
     """Define a property for a Notion Page object.

@@ -20,7 +20,7 @@ import sys
 from datetime import date, timedelta
 
 import notional
-from notional import types
+from notional import types, blocks
 from notional.orm import Property, connected_page
 
 logging.basicConfig(level=logging.INFO)
@@ -72,6 +72,6 @@ print(f"{task.Title} @ {task.LastUpdate}")
 
 # add task content...  append child blocks to this task
 
-task.append(blocks.Paragraph(text="Welcome to the page!"))
+task.append(blocks.Paragraph.from_text("Welcome to the page!"))
 
 task.commit()

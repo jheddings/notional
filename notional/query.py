@@ -101,7 +101,7 @@ class Query(object):
         # mechanism for iterating on results
         items = EndpointIterator(**params)
 
-        return Result(session=self.session, src=items, cls=cls)
+        return ResultSet(session=self.session, src=items, cls=cls)
 
     def first(self):
         """Execute the current query and return the first result only."""
@@ -114,7 +114,7 @@ class Query(object):
         return None
 
 
-class Result(object):
+class ResultSet(object):
     """A result for a specific query."""
 
     def __init__(self, session, src, cls=None):
@@ -128,7 +128,7 @@ class Result(object):
     def __next__(self):
         item = next(self.source)
 
-        if self.cls:
-            item = self.cls(**item)
+        if self.cls is not None:
+            item = self.cls.parse_obj(item)
 
         return item

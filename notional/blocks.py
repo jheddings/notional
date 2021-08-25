@@ -1,13 +1,18 @@
-"""Wrapper for Notion API objects."""
+"""Wrapper for Notion API blocks.
+
+These objects provide both access to the primitive data structure returned by the API
+as well as higher-level access methods.  In general, attributes in lower case represent
+the primitive data structure, where capitalized attributes provide higher-level access.
+"""
 
 import logging
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Optional, Union
 
-from .core import DataObject, NestedObject, TypedObject
+from .core import NamedObject, NestedObject, TypedObject
 from .iterator import EndpointIterator
 from .schema import Schema
-from .types import PropertyValue, RichTextObject, TextObject
+from .types import EmojiObject, FileObject, PropertyValue, RichTextObject, TextObject
 
 log = logging.getLogger(__name__)
 
@@ -36,63 +41,69 @@ class WorkspaceRef(BlockRef, type="workspace"):
     workspace: bool = True
 
 
-class Block(DataObject):
-    """The base type for all Notion blocks."""
+class Record(NamedObject):
+    """The base type for all Notion API records."""
 
-    object: str = "block"
     id: str = None
     created_time: datetime = None
     last_edited_time: datetime = None
     has_children: bool = False
 
-    # TODO - update this object from the given data
-    # def update(self, **data):
 
-
-class Database(Block):
+class Database(Record, object="database"):
     """A database record type."""
 
-    object: str = "database"
     title: List[RichTextObject] = None
     parent: BlockRef = None
-    properties: Schema = None
+    properties: Schema = {}
 
     @property
     def Title(self):
         return None if self.title is None else "".join(str(text) for text in self.title)
 
 
-class Page(Block):
+class Page(Record, object="page"):
     """A standard Notion page object."""
 
-    object: str = "page"
     archived: bool = False
     parent: BlockRef = None
     url: str = None
-    properties: Dict[str, PropertyValue] = None
+    icon: Optional[Union[FileObject, EmojiObject]] = None
+    cover: Optional[FileObject] = None
+    properties: Dict[str, PropertyValue] = {}
 
-    def __getitem__(self, key):
-        """Indexer for the given property name."""
+    def __getitem__(self, name):
+        """Indexer for the given property name.
 
-        log.debug("get property :: {%s} %s", self.id, key)
+        :param name: the name of the property to get
+        """
+
+        log.debug("get property :: {%s} [%s]", self.id, name)
 
         if self.properties is None:
             raise AttributeError("No properties in Page")
 
-        prop = self.properties.get(key)
+        prop = self.properties.get(name)
 
         if prop is None:
-            raise AttributeError(f"No such property: {key}")
+            raise AttributeError(f"No such property: {name}")
 
         return prop
 
-    def __setitem__(self, key, prop):
-        """Set the object data for the given property."""
-        self.properties[key] = prop
+    def __setitem__(self, name, prop):
+        """Set the object data for the given property.
+
+        :param name: the name of the property to set
+        :param prop: the PropertyValue for the named property
+        """
+
+        log.debug("set property :: {%s} [%s] => %s", self.id, name, prop)
+
+        self.properties[name] = prop
 
     @property
     def Title(self):
-        # TODO would it be better to return an empty object for setting?
+
         if self.properties is None:
             return None
 
@@ -103,8 +114,18 @@ class Page(Block):
         return None
 
 
-class TextBlock(Block, TypedObject):
-    """A standard text block in Notion."""
+class Block(Record, TypedObject, object="block"):
+    """A standard block object in Notion."""
+
+
+class UnsupportedBlock(Block, type="unsupported"):
+    """A placeholder for unsupported blocks in the API."""
+
+    # TODO could/should we store arbitrary fields here?
+
+
+class TextBlock(Block):
+    """A standard text block object in Notion."""
 
     @classmethod
     def from_text(cls, text):
@@ -114,6 +135,7 @@ class TextBlock(Block, TypedObject):
             raise TypeError(f"class type is not defined: {cls}")
 
         # text types have a nested object with 'type' name and a 'text' child
+        # here, we use the constructor to build out the nested object...
 
         return cls(**{cls.type: {"text": [text]}})
 
@@ -121,8 +143,137 @@ class TextBlock(Block, TypedObject):
 class Paragraph(TextBlock, type="paragraph"):
     """A paragraph block in Notion."""
 
-    class NestedParagraph(NestedObject):
+    class NestedData(NestedObject):
         text: List[RichTextObject] = None
         children: List[Block] = None
 
-    paragraph: NestedParagraph = None
+    paragraph: NestedData = None
+
+
+class Heading1(TextBlock, type="heading_1"):
+    """A heading_1 block in Notion."""
+
+    class NestedData(NestedObject):
+        text: List[RichTextObject] = None
+
+    heading_1: NestedData = None
+
+
+class Heading2(TextBlock, type="heading_2"):
+    """A heading_2 block in Notion."""
+
+    class NestedData(NestedObject):
+        text: List[RichTextObject] = None
+
+    heading_2: NestedData = None
+
+
+class Heading3(TextBlock, type="heading_3"):
+    """A heading_3 block in Notion."""
+
+    class NestedData(NestedObject):
+        text: List[RichTextObject] = None
+
+    heading_3: NestedData = None
+
+
+class BulletedListItem(TextBlock, type="bulleted_list_item"):
+    """A bulleted list item in Notion."""
+
+    class NestedData(NestedObject):
+        text: List[RichTextObject] = None
+        children: List[Block] = None
+
+    bulleted_list_item: NestedData = None
+
+
+class NumberedListItem(TextBlock, type="numbered_list_item"):
+    """A numbered list item in Notion."""
+
+    class NestedData(NestedObject):
+        text: List[RichTextObject] = None
+        children: List[Block] = None
+
+    numbered_list_item: NestedData = None
+
+
+class ToDo(TextBlock, type="to_do"):
+    """A todo list item in Notion."""
+
+    class NestedData(NestedObject):
+        text: List[RichTextObject] = None
+        checked: bool = False
+        children: List[Block] = None
+
+    to_do: NestedData = None
+
+
+class Toggle(TextBlock, type="toggle"):
+    """A toggle list item in Notion."""
+
+    class NestedData(NestedObject):
+        text: List[RichTextObject] = None
+        children: List[Block] = None
+
+    toggle: NestedData = None
+
+
+class Embed(Block, type="embed"):
+    """An embed block in Notion."""
+
+    class NestedData(NestedObject):
+        url: str
+
+    embed: NestedData = None
+
+    @classmethod
+    def from_url(cls, url):
+        obj = NestedData(url=url)
+        return Embed(embed=obj)
+
+
+class Bookmark(Block, type="bookmark"):
+    """A bookmark block in Notion."""
+
+    class NestedData(NestedObject):
+        url: str
+
+    bookmark: NestedData = None
+
+    @classmethod
+    def from_url(cls, url):
+        obj = NestedData(url=url)
+        return Bookmark(bookmark=obj)
+
+
+class File(Block, type="file"):
+    """A file block in Notion."""
+
+    file: FileObject = None
+
+
+class Image(Block, type="image"):
+    """An image block in Notion."""
+
+    image: FileObject = None
+
+
+class Video(Block, type="video"):
+    """A video block in Notion."""
+
+    video: FileObject = None
+
+
+class PDF(Block, type="pdf"):
+    """A pdf block in Notion."""
+
+    pdf: FileObject = None
+
+
+class ChildPage(Block, type="child_page"):
+    """A child page block in Notion."""
+
+    class NestedData(NestedObject):
+        title: str
+
+    child_page: NestedData = None

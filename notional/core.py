@@ -33,6 +33,17 @@ class DataObject(BaseModel):
                 raise e
 
 
+class NamedObject(DataObject):
+    """A Notion API object."""
+
+    object: str = None
+
+    def __init_subclass__(cls, object=None, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+        cls.object = object
+
+
 class TypedObject(DataObject):
     """A type-referenced object.
 

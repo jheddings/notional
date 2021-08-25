@@ -1,4 +1,8 @@
-"""Wrapper for Notion API data types."""
+"""Wrapper for Notion API data types.
+
+Similar to blocks, these object provide access to the primitive data structure used
+in the Notion as well as higher-level access methods.
+"""
 
 import logging
 from datetime import date, datetime
@@ -44,6 +48,35 @@ class LinkObject(DataObject):
     url: str = None
 
 
+class EmojiObject(TypedObject, type="emoji"):
+    """A Notion emoji object."""
+
+    emoji: str = None
+
+
+class FileObject(TypedObject):
+    """A Notion file object."""
+
+
+class File(FileObject, type="file"):
+    """A Notion file reference."""
+
+    url: str = None
+    expiry_time: datetime = None
+
+
+class ExternalFile(FileObject, type="external"):
+    """An external file reference."""
+
+    url: str = None
+
+
+class FileRef(FileObject):
+    """A Notion file reference."""
+
+    name: str
+
+
 class RichTextObject(TypedObject):
     """Base class for Notion rich text elements."""
 
@@ -68,11 +101,11 @@ class RichTextObject(TypedObject):
 class TextObject(RichTextObject, type="text"):
     """Notion text element."""
 
-    class NestedText(NestedObject):
+    class NestedData(NestedObject):
         content: str
         link: LinkObject = None
 
-    text: NestedText = None
+    text: NestedData = None
 
     @classmethod
     def from_value(cls, string):
@@ -80,39 +113,40 @@ class TextObject(RichTextObject, type="text"):
 
         # TODO support markdown in the text string
 
-        text = cls.NestedText(content=string)
+        text = cls.NestedData(content=string)
         return cls(plain_text=string, text=text)
 
 
 class MentionPageRef(DataObject):
+
     id: str
 
 
 class MentionObject(RichTextObject, type="mention"):
     """Notion mention element."""
 
-    class NestedMention(NestedObject, TypedObject):
+    class NestedData(NestedObject, TypedObject):
         pass
 
-    class MentionUser(NestedMention):
+    class MentionUser(NestedData):
         user: User
 
-    class MentionPage(NestedMention):
+    class MentionPage(NestedData):
         page: MentionPageRef
 
-    class MentionDatabase(NestedMention):
+    class MentionDatabase(NestedData):
         database: MentionPageRef
 
-    mention: NestedMention = None
+    mention: NestedData = None
 
 
 class EquationObject(RichTextObject, type="equation"):
     """Notion equation element."""
 
-    class NestedEquation(NestedObject):
+    class NestedData(NestedObject):
         expression: str
 
-    equation: NestedEquation = None
+    equation: NestedData = None
 
     def __str__(self):
         """Return a string representation of this object."""
@@ -299,7 +333,7 @@ class Date(PropertyValue, type="date"):
     @classmethod
     def from_value(cls, value):
         """Create a new Date from the native value."""
-        inner = NestedDate(start=value)
+        inner = DateRange(start=value)
         return cls(date=inner)
 
 
@@ -450,12 +484,6 @@ class PhoneNumber(NativeTypeMixin, PropertyValue, type="phone_number"):
     """Notion phone type."""
 
     phone_number: str = None
-
-
-class FileRef(DataObject):
-    """A Notion file reference."""
-
-    name: str
 
 
 class Files(PropertyValue, type="files"):
