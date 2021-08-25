@@ -61,20 +61,21 @@ class FileObject(TypedObject):
 class File(FileObject, type="file"):
     """A Notion file reference."""
 
-    url: str = None
-    expiry_time: datetime = None
+    class NestedData(NestedObject):
+        url: str = None
+        expiry_time: datetime = None
+
+    file: NestedData = None
 
 
 class ExternalFile(FileObject, type="external"):
     """An external file reference."""
 
-    url: str = None
+    class NestedData(NestedObject):
+        url: str = None
 
-
-class FileRef(FileObject):
-    """A Notion file reference."""
-
-    name: str
+    external: NestedData = None
+    name: Optional[str] = None
 
 
 class RichTextObject(TypedObject):
@@ -489,10 +490,10 @@ class PhoneNumber(NativeTypeMixin, PropertyValue, type="phone_number"):
 class Files(PropertyValue, type="files"):
     """Notion files type."""
 
-    files: List[FileRef] = []
+    files: List[FileObject] = []
 
     def __contains__(self, other):
-        """Determines if the given FileRef or name is in the file list.
+        """Determines if the given FileObject or name is in the file list.
 
         To avoid confusion, only names are considered for comparison.
         """

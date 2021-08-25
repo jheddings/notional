@@ -20,7 +20,7 @@ import sys
 from datetime import date, timedelta
 
 import notional
-from notional import types, blocks
+from notional import blocks, types
 from notional.orm import Property, connected_page
 
 logging.basicConfig(level=logging.INFO)

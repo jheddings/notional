@@ -174,7 +174,7 @@ class PropertyValueTest(unittest.TestCase):
         files = types.Files.parse_obj(self.props["Attachments"])
 
         self.assertEqual(files.type, "files")
-        self.assertIn("jug.jpeg", files)
+        self.assertIn("glass.jpg", files)
 
     def test_Formula(self):
         """Verify Formula property values."""
@@ -381,13 +381,11 @@ ALL_TYPE_DATA = """{
     "type": "files",
     "files": [
       {
-        "name": "glass.jpg"
-      },
-      {
-        "name": "logo.png"
-      },
-      {
-        "name": "jug.jpeg"
+        "name": "glass.jpg",
+        "type": "external",
+        "external": {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Glass_of_Milk_%2833657535532%29.jpg"
+        }
       }
     ]
   },

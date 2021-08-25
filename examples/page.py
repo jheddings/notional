@@ -26,20 +26,17 @@ notion = notional.connect(auth=auth_token)
 page = notion.get_page(page_id)
 print(f"{page.Title} => {page.url}")
 
-print(f"{page.cover}")
-print(f"{page.icon}")
-
 # print all blocks on this page...
 for block in notion.get_page_blocks(page):
     print(f"{block.type} => {type(block)}")
 
 # create a new page
-# page = notion.add_page(parent=page, title="Hello World")
-# print(f"{page.Title} => {page.url}")
-#
+page = notion.add_page(parent=page, title="Hello World")
+print(f"{page.Title} => {page.url}")
+
 # add blocks to the page...
-# notion.add_blocks(
-#    page,
-#    blocks.Heading1.from_text("Welcome!"),
-#    blocks.Paragraph.from_text("Good to see you again!"),
-# )
+notion.add_blocks(
+    page,
+    blocks.Heading1.from_text("Welcome!"),
+    blocks.Paragraph.from_text("Good to see you again!"),
+)
