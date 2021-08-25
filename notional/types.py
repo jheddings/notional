@@ -1,7 +1,7 @@
 """Wrapper for Notion API data types.
 
-Similar to blocks, these object provide access to the primitive data structure used
-in the Notion as well as higher-level access methods.
+Similar to other records, these object provide access to the primitive data structure
+used in the Notion API as well as higher-level methods.
 """
 
 import logging

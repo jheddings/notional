@@ -4,9 +4,10 @@ import logging
 
 import notion_client
 
-from .blocks import Block, BlockRef, Database, Page
+from .blocks import Block
 from .iterator import EndpointIterator
 from .query import Query, ResultSet
+from .records import Database, Page, ParentRef
 from .types import TextObject
 from .user import User
 
@@ -133,7 +134,7 @@ class Session(object):
 def get_parent_id(parent):
     """Return the correct parent ID based on the object type."""
 
-    if isinstance(parent, BlockRef):
+    if isinstance(parent, ParentRef):
         return parent.dict()
     elif isinstance(parent, Page):
         return {"type": "page_id", "page_id": parent.id}

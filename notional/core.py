@@ -150,5 +150,3 @@ class NestedObject(DataObject):
     """
 
     # XXX can we somehow help provide pass-through access from the outer class?
-
-    pass

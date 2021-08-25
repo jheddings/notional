@@ -2,7 +2,7 @@
 
 import logging
 
-from .blocks import Block, Page
+from .records import Page
 from .types import NativeTypeMixin, PropertyValue, RichText
 
 log = logging.getLogger(__name__)
