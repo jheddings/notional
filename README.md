@@ -90,8 +90,7 @@ these pages are entries in a database (collection) with a consistent schema.
 from notional import types
 from notional.records import Page, Property
 
-class Task(Page):
-    __database__ = NOTION_DATABASE_ID
+class Task(Page, database=NOTION_DATABASE_ID):
     Title = Property('Title', types.Title)
     Priority = Property('Priority', types.SelectOne)
     DueDate = Property('Due Date', types.Date)
