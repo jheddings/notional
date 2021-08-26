@@ -12,9 +12,6 @@ class ConnectedPageBase(object):
     """Base class for "live" pages via the Notion API."""
 
     def __init__(self, **data):
-        self._pending_props_ = dict()
-        self._pending_children_ = list()
-
         self.page = Page(**data)
 
     @property
@@ -31,41 +28,12 @@ class ConnectedPageBase(object):
             endpoint=self._session.blocks.children.list, block_id=self.id
         )
 
-    def commit(self):
-        """Commit any pending changes to this ConnectedPageBase."""
-
-        num_changes = len(self._pending_props_) + len(self._pending_children_)
-
-        if num_changes == 0:
-            log.debug("no pending changes for page %s; nothing to do", num_changes)
-            return
-
-        page_id = self.page.id
-        log.info("Committing %d changes to page %s...", num_changes, page_id)
-
-        if len(self._pending_props_) > 0:
-            log.debug(
-                "=> committing %d properties :: %s",
-                len(self._pending_props_),
-                self._pending_props_,
-            )
-            self._orm_session_.pages.update(page_id, properties=self._pending_props_)
-            self._pending_props_.clear()
-
-        if len(self._pending_children_) > 0:
-            log.debug(
-                "=> committing %d children :: %s",
-                len(self._pending_children_),
-                self._pending_children_,
-            )
-            self._orm_session_.blocks.children.append(
-                block_id=self.page.id, children=self._pending_children_
-            )
-            self._pending_children_.clear()
-
     def append(self, *blocks):
-        for block in blocks:
-            self._pending_children_.append(block.dict(exclude_none=True))
+        """Append the given blocks as children of this ConnectedPage."""
+
+        data = [block.dict(exclude_none=True) for block in blocks]
+
+        self._orm_session_.blocks.children.append(block_id=self.page.id, children=data)
 
     def kwargs_to_props(self, **kwargs):
         """Converts the list of keyword args to a dict of properties."""
@@ -159,18 +127,18 @@ def Property(name, cls=RichText, default=None):
         else:
             raise ValueError(f"Value does not match expected type: {cls}")
 
-        self.page[name] = prop
+        # commit the changes directly to Notion
+        props = {name: prop.dict(exclude_none=True)}
+        data = self._orm_session_.pages.update(self.page.id, properties=props)
 
-        # add the object data to pending props for commit...
-        self._pending_props_[name] = prop.dict(exclude_none=True)
+        # reset the internal page with the latest data
+        self.page = Page(**data)
 
     return property(fget, fset)
 
 
 def connected_page(session, bind=ConnectedPageBase):
     """Returns a base class for "connected" pages through the Notion API."""
-
-    # TODO add support for autocommit -- maybe just get rid of pending / commit?
 
     if not issubclass(bind, ConnectedPageBase):
         raise ValueError("bind class must subclass ConnectedPageBase")

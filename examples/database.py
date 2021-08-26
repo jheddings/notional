@@ -21,7 +21,7 @@ auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 notion = notional.connect(auth=auth_token)
 
-db = notion.get_database(database_id)
+db = notion.databases.retrieve(database_id)
 
 print(f"== {db.Title} ==")
 

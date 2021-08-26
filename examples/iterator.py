@@ -22,8 +22,10 @@ auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 notion = notional.connect(auth=auth_token)
 
+# NOTE calling the notional endpoint exposes the unerlying raw data endpoint
+
 tasks = EndpointIterator(
-    endpoint=notion.databases.query,
+    endpoint=notion.databases().query,
     database_id=dbid,
     sorts=[{"direction": "ascending", "property": "Last Update"}],
 )

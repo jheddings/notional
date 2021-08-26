@@ -62,7 +62,7 @@ class Query(object):
     def execute(self):
         """Execute the current query and return an iterator for the results."""
 
-        params = {"endpoint": self.session.databases.query}
+        params = {"endpoint": self.session.databases().query}
 
         cls = None
 

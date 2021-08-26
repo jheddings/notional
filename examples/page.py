@@ -23,19 +23,19 @@ auth_token = os.getenv("NOTION_AUTH_TOKEN")
 notion = notional.connect(auth=auth_token)
 
 # get an existing page...
-page = notion.get_page(page_id)
+page = notion.pages.retrieve(page_id)
 print(f"{page.Title} => {page.url}")
 
 # print all blocks on this page...
-for block in notion.get_page_blocks(page):
+for block in notion.blocks.children.list(page):
     print(f"{block.type} => {type(block)}")
 
 # create a new page
-page = notion.create_page(parent=page, title="Hello World")
+page = notion.pages.create(parent=page, title="Hello World")
 print(f"{page.Title} => {page.url}")
 
 # add blocks to the page...
-notion.add_blocks(
+notion.blocks.children.append(
     page,
     blocks.Heading1.from_text("Welcome!"),
     blocks.Paragraph.from_text("Good to see you again!"),

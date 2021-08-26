@@ -43,7 +43,7 @@ class Task(CustomPage, database=sys.argv[1]):
     Status = Property("Status")
 
 
-# display all tasks...  also, set a tag if it is not present (which requires commit)
+# display all tasks...  also, set a tag if it is not present
 
 sort = {"direction": "ascending", "property": "Title"}
 
@@ -54,7 +54,8 @@ for task in notion.query(Task).sort(sort).execute():
     if "To Review" not in task.Tags:
         task.Tags += "To Review"
 
-    task.commit()
+    # FIXME lists use extend() with iadd, not append()...  this causes each letter
+    # of 'To Review' to become a select option, which is obviously not intended.
 
 # create a task...  properties can be set using keywords, according to their type
 
@@ -75,5 +76,3 @@ print(f"{task.Title} @ {task.LastUpdate}")
 # add task content...  append child blocks to this task
 
 task.append(blocks.Paragraph.from_text("Welcome to the page!"))
-
-task.commit()

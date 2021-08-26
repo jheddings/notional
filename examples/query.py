@@ -23,7 +23,7 @@ auth_token = os.getenv("NOTION_AUTH_TOKEN")
 notion = notional.connect(auth=auth_token)
 sort = {"direction": "ascending", "property": "Title"}
 
-query = notion.query(dbid).sort(sort)
+query = notion.databases.query(dbid).sort(sort)
 
 data = query.first()
 print("== First Result ==")
