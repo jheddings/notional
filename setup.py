@@ -6,7 +6,7 @@ from notional.version import __version__
 with open("README.md", "r") as fp:
     readme = fp.read()
 
-requirements = ["notion-client>=0.5", "pydantic>=1.8.2"]
+requirements = ["notion-client>=0.6", "pydantic>=1.8.2"]
 
 setup(
     name="notional",

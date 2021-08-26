@@ -50,6 +50,7 @@ stats:
 
 venv: requirements/core.txt requirements/dev.txt
 	python3 -m venv --prompt "$(APPNAME)" "$(VENVDIR)"
+	"$(BASEDIR)/.venv/bin/pip3" install --upgrade pip
 	"$(BASEDIR)/.venv/bin/pip3" install -r requirements/core.txt
 	"$(BASEDIR)/.venv/bin/pip3" install -r requirements/dev.txt
 
