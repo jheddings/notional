@@ -1,6 +1,6 @@
 """Objects representing a database schema."""
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from .core import DataObject, NestedObject, TypedObject
 
@@ -8,33 +8,33 @@ from .core import DataObject, NestedObject, TypedObject
 class PropertyObject(TypedObject):
     """Base class for Notion property objects."""
 
-    id: str
-    name: str
+    id: Optional[str] = None
+    name: Optional[str] = None
 
 
 Schema = Dict[str, PropertyObject]
 """A database schema, mapping property names to object configurations."""
 
 
-class TitleProperty(PropertyObject, type="title"):
+class Title(PropertyObject, type="title"):
     """Defines the title configuration for a database property."""
 
-    title: Any = None
+    title: Any = {}
 
 
-class RichTextProperty(PropertyObject, type="rich_text"):
+class RichText(PropertyObject, type="rich_text"):
     """Defines the rich text configuration for a database property."""
 
-    rich_text: Any = None
+    rich_text: Any = {}
 
 
-class NumberProperty(PropertyObject, type="number"):
+class Number(PropertyObject, type="number"):
     """Defines the number configuration for a database property."""
 
-    class NestedNumber(NestedObject):
+    class NestedData(NestedObject):
         format: str = "number"
 
-    number: NestedNumber = None
+    number: NestedData = {}
 
 
 class SelectOption(DataObject):
@@ -45,118 +45,118 @@ class SelectOption(DataObject):
     color: str = None
 
 
-class SelectProperty(PropertyObject, type="select"):
+class Select(PropertyObject, type="select"):
     """Defines the select configuration for a database property."""
 
-    class NestedSelect(NestedObject):
+    class NestedData(NestedObject):
         options: List[SelectOption] = []
 
-    select: NestedSelect = None
+    select: NestedData = None
 
 
-class MultiSelectProperty(PropertyObject, type="multi_select"):
+class MultiSelect(PropertyObject, type="multi_select"):
     """Defines the multi-select configuration for a database property."""
 
-    class NestedSelect(NestedObject):
+    class NestedData(NestedObject):
         options: List[SelectOption] = []
 
-    multi_select: NestedSelect = None
+    multi_select: NestedData = None
 
 
-class DateProperty(PropertyObject, type="date"):
+class Date(PropertyObject, type="date"):
     """Defines the date configuration for a database property."""
 
-    date: Any = None
+    date: Any = {}
 
 
-class PeopleProperty(PropertyObject, type="people"):
+class People(PropertyObject, type="people"):
     """Defines the people configuration for a database property."""
 
-    people: Any = None
+    people: Any = {}
 
 
-class FilesProperty(PropertyObject, type="files"):
+class Files(PropertyObject, type="files"):
     """Defines the files configuration for a database property."""
 
-    files: Any = None
+    files: Any = {}
 
 
-class CheckboxProperty(PropertyObject, type="checkbox"):
+class Checkbox(PropertyObject, type="checkbox"):
     """Defines the checkbox configuration for a database property."""
 
-    checkbox: Any = None
+    checkbox: Any = {}
 
 
-class EmailProperty(PropertyObject, type="email"):
+class Email(PropertyObject, type="email"):
     """Defines the email configuration for a database property."""
 
-    email: Any = None
+    email: Any = {}
 
 
-class UrlProperty(PropertyObject, type="url"):
+class URL(PropertyObject, type="url"):
     """Defines the URL configuration for a database property."""
 
-    url: Any = None
+    url: Any = {}
 
 
 class PhoneNumber(PropertyObject, type="phone_number"):
     """Defines the phone number configuration for a database property."""
 
-    phone_number: Any = None
+    phone_number: Any = {}
 
 
-class FormulaProperty(PropertyObject, type="formula"):
+class Formula(PropertyObject, type="formula"):
     """Defines the formula configuration for a database property."""
 
-    class NestedFormula(NestedObject):
+    class NestedData(NestedObject):
         expression: str
 
-    formula: NestedFormula = None
+    formula: NestedData = None
 
 
-class RelationProperty(PropertyObject, type="relation"):
+class Relation(PropertyObject, type="relation"):
     """Defines the relation configuration for a database property."""
 
-    class NestedRelation(NestedObject):
+    class NestedData(NestedObject):
         database_id: str
         synced_property_name: str = None
         synced_property_id: str = None
 
-    relation: NestedRelation = None
+    relation: NestedData = None
 
 
-class RollupProperty(PropertyObject, type="rollup"):
+class Rollup(PropertyObject, type="rollup"):
     """Defines the rollup configuration for a database property."""
 
-    class NestedRollup(NestedObject):
+    class NestedData(NestedObject):
         relation_property_name: str
         relation_property_id: str
         rollup_property_name: str
         rollup_property_id: str
         function: str
 
-    rollup: NestedRollup = None
+    rollup: NestedData = None
 
 
-class CreatedTimeProperty(PropertyObject, type="created_time"):
+class CreatedTime(PropertyObject, type="created_time"):
     """Defines the created-time configuration for a database property."""
 
-    created_time: Any = None
+    created_time: Any = {}
 
 
-class CreatedByProperty(PropertyObject, type="created_by"):
+class CreatedBy(PropertyObject, type="created_by"):
     """Defines the created-by configuration for a database property."""
 
-    created_by: Any = None
+    created_by: Any = {}
 
 
-class LastEditedByProperty(PropertyObject, type="last_edited_by"):
+class LastEditedBy(PropertyObject, type="last_edited_by"):
     """Defines the last-edited-by configuration for a database property."""
 
-    last_edited_by: Any = None
+    last_edited_by: Any = {}
 
 
-class LastEditedTimeProperty(PropertyObject, type="last_edited_time"):
+class LastEditedTime(PropertyObject, type="last_edited_time"):
     """Defines the last-edited-time configuration for a database property."""
 
-    last_edited_time: Any = None
+    last_edited_time: Any = {}

@@ -25,19 +25,19 @@ class ParentRef(TypedObject):
     # TODO method / property to resolve the reference?
 
 
-class DatabaseRef(ParentRef, type="database_id"):
+class DatabaseParent(ParentRef, type="database_id"):
     """Reference a database."""
 
     database_id: str
 
 
-class PageRef(ParentRef, type="page_id"):
+class PageParent(ParentRef, type="page_id"):
     """Reference a page."""
 
     page_id: str
 
 
-class WorkspaceRef(ParentRef, type="workspace"):
+class WorkspaceParent(ParentRef, type="workspace"):
     """Reference the workspace."""
 
     workspace: bool = True
@@ -63,6 +63,7 @@ class Database(Record, object="database"):
 
     @property
     def Title(self):
+        # TODO should return the same data type as Page.Title
         return None if self.title is None else "".join(str(text) for text in self.title)
 
 
@@ -107,6 +108,7 @@ class Page(Record, object="page"):
 
     @property
     def Title(self):
+        # TODO should return the same data type as Database.Title
 
         if self.properties is None:
             return None

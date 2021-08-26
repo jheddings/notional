@@ -13,6 +13,8 @@ from .user import User
 
 log = logging.getLogger(__name__)
 
+# TODO fix the Mention classes... they are not consistent with the rest of this library
+
 
 class Annotations(DataObject):
     """Style information for RichTextObject's."""

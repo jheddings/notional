@@ -170,7 +170,7 @@ def Property(name, cls=RichText, default=None):
 def connected_page(session, bind=ConnectedPageBase):
     """Returns a base class for "connected" pages through the Notion API."""
 
-    # TODO add support for autocommit
+    # TODO add support for autocommit -- maybe just get rid of pending / commit?
 
     if not issubclass(bind, ConnectedPageBase):
         raise ValueError("bind class must subclass ConnectedPageBase")

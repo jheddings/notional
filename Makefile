@@ -40,6 +40,12 @@ test: venv-configured
 	python3 -m unittest discover -v -s "$(BASEDIR)/tests"
 
 ################################################################################
+.PHONY: stats
+
+stats:
+	cloc "$(SRCDIR)" "$(BASEDIR)/tests" "$(BASEDIR)/examples"
+
+################################################################################
 .PHONY: venv
 
 venv: requirements/core.txt requirements/dev.txt

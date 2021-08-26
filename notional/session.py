@@ -19,8 +19,7 @@ class Session(object):
 
     def __init__(self, **kwargs):
         self.client = notion_client.Client(**kwargs)
-        self.log = log.getChild("Session")
-        self.log.info("Initialized Notion SDK client")
+        log.info("Initialized Notion SDK client")
 
     @property
     def databases(self):
@@ -62,7 +61,7 @@ class Session(object):
 
         return Page.parse_obj(data)
 
-    def add_page(self, parent, title=None):
+    def create_page(self, parent, title=None, children=list()):
         """Adds a page to the given parent (Page or Database)."""
 
         if parent is None:
@@ -70,13 +69,15 @@ class Session(object):
 
         parent_id = get_parent_id(parent)
 
+        log.debug("creating page [%s] - %s", parent_id, title)
+
         props = dict()
 
         if title is not None:
             text = TextObject.from_value(title)
             props["title"] = [text.dict(exclude_none=True)]
 
-        data = self.pages.create(parent=parent_id, properties=props)
+        data = self.pages.create(parent=parent_id, properties=props, children=children)
 
         return Page.parse_obj(data)
 
@@ -84,6 +85,26 @@ class Session(object):
         """Returns the Database with the given ID."""
 
         data = self.databases.retrieve(database_id)
+        return Database.parse_obj(data)
+
+    def create_database(self, parent, schema, title=None):
+        """Adds a database to the given Page parent."""
+
+        parent_id = get_parent_id(parent)
+
+        log.debug("creating database [%s] - %s", parent_id, title)
+
+        props = {name: prop.dict(exclude_none=True) for name, prop in schema.items()}
+
+        if title is not None:
+            title = TextObject.from_value(title)
+
+        data = self.databases.create(
+            parent=parent_id,
+            title=[title.dict(exclude_none=True)],
+            properties=props,
+        )
+
         return Database.parse_obj(data)
 
     def get_user(self, user_id):

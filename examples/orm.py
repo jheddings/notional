@@ -60,6 +60,8 @@ for task in notion.query(Task).sort(sort).execute():
 
 one_week = date.today() + timedelta(days=7)
 
+# FIXME currently this does not work (the properties are not set)...
+
 task = Task.create(
     Title="Hello World",
     Complete=False,

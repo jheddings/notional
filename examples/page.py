@@ -31,7 +31,7 @@ for block in notion.get_page_blocks(page):
     print(f"{block.type} => {type(block)}")
 
 # create a new page
-page = notion.add_page(parent=page, title="Hello World")
+page = notion.create_page(parent=page, title="Hello World")
 print(f"{page.Title} => {page.url}")
 
 # add blocks to the page...
