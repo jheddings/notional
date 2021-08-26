@@ -67,7 +67,7 @@ given endpoint.
 ## Query Builder ###
 
 Notional provides a query builder for interating with the Notion API.  Query targets can be
-either a specific database ID or a custom ORM type (with a `__database__` property).
+either a specific database ID or a custom ORM type.
 
 ```python
 notion = notional.connect(auth=auth_token)
@@ -90,8 +90,7 @@ these pages are entries in a database (collection) with a consistent schema.
 from notional import types
 from notional.records import Page, Property
 
-class Task(Page):
-    __database__ = NOTION_DATABASE_ID
+class Task(Page, database=NOTION_DATABASE_ID):
     Title = Property('Title', types.Title)
     Priority = Property('Priority', types.SelectOne)
     DueDate = Property('Due Date', types.Date)
@@ -120,7 +119,7 @@ Any pull requests or other submissions are welcome.  As most open source project
 is a side project.  Large submissions will take time to review for acceptance, so breaking
 them into smaller pieces is always preferred.  Thanks in advance!
 
-Formatted using `black`.
+Formatted using `black` and `isort`.
 
 ### Known Issues ###
 
