@@ -47,7 +47,7 @@ from notional.iterator import EndpointIterator
 notion = notional.connect(auth=AUTH_TOKEN)
 
 tasks = EndpointIterator(
-    endpoint=notion.databases.query,
+    endpoint=notion.databases().query,
     database_id=task_db_id,
     sorts=[
         {
@@ -72,7 +72,7 @@ either a specific database ID or a custom ORM type.
 ```python
 notion = notional.connect(auth=auth_token)
 sorts = [{"direction": "ascending", "property": "Last Update"}]
-query = notion.query(dbid).sort(sorts)
+query = notion.databases.query(dbid).sort(sorts)
 
 for data in query.execute():
     # something magic happens
@@ -95,7 +95,7 @@ class Task(Page, database=NOTION_DATABASE_ID):
     Priority = Property('Priority', types.SelectOne)
     DueDate = Property('Due Date', types.Date)
 
-for task in notion.query(Task).execute():
+for task in notion.databases.query(Task).execute():
     print(f"{task.Title} => {task.Priority}")
     task.DueDate = date.today()
     task.commit()
