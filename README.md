@@ -1,5 +1,9 @@
 # notional #
 
+<a href="https://pypi.org/project/notional"><img src="https://img.shields.io/pypi/v/notional.svg" alt="PyPI"></a>
+<a href="LICENSE"><img src="https://img.shields.io/github/license/jheddings/notional" alt="License"></a>
+<a href="https://github.com/ambv/black"><img src="https://img.shields.io/badge/code%20style-black-black" alt="Code style"></a>
+
 A simplified object model for the Notion SDK.  This is loosely modeled after concepts
 found in [SQLAlchemy](https://www.sqlalchemy.org).
 
