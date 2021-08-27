@@ -48,7 +48,7 @@ class BlocksEndpoint(Endpoint):
 
             data = self().append(block_id=parent_id, children=children)
 
-            # XXX parent.update(data)
+            parent.refresh(**data)
 
         # https://developers.notion.com/reference/get-block-children
         def list(self, parent):
@@ -79,7 +79,7 @@ class BlocksEndpoint(Endpoint):
 
         data = self().update(block.id)
 
-        # XXX block.update(data)
+        block.refresh(**data)
 
 
 class DatabasesEndpoint(Endpoint):
@@ -130,7 +130,7 @@ class DatabasesEndpoint(Endpoint):
 
         data = self().update(database.id)
 
-        # XXX database.update(data)
+        database.refresh(**data)
 
     # https://developers.notion.com/reference/post-database-query
     def query(self, target):
@@ -183,7 +183,7 @@ class PagesEndpoint(Endpoint):
 
         data = self().update(page.id)
 
-        # XXX page.update(data)
+        page.refresh(**data)
 
 
 class UsersEndpoint(Endpoint):

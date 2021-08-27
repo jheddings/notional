@@ -132,7 +132,7 @@ def Property(name, cls=RichText, default=None):
         data = self._orm_session_.pages.update(self.page.id, properties=props)
 
         # reset the internal page with the latest data
-        self.page = Page(**data)
+        self.page.refresh(**data)
 
     return property(fget, fset)
 

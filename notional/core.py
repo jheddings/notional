@@ -4,17 +4,13 @@ import inspect
 import logging
 
 from pydantic import BaseModel, validator
+from pydantic.main import validate_model
 
 log = logging.getLogger(__name__)
 
 
 class DataObject(BaseModel):
     """The base for all API objects."""
-
-    class Config:
-        """pydantic model configuration"""
-
-        underscore_attrs_are_private = False
 
     # See https://github.com/samuelcolvin/pydantic/issues/1577
     def __setattr__(self, name, value):
@@ -31,6 +27,16 @@ class DataObject(BaseModel):
                     break
             else:
                 raise e
+
+    def refresh(__pydantic_self__, **data):
+        """Refresh the internal attributes with new data."""
+
+        values, fields, error = validate_model(__pydantic_self__.__class__, data)
+
+        if error:
+            raise error
+
+        object.__setattr__(__pydantic_self__, "__dict__", values)
 
 
 class NamedObject(DataObject):
