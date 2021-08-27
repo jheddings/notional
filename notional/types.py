@@ -9,6 +9,7 @@ from datetime import date, datetime
 from typing import Dict, List, Optional, Union
 
 from .core import DataObject, NestedObject, TypedObject
+from .text import plain_text
 from .user import User
 
 log = logging.getLogger(__name__)
@@ -221,11 +222,7 @@ class Title(NativeTypeMixin, PropertyValue, type="title"):
     @property
     def Value(self):
         """Return the plain text from this Title."""
-
-        if self.title is None:
-            return None
-
-        return "".join(str(text) for text in self.title)
+        return plain_text(*self.title)
 
     @classmethod
     def from_value(cls, value):
@@ -240,17 +237,12 @@ class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
 
     def __len__(self):
         """Return the number of object in the RichText object."""
-
         return len(self.rich_text)
 
     @property
     def Value(self):
         """Return the plain text from this RichText."""
-
-        if self.rich_text is None:
-            return None
-
-        return "".join(str(text) for text in self.rich_text)
+        return plain_text(*self.rich_text)
 
     @classmethod
     def from_value(cls, value):

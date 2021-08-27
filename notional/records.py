@@ -14,6 +14,7 @@ from typing import Dict, List, Optional, Union
 
 from .core import NamedObject, TypedObject
 from .schema import Schema
+from .text import plain_text
 from .types import EmojiObject, FileObject, PropertyValue, RichTextObject
 
 log = logging.getLogger(__name__)
@@ -63,8 +64,7 @@ class Database(Record, object="database"):
 
     @property
     def Title(self):
-        # TODO should return the same data type as Page.Title
-        return None if self.title is None else "".join(str(text) for text in self.title)
+        return plain_text(*self.title)
 
 
 class Page(Record, object="page"):
@@ -108,13 +108,11 @@ class Page(Record, object="page"):
 
     @property
     def Title(self):
-        # TODO should return the same data type as Database.Title
-
         if self.properties is None:
             return None
 
         for prop in self.properties.values():
             if prop.id == "title":
-                return prop
+                return prop.Value
 
         return None

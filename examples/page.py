@@ -26,7 +26,7 @@ notion = notional.connect(auth=auth_token)
 page = notion.pages.retrieve(page_id)
 print(f"{page.Title} => {page.url}")
 
-# print all blocks on this page...
+# print all children blocks on this page...
 for block in notion.blocks.children.list(page):
     print(f"{block.type} => {type(block)}")
 
