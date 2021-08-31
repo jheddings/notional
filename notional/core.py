@@ -31,10 +31,14 @@ class DataObject(BaseModel):
     def refresh(__pydantic_self__, **data):
         """Refresh the internal attributes with new data."""
 
+        # log.debug("validating object data -- %s", data)
+
         values, fields, error = validate_model(__pydantic_self__.__class__, data)
 
         if error:
             raise error
+
+        log.debug("refreshing object values -- %s", values)
 
         object.__setattr__(__pydantic_self__, "__dict__", values)
 
@@ -130,7 +134,9 @@ class TypedObject(DataObject):
         if sub is None:
             raise TypeError(f"Unsupport sub-type: {data_type}")
 
-        log.debug("converting type %s :: %s => %s", cls, data_type, sub)
+        log.debug(
+            "initializing typed object %s :: %s => %s -- %s", cls, data_type, sub, data
+        )
 
         return sub(**data)
 
@@ -156,3 +162,7 @@ class NestedObject(DataObject):
     """
 
     # XXX can we somehow help provide pass-through access from the outer class?
+
+    # some ideas...
+    #   use __call__ of the outer class to access inner metadata object
+    #   use __getitem__ of the outer class to access inner metadata properties

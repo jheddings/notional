@@ -8,9 +8,9 @@ from .version import __version__
 log = logging.getLogger(__name__)
 
 
-def connect(auth):
+def connect(**kwargs):
     """Connect to Notion using the provided integration token."""
 
     log.debug("connecting to Notion...")
 
-    return Session(auth=auth)
+    return Session(**kwargs)

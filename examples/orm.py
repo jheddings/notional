@@ -19,11 +19,11 @@ import os
 import sys
 from datetime import date, timedelta
 
+logging.basicConfig(level=logging.INFO)
+
 import notional
 from notional import blocks, types
 from notional.orm import Property, connected_page
-
-logging.basicConfig(level=logging.INFO)
 
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 notion = notional.connect(auth=auth_token)

@@ -10,11 +10,11 @@ The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 import logging
 import os
 
+logging.basicConfig(level=logging.INFO)
+
 import notional
 from notional.iterator import EndpointIterator
 from notional.user import User
-
-logging.basicConfig(level=logging.INFO)
 
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 notion = notional.connect(auth=auth_token)

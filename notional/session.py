@@ -46,6 +46,8 @@ class BlocksEndpoint(Endpoint):
                 block.dict(exclude_none=True) for block in blocks if block is not None
             ]
 
+            log.info("Appending %d blocks to %s...", len(children), parent_id)
+
             data = self().append(block_id=parent_id, children=children)
 
             parent.refresh(**data)
@@ -55,6 +57,9 @@ class BlocksEndpoint(Endpoint):
             """Returns all Blocks contained by the specified parent."""
 
             blocks = EndpointIterator(endpoint=self().list, block_id=parent.id)
+
+            log.info("Listing blocks for %s...", parent.id)
+
             return ResultSet(session=self, src=blocks, cls=Block)
 
     def __init__(self, *args, **kwargs):
@@ -68,6 +73,9 @@ class BlocksEndpoint(Endpoint):
     # https://developers.notion.com/reference/retrieve-a-block
     def retrieve(self, block_id):
         """Returns the Block with the given ID."""
+
+        log.info("Retrieving block :: %s", block_id)
+
         return Block.parse_obj(self().retrieve(block_id))
 
     # https://developers.notion.com/reference/update-a-block
@@ -77,7 +85,9 @@ class BlocksEndpoint(Endpoint):
         The block will be refreshed to the latest version from the server.
         """
 
-        data = self().update(block.id)
+        log.info("Updating block :: %s", block.id)
+
+        data = self().update(block.id, **block.dict(exclude_none=True))
 
         block.refresh(**data)
 
@@ -94,7 +104,7 @@ class DatabasesEndpoint(Endpoint):
 
         parent_id = get_parent_id(parent)
 
-        log.debug("creating database [%s] - %s", parent_id, title)
+        log.info("Creating database [%s] - %s", parent_id, title)
 
         props = {name: prop.dict(exclude_none=True) for name, prop in schema.items()}
 
@@ -113,12 +123,17 @@ class DatabasesEndpoint(Endpoint):
     def list(self):
         """Returns an iterator for all Database objects in the integration scope."""
 
+        log.info("Listing known databases...")
+
         databases = EndpointIterator(endpoint=self().list)
         return ResultSet(session=self, src=databases, cls=Database)
 
     # https://developers.notion.com/reference/retrieve-a-database
     def retrieve(self, database_id):
         """Returns the Database with the given ID."""
+
+        log.info("Retrieving database :: ", database_id)
+
         return Database.parse_obj(self().retrieve(database_id))
 
     # https://developers.notion.com/reference/update-a-database
@@ -128,7 +143,9 @@ class DatabasesEndpoint(Endpoint):
         The database will be refreshed to the latest version from the server.
         """
 
-        data = self().update(database.id)
+        log.info("Updating database info :: ", database.id)
+
+        data = self().update(database.id, **database.dict(exclude_none=True))
 
         database.refresh(**data)
 
@@ -138,6 +155,8 @@ class DatabasesEndpoint(Endpoint):
 
         :param target: either a string with the database ID or an ORM class
         """
+
+        log.info("Initializing database query :: ", target)
 
         return Query(self.session, target)
 
@@ -157,7 +176,7 @@ class PagesEndpoint(Endpoint):
 
         parent_id = get_parent_id(parent)
 
-        log.debug("creating page [%s] - %s", parent_id, title)
+        log.info("Creating page [%s] - %s", parent_id, title)
 
         props = dict()
 
@@ -172,6 +191,9 @@ class PagesEndpoint(Endpoint):
     # https://developers.notion.com/reference/retrieve-a-page
     def retrieve(self, page_id):
         """Returns the Page with the given ID."""
+
+        log.info("Retrieving page :: %s", page_id)
+
         return Page.parse_obj(self().retrieve(page_id))
 
     # https://developers.notion.com/reference/patch-page
@@ -181,7 +203,9 @@ class PagesEndpoint(Endpoint):
         The page will be refreshed to the latest version from the server.
         """
 
-        data = self().update(page.id)
+        log.info("Updating page info :: %s", page.id)
+
+        data = self().update(page.id, **page.dict(exclude_none=True))
 
         page.refresh(**data)
 
@@ -197,11 +221,16 @@ class UsersEndpoint(Endpoint):
         """Return an iterator for all users in the workspace."""
 
         users = EndpointIterator(endpoint=self().list)
+        log.info("Listing known users...")
+
         return ResultSet(session=self.session, src=users, cls=User)
 
     # https://developers.notion.com/reference/get-user
     def retrieve(self, user_id):
         """Returns the User with the given ID."""
+
+        log.info("Retrieving user :: ", user_id)
+
         return User.parse_obj(self.users.retrieve(user_id))
 
 

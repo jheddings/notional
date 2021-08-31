@@ -12,9 +12,9 @@ import logging
 import os
 import sys
 
-import notional
-
 logging.basicConfig(level=logging.INFO)
+
+import notional
 
 database_id = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
