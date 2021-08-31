@@ -14,7 +14,6 @@ from .user import User
 log = logging.getLogger(__name__)
 
 # TODO add support for limits and filters in list() methods...
-# TODO add refresh methods to pull latest data for an object from the server
 
 
 class Endpoint(object):
@@ -37,7 +36,7 @@ class BlocksEndpoint(Endpoint):
         def append(self, parent, *blocks):
             """Adds the given blocks as children of the specified parent.
 
-            The parent will be refreshed to the latest version from the server.
+            The parent info will be refreshed to the latest version from the server.
             """
 
             parent_id = parent.id
@@ -82,7 +81,7 @@ class BlocksEndpoint(Endpoint):
     def update(self, block):
         """Update the block content on the server.
 
-        The block will be refreshed to the latest version from the server.
+        The block info will be refreshed to the latest version from the server.
         """
 
         log.info("Updating block :: %s", block.id)
@@ -140,7 +139,7 @@ class DatabasesEndpoint(Endpoint):
     def update(self, database):
         """Updates the Database object on the server.
 
-        The database will be refreshed to the latest version from the server.
+        The database info will be refreshed to the latest version from the server.
         """
 
         log.info("Updating database info :: ", database.id)
@@ -176,13 +175,13 @@ class PagesEndpoint(Endpoint):
 
         parent_id = get_parent_id(parent)
 
-        log.info("Creating page [%s] - %s", parent_id, title)
-
         props = dict()
 
         if title is not None:
             text = TextObject.from_value(title)
             props["title"] = [text.dict(exclude_none=True)]
+
+        log.info("Creating page [%s] - %s", parent_id, title)
 
         data = self().create(parent=parent_id, properties=props, children=children)
 
@@ -200,7 +199,7 @@ class PagesEndpoint(Endpoint):
     def update(self, page):
         """Updates the Page object on the server.
 
-        The page will be refreshed to the latest version from the server.
+        The page info will be refreshed to the latest version from the server.
         """
 
         log.info("Updating page info :: %s", page.id)
@@ -253,7 +252,7 @@ def get_parent_id(parent):
     """Return the correct parent ID based on the object type."""
 
     if isinstance(parent, ParentRef):
-        return parent.dict()
+        return parent.dict(exclude_none=True)
     elif isinstance(parent, Page):
         return {"type": "page_id", "page_id": parent.id}
     elif isinstance(parent, Database):
