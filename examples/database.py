@@ -25,5 +25,6 @@ db = notion.databases.retrieve(database_id)
 
 print(f"== {db.Title} ==")
 
+# print the current schema
 for name, prop in db.properties.items():
     print(f"{name} => {prop.type}")

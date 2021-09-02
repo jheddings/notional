@@ -31,7 +31,7 @@ class ConnectedPageBase(object):
     def append(self, *blocks):
         """Append the given blocks as children of this ConnectedPage."""
 
-        data = [block.dict(exclude_none=True) for block in blocks]
+        data = [block.to_api() for block in blocks]
 
         self._orm_session_.blocks.children.append(block_id=self.page.id, children=data)
 
@@ -42,7 +42,7 @@ class ConnectedPageBase(object):
 
         for name, prop in properties.items():
             if isinstance(prop, PropertyValue):
-                props[name] = prop.dict(exclude_none=True)
+                props[name] = prop.to_api()
 
             elif isinstance(prop, dict):
                 props[name] = prop
@@ -50,7 +50,7 @@ class ConnectedPageBase(object):
             elif hasattr(cls, name):
                 field = getattr(cls, name)
                 prop = field.from_value(prop)  # FIXME
-                props[name] = prop.dict(exclude_none=True)
+                props[name] = prop.to_api()
 
             else:
                 raise ValueError(f"Unsupported property: {name}")
@@ -128,7 +128,7 @@ def Property(name, cls=RichText, default=None):
             raise ValueError(f"Value does not match expected type: {cls}")
 
         # commit the changes directly to Notion
-        props = {name: prop.dict(exclude_none=True)}
+        props = {name: prop.to_api()}
         data = self._orm_session_.pages.update(self.page.id, properties=props)
 
         # reset the internal page with the latest data

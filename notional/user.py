@@ -1,6 +1,7 @@
 """Wrapper for Notion User objects."""
 
 import logging
+from uuid import UUID
 
 from .core import NestedObject, TypedObject
 
@@ -11,7 +12,7 @@ class User(TypedObject):
     """Represents a User in Notion."""
 
     object: str = "user"
-    id: str = None
+    id: UUID = None
     name: str = None
     avatar_url: str = None
 

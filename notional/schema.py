@@ -1,6 +1,7 @@
 """Objects representing a database schema."""
 
 from typing import Any, Dict, List, Optional
+from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject
 
@@ -36,6 +37,10 @@ class Number(PropertyObject, type="number"):
 
     number: NestedData = {}
 
+    @classmethod
+    def format(cls, format):
+        return cls(number=cls.NestedData(format=format))
+
 
 class SelectOption(DataObject):
     """Options for select & multi-select objects."""
@@ -52,6 +57,10 @@ class Select(PropertyObject, type="select"):
         options: List[SelectOption] = []
 
     select: NestedData = None
+
+    @classmethod
+    def options(cls, *options):
+        return cls(select=cls.NestedData(options=options))
 
 
 class MultiSelect(PropertyObject, type="multi_select"):
@@ -118,7 +127,7 @@ class Relation(PropertyObject, type="relation"):
     """Defines the relation configuration for a database property."""
 
     class NestedData(NestedObject):
-        database_id: str
+        database_id: UUID
         synced_property_name: str = None
         synced_property_id: str = None
 

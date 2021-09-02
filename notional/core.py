@@ -1,12 +1,39 @@
 """Base classes for working with the Notion API."""
 
 import inspect
+import json
 import logging
+from datetime import date, datetime
+from uuid import UUID
 
 from pydantic import BaseModel, validator
 from pydantic.main import validate_model
 
 log = logging.getLogger(__name__)
+
+
+def make_api_safe(data):
+    """Recursively convert the given data to an API-safe form.
+
+    This is mostly to handle data types that will not directly serialize to JSON.
+    """
+
+    if isinstance(data, date) or isinstance(data, datetime):
+        return data.isoformat()
+
+    elif isinstance(data, UUID):
+        return data.hex
+
+    elif isinstance(data, dict):
+        return {name: make_api_safe(value) for name, value in data.items()}
+
+    elif isinstance(data, list):
+        return [make_api_safe(value) for value in data]
+
+    elif isinstance(data, tuple):
+        return [make_api_safe(value) for value in data]
+
+    return data
 
 
 class DataObject(BaseModel):
@@ -41,6 +68,21 @@ class DataObject(BaseModel):
         log.debug("refreshing object values -- %s", values)
 
         object.__setattr__(__pydantic_self__, "__dict__", values)
+
+    def to_api(self):
+        """Convert to a suitable representation for the Notion API."""
+
+        # the API doesn't like "undefined" values...
+
+        data = self.dict(exclude_none=True)
+
+        # we need to convert "special" types to string forms to help the JSON encoder.
+        # there are efforts underway in pydantic to make this easier, but for now...
+
+        # XXX this method has promise, but converts the entire value to a single string
+        # return {name: json.dumps(value, default=str) for name, value in data.items()}
+
+        return make_api_safe(data)
 
 
 class NamedObject(DataObject):
