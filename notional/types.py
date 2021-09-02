@@ -7,9 +7,10 @@ used in the Notion API as well as higher-level methods.
 import logging
 from datetime import date, datetime
 from typing import Dict, List, Optional, Union
+from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject
-from .text import plain_text
+from .text import Color, FullColor, plain_text
 from .user import User
 
 log = logging.getLogger(__name__)
@@ -25,7 +26,7 @@ class Annotations(DataObject):
     strikethrough: bool = False
     underline: bool = False
     code: bool = False
-    color: str = None
+    color: FullColor = None
 
     @property
     def is_plain(self):
@@ -123,7 +124,7 @@ class TextObject(RichTextObject, type="text"):
 
 class MentionPageRef(DataObject):
 
-    id: str
+    id: UUID
 
 
 class MentionObject(RichTextObject, type="mention"):
@@ -222,6 +223,10 @@ class Title(NativeTypeMixin, PropertyValue, type="title"):
     @property
     def Value(self):
         """Return the plain text from this Title."""
+
+        if self.title is None:
+            return None
+
         return plain_text(*self.title)
 
     @classmethod
@@ -242,6 +247,10 @@ class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
     @property
     def Value(self):
         """Return the plain text from this RichText."""
+
+        if self.rich_text is None:
+            return None
+
         return plain_text(*self.rich_text)
 
     @classmethod
@@ -336,8 +345,8 @@ class SelectValue(DataObject):
     """Values for select & multi-select properties."""
 
     name: str
-    id: str = None
-    color: str = None
+    id: UUID = None
+    color: Color = None
 
 
 class SelectOne(NativeTypeMixin, PropertyValue, type="select"):

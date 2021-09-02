@@ -8,7 +8,7 @@ from .blocks import Block
 from .iterator import EndpointIterator
 from .query import Query, ResultSet
 from .records import Database, Page, ParentRef
-from .types import TextObject
+from .types import TextObject, Title
 from .user import User
 
 log = logging.getLogger(__name__)
@@ -41,9 +41,7 @@ class BlocksEndpoint(Endpoint):
 
             parent_id = parent.id
 
-            children = [
-                block.dict(exclude_none=True) for block in blocks if block is not None
-            ]
+            children = [block.to_api() for block in blocks if block is not None]
 
             log.info("Appending %d blocks to %s...", len(children), parent_id)
 
@@ -86,7 +84,7 @@ class BlocksEndpoint(Endpoint):
 
         log.info("Updating block :: %s", block.id)
 
-        data = self().update(block.id, **block.dict(exclude_none=True))
+        data = self().update(block.id, **block.to_api())
 
         block.refresh(**data)
 
@@ -105,14 +103,14 @@ class DatabasesEndpoint(Endpoint):
 
         log.info("Creating database [%s] - %s", parent_id, title)
 
-        props = {name: prop.dict(exclude_none=True) for name, prop in schema.items()}
+        props = {name: prop.to_api() for name, prop in schema.items()}
 
         if title is not None:
             title = TextObject.from_value(title)
 
         data = self().create(
             parent=parent_id,
-            title=[title.dict(exclude_none=True)],
+            title=[title.to_api()],
             properties=props,
         )
 
@@ -131,7 +129,7 @@ class DatabasesEndpoint(Endpoint):
     def retrieve(self, database_id):
         """Returns the Database with the given ID."""
 
-        log.info("Retrieving database :: ", database_id)
+        log.info("Retrieving database :: %s", database_id)
 
         return Database.parse_obj(self().retrieve(database_id))
 
@@ -144,7 +142,7 @@ class DatabasesEndpoint(Endpoint):
 
         log.info("Updating database info :: ", database.id)
 
-        data = self().update(database.id, **database.dict(exclude_none=True))
+        data = self().update(database.id, **database.to_api())
 
         database.refresh(**data)
 
@@ -155,7 +153,7 @@ class DatabasesEndpoint(Endpoint):
         :param target: either a string with the database ID or an ORM class
         """
 
-        log.info("Initializing database query :: ", target)
+        log.info("Initializing database query :: %s", target)
 
         return Query(self.session, target)
 
@@ -167,7 +165,7 @@ class PagesEndpoint(Endpoint):
         return self.session.client.pages
 
     # https://developers.notion.com/reference/post-page
-    def create(self, parent, title=None, children=list()):
+    def create(self, parent, title=None, properties=dict(), children=list()):
         """Adds a page to the given parent (Page or Database)."""
 
         if parent is None:
@@ -175,11 +173,10 @@ class PagesEndpoint(Endpoint):
 
         parent_id = get_parent_id(parent)
 
-        props = dict()
-
         if title is not None:
-            text = TextObject.from_value(title)
-            props["title"] = [text.dict(exclude_none=True)]
+            properties["title"] = Title.from_value(title)
+
+        props = {name: prop.to_api() for name, prop in properties.items()}
 
         log.info("Creating page [%s] - %s", parent_id, title)
 
@@ -204,7 +201,7 @@ class PagesEndpoint(Endpoint):
 
         log.info("Updating page info :: %s", page.id)
 
-        data = self().update(page.id, **page.dict(exclude_none=True))
+        data = self().update(page.id, **page.to_api())
 
         page.refresh(**data)
 
@@ -252,11 +249,11 @@ def get_parent_id(parent):
     """Return the correct parent ID based on the object type."""
 
     if isinstance(parent, ParentRef):
-        return parent.dict(exclude_none=True)
+        return parent.to_api()
     elif isinstance(parent, Page):
-        return {"type": "page_id", "page_id": parent.id}
+        return {"type": "page_id", "page_id": parent.id.hex}
     elif isinstance(parent, Database):
-        return {"type": "database_id", "database_id": parent.id}
+        return {"type": "database_id", "database_id": parent.id.hex}
 
     # TODO should we support adding to the workspace?
     raise ValueError("Unrecognized 'parent' attribute")

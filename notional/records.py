@@ -11,6 +11,7 @@ the primitive data structure, where capitalized attributes provide higher-level 
 import logging
 from datetime import datetime
 from typing import Dict, List, Optional, Union
+from uuid import UUID
 
 from .core import NamedObject, TypedObject
 from .schema import Schema
@@ -29,13 +30,13 @@ class ParentRef(TypedObject):
 class DatabaseParent(ParentRef, type="database_id"):
     """Reference a database."""
 
-    database_id: str
+    database_id: UUID
 
 
 class PageParent(ParentRef, type="page_id"):
     """Reference a page."""
 
-    page_id: str
+    page_id: UUID
 
 
 class WorkspaceParent(ParentRef, type="workspace"):
@@ -47,7 +48,7 @@ class WorkspaceParent(ParentRef, type="workspace"):
 class Record(NamedObject):
     """The base type for Notion API records."""
 
-    id: str = None
+    id: UUID = None
     created_time: datetime = None
     last_edited_time: datetime = None
     has_children: bool = False
@@ -64,6 +65,9 @@ class Database(Record, object="database"):
 
     @property
     def Title(self):
+        if self.title is None:
+            return None
+
         return plain_text(*self.title)
 
 
