@@ -128,9 +128,13 @@ class Embed(Block, type="embed"):
 
     embed: NestedData = None
 
+    @property
+    def URL(self):
+        return None if self.embed is None else self.embed.url
+
     @classmethod
     def from_url(cls, url):
-        obj = NestedData(url=url)
+        obj = cls.NestedData(url=url)
         return Embed(embed=obj)
 
 
@@ -144,8 +148,12 @@ class Bookmark(Block, type="bookmark"):
 
     @classmethod
     def from_url(cls, url):
-        obj = NestedData(url=url)
+        obj = cls.NestedData(url=url)
         return Bookmark(bookmark=obj)
+
+    @property
+    def URL(self):
+        return None if self.bookmark is None else self.bookmark.url
 
 
 class File(Block, type="file"):
