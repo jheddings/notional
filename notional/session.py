@@ -120,6 +120,8 @@ class DatabasesEndpoint(Endpoint):
     def list(self):
         """Returns an iterator for all Database objects in the integration scope."""
 
+        # XXX DEPRECATED ###
+
         log.info("Listing known databases...")
 
         databases = EndpointIterator(endpoint=self().list)
@@ -177,10 +179,11 @@ class PagesEndpoint(Endpoint):
             properties["title"] = Title.from_value(title)
 
         props = {name: prop.to_api() for name, prop in properties.items()}
+        childs = [child.to_api() for child in children]
 
         log.info("Creating page [%s] - %s", parent_id, title)
 
-        data = self().create(parent=parent_id, properties=props, children=children)
+        data = self().create(parent=parent_id, properties=props, children=childs)
 
         return Page.parse_obj(data)
 
