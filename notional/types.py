@@ -382,7 +382,7 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
         return cls(select=SelectValue(name=value))
 
 
-class MultiSelect(NativeTypeMixin, PropertyValue, type="multi_select"):
+class MultiSelect(PropertyValue, type="multi_select"):
     """Notion multi-select type."""
 
     multi_select: List[SelectValue] = []
@@ -393,6 +393,9 @@ class MultiSelect(NativeTypeMixin, PropertyValue, type="multi_select"):
 
     def __iadd__(self, other):
         """Add the given option to this MultiSelect."""
+
+        if other is None:
+            raise ValueError(f"'None' is invalid for this property")
 
         if other in self:
             raise ValueError(f"Item already selected: {other}")
@@ -421,27 +424,30 @@ class MultiSelect(NativeTypeMixin, PropertyValue, type="multi_select"):
 
         return False
 
+    def __iter__(self):
+        return self.Values
+
     @property
-    def Value(self):
+    def Values(self):
+        """Return the names of each value in this MultiSelect as a list."""
+
         if self.multi_select is None:
             return None
 
-        values = list()
-
-        for select in self.multi_select:
-            if select.name is not None:
-                values.append(select.name)
-            elif select.id is not None:
-                values.append(select.id)
-
-        return values
+        return [val.name for val in self.multi_select if val.name is not None]
 
     @classmethod
-    def from_value(cls, value):
+    def from_values(cls, *values):
+        """Initialize a new MultiSelect from the list of values.
 
-        values = [SelectValue(name=item) for item in value if item is not None]
+        All values in the list will be converted to strings.
+        """
 
-        return cls(multi_select=values)
+        return cls(
+            multi_select=[
+                SelectValue(name=str(val)) for val in values if val is not None
+            ]
+        )
 
 
 class People(PropertyValue, type="people"):

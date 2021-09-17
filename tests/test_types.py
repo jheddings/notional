@@ -152,10 +152,10 @@ class PropertyValueTest(unittest.TestCase):
 
         tags -= "TEMPORARY"
         self.assertNotIn("TEMPORARY", tags)
-        self.assertListEqual(tags.Value, ["Grocery"])
 
-        tags = types.MultiSelect.from_value(["foo", None, "bar"])
-        self.assertEqual(tags, ["foo", "bar"])
+        tags = types.MultiSelect.from_values("foo", None, "bar")
+        self.assertListEqual(tags.Values, ["foo", "bar"])
+        self.assertNotIn(None, tags)
 
     def test_People(self):
         """Verify People property values."""
