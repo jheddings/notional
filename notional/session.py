@@ -39,15 +39,13 @@ class BlocksEndpoint(Endpoint):
             The parent info will be refreshed to the latest version from the server.
             """
 
-            parent_id = parent.id
-
             children = [block.to_api() for block in blocks if block is not None]
 
-            log.info("Appending %d blocks to %s...", len(children), parent_id)
+            log.info("Appending %d blocks to %s...", len(children), parent.id)
 
-            data = self().append(block_id=parent_id, children=children)
+            data = self().append(block_id=parent.id.hex, children=children)
 
-            parent.refresh(**data)
+            return parent.refresh(**data)
 
         # https://developers.notion.com/reference/get-block-children
         def list(self, parent):
@@ -84,9 +82,9 @@ class BlocksEndpoint(Endpoint):
 
         log.info("Updating block :: %s", block.id)
 
-        data = self().update(block.id, **block.to_api())
+        data = self().update(block.id.hex, **block.to_api())
 
-        block.refresh(**data)
+        return block.refresh(**data)
 
 
 class DatabasesEndpoint(Endpoint):
@@ -144,9 +142,9 @@ class DatabasesEndpoint(Endpoint):
 
         log.info("Updating database info :: ", database.id)
 
-        data = self().update(database.id, **database.to_api())
+        data = self().update(database.id.hex, **database.to_api())
 
-        database.refresh(**data)
+        return database.refresh(**data)
 
     # https://developers.notion.com/reference/post-database-query
     def query(self, target):
@@ -196,17 +194,24 @@ class PagesEndpoint(Endpoint):
         return Page.parse_obj(self().retrieve(page_id))
 
     # https://developers.notion.com/reference/patch-page
-    def update(self, page):
+    def update(self, page, **kwargs):
         """Updates the Page object on the server.
+
+        If `kwargs` are provided, only those fields will be updated.  If `kwargs` is
+        empty, the entire page will be updated.
 
         The page info will be refreshed to the latest version from the server.
         """
 
         log.info("Updating page info :: %s", page.id)
 
-        data = self().update(page.id, **page.to_api())
+        # FIXME ...  make this work
 
-        page.refresh(**data)
+        diff = kwargs or page.to_api()
+
+        data = self().update(page.id.hex, **diff)
+
+        return page.refresh(**data)
 
 
 class UsersEndpoint(Endpoint):
