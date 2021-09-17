@@ -27,7 +27,7 @@ from notional.orm import Property, connected_page
 
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 notion = notional.connect(auth=auth_token)
-CustomPage = connected_page(notion)
+CustomPage = connected_page(session=notion)
 
 
 class Task(CustomPage, database=sys.argv[1]):
@@ -47,15 +47,12 @@ class Task(CustomPage, database=sys.argv[1]):
 
 sort = {"direction": "ascending", "property": "Title"}
 
-for task in notion.query(Task).sort(sort).execute():
+for task in notion.databases.query(Task).sort(sort).execute():
     print(f"== {task.Title} ==")
     print(task.Status)
 
     if "To Review" not in task.Tags:
         task.Tags += "To Review"
-
-    # FIXME lists use extend() with iadd, not append()...  this causes each letter
-    # of 'To Review' to become a select option, which is obviously not intended.
 
 # create a task...  properties can be set using keywords, according to their type
 
