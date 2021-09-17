@@ -4,6 +4,7 @@ import inspect
 import json
 import logging
 from datetime import date, datetime
+from enum import Enum
 from uuid import UUID
 
 from pydantic import BaseModel, validator
@@ -23,6 +24,9 @@ def make_api_safe(data):
 
     elif isinstance(data, UUID):
         return data.hex
+
+    elif isinstance(data, Enum):
+        return data.value
 
     elif isinstance(data, dict):
         return {name: make_api_safe(value) for name, value in data.items()}
@@ -58,8 +62,6 @@ class DataObject(BaseModel):
     def refresh(__pydantic_self__, **data):
         """Refresh the internal attributes with new data."""
 
-        # log.debug("validating object data -- %s", data)
-
         values, fields, error = validate_model(__pydantic_self__.__class__, data)
 
         if error:
@@ -68,6 +70,8 @@ class DataObject(BaseModel):
         log.debug("refreshing object values -- %s", values)
 
         object.__setattr__(__pydantic_self__, "__dict__", values)
+
+        return __pydantic_self__
 
     def to_api(self):
         """Convert to a suitable representation for the Notion API."""
