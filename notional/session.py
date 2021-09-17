@@ -5,6 +5,7 @@ import logging
 import notion_client
 
 from .blocks import Block
+from .core import NamedObject
 from .iterator import EndpointIterator
 from .query import Query, ResultSet
 from .records import Database, Page, ParentRef
@@ -214,6 +215,22 @@ class PagesEndpoint(Endpoint):
         return page.refresh(**data)
 
 
+class SearchEndpoint(Endpoint):
+    """Notional interface to the API 'search' endpoint."""
+
+    # https://developers.notion.com/reference/post-search
+    def __call__(self, text=None):
+        """Performs the requested search."""
+
+        results = EndpointIterator(
+            endpoint=self.session.client.search,
+            query=text
+        )
+
+        # FIXME return the right kind of object...
+        return ResultSet(session=self, src=results, cls=NamedObject)
+
+
 class UsersEndpoint(Endpoint):
     """Notional interface to the API 'users' endpoint."""
 
@@ -247,7 +264,7 @@ class Session(object):
         self.blocks = BlocksEndpoint(self)
         self.databases = DatabasesEndpoint(self)
         self.pages = PagesEndpoint(self)
-        # self.search = SearchEndpoint(self) ??
+        self.search = SearchEndpoint(self)
         self.users = UsersEndpoint(self)
 
         log.info("Initialized Notion SDK client")
