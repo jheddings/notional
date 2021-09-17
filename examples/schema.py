@@ -24,7 +24,12 @@ from notional import schema, types
 page_id = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
-notion = notional.connect(auth=auth_token, log_level=logging.DEBUG)
+# connect to Notion and load our top-level page
+notion = notional.connect(auth=auth_token)
+page = notion.pages.retrieve(page_id)
+
+# define custom select options with colors to help organize
+# we can also create options on the fly (which we will see later)
 
 status = [
     schema.SelectOption(name="Backlog"),
@@ -33,7 +38,8 @@ status = [
     schema.SelectOption(name="Completed", color="green"),
 ]
 
-# define our schema...
+# define our schema from Property Objects
+
 props = {
     "Name": schema.Title(),
     "Estimate": schema.Number.format("dollar"),
@@ -44,10 +50,7 @@ props = {
     "Last Update": schema.LastEditedTime(),
 }
 
-# get the existing page...
-page = notion.pages.retrieve(page_id)
-
-# create the database...
+# create the database using our clever schema...
 db = notion.databases.create(parent=page, title="Custom Database", schema=props)
 
 # add an entry to the new database using from_ methods...
@@ -76,8 +79,9 @@ estimate = types.Number(number=12000)
 
 approved = types.Checkbox(checkbox=False)
 
-backlog = types.SelectValue(name="Backlog")
-status = types.SelectOne(select=backlog)
+# note that we can create new Select options on the fly...
+canceled = types.SelectValue(name="Canceled")
+status = types.SelectOne(select=canceled)
 
 next_year = types.DateRange(
     start=date.today() + timedelta(days=365), end=date.today() + timedelta(days=2 * 365)
