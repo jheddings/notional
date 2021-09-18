@@ -5,7 +5,6 @@ import logging
 import notion_client
 
 from .iterator import EndpointIterator
-from .orm import ConnectedPageBase
 
 log = logging.getLogger(__name__)
 
@@ -17,12 +16,13 @@ class Query(object):
     """A query builder for the Notion API.
 
     :param session: an active session with the Notion SDK
-    :param target: either a string with the database ID or an ORM class
+    :param source: an EndpointIterator for results
     """
 
-    def __init__(self, session, target):
+    def __init__(self, session, source, cls=None):
         self.session = session
-        self.target = target
+        self.source = source
+        self.cls = cls
 
         self._filter = list()
         self._sort = list()
@@ -34,7 +34,10 @@ class Query(object):
 
         # XXX see notes on sort()...
 
-        self._filter.extend(filters)
+        if filters is None:
+            self._filter = list()
+        else:
+            self._filter.extend(filters)
 
         return self
 
@@ -45,63 +48,35 @@ class Query(object):
         # e.g. - query.sort(Task.Title, query.ASC)
         # but users won't always use ORM for queries...
 
-        self._sort.extend(sorts)
+        if sorts is None:
+            self._sort = list()
+        else:
+            self._sort.extend(sorts)
 
         return self
 
     # def start_at(self, page_id):
     #     """Set the start cursor to a specific page ID."""
-    #     self._start = page_id
+    #     self.source["start_cursor"] = page_id
     #     return self
 
     # def limit(self, page_size):
     #     """Limit the number of results to the given page size."""
-    #     self._start = page_id
+    #     self.source["page_size"] = page_size
     #     return self
 
     def execute(self):
         """Execute the current query and return an iterator for the results."""
 
-        params = {"endpoint": self.session.databases().query}
-
-        cls = None
-
-        if isinstance(self.target, str):
-            params["database_id"] = self.target
-
-        elif issubclass(self.target, ConnectedPageBase):
-            cls = self.target
-
-            if cls._orm_session_ != self.session:
-                raise ValueError("ConnectedPage belongs to a different session")
-
-            if cls._orm_database_id_ is None:
-                raise ValueError("ConnectedPage has no database")
-
-            params["database_id"] = cls._orm_database_id_
-
-        else:
-            raise ValueError("unsupported query target")
-
         if self._filter and len(self._filter) > 0:
-            params["filter"] = self._filter
+            self.source["filter"] = self._filter
 
         if self._sort and len(self._sort) > 0:
-            params["sorts"] = self._sort
+            self.source["sorts"] = self._sort
 
-        if self._start is not None:
-            params["start_cursor"] = self._start
+        log.debug("executing query - %s", self.source)
 
-        if self._limit is not None:
-            params["page_size"] = self._limit
-
-        log.debug("executing query - %s", params)
-
-        # FIXME in order to use start and limit, we need a different
-        # mechanism for iterating on results
-        items = EndpointIterator(**params)
-
-        return ResultSet(session=self.session, src=items, cls=cls)
+        return ResultSet(session=self.session, src=self.source, cls=self.cls)
 
     def first(self):
         """Execute the current query and return the first result only."""

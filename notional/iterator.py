@@ -97,7 +97,6 @@ class ResultSetIterator(ContentIterator, ABC):
 
     @abstractmethod
     def get_page(self, params):
-        # noqa
         pass
 
 
@@ -107,8 +106,11 @@ class EndpointIterator(ResultSetIterator):
     def __init__(self, endpoint, **params):
         super().__init__()
         self.endpoint = endpoint
-        self.params = params
+        self.params = params or dict()
         self.log = log.getChild("EndpointIterator")
+
+    def __setitem__(self, name, value):
+        self.params[name] = value
 
     def get_page(self, params):
         """Return the next page with given parameters."""
