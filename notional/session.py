@@ -7,6 +7,7 @@ import notion_client
 from .blocks import Block
 from .core import NamedObject
 from .iterator import EndpointIterator
+from .orm import ConnectedPageBase
 from .query import Query, ResultSet
 from .records import Database, Page, ParentRef
 from .types import TextObject, Title
@@ -156,7 +157,27 @@ class DatabasesEndpoint(Endpoint):
 
         log.info("Initializing database query :: %s", target)
 
-        return Query(self.session, target)
+        query = EndpointIterator(endpoint=self().query)
+        cls = None
+
+        if isinstance(target, str):
+            query["database_id"] = target
+
+        elif issubclass(target, ConnectedPageBase):
+            cls = target
+
+            if cls._orm_session_ != self.session:
+                raise ValueError("ConnectedPage belongs to a different session")
+
+            if cls._orm_database_id_ is None:
+                raise ValueError("ConnectedPage has no database")
+
+            query["database_id"] = cls._orm_database_id_
+
+        else:
+            raise ValueError("unsupported query target")
+
+        return Query(self.session, source=query, cls=cls)
 
 
 class PagesEndpoint(Endpoint):
@@ -220,15 +241,14 @@ class SearchEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/post-search
     def __call__(self, text=None):
-        """Performs the requested search."""
+        """Performs a search with the optional text."""
 
-        results = EndpointIterator(
-            endpoint=self.session.client.search,
-            query=text
-        )
+        search = EndpointIterator(endpoint=self.session.client.search)
 
-        # FIXME return the right kind of object...
-        return ResultSet(session=self, src=results, cls=NamedObject)
+        if text is not None:
+            search["query"] = text
+
+        return Query(self.session, source=search)
 
 
 class UsersEndpoint(Endpoint):
