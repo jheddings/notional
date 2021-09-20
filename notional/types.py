@@ -15,8 +15,6 @@ from .user import User
 
 log = logging.getLogger(__name__)
 
-# TODO fix the Mention classes... they are not consistent with the rest of this library
-
 
 class Annotations(DataObject):
     """Style information for RichTextObject's."""
@@ -161,13 +159,14 @@ class MentionObject(RichTextObject, type="mention"):
     mention: MentionData = None
 
 
+class Expression(NestedObject):
+    expression: str
+
+
 class EquationObject(RichTextObject, type="equation"):
     """Notion equation element."""
 
-    class NestedData(NestedObject):
-        expression: str
-
-    equation: NestedData = None
+    equation: Expression = None
 
     def __str__(self):
         """Return a string representation of this object."""

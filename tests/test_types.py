@@ -527,6 +527,22 @@ class MentionDatabaseTest(unittest.TestCase):
         self.assertEqual(data.id, UUID("57202d16-08c9-43db-a112-a0f25443dc48"))
 
 
+class EquationPropertyTest(unittest.TestCase):
+    """Verify Equation rich text objects."""
+
+    def test_ParseData(self):
+        test_data = {
+            "type": "equation",
+            "plain_text": "1 + 1 = 3",
+            "equation": {"expression": "1 + 1 = 3"},
+        }
+
+        math = types.EquationObject.parse_obj(test_data)
+
+        self.assertEqual(math.type, "equation")
+        self.assertEqual(math.equation.expression, "1 + 1 = 3")
+
+
 class RichTextPropertyTest(unittest.TestCase):
     """Verify RichText property values."""
 
