@@ -191,7 +191,9 @@ class PagesEndpoint(Endpoint):
 
         log.info("Retrieving page :: %s", page_id)
 
-        return Page.parse_obj(self().retrieve(page_id))
+        data = self().retrieve(page_id)
+
+        return Page.parse_obj(data)
 
     # https://developers.notion.com/reference/patch-page
     def update(self, page, **kwargs):
@@ -204,8 +206,6 @@ class PagesEndpoint(Endpoint):
         """
 
         log.info("Updating page info :: %s", page.id)
-
-        # FIXME ...  make this work
 
         diff = kwargs or page.to_api()
 
