@@ -2,6 +2,7 @@ import json
 import logging
 import unittest
 from datetime import date, datetime, timezone
+from uuid import UUID
 
 from pydantic import ValidationError
 
@@ -438,16 +439,103 @@ class LastEditedPropertyValueTest(unittest.TestCase):
         self.assertEqual(author.name, "Alice the Person")
 
 
+class MentionUserTest(unittest.TestCase):
+    def test_ParseObject(self):
+        test_data = {
+            "type": "mention",
+            "plain_text": "@Alice",
+            "mention": {
+                "type": "user",
+                "user": {
+                    "object": "user",
+                    "id": "62e40b6e-3f05-494f-9220-d68a1995b54f",
+                    "name": "Alice",
+                    "avatar_url": None,
+                    "type": "person",
+                    "person": {"email": "alice@example.com"},
+                },
+            },
+        }
+
+        at = types.MentionObject.parse_obj(test_data)
+
+        self.assertEqual(at.type, "mention")
+        self.assertEqual(at.mention.type, "user")
+
+        data = at.mention.user
+
+        self.assertEqual(data.name, "Alice")
+
+
+class MentionDateTest(unittest.TestCase):
+    def test_ParseObject(self):
+        test_data = {
+            "type": "mention",
+            "plain_text": "FUTURE",
+            "mention": {"type": "date", "date": {"start": "2099-01-01", "end": None}},
+        }
+
+        at = types.MentionObject.parse_obj(test_data)
+
+        self.assertEqual(at.type, "mention")
+        self.assertEqual(at.mention.type, "date")
+
+        data = at.mention.date
+
+        self.assertEqual(data.start, date(2099, 1, 1))
+
+
+class MentionPageTest(unittest.TestCase):
+    def test_ParseObject(self):
+        test_data = {
+            "type": "mention",
+            "plain_text": "Awesome Sauce",
+            "mention": {
+                "type": "page",
+                "page": {"id": "c0703d87-e3c5-4492-9654-a7d97c1262a2"},
+            },
+        }
+
+        at = types.MentionObject.parse_obj(test_data)
+
+        self.assertEqual(at.type, "mention")
+        self.assertEqual(at.mention.type, "page")
+
+        data = at.mention.page
+
+        self.assertEqual(data.id, UUID("c0703d87-e3c5-4492-9654-a7d97c1262a2"))
+
+
+class MentionDatabaseTest(unittest.TestCase):
+    def test_ParseObject(self):
+        test_data = {
+            "type": "mention",
+            "plain_text": "Superfreak",
+            "mention": {
+                "type": "database",
+                "database": {"id": "57202d16-08c9-43db-a112-a0f25443dc48"},
+            },
+        }
+
+        at = types.MentionObject.parse_obj(test_data)
+
+        self.assertEqual(at.type, "mention")
+        self.assertEqual(at.mention.type, "database")
+
+        data = at.mention.database
+
+        self.assertEqual(data.id, UUID("57202d16-08c9-43db-a112-a0f25443dc48"))
+
+
 class RichTextPropertyTest(unittest.TestCase):
-    """Unit tests for the PropertyValue API objects."""
+    """Verify RichText property values."""
 
-    def test_RichText(self):
-        """Verify RichText property values."""
-
+    def test_ParseData(self):
         rtf = types.RichText.parse_obj(self.test_data)
         self.assertEqual(rtf.type, "rich_text")
         self.assertEqual(rtf.Value, "Our milk is very old.")
 
+    def test_FromValue(self):
         rtf = types.RichText.from_value("We have new milk.")
         self.assertEqual(rtf.Value, "We have new milk.")
 
@@ -457,7 +545,8 @@ class RichTextPropertyTest(unittest.TestCase):
         "rich_text": [
             {
                 "type": "text",
-                "text": {"content": "Our milk is ", "link": None},
+                "plain_text": "Our ",
+                "href": None,
                 "annotations": {
                     "bold": False,
                     "italic": False,
@@ -466,12 +555,40 @@ class RichTextPropertyTest(unittest.TestCase):
                     "code": False,
                     "color": "default",
                 },
-                "plain_text": "Our milk is ",
-                "href": None,
+                "text": {"content": "Our ", "link": None},
             },
             {
                 "type": "text",
-                "text": {"content": "very", "link": None},
+                "plain_text": "milk",
+                "href": None,
+                "annotations": {
+                    "bold": False,
+                    "italic": False,
+                    "strikethrough": False,
+                    "underline": False,
+                    "code": False,
+                    "color": "gray",
+                },
+                "text": {"content": "milk", "link": None},
+            },
+            {
+                "type": "text",
+                "plain_text": " is ",
+                "href": None,
+                "annotations": {
+                    "bold": False,
+                    "italic": False,
+                    "strikethrough": False,
+                    "underline": False,
+                    "code": False,
+                    "color": "default",
+                },
+                "text": {"content": " is ", "link": None},
+            },
+            {
+                "type": "text",
+                "plain_text": "very",
+                "href": None,
                 "annotations": {
                     "bold": True,
                     "italic": False,
@@ -480,26 +597,12 @@ class RichTextPropertyTest(unittest.TestCase):
                     "code": False,
                     "color": "default",
                 },
-                "plain_text": "very",
-                "href": None,
+                "text": {"content": "very", "link": None},
             },
             {
                 "type": "text",
-                "text": {"content": " old", "link": None},
-                "annotations": {
-                    "bold": False,
-                    "italic": False,
-                    "strikethrough": False,
-                    "underline": True,
-                    "code": False,
-                    "color": "default",
-                },
-                "plain_text": " old",
+                "plain_text": " old.",
                 "href": None,
-            },
-            {
-                "type": "text",
-                "text": {"content": ".", "link": None},
                 "annotations": {
                     "bold": False,
                     "italic": False,
@@ -508,8 +611,7 @@ class RichTextPropertyTest(unittest.TestCase):
                     "code": False,
                     "color": "default",
                 },
-                "plain_text": ".",
-                "href": None,
+                "text": {"content": " old.", "link": None},
             },
         ],
     }

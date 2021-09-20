@@ -82,6 +82,13 @@ class ExternalFile(FileObject, type="external"):
     name: Optional[str] = None
 
 
+class DateRange(DataObject):
+    """A Notion date range, with an optional end date."""
+
+    start: Union[date, datetime]
+    end: Optional[Union[date, datetime]] = None
+
+
 class RichTextObject(TypedObject):
     """Base class for Notion rich text elements."""
 
@@ -122,27 +129,36 @@ class TextObject(RichTextObject, type="text"):
         return cls(plain_text=string, text=text)
 
 
-class MentionPageRef(DataObject):
+class MentionData(TypedObject):
+    pass
 
-    id: UUID
+
+class MentionUser(MentionData, type="user"):
+    user: User
+
+
+class MentionPage(MentionData, type="page"):
+    class NestedData(DataObject):
+        id: UUID
+
+    page: NestedData
+
+
+class MentionDatabase(MentionData, type="database"):
+    class NestedData(DataObject):
+        id: UUID
+
+    database: NestedData
+
+
+class MentionDate(MentionData, type="date"):
+    date: DateRange
 
 
 class MentionObject(RichTextObject, type="mention"):
     """Notion mention element."""
 
-    class NestedData(NestedObject, TypedObject):
-        pass
-
-    class MentionUser(NestedData):
-        user: User
-
-    class MentionPage(NestedData):
-        page: MentionPageRef
-
-    class MentionDatabase(NestedData):
-        database: MentionPageRef
-
-    mention: NestedData = None
+    mention: MentionData = None
 
 
 class EquationObject(RichTextObject, type="equation"):
@@ -281,13 +297,6 @@ class Checkbox(NativeTypeMixin, PropertyValue, type="checkbox"):
     """Simple checkbox type; represented as a boolean."""
 
     checkbox: bool = None
-
-
-class DateRange(DataObject):
-    """A Notion date range, with an optional end date."""
-
-    start: Union[date, datetime]
-    end: Optional[Union[date, datetime]] = None
 
 
 class Date(PropertyValue, type="date"):
