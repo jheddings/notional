@@ -37,7 +37,7 @@ class TextBlock(Block):
             raise TypeError(f"class type is not defined: {cls}")
 
         # text types have a nested object with 'type' name and a 'text' child
-        # here, we use the constructor to build out the nested object...
+        # here, we use the local constructor to build out the nested object...
 
         return cls(**{cls.type: {"text": [text]}})
 
