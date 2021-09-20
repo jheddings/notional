@@ -2,7 +2,7 @@
 
 import logging
 
-from .records import Page
+from .records import DatabaseParent, Page
 from .types import NativeTypeMixin, PropertyValue, RichText
 
 log = logging.getLogger(__name__)
@@ -31,11 +31,26 @@ class ConnectedPageBase(object):
     def append(self, *blocks):
         """Append the given blocks as children of this ConnectedPage."""
 
-        data = [block.to_api() for block in blocks]
+        self._orm_session_.blocks.children.append(parent=self.page, *blocks)
 
-        self._orm_session_.blocks.children.append(block_id=self.page.id, children=data)
+    @classmethod
+    def create(cls, **properties):
+        """Creates a new instance of the ConnectedPage type."""
 
-    def kwargs_to_props(self, **kwargs):
+        log.debug(f"creating new {cls} :: {cls._orm_database_id_}")
+
+        parent = DatabaseParent(database_id=cls._orm_database_id_)
+
+        # TODO convert properties to a dict for create...
+        # props = cls.kwargs_to_props(properties)
+        props = dict()
+
+        page = cls._orm_session_.pages.create(parent=parent, properties=props)
+
+        return cls(**page.dict())
+
+    @classmethod
+    def kwargs_to_props(cls, **kwargs):
         """Converts the list of keyword args to a dict of properties."""
 
         props = dict()
@@ -58,22 +73,6 @@ class ConnectedPageBase(object):
         return props
 
     @classmethod
-    def create(cls, **properties):
-        """Creates a new instance of the ConnectedPage type."""
-
-        log.debug(f"creating new {cls} :: {cls._orm_database_id_}")
-
-        parent_id = {"database_id": cls._orm_database_id_}
-
-        # TODO convert properties to a dict for create...
-        # props = kwargs_to_props(properties)
-        props = dict()
-
-        data = cls._orm_session_.pages.create(parent=parent_id, properties=props)
-
-        return cls(**data)
-
-    @classmethod
     def parse_obj(cls, data):
         return cls(**data)
 
@@ -93,6 +92,8 @@ def Property(name, cls=RichText, default=None):
 
         if not isinstance(self, ConnectedPageBase):
             raise TypeError("Properties must be used in a ConnectedPage object")
+
+        log.debug(f"fget {cls} [{name}]")
 
         try:
             prop = self.page[name]
@@ -117,7 +118,7 @@ def Property(name, cls=RichText, default=None):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
         # TODO only set the value if it has changed from the existing
-        log.debug(f"set {cls} [{name}] => {value} {type(value)}")
+        log.debug(f"fset {cls} [{name}] => {value} {type(value)}")
 
         # convert from native objects to expected types
         if isinstance(value, cls):
@@ -129,21 +130,18 @@ def Property(name, cls=RichText, default=None):
 
         # commit the changes directly to Notion
         props = {name: prop.to_api()}
-        data = self._orm_session_.pages.update(self.page.id, properties=props)
-
-        # reset the internal page with the latest data
-        self.page.refresh(**data)
+        self._orm_session_.pages.update(self.page, properties=props)
 
     return property(fget, fset)
 
 
-def connected_page(session, bind=ConnectedPageBase):
+def connected_page(session=None, cls=ConnectedPageBase):
     """Returns a base class for "connected" pages through the Notion API."""
 
-    if not issubclass(bind, ConnectedPageBase):
-        raise ValueError("bind class must subclass ConnectedPageBase")
+    if not issubclass(cls, ConnectedPageBase):
+        raise ValueError("cls must subclass ConnectedPageBase")
 
-    class _ConnectedPage(bind):
+    class _ConnectedPage(cls):
         _orm_session_ = None
         _orm_database_id_ = None
 
@@ -157,9 +155,19 @@ def connected_page(session, bind=ConnectedPageBase):
             if cls._orm_database_id_ is not None:
                 raise TypeError("Object {cls} registered to: {database}")
 
-            cls._orm_session_ = session
             cls._orm_database_id_ = database
 
+            cls.bind(session)
+
             log.debug(f"registered connected page :: {cls} => {database}")
+
+        @classmethod
+        def bind(cls, session):
+            """Attach this ConnectedPage to the given session.
+
+            Setting this to None will detach the page.
+            """
+
+            cls._orm_session_ = session
 
     return _ConnectedPage
