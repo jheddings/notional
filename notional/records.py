@@ -58,6 +58,7 @@ class Database(Record, object="database"):
     """A database record type."""
 
     title: List[RichTextObject] = None
+    url: str = None
     parent: ParentRef = None
     icon: Optional[Union[FileObject, EmojiObject]] = None
     cover: Optional[FileObject] = None
