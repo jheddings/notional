@@ -17,11 +17,11 @@ logging.basicConfig(level=logging.INFO)
 import notional
 from notional import blocks
 
-block_ = sys.argv[1]
+block_id = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 notion = notional.connect(auth=auth_token)
 
 # get an existing page...
-block = notion.blocks.retrieve(block_)
+block = notion.blocks.retrieve(block_id)
 print(block.json(indent=4))
