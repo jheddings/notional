@@ -28,6 +28,9 @@ class Person(User, type="person"):
     def __getitem__(self, key):
         return self.person[key]
 
+    def __str__(self):
+        return f"[@{self.name}]"
+
 
 class Bot(User, type="bot"):
     """Represents a Bot in Notion."""
@@ -39,3 +42,6 @@ class Bot(User, type="bot"):
 
     def __getitem__(self, key):
         return self.bot[key]
+
+    def __str__(self):
+        return f"[%{self.name}]"
