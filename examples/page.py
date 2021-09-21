@@ -42,5 +42,4 @@ notion.blocks.children.append(
 )
 
 # archive (delete) the new page...
-page.archived = True
-notion.pages.update(page)
+notion.pages.delete(page)
