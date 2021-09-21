@@ -59,6 +59,13 @@ class EmojiObject(TypedObject, type="emoji"):
 class FileObject(TypedObject):
     """A Notion file object."""
 
+    name: Optional[str] = None
+
+    def __str__(self):
+        """Return a string representation of this object."""
+
+        return self.name or "_unknown_"
+
 
 class File(FileObject, type="file"):
     """A Notion file reference."""
@@ -77,7 +84,6 @@ class ExternalFile(FileObject, type="external"):
         url: str = None
 
     external: NestedData = None
-    name: Optional[str] = None
 
 
 class DateRange(DataObject):
@@ -85,6 +91,14 @@ class DateRange(DataObject):
 
     start: Union[date, datetime]
     end: Optional[Union[date, datetime]] = None
+
+    def __str__(self):
+        """Return a string representation of this object."""
+
+        if self.end is None:
+            return f"{self.start}"
+
+        return f"{self.start} :: {self.end}"
 
 
 class RichTextObject(TypedObject):
@@ -183,7 +197,12 @@ class NativeTypeMixin(object):
     def __str__(self):
         """Return a string representation of this object."""
 
-        return str(self.Value or "")
+        value = self.Value
+
+        if value is None:
+            return ""
+
+        return str(value)
 
     def __eq__(self, other):
         """Determine if this property is equal to the given object."""
@@ -303,17 +322,6 @@ class Date(PropertyValue, type="date"):
 
     date: DateRange = None
 
-    def __str__(self):
-        """Return a string representation of this object."""
-
-        if self.date is None:
-            return None
-
-        if self.date.end is None:
-            return f"{self.date.start}"
-
-        return f"{self.date.start} :: {self.date.end}"
-
     def __contains__(self, other):
         """Determines if the given date is in the range (inclusive) of this Date.
 
@@ -324,6 +332,12 @@ class Date(PropertyValue, type="date"):
             raise ValueError("This date is not a range")
 
         return self.Start <= other <= self.End
+
+    def __str__(self):
+        if self.date is None:
+            return ""
+
+        return str(self.date)
 
     @property
     def IsRange(self):
@@ -356,6 +370,11 @@ class SelectValue(DataObject):
     id: UUID = None
     color: Color = None
 
+    def __str__(self):
+        """Return a string representation of this object."""
+
+        return self.name
+
 
 class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
     """Notion select type."""
@@ -365,7 +384,7 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
     def __str__(self):
         """Return a string representation of this object."""
 
-        return self.select.name or self.select.id or ""
+        return self.Value or ""
 
     def __eq__(self, other):
         """Determine if this property is equal to the given object.
@@ -383,7 +402,7 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
         if self.select is None:
             return None
 
-        return self.select.name or self.select.id
+        return str(self.select)
 
     @classmethod
     def from_value(cls, value):
@@ -442,7 +461,7 @@ class MultiSelect(PropertyValue, type="multi_select"):
         if self.multi_select is None:
             return None
 
-        return [val.name for val in self.multi_select if val.name is not None]
+        return [str(val) for val in self.multi_select if val.name is not None]
 
     @classmethod
     def from_values(cls, *values):
@@ -485,6 +504,9 @@ class People(PropertyValue, type="people"):
 
         return False
 
+    def __str__(self):
+        return ", ".join([str(user) for user in self.people])
+
 
 class URL(NativeTypeMixin, PropertyValue, type="url"):
     """Notion URL type."""
@@ -526,12 +548,18 @@ class Files(PropertyValue, type="files"):
 
         return False
 
+    def __str__(self):
+        return "; ".join([str(file) for file in self.files])
+
 
 class FormulaResult(TypedObject):
     """A Notion formula result.
 
     This object contains the result of the expression in the database properties.
     """
+
+    def __str__(self):
+        return self.Result or ""
 
     @property
     def Result(self):
@@ -545,9 +573,6 @@ class StringFormula(FormulaResult, type="string"):
 
     string: str = None
 
-    def __str__(self):
-        return self.string or ""
-
     @property
     def Result(self):
         """Return the result of this StringFormula."""
@@ -560,9 +585,6 @@ class NumberFormula(FormulaResult, type="number"):
 
     number: Union[int, float] = None
 
-    def __str__(self):
-        return str(self.number or "")
-
     @property
     def Result(self):
         """Return the result of this NumberFormula."""
@@ -574,9 +596,6 @@ class DateFormula(FormulaResult, type="date"):
     """A Notion date formula result."""
 
     date: DateRange = None
-
-    def __str__(self):
-        return str(self.date or "")
 
     @property
     def Result(self):
@@ -620,6 +639,9 @@ class CreatedBy(PropertyValue, type="created_by"):
 
     created_by: User = None
 
+    def __str__(self):
+        return str(self.created_by)
+
 
 class LastEditedTime(NativeTypeMixin, PropertyValue, type="last_edited_time"):
     """A Notion last-edited-time property value."""
@@ -631,3 +653,6 @@ class LastEditedBy(PropertyValue, type="last_edited_by"):
     """A Notion last-edited-by property value."""
 
     last_edited_by: User = None
+
+    def __str__(self):
+        return str(self.last_edited_by)
