@@ -13,10 +13,6 @@ class PropertyObject(TypedObject):
     name: Optional[str] = None
 
 
-Schema = Dict[str, PropertyObject]
-"""A database schema, mapping property names to object configurations."""
-
-
 class Title(PropertyObject, type="title"):
     """Defines the title configuration for a database property."""
 

@@ -14,7 +14,7 @@ from typing import Dict, List, Optional, Union
 from uuid import UUID
 
 from .core import NamedObject, TypedObject
-from .schema import Schema
+from .schema import PropertyObject
 from .text import plain_text
 from .types import EmojiObject, FileObject, PropertyValue, RichTextObject
 
@@ -63,7 +63,7 @@ class Database(Record, object="database"):
     parent: ParentRef = None
     icon: Optional[Union[FileObject, EmojiObject]] = None
     cover: Optional[FileObject] = None
-    properties: Schema = {}
+    properties: Dict[str, PropertyObject] = {}
 
     @property
     def Title(self):
