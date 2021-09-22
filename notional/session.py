@@ -3,6 +3,8 @@
 import logging
 
 import notion_client
+from httpx import ConnectError
+from notion_client.errors import APIResponseError
 
 from .blocks import Block
 from .iterator import EndpointIterator
@@ -14,6 +16,13 @@ from .user import User
 log = logging.getLogger(__name__)
 
 # TODO add support for limits and filters in list() methods...
+
+
+class SessionError(Exception):
+    """Raised when there are issues with the Notion session."""
+
+    def __init__(self, message):
+        super().__init__(message)
 
 
 class Endpoint(object):
@@ -288,6 +297,30 @@ class Session(object):
         self.users = UsersEndpoint(self)
 
         log.info("Initialized Notion SDK client")
+
+    def ping(self):
+        """Confirm that the session is active and able to connect to Notion.
+
+        Raises SessionError if there is a problem.
+        """
+
+        error = None
+
+        try:
+
+            # get a quick list of users in the integration as a connectivity check
+            # NOTE we use the endpoint directly to bypass the iterator and limit results
+
+            self.users().list(page_size=1)
+
+        except ConnectError as err:
+            error = "Unable to connect to Notion"
+
+        except APIResponseError as err:
+            error = str(err)
+
+        if error is not None:
+            raise SessionError(error)
 
 
 def get_parent_id(parent):
