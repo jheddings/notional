@@ -67,6 +67,25 @@ class BlocksEndpoint(Endpoint):
     def __call__(self):
         return self.session.client.blocks
 
+    # https://developers.notion.com/reference/delete-a-block
+    def delete(self, block):
+        """Delete (archive) the specified Block."""
+
+        log.info("Deleting block :: %s", block.id)
+
+        data = self().update(block.id.hex, archived=True)
+
+        return block.refresh(**data)
+
+    def restore(self, block):
+        """Restore (unarchive) the specified Block."""
+
+        log.info("Restoring block :: %s", block.id)
+
+        data = self().update(block.id.hex, archived=False)
+
+        return block.refresh(**data)
+
     # https://developers.notion.com/reference/retrieve-a-block
     def retrieve(self, block_id):
         """Returns the Block with the given ID."""
@@ -206,6 +225,24 @@ class PagesEndpoint(Endpoint):
         data = self().create(parent=parent_id, properties=props, children=childs)
 
         return Page.parse_obj(data)
+
+    def delete(self, page):
+        """Delete (archive) the specified Page."""
+
+        log.info("Deleting page :: %s", page.id)
+
+        data = self().update(page.id.hex, archived=True)
+
+        return page.refresh(**data)
+
+    def restore(self, page):
+        """Restore (unarchive) the specified Page."""
+
+        log.info("Restoring page :: %s", page.id)
+
+        data = self().update(page.id.hex, archived=False)
+
+        return page.refresh(**data)
 
     # https://developers.notion.com/reference/retrieve-a-page
     def retrieve(self, page_id):

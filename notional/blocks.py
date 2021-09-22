@@ -19,6 +19,8 @@ log = logging.getLogger(__name__)
 class Block(Record, TypedObject, object="block"):
     """A standard block object in Notion."""
 
+    # Blocks are Records with a type...
+
 
 class UnsupportedBlock(Block, type="unsupported"):
     """A placeholder for unsupported blocks in the API."""

@@ -14,7 +14,7 @@ from typing import Dict, List, Optional, Union
 from uuid import UUID
 
 from .core import NamedObject, TypedObject
-from .schema import Schema
+from .schema import PropertyObject
 from .text import plain_text
 from .types import EmojiObject, FileObject, PropertyValue, RichTextObject
 
@@ -52,6 +52,7 @@ class Record(NamedObject):
     created_time: datetime = None
     last_edited_time: datetime = None
     has_children: bool = False
+    archived: bool = False
 
 
 class Database(Record, object="database"):
@@ -62,7 +63,7 @@ class Database(Record, object="database"):
     parent: ParentRef = None
     icon: Optional[Union[FileObject, EmojiObject]] = None
     cover: Optional[FileObject] = None
-    properties: Schema = {}
+    properties: Dict[str, PropertyObject] = {}
 
     @property
     def Title(self):
@@ -75,7 +76,6 @@ class Database(Record, object="database"):
 class Page(Record, object="page"):
     """A standard Notion page object."""
 
-    archived: bool = False
     url: str = None
     parent: ParentRef = None
     icon: Optional[Union[FileObject, EmojiObject]] = None
@@ -100,16 +100,19 @@ class Page(Record, object="page"):
 
         return prop
 
-    def __setitem__(self, name, prop):
+    def __setitem__(self, name, value):
         """Set the object data for the given property.
 
         :param name: the name of the property to set
         :param prop: the PropertyValue for the named property
         """
 
-        log.debug("set property :: {%s} [%s] => %s", self.id, name, prop)
+        log.debug("set property :: {%s} [%s] => %s", self.id, name, value)
 
-        self.properties[name] = prop
+        if not isinstance(value, PropertyValue):
+            raise ValueError(f"Unable to set {name} :: unsupported value type")
+
+        self.properties[name] = value
 
     @property
     def Title(self):
