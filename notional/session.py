@@ -301,7 +301,7 @@ class Session(object):
     def ping(self):
         """Confirm that the session is active and able to connect to Notion.
 
-        Raises SessionError if there is a problem.
+        Raises SessionError if there is a problem, otherwise returns True.
         """
 
         error = None
@@ -321,6 +321,8 @@ class Session(object):
 
         if error is not None:
             raise SessionError(error)
+
+        return True
 
 
 def get_parent_id(parent):

@@ -99,3 +99,5 @@ entry = notion.pages.create(
         "Due Date": timeframe,
     },
 )
+
+notion.databases.delete(db)
