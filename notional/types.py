@@ -10,10 +10,17 @@ from typing import Dict, List, Optional, Union
 from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject
+from .schema import Function
 from .text import Color, FullColor, plain_text
 from .user import User
 
 log = logging.getLogger(__name__)
+
+
+class PageReference(DataObject):
+    """A page reference is an object with an id property."""
+
+    id: UUID
 
 
 class Annotations(DataObject):
@@ -150,17 +157,13 @@ class MentionUser(MentionData, type="user"):
 
 
 class MentionPage(MentionData, type="page"):
-    class NestedData(DataObject):
-        id: UUID
 
-    page: NestedData
+    page: PageReference
 
 
 class MentionDatabase(MentionData, type="database"):
-    class NestedData(DataObject):
-        id: UUID
 
-    database: NestedData
+    database: PageReference
 
 
 class MentionDate(MentionData, type="date"):
@@ -583,7 +586,7 @@ class StringFormula(FormulaResult, type="string"):
 class NumberFormula(FormulaResult, type="number"):
     """A Notion number formula result."""
 
-    number: Union[int, float] = None
+    number: Union[float, int] = None
 
     @property
     def Result(self):
@@ -625,7 +628,37 @@ class Formula(PropertyValue, type="formula"):
 class Relation(PropertyValue, type="relation"):
     """A Notion relation property value."""
 
-    relation: List[str] = []
+    relation: List[PageReference] = []
+
+
+class RollupObject(TypedObject):
+    """A Notion rollup property value."""
+
+    function: Function
+
+
+class RollupNumber(RollupObject, type="number"):
+    """A Notion rollup number property value."""
+
+    number: Union[float, int] = None
+
+
+class RollupDate(RollupObject, type="date"):
+    """A Notion rollup date property value."""
+
+    date: DateRange = None
+
+
+class RollupArray(RollupObject, type="array"):
+    """A Notion rollup array property value."""
+
+    array: List[PropertyValue] = None
+
+
+class Rollup(PropertyValue, type="rollup"):
+    """A Notion rollup property value."""
+
+    rollup: RollupObject
 
 
 class CreatedTime(NativeTypeMixin, PropertyValue, type="created_time"):

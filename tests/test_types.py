@@ -6,7 +6,7 @@ from uuid import UUID
 
 from pydantic import ValidationError
 
-from notional import types, user
+from notional import schema, types, user
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.FATAL)
@@ -301,6 +301,91 @@ class FormulaPropertyTest(unittest.TestCase):
 
         self.assertEqual(up.type, "formula")
         self.assertEqual(up.Result, real)
+
+
+class RelationPropertyTest(unittest.TestCase):
+    """Verify Rollup property values."""
+
+    def test_ParseRelation(self):
+
+        test_data = {
+            "id": ">m;y",
+            "type": "relation",
+            "relation": [
+                {"id": "5497f1ce-4fab-4594-8cf6-112a3158d96d"},
+                {"id": "a26146b5-3c73-4e3e-86dd-08cf2f7007c9"},
+            ],
+        }
+
+        relation = types.Relation.parse_obj(test_data)
+        self.assertEqual(relation.type, "relation")
+
+
+class RollupPropertyTest(unittest.TestCase):
+    """Verify Rollup property values."""
+
+    def test_ParseRollupNumber(self):
+
+        test_data = {
+            "id": "Ob:b",
+            "type": "rollup",
+            "rollup": {"type": "number", "number": 41, "function": "sum"},
+        }
+
+        rollup = types.Rollup.parse_obj(test_data)
+        self.assertEqual(rollup.type, "rollup")
+
+        self.assertEqual(rollup.rollup.type, "number")
+        self.assertEqual(rollup.rollup.number, 41)
+        self.assertEqual(rollup.rollup.function, schema.Function.sum)
+
+    def test_ParseRollupDate(self):
+
+        test_data = {
+            "id": "Mu?O",
+            "type": "rollup",
+            "rollup": {
+                "type": "date",
+                "date": {"start": "2022-10-23", "end": None},
+                "function": "latest_date",
+            },
+        }
+
+        rollup = types.Rollup.parse_obj(test_data)
+        self.assertEqual(rollup.type, "rollup")
+
+        self.assertEqual(rollup.rollup.type, "date")
+        self.assertEqual(rollup.rollup.date.start, date(2022, 10, 23))
+        self.assertIsNone(rollup.rollup.date.end)
+        self.assertEqual(rollup.rollup.function, schema.Function.latest_date)
+
+    def test_ParseRollupArray(self):
+
+        test_data = {
+            "id": "bXNJ",
+            "type": "rollup",
+            "rollup": {
+                "type": "array",
+                "array": [
+                    {"type": "number", "number": 6},
+                    {"type": "number", "number": 4},
+                ],
+                "function": "show_original",
+            },
+        }
+
+        rollup = types.Rollup.parse_obj(test_data)
+        self.assertEqual(rollup.type, "rollup")
+
+        self.assertEqual(rollup.rollup.type, "array")
+        self.assertEqual(rollup.rollup.function, schema.Function.show_original)
+        self.assertEqual(rollup.rollup.type, "array")
+
+        for prop in rollup.rollup.array:
+            self.assertEqual(prop.type, "number")
+
+        self.assertIn(6, rollup.rollup.array)
+        self.assertIn(4, rollup.rollup.array)
 
 
 class PeoplePropertyTest(unittest.TestCase):
