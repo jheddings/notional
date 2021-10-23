@@ -7,11 +7,11 @@ used in the Notion API as well as higher-level methods.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from .core import NestedObject, TypedObject
 from .records import Record
-from .types import FileObject, RichTextObject, TextObject
+from .types import EmojiObject, FileObject, RichTextObject, TextObject
 
 log = logging.getLogger(__name__)
 
@@ -81,6 +81,27 @@ class Heading3(TextBlock, type="heading_3"):
     heading_3: NestedData = None
 
 
+class Quote(TextBlock, type="quote"):
+    """A quote block in Notion."""
+
+    class NestedData(NestedObject):
+        text: List[RichTextObject] = None
+        children: List[Block] = None
+
+    quote: NestedData = None
+
+
+class Callout(TextBlock, type="callout"):
+    """A callout block in Notion."""
+
+    class NestedData(NestedObject):
+        text: List[RichTextObject] = None
+        children: List[Block] = None
+        icon: Optional[Union[FileObject, EmojiObject]] = None
+
+    callout: NestedData = None
+
+
 class BulletedListItem(TextBlock, type="bulleted_list_item"):
     """A bulleted list item in Notion."""
 
@@ -120,6 +141,24 @@ class Toggle(TextBlock, type="toggle"):
         children: List[Block] = None
 
     toggle: NestedData = None
+
+
+class Divider(Block, type="divider"):
+    """A divider block in Notion."""
+
+    divider: Any = None
+
+
+class TableOfContents(Block, type="table_of_contents"):
+    """A table_of_contents block in Notion."""
+
+    table_of_contents: Any = None
+
+
+class Breadcrumb(Block, type="breadcrumb"):
+    """A breadcrumb block in Notion."""
+
+    breadcrumb: Any = None
 
 
 class Embed(Block, type="embed"):

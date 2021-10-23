@@ -3,6 +3,8 @@
 import logging
 
 import notion_client
+from httpx import ConnectError
+from notion_client.errors import APIResponseError
 
 from .blocks import Block
 from .core import NamedObject
@@ -16,6 +18,13 @@ from .user import User
 log = logging.getLogger(__name__)
 
 # TODO add support for limits and filters in list() methods...
+
+
+class SessionError(Exception):
+    """Raised when there are issues with the Notion session."""
+
+    def __init__(self, message):
+        super().__init__(message)
 
 
 class Endpoint(object):
@@ -92,7 +101,9 @@ class BlocksEndpoint(Endpoint):
 
         log.info("Retrieving block :: %s", block_id)
 
-        return Block.parse_obj(self().retrieve(block_id))
+        data = self().retrieve(block_id)
+
+        return Block.parse_obj(data)
 
     # https://developers.notion.com/reference/update-a-block
     def update(self, block):
@@ -152,7 +163,9 @@ class DatabasesEndpoint(Endpoint):
 
         log.info("Retrieving database :: %s", database_id)
 
-        return Database.parse_obj(self().retrieve(database_id))
+        data = self().retrieve(database_id)
+
+        return Database.parse_obj(data)
 
     # https://developers.notion.com/reference/update-a-database
     def update(self, database):
@@ -309,7 +322,9 @@ class UsersEndpoint(Endpoint):
 
         log.info("Retrieving user :: ", user_id)
 
-        return User.parse_obj(self.users.retrieve(user_id))
+        data = self.users.retrieve(user_id)
+
+        return User.parse_obj(data)
 
 
 class Session(object):
@@ -325,6 +340,32 @@ class Session(object):
         self.users = UsersEndpoint(self)
 
         log.info("Initialized Notion SDK client")
+
+    def ping(self):
+        """Confirm that the session is active and able to connect to Notion.
+
+        Raises SessionError if there is a problem, otherwise returns True.
+        """
+
+        error = None
+
+        try:
+
+            # get a quick list of users in the integration as a connectivity check
+            # NOTE we use the endpoint directly to bypass the iterator and limit results
+
+            self.users().list(page_size=1)
+
+        except ConnectError as err:
+            error = "Unable to connect to Notion"
+
+        except APIResponseError as err:
+            error = str(err)
+
+        if error is not None:
+            raise SessionError(error)
+
+        return True
 
 
 def get_parent_id(parent):
