@@ -99,7 +99,9 @@ class BlocksEndpoint(Endpoint):
 
         log.info("Retrieving block :: %s", block_id)
 
-        return Block.parse_obj(self().retrieve(block_id))
+        data = self().retrieve(block_id)
+
+        return Block.parse_obj(data)
 
     # https://developers.notion.com/reference/update-a-block
     def update(self, block):
@@ -159,7 +161,9 @@ class DatabasesEndpoint(Endpoint):
 
         log.info("Retrieving database :: %s", database_id)
 
-        return Database.parse_obj(self().retrieve(database_id))
+        data = self().retrieve(database_id)
+
+        return Database.parse_obj(data)
 
     # https://developers.notion.com/reference/update-a-database
     def update(self, database):
@@ -281,7 +285,9 @@ class UsersEndpoint(Endpoint):
 
         log.info("Retrieving user :: ", user_id)
 
-        return User.parse_obj(self.users.retrieve(user_id))
+        data = self.users.retrieve(user_id)
+
+        return User.parse_obj(data)
 
 
 class Session(object):
