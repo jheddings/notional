@@ -1,9 +1,35 @@
 """Objects representing a database schema."""
 
+from enum import Enum
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject
+
+
+class Function(str, Enum):
+    """Standard aggregation functions."""
+
+    count_all = "count_all"
+    count_values = "count_values"
+    count_unique_values = "count_unique_values"
+    count_empty = "count_empty"
+    count_not_empty = "count_not_empty"
+
+    percent_empty = "percent_empty"
+    percent_not_empty = "percent_not_empty"
+
+    average = "average"
+    min = "min"
+    max = "max"
+    median = "median"
+    range = "range"
+    sum = "sum"
+
+    earliest_date = "earliest_date"
+    latest_date = "latest_date"
+
+    show_original = "show_original"
 
 
 class PropertyObject(TypedObject):
@@ -138,9 +164,9 @@ class Rollup(PropertyObject, type="rollup"):
         relation_property_id: str
         rollup_property_name: str
         rollup_property_id: str
-        function: str
+        function: Function
 
-    rollup: NestedData = None
+    rollup: NestedData
 
 
 class CreatedTime(PropertyObject, type="created_time"):
