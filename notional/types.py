@@ -424,23 +424,18 @@ class MultiSelect(PropertyValue, type="multi_select"):
     def __iadd__(self, other):
         """Add the given option to this MultiSelect."""
 
-        if other is None:
-            raise ValueError(f"'None' is invalid for this property")
-
         if other in self:
-            raise ValueError(f"Item already selected: {other}")
+            raise ValueError(f"Duplicate item: {other}")
 
-        opt = SelectValue(name=other)
-        self.multi_select.append(opt)
-
-        return self
+        return self.append(other)
 
     def __isub__(self, other):
         """Remove the given value from this MultiSelect."""
 
-        self.multi_select = [opt for opt in self.multi_select if opt.name != other]
+        if other not in self:
+            raise ValueError(f"No such item: {other}")
 
-        return self
+        return self.remove(other)
 
     def __contains__(self, name):
         """Determines if the given name is in this MultiSelect.
@@ -456,6 +451,26 @@ class MultiSelect(PropertyValue, type="multi_select"):
 
     def __iter__(self):
         return self.Values
+
+    def append(self, *values):
+        """Add selected values to this MultiSelect."""
+
+        for value in values:
+            if value is None:
+                raise ValueError(f"'None' is an invalid value")
+
+            if value not in self:
+                opt = SelectValue(name=value)
+                self.multi_select.append(opt)
+
+        return self
+
+    def remove(self, *values):
+        """Removed selected values from this MultiSelect."""
+
+        self.multi_select = [opt for opt in self.multi_select if opt.name not in values]
+
+        return self
 
     @property
     def Values(self):

@@ -23,7 +23,7 @@ def make_api_safe(data):
         return data.isoformat()
 
     elif isinstance(data, UUID):
-        return data.hex
+        return str(data)
 
     elif isinstance(data, Enum):
         return data.value

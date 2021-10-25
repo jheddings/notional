@@ -130,6 +130,7 @@ def Property(name, cls=RichText, default=None):
 
         # commit the changes directly to Notion
         props = {name: prop.to_api()}
+
         self._orm_session_.pages.update(self.page, properties=props)
 
     return property(fget, fset)
