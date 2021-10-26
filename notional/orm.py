@@ -2,6 +2,7 @@
 
 import logging
 
+from .iterator import EndpointIterator
 from .records import DatabaseParent, Page
 from .types import NativeTypeMixin, PropertyValue, RichText
 
@@ -22,8 +23,7 @@ class ConnectedPageBase(object):
     """
 
     def __init__(self, **data):
-        self.page = Page(**data)
-
+        self.page = Page(**data) if data else None
         self._pending_props = dict()
 
     @property
@@ -37,7 +37,7 @@ class ConnectedPageBase(object):
         """Return an iterator for all child blocks of this Page."""
 
         return EndpointIterator(
-            endpoint=self._session.blocks.children.list, block_id=self.id
+            endpoint=self._orm_session_.blocks.children.list, block_id=self.id
         )
 
     def commit(self):
@@ -70,6 +70,8 @@ class ConnectedPageBase(object):
     def create(cls, **properties):
         """Creates a new instance of the ConnectedPage type.
 
+        Any properties that support native type assignment may be set
+
         This operation takes place on the Notion server, causing the page to update
         immediately.
         """
@@ -78,36 +80,18 @@ class ConnectedPageBase(object):
 
         parent = DatabaseParent(database_id=cls._orm_database_id_)
 
-        # TODO convert properties to a dict for create...
-        # props = cls.kwargs_to_props(properties)
-        props = dict()
+        # bypass the data constructor to avoid multiple copies of the page data...
+        connected = cls()
+        connected.page = cls._orm_session_.pages.create(parent=parent)
 
-        page = cls._orm_session_.pages.create(parent=parent, properties=props)
+        for name, value in properties.items():
+            setattr(connected, name, value)
 
-        return cls(**page.dict())
+        # FIXME it would be better to convert properties to a dict and pass to the API,
+        # rather than requiring a separate commit here...  someday perhaps
+        connected.commit()
 
-    @classmethod
-    def kwargs_to_props(cls, **kwargs):
-        """Converts the list of keyword args to a dict of properties."""
-
-        props = dict()
-
-        for name, prop in properties.items():
-            if isinstance(prop, PropertyValue):
-                props[name] = prop.to_api()
-
-            elif isinstance(prop, dict):
-                props[name] = prop
-
-            elif hasattr(cls, name):
-                field = getattr(cls, name)
-                prop = field.from_value(prop)  # FIXME
-                props[name] = prop.to_api()
-
-            else:
-                raise ValueError(f"Unsupported property: {name}")
-
-        return props
+        return connected
 
     @classmethod
     def parse_obj(cls, data):
@@ -124,13 +108,13 @@ def Property(name, cls=RichText, default=None):
 
     log.debug("creating new Property: %s", name)
 
-    def fget(self):
+    def getter(self):
         """Return the current value of the property as a python object."""
 
         if not isinstance(self, ConnectedPageBase):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
-        log.debug(f"fget {cls} [{name}]")
+        log.debug(f"getter {cls} [{name}]")
 
         try:
             prop = self.page[name]
@@ -148,27 +132,30 @@ def Property(name, cls=RichText, default=None):
 
         return prop
 
-    def fset(self, value):
+    def setter(self, value):
         """Set the property to the given value."""
 
         if not isinstance(self, ConnectedPageBase):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
         # TODO only set the value if it has changed from the existing
-        log.debug(f"fset {cls} [{name}] => {value} {type(value)}")
+        log.debug(f"setter {cls} [{name}] => {value} {type(value)}")
 
         # convert from native objects to expected types
         if isinstance(value, cls):
             prop = value
         elif issubclass(cls, NativeTypeMixin):
             prop = cls.from_value(value)
+        elif hasattr(cls, "from_value"):
+            from_value = getattr(cls, "from_value")
+            prop = from_value(value)
         else:
             raise ValueError(f"Value does not match expected type: {cls}")
 
         # save the updated property to our pending dict
         self._pending_props[name] = prop.to_api()
 
-    return property(fget, fset)
+    return property(getter, setter)
 
 
 def connected_page(session=None, cls=ConnectedPageBase):

@@ -491,10 +491,10 @@ class MultiSelect(PropertyValue, type="multi_select"):
         return [str(val) for val in self.multi_select if val.name is not None]
 
     @classmethod
-    def from_values(cls, *values):
-        """Initialize a new MultiSelect from the list of values.
+    def from_value(cls, values):
+        """This method accepts a list of values, converting them into SelectOption's.
 
-        All values in the list will be converted to strings.
+        All values in the list will be automatically converted to strings.
         """
 
         return cls(
@@ -502,6 +502,11 @@ class MultiSelect(PropertyValue, type="multi_select"):
                 SelectValue(name=str(val)) for val in values if val is not None
             ]
         )
+
+    @classmethod
+    def from_values(cls, *values):
+        """Initialize a new MultiSelect from the given values."""
+        return cls.from_value(values)
 
 
 class People(PropertyValue, type="people"):
