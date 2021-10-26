@@ -9,10 +9,22 @@ log = logging.getLogger(__name__)
 
 
 class ConnectedPageBase(object):
-    """Base class for "live" pages via the Notion API."""
+    """Base class for "live" pages via the Notion API.
+
+    When interacting with the ConnectedPage, it is important to note whether the
+    operation reuires a commit stage.  Some operations, such as create(...), occur on
+    the server and take place immediately.  Any changes that occur locally require
+    calling commit(...) to persist the change on the server.
+
+    In general:
+    - creating new (pages and blocks) content takes place on the server
+    - modifying content (properties and text) of the page take place locally
+    """
 
     def __init__(self, **data):
         self.page = Page(**data)
+
+        self._pending_props = dict()
 
     @property
     def id(self):
@@ -28,14 +40,39 @@ class ConnectedPageBase(object):
             endpoint=self._session.blocks.children.list, block_id=self.id
         )
 
+    def commit(self):
+        """Commit any pending changes to this ConnectedPage.
+
+        If there are no pending changes, this call does nothing.
+        """
+
+        log.info(f"Committing pending changes :: {self.id}")
+
+        if len(self._pending_props) == 0:
+            log.debug(f"no changes to commit; nothing to do")
+            return
+
+        log.debug(f"committing {len(self._pending_props)} properties")
+        self._orm_session_.pages.update(self.page, properties=self._pending_props)
+
+        self._pending_props.clear()
+
     def append(self, *blocks):
-        """Append the given blocks as children of this ConnectedPage."""
+        """Append the given blocks as children of this ConnectedPage.
+
+        This operation takes place on the Notion server, causing the page to update
+        immediately.
+        """
 
         self._orm_session_.blocks.children.append(self.page, *blocks)
 
     @classmethod
     def create(cls, **properties):
-        """Creates a new instance of the ConnectedPage type."""
+        """Creates a new instance of the ConnectedPage type.
+
+        This operation takes place on the Notion server, causing the page to update
+        immediately.
+        """
 
         log.debug(f"creating new {cls} :: {cls._orm_database_id_}")
 
@@ -128,10 +165,8 @@ def Property(name, cls=RichText, default=None):
         else:
             raise ValueError(f"Value does not match expected type: {cls}")
 
-        # commit the changes directly to Notion
-        props = {name: prop.to_api()}
-
-        self._orm_session_.pages.update(self.page, properties=props)
+        # save the updated property to our pending dict
+        self._pending_props[name] = prop.to_api()
 
     return property(fget, fset)
 
@@ -143,8 +178,9 @@ def connected_page(session=None, cls=ConnectedPageBase):
         raise ValueError("cls must subclass ConnectedPageBase")
 
     class _ConnectedPage(cls):
-        _orm_session_ = None
         _orm_database_id_ = None
+        _orm_session_ = None
+        _orm_bind_session_ = None
 
         def __init_subclass__(cls, database, **kwargs):
             """Attach the ConnectedPage to the given database ID."""
@@ -158,17 +194,19 @@ def connected_page(session=None, cls=ConnectedPageBase):
 
             cls._orm_database_id_ = database
 
-            cls.bind(session)
+            # if the local session is None, we will attempt to use the bind_session
+            cls.bind(session or cls._orm_bind_session_)
 
             log.debug(f"registered connected page :: {cls} => {database}")
 
         @classmethod
-        def bind(cls, session):
+        def bind(cls, to_session):
             """Attach this ConnectedPage to the given session.
 
             Setting this to None will detach the page.
             """
 
-            cls._orm_session_ = session
+            cls._orm_bind_session_ = to_session
+            cls._orm_session_ = to_session
 
     return _ConnectedPage

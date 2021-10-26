@@ -54,6 +54,8 @@ for task in notion.databases.query(Task).sort(sort).execute():
     if "To Review" not in task.Tags:
         task.Tags += "To Review"
 
+    task.commit()
+
 # create a task...  properties can be set using keywords, according to their type
 
 one_week = date.today() + timedelta(days=7)
