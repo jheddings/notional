@@ -95,12 +95,20 @@ class ComplexDataObject(DataObject):
 class DataObjectTest(unittest.TestCase):
     """Unit tests for the DataObject API objects."""
 
-    def test_ParseDataObject(self):
+    def test_ParseBasicObject(self):
         """Basic DataObject parsing."""
 
         person = Person.parse_raw(ALICE)
         self.assertEqual(person.name, "Alice the Person")
         self.assertIsNone(person.pets)
+
+    def test_ParseComplexDataObject(self):
+        """Complex DataObject parsing."""
+        pass
+
+
+class TypedObjectTest(unittest.TestCase):
+    """Unit tests for typed API objects."""
 
     def test_ParseTypedDataObject(self):
         """TypedObject parsing."""
@@ -133,6 +141,6 @@ class DataObjectTest(unittest.TestCase):
         for pet in bob.pets:
             self.assertIn(pet, [fluffy, tiger])
 
-    def test_ParseComplexDataObject(self):
-        """Complex DataObject parsing."""
-        pass
+
+class NamedObjectTest(unittest.TestCase):
+    """Unit tests for named API objects."""
