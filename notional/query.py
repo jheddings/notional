@@ -72,9 +72,6 @@ class Query(object):
         elif issubclass(self.target, ConnectedPageBase):
             cls = self.target
 
-            if cls._orm_session_ != self.session:
-                raise ValueError("ConnectedPage belongs to a different session")
-
             if cls._orm_database_id_ is None:
                 raise ValueError("ConnectedPage has no database")
 
