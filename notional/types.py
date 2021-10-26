@@ -313,6 +313,15 @@ class Number(NativeTypeMixin, PropertyValue, type="number"):
         self.number -= other
         return self
 
+    @property
+    def Value(self):
+        """Get the current value of this property as a native Python number."""
+
+        if self.number == int(self.number):
+            return int(self.number)
+
+        return self.number
+
 
 class Checkbox(NativeTypeMixin, PropertyValue, type="checkbox"):
     """Simple checkbox type; represented as a boolean."""
