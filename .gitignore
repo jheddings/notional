@@ -7,5 +7,6 @@ __pycache__/
 build
 dist
 lib
+tmp
 
 *.egg-info/
