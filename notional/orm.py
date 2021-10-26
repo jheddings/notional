@@ -31,7 +31,7 @@ class ConnectedPageBase(object):
     def append(self, *blocks):
         """Append the given blocks as children of this ConnectedPage."""
 
-        self._orm_session_.blocks.children.append(parent=self.page, *blocks)
+        self._orm_session_.blocks.children.append(self.page, *blocks)
 
     @classmethod
     def create(cls, **properties):
