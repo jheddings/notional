@@ -123,6 +123,8 @@ def Property(name, cls=RichText, default=None):
     def getter(self):
         """Return the current value of the property as a python object."""
 
+        # TODO return None if the property is empty (regardless of type)...
+
         if not isinstance(self, ConnectedPageBase):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
@@ -156,8 +158,6 @@ def Property(name, cls=RichText, default=None):
         # convert from native objects to expected types
         if isinstance(value, cls):
             prop = value
-        elif issubclass(cls, NativeTypeMixin):
-            prop = cls.from_value(value)
         elif hasattr(cls, "from_value"):
             from_value = getattr(cls, "from_value")
             prop = from_value(value)
