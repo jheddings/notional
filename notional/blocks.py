@@ -184,6 +184,7 @@ class Bookmark(Block, type="bookmark"):
 
     class NestedData(NestedObject):
         url: str
+        caption: List[RichTextObject] = None
 
     bookmark: NestedData = None
 
