@@ -19,6 +19,8 @@ def make_api_safe(data):
     This is mostly to handle data types that will not directly serialize to JSON.
     """
 
+    # https://github.com/samuelcolvin/pydantic/issues/1409#issuecomment-877175194
+
     if isinstance(data, date) or isinstance(data, datetime):
         return data.isoformat()
 
@@ -59,6 +61,7 @@ class DataObject(BaseModel):
             else:
                 raise e
 
+    # https://github.com/samuelcolvin/pydantic/discussions/3139
     def refresh(__pydantic_self__, **data):
         """Refresh the internal attributes with new data."""
 
@@ -67,9 +70,10 @@ class DataObject(BaseModel):
         if error:
             raise error
 
-        log.debug("refreshing object values -- %s", values)
-
-        object.__setattr__(__pydantic_self__, "__dict__", values)
+        for name in fields:
+            value = values[name]
+            log.debug("set object data -- %s => %s", name, value)
+            setattr(__pydantic_self__, name, value)
 
         return __pydantic_self__
 
