@@ -50,7 +50,7 @@ class BlocksEndpoint(Endpoint):
 
             children = [block.to_api() for block in blocks if block is not None]
 
-            log.info("Appending %d blocks to %s...", len(children), parent.id)
+            log.info("Appending %d blocks to %s ...", len(children), parent.id)
 
             data = self().append(block_id=parent.id.hex, children=children)
 
