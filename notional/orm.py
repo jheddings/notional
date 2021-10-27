@@ -37,8 +37,19 @@ class ConnectedPageBase(object):
         """Return an iterator for all child blocks of this Page."""
 
         return EndpointIterator(
-            endpoint=self._orm_session_.blocks.children.list, block_id=self.id
+            endpoint=self._orm_session_.blocks.children().list, block_id=self.id
         )
+
+    def __iadd__(self, block):
+        """Append the given block to this page.
+
+        This operation takes place on the Notion server, causing the page to save
+        immediately.
+        """
+
+        self.append(block)
+
+        return self
 
     def commit(self):
         """Commit any pending changes to this ConnectedPage.
@@ -64,6 +75,7 @@ class ConnectedPageBase(object):
         immediately.
         """
 
+        log.debug("appending %d blocks to page :: %s", len(blocks), self.page.id)
         self._orm_session_.blocks.children.append(self.page, *blocks)
 
     @classmethod
@@ -152,6 +164,9 @@ def Property(name, cls=RichText, default=None):
         else:
             raise ValueError(f"Value does not match expected type: {cls}")
 
+        # update the local property
+        self.page[name] = prop
+
         # save the updated property to our pending dict
         self._pending_props[name] = prop.to_api()
 
@@ -167,7 +182,7 @@ def connected_page(session=None, cls=ConnectedPageBase):
     class _ConnectedPage(cls):
         _orm_database_id_ = None
         _orm_session_ = None
-        _orm_bind_session_ = None
+        _orm_late_bind_ = None
 
         def __init_subclass__(cls, database, **kwargs):
             """Attach the ConnectedPage to the given database ID."""
@@ -182,7 +197,7 @@ def connected_page(session=None, cls=ConnectedPageBase):
             cls._orm_database_id_ = database
 
             # if the local session is None, we will attempt to use the bind_session
-            cls.bind(session or cls._orm_bind_session_)
+            cls.bind(session or cls._orm_late_bind_)
 
             log.debug(f"registered connected page :: {cls} => {database}")
 
@@ -193,7 +208,7 @@ def connected_page(session=None, cls=ConnectedPageBase):
             Setting this to None will detach the page.
             """
 
-            cls._orm_bind_session_ = to_session
+            cls._orm_late_bind_ = to_session
             cls._orm_session_ = to_session
 
     return _ConnectedPage

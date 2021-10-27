@@ -70,6 +70,8 @@ task = Task.create(
 
 print(f"{task.Title} @ {task.LastUpdate}")
 
-# add task content...  append child blocks to this task
+# add task content as child blocks of this task...
+task += blocks.Paragraph.from_text("Welcome to the matrix.")
 
-task.append(blocks.Paragraph.from_text("Welcome to the page!"))
+# alternative form to append multiple blocks in a single call...
+#task.append(blocks.Divider(), blocks.Quote.from_text("There is no spoon."))
