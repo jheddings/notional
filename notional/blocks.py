@@ -33,7 +33,7 @@ class TextBlock(Block):
 
     @classmethod
     def from_text(cls, text):
-        text = TextObject.from_value(text)
+        obj = TextObject.from_value(text)
 
         if not hasattr(cls, "type") or cls.type is None:
             raise TypeError(f"class type is not defined: {cls}")
@@ -41,7 +41,11 @@ class TextBlock(Block):
         # text types have a nested object with 'type' name and a 'text' child
         # here, we use the local constructor to build out the nested object...
 
-        return cls(**{cls.type: {"text": [text]}})
+        # TODO convert markdown to RichText elements
+
+        log.debug("%s => from_text :: %s", cls.type, text[:10])
+
+        return cls(**{cls.type: {"text": [obj]}})
 
 
 class Paragraph(TextBlock, type="paragraph"):
