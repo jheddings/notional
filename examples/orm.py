@@ -54,11 +54,11 @@ for task in notion.databases.query(Task).sort(sort).execute():
     if "To Review" not in task.Tags:
         task.Tags += "To Review"
 
+    task.commit()
+
 # create a task...  properties can be set using keywords, according to their type
 
 one_week = date.today() + timedelta(days=7)
-
-# FIXME currently this does not work (the properties are not actually set)...
 
 task = Task.create(
     Title="Hello World",
@@ -70,6 +70,8 @@ task = Task.create(
 
 print(f"{task.Title} @ {task.LastUpdate}")
 
-# add task content...  append child blocks to this task
+# add task content as child blocks of this task...
+task += blocks.Paragraph.from_text("Welcome to the matrix.")
 
-task.append(blocks.Paragraph.from_text("Welcome to the page!"))
+# alternative form to append multiple blocks in a single call...
+#task.append(blocks.Divider(), blocks.Quote.from_text("There is no spoon."))

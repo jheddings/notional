@@ -52,7 +52,7 @@ class BlocksEndpoint(Endpoint):
 
             children = [block.to_api() for block in blocks if block is not None]
 
-            log.info("Appending %d blocks to %s...", len(children), parent.id)
+            log.info("Appending %d blocks to %s ...", len(children), parent.id)
 
             data = self().append(block_id=parent.id.hex, children=children)
 
@@ -268,10 +268,10 @@ class PagesEndpoint(Endpoint):
         return Page.parse_obj(data)
 
     # https://developers.notion.com/reference/patch-page
-    def update(self, page, **kwargs):
+    def update(self, page, **content):
         """Updates the Page object on the server.
 
-        If `kwargs` are provided, only those fields will be updated.  If `kwargs` is
+        If `content` are provided, only those fields will be updated.  If `content` is
         empty, the entire page will be updated.
 
         The page info will be refreshed to the latest version from the server.
@@ -279,9 +279,10 @@ class PagesEndpoint(Endpoint):
 
         log.info("Updating page info :: %s", page.id)
 
-        diff = kwargs or page.to_api()
+        if not content:
+            content = page.to_api()
 
-        data = self().update(page.id.hex, **diff)
+        data = self().update(page.id.hex, **content)
 
         return page.refresh(**data)
 

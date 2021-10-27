@@ -2,9 +2,11 @@ __pycache__/
 *.py[cod]
 
 .venv
+.vscode
 
 build
 dist
 lib
+tmp
 
 *.egg-info/
