@@ -317,6 +317,9 @@ class Number(NativeTypeMixin, PropertyValue, type="number"):
     def Value(self):
         """Get the current value of this property as a native Python number."""
 
+        if self.number is None:
+            return None
+
         if self.number == int(self.number):
             return int(self.number)
 
