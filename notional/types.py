@@ -382,7 +382,7 @@ class SelectValue(DataObject):
     """Values for select & multi-select properties."""
 
     name: str
-    id: UUID = None
+    id: Union[UUID, str] = None
     color: Color = None
 
     def __str__(self):

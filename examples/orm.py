@@ -74,4 +74,4 @@ print(f"{task.Title} @ {task.LastUpdate}")
 task += blocks.Paragraph.from_text("Welcome to the matrix.")
 
 # alternative form to append multiple blocks in a single call...
-#task.append(blocks.Divider(), blocks.Quote.from_text("There is no spoon."))
+# task.append(blocks.Divider(), blocks.Quote.from_text("There is no spoon."))
