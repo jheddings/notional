@@ -294,7 +294,7 @@ class UsersEndpoint(Endpoint):
     def me(self):
         """Returns the current bot User."""
 
-        log.info("Retrieving current bot")
+        log.info("Retrieving current integration bot")
 
         data = self().me()
 
@@ -325,10 +325,10 @@ class Session(object):
 
         try:
 
-            # get a quick list of users in the integration as a connectivity check
-            # NOTE we use the endpoint directly to bypass the iterator and limit results
+            me = self.users.me()
 
-            self.users().list(page_size=1)
+            if me is None:
+                raise SessionError("Unable to get current user")
 
         except ConnectError as err:
             error = "Unable to connect to Notion"
