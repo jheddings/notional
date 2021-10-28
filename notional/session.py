@@ -286,7 +286,17 @@ class UsersEndpoint(Endpoint):
 
         log.info("Retrieving user :: ", user_id)
 
-        data = self.users.retrieve(user_id)
+        data = self().retrieve(user_id)
+
+        return User.parse_obj(data)
+
+    # https://developers.notion.com/reference/get-self
+    def me(self):
+        """Returns the current bot User."""
+
+        log.info("Retrieving current bot")
+
+        data = self().me()
 
         return User.parse_obj(data)
 
