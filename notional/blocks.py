@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from .core import NestedObject, TypedObject
 from .records import Record
+from .text import plain_text
 from .types import EmojiObject, FileObject, RichTextObject, TextObject
 
 log = logging.getLogger(__name__)
@@ -46,6 +47,12 @@ class TextBlock(Block):
         log.debug("%s => from_text :: %s", cls.type, text[:10])
 
         return cls(**{cls.type: {"text": [obj]}})
+
+    @property
+    def PlainText(self):
+        # content is stored in the nested data, named by the object type
+        content = getattr(self, self.__class__.type)
+        return plain_text(*content.text)
 
 
 class Paragraph(TextBlock, type="paragraph"):
