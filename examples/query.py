@@ -13,22 +13,31 @@ import logging
 import os
 import sys
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 import notional
+from notional.query import PropertyFilter, TextFilter
 
 dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 notion = notional.connect(auth=auth_token)
+
+## query for all values sorted by Title
+
 sort = {"direction": "ascending", "property": "Title"}
-
 query = notion.databases.query(dbid).sort(sort)
-
-data = query.first()
-print("== First Result ==")
-print(f"{json.dumps(data, indent=4)}")
 
 print("== All Results ==")
 for data in query.execute():
     print(f"{data['id']} => {data['url']}")
+
+## filter for specific values...
+
+query = notion.databases.query(dbid).filter(
+    PropertyFilter.where_text(contains="project")
+)
+
+data = query.first()
+print("== First Result ==")
+print(f"{json.dumps(data, indent=4)}")
