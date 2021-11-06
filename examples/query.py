@@ -16,7 +16,7 @@ import sys
 logging.basicConfig(level=logging.DEBUG)
 
 import notional
-from notional.query import PropertyFilter, TextFilter
+from notional.query import PropertyFilter, SortDirection, TextCriteria
 
 dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
@@ -25,8 +25,9 @@ notion = notional.connect(auth=auth_token)
 
 ## query for all values sorted by Title
 
-sort = {"direction": "ascending", "property": "Title"}
-query = notion.databases.query(dbid).sort(sort)
+query = notion.databases.query(dbid).sort(
+    property="Title", direction=SortDirection.ascending
+)
 
 print("== All Results ==")
 for data in query.execute():
@@ -35,7 +36,7 @@ for data in query.execute():
 ## filter for specific values...
 
 query = notion.databases.query(dbid).filter(
-    PropertyFilter.where_text(contains="project")
+    property="Title", text=TextCriteria(contains="project")
 )
 
 data = query.first()

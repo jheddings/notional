@@ -8,7 +8,7 @@ from notion_client.errors import APIResponseError
 
 from .blocks import Block
 from .iterator import EndpointIterator
-from .query import Query, ResultSet
+from .query import QueryBuilder, ResultSet
 from .records import Database, Page, ParentRef
 from .types import TextObject, Title
 from .user import User
@@ -187,7 +187,7 @@ class DatabasesEndpoint(Endpoint):
 
         log.info("Initializing database query :: %s", target)
 
-        return Query(self.session, target)
+        return QueryBuilder(self.session, target)
 
 
 class PagesEndpoint(Endpoint):

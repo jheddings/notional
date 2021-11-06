@@ -2,6 +2,7 @@
 
 import logging
 from datetime import date, datetime
+from enum import Enum
 from typing import Any, List, Optional, Union
 from uuid import UUID
 
@@ -17,8 +18,12 @@ log = logging.getLogger(__name__)
 # EndpointIterator for the results, which overrides those parameters for all results
 
 
-class TextFilter(BaseModel):
-    """Represents a text filter in Notion."""
+class QueryFilter(BaseModel):
+    """Base class for query filters."""
+
+
+class TextCriteria(BaseModel):
+    """Represents text criteria in Notion."""
 
     equals: Optional[str] = None
     does_not_equal: Optional[str] = None
@@ -30,8 +35,8 @@ class TextFilter(BaseModel):
     is_not_empty: Optional[bool] = None
 
 
-class NumberFilter(BaseModel):
-    """Represents a number filter in Notion."""
+class NumberCriteria(BaseModel):
+    """Represents number criteria in Notion."""
 
     equals: Optional[Union[float, int]] = None
     does_not_equal: Optional[Union[float, int]] = None
@@ -43,15 +48,15 @@ class NumberFilter(BaseModel):
     is_not_empty: Optional[bool] = None
 
 
-class CheckboxFilter(BaseModel):
-    """Represents a checkbox filter in Notion."""
+class CheckboxCriteria(BaseModel):
+    """Represents checkbox criteria in Notion."""
 
     equals: Optional[bool] = None
     does_not_equal: Optional[bool] = None
 
 
-class SelectOneFilter(BaseModel):
-    """Represents a select filter in Notion."""
+class SelectOneCriteria(BaseModel):
+    """Represents select criteria in Notion."""
 
     equals: Optional[str] = None
     does_not_equal: Optional[str] = None
@@ -59,8 +64,8 @@ class SelectOneFilter(BaseModel):
     is_not_empty: Optional[bool] = None
 
 
-class MultiSelectFilter(BaseModel):
-    """Represents a multi-select filter in Notion."""
+class MultiSelectCriteria(BaseModel):
+    """Represents a multi_select criteria in Notion."""
 
     contains: Optional[str] = None
     does_not_contains: Optional[str] = None
@@ -68,8 +73,8 @@ class MultiSelectFilter(BaseModel):
     is_not_empty: Optional[bool] = None
 
 
-class DateFilter(BaseModel):
-    """Represents a date filter in Notion."""
+class DateCriteria(BaseModel):
+    """Represents date criteria in Notion."""
 
     equals: Optional[Union[date, datetime]] = None
     before: Optional[Union[date, datetime]] = None
@@ -88,8 +93,8 @@ class DateFilter(BaseModel):
     next_year: Optional[Any] = None
 
 
-class PeopleFilter(BaseModel):
-    """Represents a people filter in Notion."""
+class PeopleCriteria(BaseModel):
+    """Represents people criteria in Notion."""
 
     contains: Optional[UUID] = None
     does_not_contain: Optional[UUID] = None
@@ -97,15 +102,15 @@ class PeopleFilter(BaseModel):
     is_not_empty: Optional[bool] = None
 
 
-class FilesFilter(BaseModel):
-    """Represents a files filter in Notion."""
+class FilesCriteria(BaseModel):
+    """Represents files criteria in Notion."""
 
     is_empty: Optional[bool] = None
     is_not_empty: Optional[bool] = None
 
 
-class RelationFilter(BaseModel):
-    """Represents a relation filter in Notion."""
+class RelationCriteria(BaseModel):
+    """Represents relation criteria in Notion."""
 
     contains: Optional[UUID] = None
     does_not_contain: Optional[UUID] = None
@@ -113,74 +118,143 @@ class RelationFilter(BaseModel):
     is_not_empty: Optional[bool] = None
 
 
-class FormulaFilter(BaseModel):
-    """Represents a formula filter in Notion."""
+class FormulaCriteria(BaseModel):
+    """Represents formula criteria in Notion."""
 
-    text: Optional[TextFilter] = None
-    checkbox: Optional[CheckboxFilter] = None
-    number: Optional[NumberFilter] = None
-    date: Optional[DateFilter] = None
+    text: Optional[TextCriteria] = None
+    checkbox: Optional[CheckboxCriteria] = None
+    number: Optional[NumberCriteria] = None
+    date: Optional[DateCriteria] = None
 
 
-class PropertyFilter(BaseModel):
+class PropertyFilter(QueryFilter):
     """Represents a database property filter in Notion."""
 
     property: str
 
-    text: Optional[TextFilter] = None
-    number: Optional[NumberFilter] = None
-    checkbox: Optional[CheckboxFilter] = None
-    select: Optional[SelectOneFilter] = None
-    multi_select: Optional[MultiSelectFilter] = None
-    date: Optional[DateFilter] = None
-    people: Optional[PeopleFilter] = None
-    files: Optional[FilesFilter] = None
-    relation: Optional[RelationFilter] = None
-    formula: Optional[FormulaFilter] = None
+    text: Optional[TextCriteria] = None
+    number: Optional[NumberCriteria] = None
+    checkbox: Optional[CheckboxCriteria] = None
+    select: Optional[SelectOneCriteria] = None
+    multi_select: Optional[MultiSelectCriteria] = None
+    date: Optional[DateCriteria] = None
+    people: Optional[PeopleCriteria] = None
+    files: Optional[FilesCriteria] = None
+    relation: Optional[RelationCriteria] = None
+    formula: Optional[FormulaCriteria] = None
 
-    @classmethod
-    def where_text(cls, **kwargs):
-        return cls(text=TextFilter(**kwargs))
+    def where_text(self, **kwargs):
+        """Method to set the text criteria on thie PropertyFilter."""
+        self.text = TextCriteria(**kwargs)
 
-    @classmethod
-    def where_number(cls, **kwargs):
-        return cls(number=NumberFilter(**kwargs))
+    def where_number(self, **kwargs):
+        """Method to set the number criteria on thie PropertyFilter."""
+        self.number = NumberCriteria(**kwargs)
 
-    @classmethod
-    def where_checkbox(cls, **kwargs):
-        return cls(checkbox=CheckboxFilter(**kwargs))
+    def where_checkbox(self, **kwargs):
+        """Method to set the checkbox criteria on thie PropertyFilter."""
+        self.checkbox = CheckboxCriteria(**kwargs)
 
-    @classmethod
-    def where_select(cls, **kwargs):
-        return cls(select=SelectOneFilter(**kwargs))
+    def where_select(self, **kwargs):
+        """Method to set the select criteria on thie PropertyFilter."""
+        self.select = SelectOneCriteria(**kwargs)
 
-    @classmethod
-    def where_multiselect(cls, **kwargs):
-        return cls(multi_select=MultiSelectFilter(**kwargs))
+    def where_multi_select(self, **kwargs):
+        """Method to set the multi_select criteria on thie PropertyFilter."""
+        self.multi_select = MultiSelectCriteria(**kwargs)
 
-    @classmethod
-    def where_date(cls, **kwargs):
-        return cls(date=DateFilter(**kwargs))
+    def where_date(self, **kwargs):
+        """Method to set the date criteria on thie PropertyFilter."""
+        self.date = DateCriteria(**kwargs)
 
-    @classmethod
-    def where_people(cls, **kwargs):
-        return cls(people=PeopleFilter(**kwargs))
+    def where_people(self, **kwargs):
+        """Method to set the people criteria on thie PropertyFilter."""
+        self.people = PeopleCriteria(**kwargs)
 
-    @classmethod
-    def where_files(cls, **kwargs):
-        return cls(files=FilesFilter(**kwargs))
+    def where_files(self, **kwargs):
+        """Method to set the files criteria on thie PropertyFilter."""
+        self.files = FilesCriteria(**kwargs)
+
+    def where_formula(self, **kwargs):
+        """Method to set the formula criteria on thie PropertyFilter."""
+        self.files = FormulaCriteria(**kwargs)
+
+    def where_relatoin(self, **kwargs):
+        """Method to set the relation criteria on thie PropertyFilter."""
+        self.files = RelationCriteria(**kwargs)
 
 
-class CompoundFilter(BaseModel):
+class CompoundFilter(QueryFilter):
     """Represents a compound filter in Notion."""
 
     # TODO fix reserved keywords...
 
-    # and: Optional[List[Union[PropertyFilter, CompoundFilter]]] = None
-    # or: Optional[List[Union[PropertyFilter, CompoundFilter]]] = None
+    # and: Optional[List[QueryFilter]] = None
+    # or: Optional[List[QueryFilter]] = None
 
 
-class Query(object):
+class SortTimestamp(str, Enum):
+    """Time sort fields."""
+
+    created_time = "created_time"
+    last_edited_time = "last_edited_time"
+
+
+class SortDirection(str, Enum):
+    """Sort direction options."""
+
+    ascending = "ascending"
+    descending = "descending"
+
+
+class PropertySort(BaseModel):
+    """Represents a sort instruction in Notion."""
+
+    property: Optional[str] = None
+    timestamp: Optional[SortTimestamp] = None
+    direction: Optional[SortDirection] = None
+
+
+class Query(BaseModel):
+
+    sorts: Optional[List[PropertySort]] = None
+    filter: Optional[QueryFilter] = None
+    start_cursor: Optional[UUID] = None
+    page_size: int = 100
+
+    @validator("page_size")
+    def valid_page_size(cls, value):
+        assert value > 0, "size must be greater than zero"
+        assert value <= 100, "size must be less than or equal to 100"
+        return value
+
+    def where(self, filters):
+
+        # TODO if self._filter is not None, create a compound for both filters
+        # if self._filter is already compound, append to its internal list
+
+        self.filter = filters
+
+    def sort_by(self, *sorts):
+        """Add the given sort elements to the query."""
+
+        if not self.sorts:
+            self.sorts = list()
+
+        self.sorts.extend(sorts)
+
+    def start_at(self, page_id):
+        """Set the start cursor to a specific page ID."""
+
+        self.start_cursor = page_id
+
+    def limit(self, count):
+        """Limit the number of results to the given count."""
+
+        self.page_size = count
+
+
+class QueryBuilder(object):
     """A query builder for the Notion API.
 
     :param session: an active session with the Notion SDK
@@ -191,35 +265,27 @@ class Query(object):
         self.session = session
         self.target = target
 
-        self._filter = None
+        self._query = Query()
 
-        self._sort = list()
-        self._start = None
-        self._limit = None
-
-    def filter(self, filter=None, **kwargs):
+    def filter(self, **kwargs):
         """Add the given filter to the query."""
 
-        # TODO if self._filter is not None, create a compound for both filters
-        # if self._filter is already compound, append to the internal list
+        filter = PropertyFilter(**kwargs)
 
-        if filter:
-            self._filter = filter
-
-        elif kwargs:
-            filter = PropertyFilter(**kwargs)
-            self._filter = filter
+        self._query.where(filter)
 
         return self
 
-    def sort(self, *sorts):
+    def sort(self, **kwargs):
         """Add the given sort elements to the query."""
 
         # XXX should this support ORM properties also?
-        # e.g. - query.sort(Task.Title, query.ASC)
+        # e.g. - query.sort(property=Task.Title)
         # but users won't always use ORM for queries...
 
-        self._sort.extend(sorts)
+        sort = PropertySort(**kwargs)
+
+        self._query.sort_by(sort)
 
         return self
 
@@ -228,8 +294,8 @@ class Query(object):
     #     self._start = page_id
     #     return self
 
-    # def limit(self, page_size):
-    #     """Limit the number of results to the given page size."""
+    # def limit(self, count):
+    #     """Limit the number of results to the given count size."""
     #     self._start = page_id
     #     return self
 
@@ -254,17 +320,8 @@ class Query(object):
         else:
             raise ValueError("unsupported query target")
 
-        if self._filter:
-            params["filter"] = self._filter.dict(exclude_none=True)
-
-        if self._sort and len(self._sort) > 0:
-            params["sorts"] = self._sort
-
-        if self._start is not None:
-            params["start_cursor"] = self._start
-
-        if self._limit is not None:
-            params["page_size"] = self._limit
+        data = self._query.dict(exclude_none=True)
+        params.update(data)
 
         log.debug("executing query - %s", params)
 
