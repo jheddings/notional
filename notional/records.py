@@ -109,10 +109,14 @@ class Page(Record, object="page"):
 
         log.debug("set property :: {%s} [%s] => %s", self.id, name, value)
 
-        if not isinstance(value, PropertyValue):
+        if value is None:
+            self.properties.pop(name, None)
+
+        elif not isinstance(value, PropertyValue):
             raise ValueError(f"Unable to set {name} :: unsupported value type")
 
-        self.properties[name] = value
+        else:
+            self.properties[name] = value
 
     @property
     def Title(self):
