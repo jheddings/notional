@@ -226,16 +226,6 @@ class NativeTypeMixin(object):
         return self.Value != other
 
     @property
-    def IsEmpty(self):
-        """Determine if this object is "empty" (e.g. value is None)."""
-        cls = self.__class__
-
-        if hasattr(cls, "type") and hasattr(self, cls.type):
-            return getattr(self, cls.type) is None
-
-        raise NotImplementedError()
-
-    @property
     def Value(self):
         """Get the current value of this property as a native Python type."""
 
@@ -383,7 +373,7 @@ class Date(PropertyValue, type="date"):
         return self.Start <= other <= self.End
 
     def __str__(self):
-        return "" if self.IsEmpty else str(self.date)
+        return "" if self.date is None else str(self.date)
 
     @property
     def IsRange(self):
@@ -395,21 +385,12 @@ class Date(PropertyValue, type="date"):
         return self.date.end is not None
 
     @property
-    def IsEmpty(self):
-        """Indicates if this object is empty."""
-
-        if self.date is None:
-            return True
-
-        return self.date.start is None and self.date.end is None
-
-    @property
     def Start(self):
-        return None if self.IsEmpty else self.date.start
+        return None if self.date is None else self.date.start
 
     @property
     def End(self):
-        return None if self.IsEmpty else self.date.end
+        return None if self.date is None else self.date.end
 
     @classmethod
     def from_value(cls, value):
@@ -482,6 +463,10 @@ class MultiSelect(PropertyValue, type="multi_select"):
         """Return a string representation of this object."""
         return ", ".join(self.Values)
 
+    def __len__(self):
+        """Counts the number of selected values."""
+        return len(self.multi_select)
+
     def __iadd__(self, other):
         """Add the given option to this MultiSelect."""
 
@@ -537,16 +522,10 @@ class MultiSelect(PropertyValue, type="multi_select"):
     def Values(self):
         """Return the names of each value in this MultiSelect as a list."""
 
-        if self.IsEmpty:
+        if self.multi_select is None:
             return None
 
         return [str(val) for val in self.multi_select if val.name is not None]
-
-    @property
-    def IsEmpty(self):
-        """Indicates if this object is empty."""
-
-        return self.multi_select is None or len(self.multi_select) == 0
 
     @classmethod
     def from_value(cls, value):
@@ -605,12 +584,6 @@ class People(PropertyValue, type="people"):
     def __str__(self):
         return ", ".join([str(user) for user in self.people])
 
-    @property
-    def IsEmpty(self):
-        """Indicates if this object is empty."""
-
-        return self.people is None or len(self.people) == 0
-
 
 class URL(NativeTypeMixin, PropertyValue, type="url"):
     """Notion URL type."""
@@ -641,7 +614,7 @@ class Files(PropertyValue, type="files"):
         To avoid confusion, only names are considered for comparison.
         """
 
-        if self.IsEmpty:
+        if self.files is None:
             return False
 
         for file in self.files:
@@ -654,12 +627,6 @@ class Files(PropertyValue, type="files"):
 
     def __str__(self):
         return "; ".join([str(file) for file in self.files])
-
-    @property
-    def IsEmpty(self):
-        """Indicates if this object is empty."""
-
-        return self.files is None or len(self.files) == 0
 
     def append_url(self, url):
         log.debug(f"append URL - {url}")

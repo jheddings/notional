@@ -144,9 +144,6 @@ def Property(name, cls=RichText, default=None):
         if isinstance(prop, NativeTypeMixin):
             return prop.Value
 
-        elif getattr(prop, "IsEmpty", None):
-            return None
-
         return prop
 
     def setter(self, value):
