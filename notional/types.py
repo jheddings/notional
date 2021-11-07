@@ -142,6 +142,9 @@ class TextObject(RichTextObject, type="text"):
     def from_value(cls, string):
         """Return a TextObject from the native string."""
 
+        if string is None or len(string) == 0:
+            return cls(plain_text=None, text=None)
+
         # TODO support markdown in the text string
 
         text = cls.NestedData(content=string)
@@ -267,9 +270,17 @@ class Title(NativeTypeMixin, PropertyValue, type="title"):
         return plain_text(*self.title)
 
     @classmethod
-    def from_value(cls, value):
-        text = TextObject.from_value(value)
-        return cls(title=[text])
+    def from_value(cls, *strings):
+
+        text = []
+
+        for string in strings:
+            if string is None:
+                continue
+
+            text.append(TextObject.from_value(string))
+
+        return cls(title=text)
 
 
 class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
@@ -291,9 +302,17 @@ class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
         return plain_text(*self.rich_text)
 
     @classmethod
-    def from_value(cls, value):
-        text = TextObject.from_value(value)
-        return cls(rich_text=[text])
+    def from_value(cls, *strings):
+
+        text = []
+
+        for string in strings:
+            if string is None:
+                continue
+
+            text.append(TextObject.from_value(string))
+
+        return cls(rich_text=text)
 
 
 class Number(NativeTypeMixin, PropertyValue, type="number"):
@@ -374,7 +393,12 @@ class Date(PropertyValue, type="date"):
     @classmethod
     def from_value(cls, value):
         """Create a new Date from the native value."""
-        inner = DateRange(start=value)
+
+        if value is None:
+            inner = DateRange(start=None)
+        else:
+            inner = DateRange(start=value)
+
         return cls(date=inner)
 
 
@@ -421,6 +445,10 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
 
     @classmethod
     def from_value(cls, value):
+
+        if value is None:
+            return cls(select={})
+
         return cls(select=SelectValue(name=value))
 
 
@@ -494,22 +522,27 @@ class MultiSelect(PropertyValue, type="multi_select"):
         return [str(val) for val in self.multi_select if val.name is not None]
 
     @classmethod
-    def from_value(cls, values):
+    def from_value(cls, value):
+        """Initialize a new MultiSelect from the given value."""
+
+        return cls.from_values(value)
+
+    @classmethod
+    def from_values(cls, *values):
         """This method accepts a list of values, converting them into SelectOption's.
 
         All values in the list will be automatically converted to strings.
         """
 
-        return cls(
-            multi_select=[
-                SelectValue(name=str(val)) for val in values if val is not None
-            ]
-        )
+        select = []
 
-    @classmethod
-    def from_values(cls, *values):
-        """Initialize a new MultiSelect from the given values."""
-        return cls.from_value(values)
+        for value in values:
+            if value is None:
+                continue
+
+            select.append(SelectValue(name=str(value)))
+
+        return cls(multi_select=select)
 
 
 class People(PropertyValue, type="people"):

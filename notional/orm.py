@@ -159,9 +159,6 @@ def Property(name, cls=RichText, default=None):
         if isinstance(value, cls):
             prop = value
 
-        elif value is None:
-            prop = None
-
         elif hasattr(cls, "from_value"):
             from_value = getattr(cls, "from_value")
             prop = from_value(value)
@@ -173,10 +170,7 @@ def Property(name, cls=RichText, default=None):
         self.page[name] = prop
 
         # save the updated property to our pending dict
-        if prop is None:
-            self._pending_props[name] = dict()
-        if prop is not None:
-            self._pending_props[name] = prop.to_api()
+        self._pending_props[name] = prop.to_api()
 
     return property(getter, setter)
 

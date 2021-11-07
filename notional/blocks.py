@@ -34,9 +34,8 @@ class TextBlock(Block):
 
     @classmethod
     def from_text(cls, text):
-        # TODO split long text blocks into multiple
-        # .text.content.length should be ≤ `2000`, instead was `2245`.
 
+        # TODO split long text blocks into multiple (rather than truncate)?
         obj = TextObject.from_value(text[:2000])
 
         if not hasattr(cls, "type") or cls.type is None:
