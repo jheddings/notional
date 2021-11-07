@@ -92,6 +92,11 @@ class ExternalFile(FileObject, type="external"):
 
     external: NestedData = None
 
+    @classmethod
+    def from_url(cls, url):
+        data = cls.NestedData(url=url)
+        return cls(external=data)
+
 
 class DateRange(DataObject):
     """A Notion date range, with an optional end date."""
@@ -525,7 +530,10 @@ class MultiSelect(PropertyValue, type="multi_select"):
     def from_value(cls, value):
         """Initialize a new MultiSelect from the given value."""
 
-        return cls.from_values(value)
+        if type(value) is list:
+            return cls.from_values(*value)
+        else:
+            return cls.from_values(value)
 
     @classmethod
     def from_values(cls, *values):
@@ -618,6 +626,11 @@ class Files(PropertyValue, type="files"):
 
     def __str__(self):
         return "; ".join([str(file) for file in self.files])
+
+    def append_url(self, url):
+        log.debug(f"append URL - {url}")
+        file = ExternalFile.from_url(url)
+        self.files.append(file)
 
 
 class FormulaResult(TypedObject):
