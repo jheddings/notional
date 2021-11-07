@@ -144,6 +144,9 @@ def Property(name, cls=RichText, default=None):
         if isinstance(prop, NativeTypeMixin):
             return prop.Value
 
+        elif getattr(prop, "IsEmpty", None):
+            return None
+
         return prop
 
     def setter(self, value):
@@ -155,7 +158,7 @@ def Property(name, cls=RichText, default=None):
         # TODO only set the value if it has changed from the existing
         log.debug(f"setter {cls} [{name}] => {value} {type(value)}")
 
-        # convert from native objects to expected types
+        # convert native objects to expected types
         if isinstance(value, cls):
             prop = value
 
@@ -168,6 +171,9 @@ def Property(name, cls=RichText, default=None):
 
         # update the local property
         self.page[name] = prop
+
+        # XXX should we add support for automatic commit?  that behavior would be
+        # more like using the clients - changes are committed in real time...
 
         # save the updated property to our pending dict
         self._pending_props[name] = prop.to_api()

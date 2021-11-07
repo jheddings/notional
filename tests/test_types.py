@@ -51,6 +51,15 @@ class TitlePropertyTest(unittest.TestCase):
 class NumberPropertyTest(unittest.TestCase):
     """Verify Number property values."""
 
+    def test_EmptyNumber(self):
+        empty = types.Number()
+
+        self.assertTrue(empty.IsEmpty)
+
+        not_empty = types.Number.from_value(3.141592654)
+
+        self.assertFalse(not_empty.IsEmpty)
+
     def test_ParseData(self):
         test_data = {"id": "XQOP", "type": "number", "number": 42}
 
@@ -74,6 +83,16 @@ class NumberPropertyTest(unittest.TestCase):
 
 class CheckboxPropertyTest(unittest.TestCase):
     """Verify Checkbox property values."""
+
+    def test_EmptyCheckbox(self):
+        empty = types.Checkbox()
+        self.assertTrue(empty.IsEmpty)
+
+        not_empty = types.Checkbox.from_value(True)
+        self.assertFalse(not_empty.IsEmpty)
+
+        not_empty = types.Checkbox.from_value(False)
+        self.assertFalse(not_empty.IsEmpty)
 
     def test_ParseData(self):
         test_data = {"id": "ax{O", "type": "checkbox", "checkbox": False}
@@ -99,6 +118,15 @@ class CheckboxPropertyTest(unittest.TestCase):
 class DatePropertyTest(unittest.TestCase):
     """Verify complex Date property values."""
 
+    def test_EmptyDate(self):
+        empty = types.Date()
+
+        self.assertTrue(empty.IsEmpty)
+
+        not_empty = types.Date.from_value(date(2021, 11, 6))
+
+        self.assertFalse(not_empty.IsEmpty)
+
     def test_ParseSingleDate(self):
 
         test_data = {
@@ -112,6 +140,7 @@ class DatePropertyTest(unittest.TestCase):
         self.assertEqual(single.type, "date")
         self.assertEqual(single.Start, date(2020, 8, 4))
         self.assertFalse(single.IsRange)
+        self.assertFalse(single.IsEmpty)
 
         with self.assertRaises(ValueError):
             if date(2020, 8, 4) in single:
@@ -156,6 +185,13 @@ class DatePropertyTest(unittest.TestCase):
 class SelectOnePropertyTest(unittest.TestCase):
     """Verify SelectOne property values."""
 
+    def test_EmptySelect(self):
+        empty = types.SelectOne()
+        self.assertTrue(empty.IsEmpty)
+
+        not_empty = types.SelectOne.from_value("Draft")
+        self.assertFalse(not_empty.IsEmpty)
+
     def test_ParseData(self):
 
         test_data = {
@@ -181,6 +217,13 @@ class SelectOnePropertyTest(unittest.TestCase):
 
 class MultiSelectPropertyTest(unittest.TestCase):
     """Verify MultiSelect property values."""
+
+    def test_EmptyMultiSelect(self):
+        empty = types.MultiSelect()
+        self.assertTrue(empty.IsEmpty)
+
+        not_empty = types.MultiSelect.from_values("Foo", "Bar", "Kan")
+        self.assertFalse(not_empty.IsEmpty)
 
     def test_ParseData(self):
 
@@ -216,6 +259,13 @@ class MultiSelectPropertyTest(unittest.TestCase):
 class EmailPropertyTest(unittest.TestCase):
     """Verify Email property values."""
 
+    def test_EmptyEmail(self):
+        empty = types.Email()
+        self.assertTrue(empty.IsEmpty)
+
+        not_empty = types.Email.from_value("jane@example.com")
+        self.assertFalse(not_empty.IsEmpty)
+
     def test_ParseData(self):
         test_data = {"id": "QU|p", "type": "email", "email": "alice@example.com"}
 
@@ -227,6 +277,13 @@ class EmailPropertyTest(unittest.TestCase):
 
 class PhoneNumberPropertyTest(unittest.TestCase):
     """Verify PhoneNumber property values."""
+
+    def test_EmptyPhoneNumber(self):
+        empty = types.PhoneNumber()
+        self.assertTrue(empty.IsEmpty)
+
+        not_empty = types.PhoneNumber.from_value("555-867-5309")
+        self.assertFalse(not_empty.IsEmpty)
 
     def test_ParseData(self):
 
@@ -244,6 +301,13 @@ class PhoneNumberPropertyTest(unittest.TestCase):
 
 class URLPropertyTest(unittest.TestCase):
     """Verify URL property values."""
+
+    def test_EmptyURL(self):
+        empty = types.URL()
+        self.assertTrue(empty.IsEmpty)
+
+        not_empty = types.URL.from_value("https://www.google.com/")
+        self.assertFalse(not_empty.IsEmpty)
 
     def test_ParseData(self):
 
@@ -391,6 +455,10 @@ class RollupPropertyTest(unittest.TestCase):
 class PeoplePropertyTest(unittest.TestCase):
     """Verify People property values."""
 
+    def test_EmptyPeople(self):
+        empty = types.People()
+        self.assertTrue(empty.IsEmpty)
+
     def test_ParseData(self):
 
         test_data = {
@@ -412,6 +480,7 @@ class PeoplePropertyTest(unittest.TestCase):
 
         self.assertEqual(owner.type, "people")
         self.assertIn("Alice", owner)
+        self.assertFalse(owner.IsEmpty)
 
         for person in owner:
             self.assertIsInstance(person, user.User)
@@ -419,6 +488,10 @@ class PeoplePropertyTest(unittest.TestCase):
 
 class FilesPropertyTest(unittest.TestCase):
     """Verify Files property values."""
+
+    def test_EmptyFiles(self):
+        empty = types.Files()
+        self.assertTrue(empty.IsEmpty)
 
     def test_ParseData(self):
 
@@ -440,6 +513,7 @@ class FilesPropertyTest(unittest.TestCase):
 
         self.assertEqual(files.type, "files")
         self.assertIn("glass.jpg", files)
+        self.assertFalse(files.IsEmpty)
 
 
 class CreatedPropertyTest(unittest.TestCase):
