@@ -8,7 +8,7 @@ from notion_client.errors import APIResponseError
 
 from .blocks import Block
 from .iterator import EndpointIterator
-from .query import QueryBuilder, ResultSet
+from .query import QueryBuilder, ResultSet, get_target_id
 from .records import Database, Page, ParentRef
 from .types import TextObject, Title
 from .user import User
@@ -185,7 +185,7 @@ class DatabasesEndpoint(Endpoint):
         :param target: either a string with the database ID or an ORM class
         """
 
-        log.info("Initializing database query :: %s", target)
+        log.info("Initializing database query :: {%s}", get_target_id(target))
 
         return QueryBuilder(self.session, target)
 

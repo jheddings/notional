@@ -18,6 +18,22 @@ log = logging.getLogger(__name__)
 # EndpointIterator for the results, which overrides those parameters for all results
 
 
+def get_target_id(target):
+    if isinstance(target, str):
+        return target
+
+    elif isinstance(target, UUID):
+        return target.hex
+
+    elif issubclass(target, ConnectedPageBase):
+        if target._orm_database_id_ is None:
+            raise ValueError("ConnectedPage has no database")
+
+        return target._orm_database_id_
+
+    raise ValueError("unsupported query target")
+
+
 class QueryFilter(BaseModel):
     """Base class for query filters."""
 
@@ -302,23 +318,15 @@ class QueryBuilder(object):
     def execute(self):
         """Execute the current query and return an iterator for the results."""
 
-        params = {"endpoint": self.session.databases().query}
+        params = {
+            "endpoint": self.session.databases().query,
+            "database_id": get_target_id(self.target),
+        }
 
         cls = None
 
-        if isinstance(self.target, str):
-            params["database_id"] = self.target
-
-        elif issubclass(self.target, ConnectedPageBase):
+        if issubclass(self.target, ConnectedPageBase):
             cls = self.target
-
-            if cls._orm_database_id_ is None:
-                raise ValueError("ConnectedPage has no database")
-
-            params["database_id"] = cls._orm_database_id_
-
-        else:
-            raise ValueError("unsupported query target")
 
         data = self._query.dict(exclude_none=True)
         params.update(data)
