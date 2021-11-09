@@ -159,19 +159,19 @@ class Toggle(TextBlock, type="toggle"):
 class Divider(Block, type="divider"):
     """A divider block in Notion."""
 
-    divider: Any = None
+    divider: Any = dict()
 
 
 class TableOfContents(Block, type="table_of_contents"):
     """A table_of_contents block in Notion."""
 
-    table_of_contents: Any = None
+    table_of_contents: Any = dict()
 
 
 class Breadcrumb(Block, type="breadcrumb"):
     """A breadcrumb block in Notion."""
 
-    breadcrumb: Any = None
+    breadcrumb: Any = dict()
 
 
 class Embed(Block, type="embed"):
@@ -242,3 +242,19 @@ class ChildPage(Block, type="child_page"):
         title: str
 
     child_page: NestedData = None
+
+
+class ColumnList(Block, type="column_list"):
+    """A column list block in Notion."""
+
+    column_list: Any = dict()
+
+    # TODO convenience method to get child columns
+
+
+class Column(Block, type="column"):
+    """A column block in Notion."""
+
+    column: Any = dict()
+
+    # TODO convenience method to get child blocks
