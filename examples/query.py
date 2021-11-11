@@ -13,7 +13,7 @@ import logging
 import os
 import sys
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 import notional
 from notional.query import PropertyFilter, SortDirection, TextCriteria
@@ -29,7 +29,7 @@ query = notion.databases.query(dbid).sort(
     property="Title", direction=SortDirection.ascending
 )
 
-print("== All Results ==")
+print("== All Query Results ==")
 for data in query.execute():
     print(f"{data['id']} => {data['url']}")
 
@@ -40,5 +40,5 @@ query = notion.databases.query(dbid).filter(
 )
 
 data = query.first()
-print("== First Result ==")
+print("== First Query Result ==")
 print(f"{json.dumps(data, indent=4)}")
