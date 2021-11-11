@@ -204,7 +204,6 @@ class PagesEndpoint(Endpoint):
         if parent is None:
             raise ValueError("'parent' must be provided")
 
-        print(parent)
         parent_id = get_parent_id(parent)
         request = {"parent": parent_id}
 
