@@ -6,12 +6,12 @@ used in the Notion API as well as higher-level methods.
 
 import logging
 from datetime import date, datetime
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject
 from .schema import Function
-from .text import Annotations, Color, RichTextObject, TextObject, plain_text
+from .text import Color, RichTextObject, TextObject, plain_text
 from .user import User
 
 log = logging.getLogger(__name__)

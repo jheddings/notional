@@ -7,7 +7,6 @@ from inspect import isclass
 from typing import Any, List, Optional, Union
 from uuid import UUID
 
-import notion_client
 from pydantic import validator
 
 from .core import DataObject

@@ -1,7 +1,6 @@
 """Base classes for working with the Notion API."""
 
 import inspect
-import json
 import logging
 from datetime import date, datetime
 from enum import Enum
