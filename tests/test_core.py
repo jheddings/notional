@@ -5,6 +5,7 @@ from typing import Dict, List
 
 from notional.core import DataObject, NestedObject, TypedObject
 
+# keep logging output to a minumim for testing
 logging.basicConfig(level=logging.INFO)
 
 
