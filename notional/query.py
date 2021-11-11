@@ -3,12 +3,14 @@
 import logging
 from datetime import date, datetime
 from enum import Enum
+from inspect import isclass
 from typing import Any, List, Optional, Union
 from uuid import UUID
 
 import notion_client
-from pydantic import BaseModel, validator
+from pydantic import validator
 
+from .core import DataObject
 from .iterator import EndpointIterator
 from .orm import ConnectedPageBase
 
@@ -34,11 +36,11 @@ def get_target_id(target):
     raise ValueError("unsupported query target")
 
 
-class QueryFilter(BaseModel):
+class QueryFilter(DataObject):
     """Base class for query filters."""
 
 
-class TextCriteria(BaseModel):
+class TextCriteria(DataObject):
     """Represents text criteria in Notion."""
 
     equals: Optional[str] = None
@@ -51,7 +53,7 @@ class TextCriteria(BaseModel):
     is_not_empty: Optional[bool] = None
 
 
-class NumberCriteria(BaseModel):
+class NumberCriteria(DataObject):
     """Represents number criteria in Notion."""
 
     equals: Optional[Union[float, int]] = None
@@ -64,14 +66,14 @@ class NumberCriteria(BaseModel):
     is_not_empty: Optional[bool] = None
 
 
-class CheckboxCriteria(BaseModel):
+class CheckboxCriteria(DataObject):
     """Represents checkbox criteria in Notion."""
 
     equals: Optional[bool] = None
     does_not_equal: Optional[bool] = None
 
 
-class SelectOneCriteria(BaseModel):
+class SelectOneCriteria(DataObject):
     """Represents select criteria in Notion."""
 
     equals: Optional[str] = None
@@ -80,7 +82,7 @@ class SelectOneCriteria(BaseModel):
     is_not_empty: Optional[bool] = None
 
 
-class MultiSelectCriteria(BaseModel):
+class MultiSelectCriteria(DataObject):
     """Represents a multi_select criteria in Notion."""
 
     contains: Optional[str] = None
@@ -89,7 +91,7 @@ class MultiSelectCriteria(BaseModel):
     is_not_empty: Optional[bool] = None
 
 
-class DateCriteria(BaseModel):
+class DateCriteria(DataObject):
     """Represents date criteria in Notion."""
 
     equals: Optional[Union[date, datetime]] = None
@@ -109,7 +111,7 @@ class DateCriteria(BaseModel):
     next_year: Optional[Any] = None
 
 
-class PeopleCriteria(BaseModel):
+class PeopleCriteria(DataObject):
     """Represents people criteria in Notion."""
 
     contains: Optional[UUID] = None
@@ -118,14 +120,14 @@ class PeopleCriteria(BaseModel):
     is_not_empty: Optional[bool] = None
 
 
-class FilesCriteria(BaseModel):
+class FilesCriteria(DataObject):
     """Represents files criteria in Notion."""
 
     is_empty: Optional[bool] = None
     is_not_empty: Optional[bool] = None
 
 
-class RelationCriteria(BaseModel):
+class RelationCriteria(DataObject):
     """Represents relation criteria in Notion."""
 
     contains: Optional[UUID] = None
@@ -134,7 +136,7 @@ class RelationCriteria(BaseModel):
     is_not_empty: Optional[bool] = None
 
 
-class FormulaCriteria(BaseModel):
+class FormulaCriteria(DataObject):
     """Represents formula criteria in Notion."""
 
     text: Optional[TextCriteria] = None
@@ -160,53 +162,53 @@ class PropertyFilter(QueryFilter):
     formula: Optional[FormulaCriteria] = None
 
     def where_text(self, **kwargs):
-        """Method to set the text criteria on thie PropertyFilter."""
+        """Method to set the text criteria on this PropertyFilter."""
         self.text = TextCriteria(**kwargs)
 
     def where_number(self, **kwargs):
-        """Method to set the number criteria on thie PropertyFilter."""
+        """Method to set the number criteria on this PropertyFilter."""
         self.number = NumberCriteria(**kwargs)
 
     def where_checkbox(self, **kwargs):
-        """Method to set the checkbox criteria on thie PropertyFilter."""
+        """Method to set the checkbox criteria on this PropertyFilter."""
         self.checkbox = CheckboxCriteria(**kwargs)
 
     def where_select(self, **kwargs):
-        """Method to set the select criteria on thie PropertyFilter."""
+        """Method to set the select criteria on this PropertyFilter."""
         self.select = SelectOneCriteria(**kwargs)
 
     def where_multi_select(self, **kwargs):
-        """Method to set the multi_select criteria on thie PropertyFilter."""
+        """Method to set the multi_select criteria on this PropertyFilter."""
         self.multi_select = MultiSelectCriteria(**kwargs)
 
     def where_date(self, **kwargs):
-        """Method to set the date criteria on thie PropertyFilter."""
+        """Method to set the date criteria on this PropertyFilter."""
         self.date = DateCriteria(**kwargs)
 
     def where_people(self, **kwargs):
-        """Method to set the people criteria on thie PropertyFilter."""
+        """Method to set the people criteria on this PropertyFilter."""
         self.people = PeopleCriteria(**kwargs)
 
     def where_files(self, **kwargs):
-        """Method to set the files criteria on thie PropertyFilter."""
+        """Method to set the files criteria on this PropertyFilter."""
         self.files = FilesCriteria(**kwargs)
 
     def where_formula(self, **kwargs):
-        """Method to set the formula criteria on thie PropertyFilter."""
-        self.files = FormulaCriteria(**kwargs)
+        """Method to set the formula criteria on this PropertyFilter."""
+        self.formula = FormulaCriteria(**kwargs)
 
-    def where_relatoin(self, **kwargs):
-        """Method to set the relation criteria on thie PropertyFilter."""
-        self.files = RelationCriteria(**kwargs)
+    def where_relation(self, **kwargs):
+        """Method to set the relation criteria on this PropertyFilter."""
+        self.relation = RelationCriteria(**kwargs)
 
 
 class CompoundFilter(QueryFilter):
     """Represents a compound filter in Notion."""
 
-    # TODO fix reserved keywords...
+    # TODO fix reserved keywords in field names...
 
-    # and: Optional[List[QueryFilter]] = None
-    # or: Optional[List[QueryFilter]] = None
+    and_: Optional[List[QueryFilter]] = None
+    or_: Optional[List[QueryFilter]] = None
 
 
 class SortTimestamp(str, Enum):
@@ -223,7 +225,7 @@ class SortDirection(str, Enum):
     descending = "descending"
 
 
-class PropertySort(BaseModel):
+class PropertySort(DataObject):
     """Represents a sort instruction in Notion."""
 
     property: Optional[str] = None
@@ -231,7 +233,7 @@ class PropertySort(BaseModel):
     direction: Optional[SortDirection] = None
 
 
-class Query(BaseModel):
+class Query(DataObject):
 
     sorts: Optional[List[PropertySort]] = None
     filter: Optional[QueryFilter] = None
@@ -325,7 +327,7 @@ class QueryBuilder(object):
 
         cls = None
 
-        if issubclass(self.target, ConnectedPageBase):
+        if isclass(self.target) and issubclass(self.target, ConnectedPageBase):
             cls = self.target
 
         data = self._query.dict(exclude_none=True)
