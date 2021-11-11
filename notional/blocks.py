@@ -277,3 +277,12 @@ class Column(Block, type="column"):
     column: Any = dict()
 
     # TODO convenience method to get child blocks
+
+
+class LinkPreview(Block, type="link_preview"):
+    """A link_preview block in Notion."""
+
+    class NestedData(NestedObject):
+        url: str
+
+    link_preview: NestedData = None
