@@ -6,7 +6,7 @@ from datetime import date, datetime
 from enum import Enum
 from uuid import UUID
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
 from pydantic.main import validate_model
 
 log = logging.getLogger(__name__)

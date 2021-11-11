@@ -4,7 +4,7 @@ import logging
 
 from .iterator import EndpointIterator
 from .records import DatabaseParent, Page
-from .types import NativeTypeMixin, PropertyValue, RichText
+from .types import NativeTypeMixin, RichText
 
 log = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class ConnectedPageBase(object):
         log.info(f"Committing pending changes :: {self.id}")
 
         if len(self._pending_props) == 0:
-            log.debug(f"no changes to commit; nothing to do")
+            log.debug("no changes to commit; nothing to do")
             return
 
         log.debug(f"committing {len(self._pending_props)} properties")

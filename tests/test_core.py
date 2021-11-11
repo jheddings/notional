@@ -1,7 +1,7 @@
 import logging
 import unittest
 from enum import Enum
-from typing import Dict, List
+from typing import List
 
 from notional.core import DataObject, NamedObject, NestedObject, TypedObject
 

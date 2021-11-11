@@ -16,7 +16,7 @@ import sys
 logging.basicConfig(level=logging.INFO)
 
 import notional
-from notional.query import PropertyFilter, SortDirection, TextCriteria
+from notional.query import SortDirection, TextCriteria
 
 dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")

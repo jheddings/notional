@@ -13,8 +13,6 @@ import os
 logging.basicConfig(level=logging.INFO)
 
 import notional
-from notional.iterator import EndpointIterator
-from notional.user import User
 
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 notion = notional.connect(auth=auth_token)

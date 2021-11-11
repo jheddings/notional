@@ -426,7 +426,7 @@ class MultiSelect(PropertyValue, type="multi_select"):
 
         for value in values:
             if value is None:
-                raise ValueError(f"'None' is an invalid value")
+                raise ValueError("'None' is an invalid value")
 
             if value not in self:
                 opt = SelectValue(name=value)
@@ -570,7 +570,7 @@ class FormulaResult(TypedObject):
     def Result(self):
         """Return the result of this FormulaResult."""
 
-        raise NotImplemented("Result unavailable")
+        raise NotImplementedError("Result unavailable")
 
 
 class StringFormula(FormulaResult, type="string"):

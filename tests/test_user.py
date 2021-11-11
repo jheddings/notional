@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from notional.user import Bot, Person, User
+from notional.user import User
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.FATAL)
