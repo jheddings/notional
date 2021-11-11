@@ -26,7 +26,7 @@ class PageReference(DataObject):
 class EmojiObject(TypedObject, type="emoji"):
     """A Notion emoji object."""
 
-    emoji: str = None
+    emoji: Optional[str] = None
 
 
 class FileObject(TypedObject):
@@ -44,19 +44,19 @@ class File(FileObject, type="file"):
     """A Notion file reference."""
 
     class NestedData(NestedObject):
-        url: str = None
-        expiry_time: datetime = None
+        url: Optional[str] = None
+        expiry_time: Optional[datetime] = None
 
-    file: NestedData = None
+    file: Optional[NestedData] = None
 
 
 class ExternalFile(FileObject, type="external"):
     """An external file reference."""
 
     class NestedData(NestedObject):
-        url: str = None
+        url: Optional[str] = None
 
-    external: NestedData = None
+    external: Optional[NestedData] = None
 
     @classmethod
     def from_url(cls, url):
@@ -104,7 +104,7 @@ class MentionDate(MentionData, type="date"):
 class MentionObject(RichTextObject, type="mention"):
     """Notion mention element."""
 
-    mention: MentionData = None
+    mention: Optional[MentionData] = None
 
 
 class Expression(NestedObject):
@@ -114,7 +114,7 @@ class Expression(NestedObject):
 class EquationObject(RichTextObject, type="equation"):
     """Notion equation element."""
 
-    equation: Expression
+    equation: Optional[Expression] = None
 
     def __str__(self):
         """Return a string representation of this object."""
@@ -175,7 +175,7 @@ class NativeTypeMixin(object):
 class PropertyValue(TypedObject):
     """Base class for Notion property values."""
 
-    id: str = None
+    id: Optional[str] = None
 
 
 class Title(NativeTypeMixin, PropertyValue, type="title"):
@@ -246,7 +246,7 @@ class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
 class Number(NativeTypeMixin, PropertyValue, type="number"):
     """Simple number type."""
 
-    number: Union[float, int]
+    number: Optional[Union[float, int]] = None
 
     def __iadd__(self, other):
         """Add the given value to this Number."""
@@ -276,13 +276,13 @@ class Number(NativeTypeMixin, PropertyValue, type="number"):
 class Checkbox(NativeTypeMixin, PropertyValue, type="checkbox"):
     """Simple checkbox type; represented as a boolean."""
 
-    checkbox: bool
+    checkbox: Optional[bool] = None
 
 
 class Date(PropertyValue, type="date"):
     """Notion complex date type - may include timestamp and/or be a date range."""
 
-    date: DateRange
+    date: Optional[DateRange] = None
 
     def __contains__(self, other):
         """Determines if the given date is in the range (inclusive) of this Date.
@@ -343,7 +343,7 @@ class SelectValue(DataObject):
 class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
     """Notion select type."""
 
-    select: SelectValue
+    select: Optional[SelectValue] = None
 
     def __str__(self):
         """Return a string representation of this object."""
@@ -511,19 +511,19 @@ class People(PropertyValue, type="people"):
 class URL(NativeTypeMixin, PropertyValue, type="url"):
     """Notion URL type."""
 
-    url: str
+    url: Optional[str] = None
 
 
 class Email(NativeTypeMixin, PropertyValue, type="email"):
     """Notion email type."""
 
-    email: str
+    email: Optional[str] = None
 
 
 class PhoneNumber(NativeTypeMixin, PropertyValue, type="phone_number"):
     """Notion phone type."""
 
-    phone_number: str
+    phone_number: Optional[str] = None
 
 
 class Files(PropertyValue, type="files"):
@@ -576,7 +576,7 @@ class FormulaResult(TypedObject):
 class StringFormula(FormulaResult, type="string"):
     """A Notion string formula result."""
 
-    string: str
+    string: Optional[str] = None
 
     @property
     def Result(self):
@@ -588,7 +588,7 @@ class StringFormula(FormulaResult, type="string"):
 class NumberFormula(FormulaResult, type="number"):
     """A Notion number formula result."""
 
-    number: Union[float, int]
+    number: Optional[Union[float, int]] = None
 
     @property
     def Result(self):
@@ -600,7 +600,7 @@ class NumberFormula(FormulaResult, type="number"):
 class DateFormula(FormulaResult, type="date"):
     """A Notion date formula result."""
 
-    date: DateRange
+    date: Optional[DateRange] = None
 
     @property
     def Result(self):
@@ -612,7 +612,7 @@ class DateFormula(FormulaResult, type="date"):
 class Formula(PropertyValue, type="formula"):
     """A Notion formula property value."""
 
-    formula: FormulaResult
+    formula: Optional[FormulaResult] = None
 
     def __str__(self):
         return str(self.Result or "")
@@ -636,19 +636,19 @@ class Relation(PropertyValue, type="relation"):
 class RollupObject(TypedObject):
     """A Notion rollup property value."""
 
-    function: Function
+    function: Optional[Function] = None
 
 
 class RollupNumber(RollupObject, type="number"):
     """A Notion rollup number property value."""
 
-    number: Union[float, int]
+    number: Optional[Union[float, int]] = None
 
 
 class RollupDate(RollupObject, type="date"):
     """A Notion rollup date property value."""
 
-    date: DateRange = None
+    date: Optional[DateRange] = None
 
 
 class RollupArray(RollupObject, type="array"):
@@ -660,7 +660,7 @@ class RollupArray(RollupObject, type="array"):
 class Rollup(PropertyValue, type="rollup"):
     """A Notion rollup property value."""
 
-    rollup: RollupObject
+    rollup: Optional[RollupObject] = None
 
 
 class CreatedTime(NativeTypeMixin, PropertyValue, type="created_time"):
