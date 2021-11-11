@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Union
 from uuid import UUID
 
-from .core import NamedObject, TypedObject
+from .core import DataObject, NamedObject
 from .schema import PropertyObject
 from .text import plain_text
 from .types import EmojiObject, FileObject, PropertyValue, RichTextObject
@@ -21,25 +21,42 @@ from .types import EmojiObject, FileObject, PropertyValue, RichTextObject
 log = logging.getLogger(__name__)
 
 
-class ParentRef(TypedObject):
+class ParentRef(DataObject):
     """Reference another block."""
 
-    # TODO method / property to resolve the reference?
+    # XXX Notion does not handle parent references consistently in the API...
+    # in some cases, the `type` is accepted and in others it is not. eventually
+    # these should all by TypedObject's with the appropriate fields
+
+    @classmethod
+    def from_record(cls, record):
+        """Return the correct parent ID based on the object type."""
+
+        if isinstance(record, ParentRef):
+            return record
+
+        elif isinstance(record, Page):
+            return PageParent(page_id=record.id)
+
+        elif isinstance(record, Database):
+            return DatabaseParent(database_id=record.id)
+
+        raise ValueError("Unrecognized 'parent' attribute")
 
 
-class DatabaseParent(ParentRef, type="database_id"):
+class DatabaseParent(ParentRef):
     """Reference a database."""
 
     database_id: UUID
 
 
-class PageParent(ParentRef, type="page_id"):
+class PageParent(ParentRef):
     """Reference a page."""
 
     page_id: UUID
 
 
-class WorkspaceParent(ParentRef, type="workspace"):
+class WorkspaceParent(ParentRef):
     """Reference the workspace."""
 
     workspace: bool = True
@@ -67,7 +84,7 @@ class Database(Record, object="database"):
 
     @property
     def Title(self):
-        if self.title is None:
+        if self.title is None or len(self.title) == 0:
             return None
 
         return plain_text(*self.title)
@@ -120,11 +137,11 @@ class Page(Record, object="page"):
 
     @property
     def Title(self):
-        if self.properties is None:
+        if self.properties is None or len(self.properties) == 0:
             return None
 
         for prop in self.properties.values():
             if prop.id == "title":
-                return prop.Value
+                return prop.Value or None
 
         return None

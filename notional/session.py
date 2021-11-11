@@ -128,9 +128,9 @@ class DatabasesEndpoint(Endpoint):
     def create(self, parent, schema, title=None):
         """Adds a database to the given Page parent."""
 
-        parent_id = get_parent_id(parent)
+        parent = ParentRef.from_record(parent)
 
-        log.info("Creating database %s - %s", parent_id, title)
+        log.info("Creating database %s - %s", parent, title)
 
         props = {name: prop.to_api() for name, prop in schema.items()}
 
@@ -138,7 +138,7 @@ class DatabasesEndpoint(Endpoint):
             title = TextObject.from_value(title)
 
         data = self().create(
-            parent=parent_id,
+            parent=parent.to_api(),
             title=[title.to_api()],
             properties=props,
         )
@@ -204,24 +204,24 @@ class PagesEndpoint(Endpoint):
         if parent is None:
             raise ValueError("'parent' must be provided")
 
-        parent_id = get_parent_id(parent)
-        request = {"parent": parent_id}
+        parent = ParentRef.from_record(parent)
+        request = {"parent": parent.to_api()}
+
+        # the API requires a properties object, even if empty
+        if properties is None:
+            properties = dict()
 
         if title is not None:
-            if properties is None:
-                properties = dict()
-
             properties["title"] = Title.from_value(title)
 
-        if properties is not None:
-            request["properties"] = {
-                name: prop.to_api() for name, prop in properties.items()
-            }
+        request["properties"] = {
+            name: prop.to_api() for name, prop in properties.items()
+        }
 
         if children is not None:
             request["children"] = [child.to_api() for child in children]
 
-        log.info("Creating page %s - %s", parent_id, title)
+        log.info("Creating page %s - %s", parent, title)
 
         data = self().create(**request)
 
@@ -325,6 +325,9 @@ class Session(object):
 
         log.info("Initialized Notion SDK client")
 
+    # TODO def get(self, ref):
+    #    """Inspects the provided referance and returns the corresponding object."""
+
     def ping(self):
         """Confirm that the session is active and able to connect to Notion.
 
@@ -340,7 +343,7 @@ class Session(object):
             if me is None:
                 raise SessionError("Unable to get current user")
 
-        except ConnectError as err:
+        except ConnectError:
             error = "Unable to connect to Notion"
 
         except APIResponseError as err:
@@ -350,22 +353,3 @@ class Session(object):
             raise SessionError(error)
 
         return True
-
-
-def get_parent_id(parent):
-    """Return the correct parent ID based on the object type."""
-
-    # TODO support adding to workspace references
-
-    if isinstance(parent, ParentRef):
-        ref_data = parent.to_api()
-    elif isinstance(parent, Page):
-        ref_data = {"type": "page_id", "page_id": parent.id.hex}
-    elif isinstance(parent, Database):
-        ref_data = {"type": "database_id", "database_id": parent.id.hex}
-    else:
-        raise ValueError("Unrecognized 'parent' attribute")
-
-    log.debug("resolved parent ref :: %s => %s", type(parent), ref_data)
-
-    return ref_data
