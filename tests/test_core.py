@@ -3,44 +3,34 @@ import unittest
 from enum import Enum
 from typing import Dict, List
 
-from notional.core import DataObject, NestedObject, TypedObject
+from notional.core import DataObject, NamedObject, NestedObject, TypedObject
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.INFO)
 
 
-TIGER = """{
-  "type": "cat",
-  "name": "Tiger the Cat",
-  "color": "tabby",
-  "age": 9
-}"""
+TIGER = {"type": "cat", "name": "Tiger the Cat", "color": "tabby", "age": 9}
 
-FLUFFY = """{
-  "type": "dog",
-  "name": "Fluffy the Dog",
-  "color": "brown",
-  "age": 3,
-  "breed": "rottweiler"
-}"""
+FLUFFY = {
+    "type": "dog",
+    "name": "Fluffy the Dog",
+    "color": "brown",
+    "age": 3,
+    "breed": "rottweiler",
+}
 
-ACE = """{
-  "type": "eagle",
-  "age": 245,
-  "color": "gray",
-  "species": "bald"
-}"""
+ACE = {"type": "eagle", "age": 245, "color": "gray", "species": "bald"}
 
-ALICE = """{
-  "name": "Alice the Person"
-}"""
+ALICE = {"object": "person", "name": "Alice the Person"}
 
-BOB = f"""{{
-  "name": "Bob the Person",
-  "pets": [
-    {TIGER},{FLUFFY}
-  ]
-}}"""
+BOB = {"object": "person", "name": "Bob the Person", "pets": [TIGER, FLUFFY]}
+
+STAN = {"name": "Stanley"}
+
+
+class Actor(NamedObject):
+
+    name: str
 
 
 class Animal(TypedObject):
@@ -69,10 +59,14 @@ class Eagle(Animal, type="eagle"):
     species: str
 
 
-class Person(DataObject):
+class Person(Actor, object="person"):
 
-    name: str
     pets: List[Pet] = None
+
+
+class Robot(Actor, object="robot"):
+
+    pass
 
 
 class CustomTypes(str, Enum):
@@ -93,40 +87,47 @@ class ComplexDataObject(DataObject):
     custom: CustomTypes = None
 
 
-class DataObjectTest(unittest.TestCase):
+class DataObjectTests(unittest.TestCase):
     """Unit tests for the DataObject API objects."""
 
     def test_ParseBasicObject(self):
         """Basic DataObject parsing."""
 
-        person = Person.parse_raw(ALICE)
+        person = Person.parse_obj(ALICE)
         self.assertEqual(person.name, "Alice the Person")
         self.assertIsNone(person.pets)
 
-    def test_ParseComplexDataObject(self):
-        """Complex DataObject parsing."""
-        pass
+
+class NamedObjectTests(unittest.TestCase):
+    """Unit tests for named API objects."""
+
+    def test_ParseNamedObject(self):
+        stan = Person.parse_obj(STAN)
+        self.assertEqual(stan.object, "person")
+
+        stan = Robot.parse_obj(STAN)
+        self.assertEqual(stan.object, "robot")
 
 
-class TypedObjectTest(unittest.TestCase):
+class TypedObjectTests(unittest.TestCase):
     """Unit tests for typed API objects."""
 
     def test_ParseTypedDataObject(self):
         """TypedObject parsing."""
 
-        tiger = Animal.parse_raw(TIGER)
+        tiger = Animal.parse_obj(TIGER)
         self.assertEqual(type(tiger), Cat)
         self.assertEqual(tiger.type, "cat")
         self.assertEqual(tiger.name, "Tiger the Cat")
         self.assertFalse(tiger.hairless)
 
-        fluffy = Animal.parse_raw(FLUFFY)
+        fluffy = Animal.parse_obj(FLUFFY)
         self.assertEqual(type(fluffy), Dog)
         self.assertEqual(fluffy.type, "dog")
         self.assertEqual(fluffy.name, "Fluffy the Dog")
         self.assertEqual(fluffy.breed, "rottweiler")
 
-        ace = Animal.parse_raw(ACE)
+        ace = Animal.parse_obj(ACE)
         self.assertEqual(type(ace), Eagle)
         self.assertEqual(ace.type, "eagle")
         self.assertEqual(ace.age, 245)
@@ -135,13 +136,14 @@ class TypedObjectTest(unittest.TestCase):
         # silly test just to make sure...
         self.assertNotEqual(tiger, fluffy)
 
-        bob = Person.parse_raw(BOB)
+        bob = Person.parse_obj(BOB)
         self.assertEqual(bob.name, "Bob the Person")
 
         # make sure the Animals were deserialized correctly...
         for pet in bob.pets:
             self.assertIn(pet, [fluffy, tiger])
 
-
-class NamedObjectTest(unittest.TestCase):
-    """Unit tests for named API objects."""
+    def test_SetDefaultTypeForNewObjects(self):
+        """Verify that "type" is set by default on new TypedObject's."""
+        bruce = Dog(name="bruce", age=3, breed="collie")
+        self.assertEqual(bruce.type, "dog")

@@ -61,6 +61,13 @@ class DataObject(BaseModel):
             else:
                 raise e
 
+    @classmethod
+    def _modify_field_(cls, name, default=None):
+        setattr(cls, name, default)
+
+        cls.__fields__[name].default = default
+        cls.__fields__[name].required = default is None
+
     # https://github.com/samuelcolvin/pydantic/discussions/3139
     def refresh(__pydantic_self__, **data):
         """Refresh the internal attributes with new data."""
@@ -96,12 +103,15 @@ class DataObject(BaseModel):
 class NamedObject(DataObject):
     """A Notion API object."""
 
-    object: str = None
+    # XXX should NamedObject have the same typing ability as TypedObject?
+
+    object: str
 
     def __init_subclass__(cls, object=None, **kwargs):
         super().__init_subclass__(**kwargs)
 
-        cls.object = object
+        if object is not None:
+            cls._modify_field_("object", default=object)
 
 
 class TypedObject(DataObject):
@@ -112,7 +122,7 @@ class TypedObject(DataObject):
     attribute to ensure that the correct object is created.
     """
 
-    type: str = None
+    type: str
 
     # modified from the methods described in this discussion:
     # - https://github.com/samuelcolvin/pydantic/discussions/3091
@@ -124,14 +134,13 @@ class TypedObject(DataObject):
         if type is not None:
             sub_type = type
 
-            # also set the default for the class 'type' field
-            cls.type = sub_type
-
         elif hasattr(cls, "__type__"):
             sub_type = getattr(cls, "__type__")
 
         else:
             sub_type = cls.__name__
+
+        cls._modify_field_("type", default=sub_type)
 
         # initialize a _subtypes_ map for each direct child of TypedObject
 
