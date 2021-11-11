@@ -185,6 +185,7 @@ def connected_page(session=None, cls=ConnectedPageBase):
         raise ValueError("cls must subclass ConnectedPageBase")
 
     class _ConnectedPage(cls):
+        _orm_database_ = None
         _orm_database_id_ = None
         _orm_session_ = None
         _orm_late_bind_ = None
@@ -215,5 +216,8 @@ def connected_page(session=None, cls=ConnectedPageBase):
 
             cls._orm_late_bind_ = to_session
             cls._orm_session_ = to_session
+
+            # XXX if we want to grab the Database on binding...
+            # cls._orm_database_ = to_session.databases.retrieve(cls._orm_database_id_)
 
     return _ConnectedPage
