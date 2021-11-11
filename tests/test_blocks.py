@@ -49,7 +49,6 @@ class ParagraphBlockTest(unittest.TestCase):
                         "text": {"content": "Lorem ipsum dolor sit amet", "link": None},
                     }
                 ],
-                "children": None,
             },
         }
 

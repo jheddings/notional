@@ -114,7 +114,7 @@ class Expression(NestedObject):
 class EquationObject(RichTextObject, type="equation"):
     """Notion equation element."""
 
-    equation: Expression = None
+    equation: Expression
 
     def __str__(self):
         """Return a string representation of this object."""
@@ -246,7 +246,7 @@ class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
 class Number(NativeTypeMixin, PropertyValue, type="number"):
     """Simple number type."""
 
-    number: Union[float, int] = None
+    number: Union[float, int]
 
     def __iadd__(self, other):
         """Add the given value to this Number."""
@@ -276,13 +276,13 @@ class Number(NativeTypeMixin, PropertyValue, type="number"):
 class Checkbox(NativeTypeMixin, PropertyValue, type="checkbox"):
     """Simple checkbox type; represented as a boolean."""
 
-    checkbox: bool = None
+    checkbox: bool
 
 
 class Date(PropertyValue, type="date"):
     """Notion complex date type - may include timestamp and/or be a date range."""
 
-    date: DateRange = None
+    date: DateRange
 
     def __contains__(self, other):
         """Determines if the given date is in the range (inclusive) of this Date.
@@ -331,8 +331,8 @@ class SelectValue(DataObject):
     """Values for select & multi-select properties."""
 
     name: str
-    id: Union[UUID, str] = None
-    color: Color = None
+    id: Optional[Union[UUID, str]] = None
+    color: Optional[Color] = None
 
     def __str__(self):
         """Return a string representation of this object."""
@@ -343,7 +343,7 @@ class SelectValue(DataObject):
 class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
     """Notion select type."""
 
-    select: SelectValue = None
+    select: SelectValue
 
     def __str__(self):
         """Return a string representation of this object."""
@@ -357,7 +357,7 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
         """
 
         if self.select is None:
-            return other == None
+            return other is None
 
         return other == self.select.name
 
@@ -511,19 +511,19 @@ class People(PropertyValue, type="people"):
 class URL(NativeTypeMixin, PropertyValue, type="url"):
     """Notion URL type."""
 
-    url: str = None
+    url: str
 
 
 class Email(NativeTypeMixin, PropertyValue, type="email"):
     """Notion email type."""
 
-    email: str = None
+    email: str
 
 
 class PhoneNumber(NativeTypeMixin, PropertyValue, type="phone_number"):
     """Notion phone type."""
 
-    phone_number: str = None
+    phone_number: str
 
 
 class Files(PropertyValue, type="files"):
@@ -576,7 +576,7 @@ class FormulaResult(TypedObject):
 class StringFormula(FormulaResult, type="string"):
     """A Notion string formula result."""
 
-    string: str = None
+    string: str
 
     @property
     def Result(self):
@@ -588,7 +588,7 @@ class StringFormula(FormulaResult, type="string"):
 class NumberFormula(FormulaResult, type="number"):
     """A Notion number formula result."""
 
-    number: Union[float, int] = None
+    number: Union[float, int]
 
     @property
     def Result(self):
@@ -600,7 +600,7 @@ class NumberFormula(FormulaResult, type="number"):
 class DateFormula(FormulaResult, type="date"):
     """A Notion date formula result."""
 
-    date: DateRange = None
+    date: DateRange
 
     @property
     def Result(self):
@@ -612,7 +612,7 @@ class DateFormula(FormulaResult, type="date"):
 class Formula(PropertyValue, type="formula"):
     """A Notion formula property value."""
 
-    formula: FormulaResult = None
+    formula: FormulaResult
 
     def __str__(self):
         return str(self.Result or "")
@@ -642,7 +642,7 @@ class RollupObject(TypedObject):
 class RollupNumber(RollupObject, type="number"):
     """A Notion rollup number property value."""
 
-    number: Union[float, int] = None
+    number: Union[float, int]
 
 
 class RollupDate(RollupObject, type="date"):
@@ -654,7 +654,7 @@ class RollupDate(RollupObject, type="date"):
 class RollupArray(RollupObject, type="array"):
     """A Notion rollup array property value."""
 
-    array: List[PropertyValue] = None
+    array: List[PropertyValue]
 
 
 class Rollup(PropertyValue, type="rollup"):
@@ -666,13 +666,13 @@ class Rollup(PropertyValue, type="rollup"):
 class CreatedTime(NativeTypeMixin, PropertyValue, type="created_time"):
     """A Notion created-time property value."""
 
-    created_time: datetime = None
+    created_time: datetime
 
 
 class CreatedBy(PropertyValue, type="created_by"):
     """A Notion created-by property value."""
 
-    created_by: User = None
+    created_by: User
 
     def __str__(self):
         return str(self.created_by)
@@ -681,13 +681,13 @@ class CreatedBy(PropertyValue, type="created_by"):
 class LastEditedTime(NativeTypeMixin, PropertyValue, type="last_edited_time"):
     """A Notion last-edited-time property value."""
 
-    last_edited_time: datetime = None
+    last_edited_time: datetime
 
 
 class LastEditedBy(PropertyValue, type="last_edited_by"):
     """A Notion last-edited-by property value."""
 
-    last_edited_by: User = None
+    last_edited_by: User
 
     def __str__(self):
         return str(self.last_edited_by)

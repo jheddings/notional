@@ -61,109 +61,109 @@ class Paragraph(TextBlock, type="paragraph"):
     """A paragraph block in Notion."""
 
     class NestedData(NestedObject):
-        text: List[RichTextObject] = None
-        children: List[Block] = None
+        text: List[RichTextObject] = []
+        children: Optional[List[Block]] = None
 
-    paragraph: NestedData = None
+    paragraph: NestedData = NestedData()
 
 
 class Heading1(TextBlock, type="heading_1"):
     """A heading_1 block in Notion."""
 
     class NestedData(NestedObject):
-        text: List[RichTextObject] = None
+        text: List[RichTextObject] = []
 
-    heading_1: NestedData = None
+    heading_1: NestedData = NestedData()
 
 
 class Heading2(TextBlock, type="heading_2"):
     """A heading_2 block in Notion."""
 
     class NestedData(NestedObject):
-        text: List[RichTextObject] = None
+        text: List[RichTextObject] = []
 
-    heading_2: NestedData = None
+    heading_2: NestedData = NestedData
 
 
 class Heading3(TextBlock, type="heading_3"):
     """A heading_3 block in Notion."""
 
     class NestedData(NestedObject):
-        text: List[RichTextObject] = None
+        text: List[RichTextObject] = []
 
-    heading_3: NestedData = None
+    heading_3: NestedData = NestedData()
 
 
 class Quote(TextBlock, type="quote"):
     """A quote block in Notion."""
 
     class NestedData(NestedObject):
-        text: List[RichTextObject] = None
-        children: List[Block] = None
+        text: List[RichTextObject] = []
+        children: Optional[List[Block]] = None
 
-    quote: NestedData = None
+    quote: NestedData = NestedData()
 
 
 class Code(TextBlock, type="code"):
     """A code block in Notion."""
 
     class NestedData(NestedObject):
-        text: List[RichTextObject] = None
-        language: CodingLanguage = None
+        text: List[RichTextObject] = []
+        language: CodingLanguage = CodingLanguage.plain_text
 
-    code: NestedData = None
+    code: NestedData = NestedData()
 
 
 class Callout(TextBlock, type="callout"):
     """A callout block in Notion."""
 
     class NestedData(NestedObject):
-        text: List[RichTextObject] = None
-        children: List[Block] = None
+        text: List[RichTextObject] = []
+        children: Optional[List[Block]] = None
         icon: Optional[Union[FileObject, EmojiObject]] = None
 
-    callout: NestedData = None
+    callout: NestedData = NestedData()
 
 
 class BulletedListItem(TextBlock, type="bulleted_list_item"):
     """A bulleted list item in Notion."""
 
     class NestedData(NestedObject):
-        text: List[RichTextObject] = None
-        children: List[Block] = None
+        text: List[RichTextObject] = []
+        children: Optional[List[Block]] = None
 
-    bulleted_list_item: NestedData = None
+    bulleted_list_item: NestedData = NestedData()
 
 
 class NumberedListItem(TextBlock, type="numbered_list_item"):
     """A numbered list item in Notion."""
 
     class NestedData(NestedObject):
-        text: List[RichTextObject] = None
-        children: List[Block] = None
+        text: List[RichTextObject] = []
+        children: Optional[List[Block]] = None
 
-    numbered_list_item: NestedData = None
+    numbered_list_item: NestedData = NestedData()
 
 
 class ToDo(TextBlock, type="to_do"):
     """A todo list item in Notion."""
 
     class NestedData(NestedObject):
-        text: List[RichTextObject] = None
+        text: List[RichTextObject] = []
         checked: bool = False
-        children: List[Block] = None
+        children: Optional[List[Block]] = None
 
-    to_do: NestedData = None
+    to_do: NestedData = NestedData()
 
 
 class Toggle(TextBlock, type="toggle"):
     """A toggle list item in Notion."""
 
     class NestedData(NestedObject):
-        text: List[RichTextObject] = None
-        children: List[Block] = None
+        text: List[RichTextObject] = []
+        children: Optional[List[Block]] = None
 
-    toggle: NestedData = None
+    toggle: NestedData = NestedData()
 
 
 class Divider(Block, type="divider"):
@@ -188,9 +188,9 @@ class Embed(Block, type="embed"):
     """An embed block in Notion."""
 
     class NestedData(NestedObject):
-        url: str
+        url: str = None
 
-    embed: NestedData = None
+    embed: NestedData = NestedData()
 
     @property
     def URL(self):
@@ -206,10 +206,10 @@ class Bookmark(Block, type="bookmark"):
     """A bookmark block in Notion."""
 
     class NestedData(NestedObject):
-        url: str
-        caption: List[RichTextObject] = None
+        url: str = None
+        caption: Optional[List[RichTextObject]] = None
 
-    bookmark: NestedData = None
+    bookmark: NestedData = NestedData()
 
     @classmethod
     def from_url(cls, url):
@@ -249,18 +249,18 @@ class ChildPage(Block, type="child_page"):
     """A child page block in Notion."""
 
     class NestedData(NestedObject):
-        title: str
+        title: str = None
 
-    child_page: NestedData = None
+    child_page: NestedData = NestedData()
 
 
 class ChildDatabase(Block, type="child_database"):
     """A child database block in Notion."""
 
     class NestedData(NestedObject):
-        title: str
+        title: str = None
 
-    child_database: NestedData = None
+    child_database: NestedData = NestedData()
 
 
 class ColumnList(Block, type="column_list"):
@@ -283,6 +283,6 @@ class LinkPreview(Block, type="link_preview"):
     """A link_preview block in Notion."""
 
     class NestedData(NestedObject):
-        url: str
+        url: str = None
 
-    link_preview: NestedData = None
+    link_preview: NestedData = NestedData()
