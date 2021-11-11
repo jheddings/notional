@@ -30,7 +30,7 @@ try:
     if repo.is_dirty():
         __version__ = f"{__version__}+"
 
-except:
+except ModuleNotFoundError:
     pass
 
 log.info(f"notional-{__version__}")
