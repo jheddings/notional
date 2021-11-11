@@ -11,7 +11,7 @@ from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject
 from .schema import Function
-from .text import Color, FullColor, plain_text
+from .text import Annotations, Color, RichTextObject, TextObject, plain_text
 from .user import User
 
 log = logging.getLogger(__name__)
@@ -21,40 +21,6 @@ class PageReference(DataObject):
     """A page reference is an object with an id property."""
 
     id: UUID
-
-
-class Annotations(DataObject):
-    """Style information for RichTextObject's."""
-
-    bold: bool = False
-    italic: bool = False
-    strikethrough: bool = False
-    underline: bool = False
-    code: bool = False
-    color: FullColor = None
-
-    @property
-    def is_plain(self):
-        if self.bold:
-            return False
-        if self.italic:
-            return False
-        if self.strikethrough:
-            return False
-        if self.underline:
-            return False
-        if self.code:
-            return False
-        if self.color is not None:
-            return False
-        return True
-
-
-class LinkObject(DataObject):
-    """Reference a URL."""
-
-    type: str = "url"
-    url: str = None
 
 
 class EmojiObject(TypedObject, type="emoji"):
@@ -111,49 +77,6 @@ class DateRange(DataObject):
             return f"{self.start}"
 
         return f"{self.start} :: {self.end}"
-
-
-class RichTextObject(TypedObject):
-    """Base class for Notion rich text elements."""
-
-    plain_text: str
-    href: str = None
-    annotations: Annotations = None
-
-    def __str__(self):
-        """Return a string representation of this object."""
-
-        if self.href is None:
-            text = self.plain_text
-        else:
-            text = f"[{self.plain_text}]({self.href})"
-
-        # TODO add markdown for annotations
-        # e.g. something like: text = markup(text, self.annotations)
-
-        return text
-
-
-class TextObject(RichTextObject, type="text"):
-    """Notion text element."""
-
-    class NestedData(NestedObject):
-        content: str
-        link: LinkObject = None
-
-    text: NestedData = None
-
-    @classmethod
-    def from_value(cls, string):
-        """Return a TextObject from the native string."""
-
-        if string is None or len(string) == 0:
-            return cls(plain_text=None, text=None)
-
-        # TODO support markdown in the text string
-
-        text = cls.NestedData(content=string)
-        return cls(plain_text=string, text=text)
 
 
 class MentionData(TypedObject):

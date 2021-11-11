@@ -10,7 +10,8 @@ from .blocks import Block
 from .iterator import EndpointIterator
 from .query import QueryBuilder, ResultSet, get_target_id
 from .records import Database, Page, ParentRef
-from .types import TextObject, Title
+from .text import TextObject
+from .types import Title
 from .user import User
 
 log = logging.getLogger(__name__)
@@ -129,7 +130,7 @@ class DatabasesEndpoint(Endpoint):
 
         parent_id = get_parent_id(parent)
 
-        log.info("Creating database [%s] - %s", parent_id, title)
+        log.info("Creating database %s - %s", parent_id, title)
 
         props = {name: prop.to_api() for name, prop in schema.items()}
 
@@ -197,23 +198,31 @@ class PagesEndpoint(Endpoint):
         return self.session.client.pages
 
     # https://developers.notion.com/reference/post-page
-    def create(self, parent, title=None, properties=dict(), children=list()):
+    def create(self, parent, title=None, properties=None, children=None):
         """Adds a page to the given parent (Page or Database)."""
 
         if parent is None:
             raise ValueError("'parent' must be provided")
 
+        print(parent)
         parent_id = get_parent_id(parent)
+        request = { "parent": parent_id }
 
         if title is not None:
+            if properties is None:
+                properties = dict()
+
             properties["title"] = Title.from_value(title)
 
-        props = {name: prop.to_api() for name, prop in properties.items()}
-        childs = [child.to_api() for child in children]
+        if properties is not None:
+            request["properties"] = {name: prop.to_api() for name, prop in properties.items()}
 
-        log.info("Creating page [%s] - %s", parent_id, title)
+        if children is not None:
+            request["children"] = [child.to_api() for child in children]
 
-        data = self().create(parent=parent_id, properties=props, children=childs)
+        log.info("Creating page %s - %s", parent_id, title)
+
+        data = self().create(**request)
 
         return Page.parse_obj(data)
 
@@ -345,12 +354,17 @@ class Session(object):
 def get_parent_id(parent):
     """Return the correct parent ID based on the object type."""
 
-    if isinstance(parent, ParentRef):
-        return parent.to_api()
-    elif isinstance(parent, Page):
-        return {"type": "page_id", "page_id": parent.id.hex}
-    elif isinstance(parent, Database):
-        return {"type": "database_id", "database_id": parent.id.hex}
+    # TODO support adding to workspace references
 
-    # TODO should we support adding to the workspace?
-    raise ValueError("Unrecognized 'parent' attribute")
+    if isinstance(parent, ParentRef):
+        ref_data = parent.to_api()
+    elif isinstance(parent, Page):
+        ref_data = {"type": "page_id", "page_id": parent.id.hex}
+    elif isinstance(parent, Database):
+        ref_data = {"type": "database_id", "database_id": parent.id.hex}
+    else:
+        raise ValueError("Unrecognized 'parent' attribute")
+
+    log.debug("resolved parent ref :: %s => %s", type(parent), ref_data)
+
+    return ref_data

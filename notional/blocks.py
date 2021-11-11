@@ -11,8 +11,8 @@ from typing import Any, Dict, List, Optional, Union
 
 from .core import NestedObject, TypedObject
 from .records import Record
-from .text import plain_text
-from .types import EmojiObject, FileObject, RichTextObject, TextObject
+from .text import CodingLanguage, RichTextObject, TextObject, plain_text
+from .types import EmojiObject, FileObject
 
 log = logging.getLogger(__name__)
 
@@ -102,6 +102,16 @@ class Quote(TextBlock, type="quote"):
         children: List[Block] = None
 
     quote: NestedData = None
+
+
+class Code(TextBlock, type="code"):
+    """A code block in Notion."""
+
+    class NestedData(NestedObject):
+        text: List[RichTextObject] = None
+        language: CodingLanguage = None
+
+    code: NestedData = None
 
 
 class Callout(TextBlock, type="callout"):
@@ -242,6 +252,15 @@ class ChildPage(Block, type="child_page"):
         title: str
 
     child_page: NestedData = None
+
+
+class ChildDatabase(Block, type="child_database"):
+    """A child database block in Notion."""
+
+    class NestedData(NestedObject):
+        title: str
+
+    child_database: NestedData = None
 
 
 class ColumnList(Block, type="column_list"):
