@@ -206,7 +206,7 @@ class PagesEndpoint(Endpoint):
 
         print(parent)
         parent_id = get_parent_id(parent)
-        request = { "parent": parent_id }
+        request = {"parent": parent_id}
 
         if title is not None:
             if properties is None:
@@ -215,7 +215,9 @@ class PagesEndpoint(Endpoint):
             properties["title"] = Title.from_value(title)
 
         if properties is not None:
-            request["properties"] = {name: prop.to_api() for name, prop in properties.items()}
+            request["properties"] = {
+                name: prop.to_api() for name, prop in properties.items()
+            }
 
         if children is not None:
             request["children"] = [child.to_api() for child in children]
