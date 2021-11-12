@@ -14,7 +14,6 @@ The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 import logging
 import os
 import sys
-from datetime import date, timedelta
 
 logging.basicConfig(level=logging.INFO)
 
@@ -37,4 +36,5 @@ for name, prop in page.properties.items():
 # update a property on the page...
 page["Complete"] = types.Checkbox.from_value(True)
 
-notion.pages.update(page)
+# FIXME this feature is broken - https://github.com/jheddings/notional/issues/9
+# notion.pages.update(page)

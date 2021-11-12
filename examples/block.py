@@ -15,7 +15,6 @@ import sys
 logging.basicConfig(level=logging.INFO)
 
 import notional
-from notional import blocks
 
 block_id = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")

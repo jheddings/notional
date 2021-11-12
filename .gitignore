@@ -1,8 +1,10 @@
 __pycache__/
 *.py[cod]
 
-.venv
 .vscode
+.venv
+
+local.env
 
 build
 dist

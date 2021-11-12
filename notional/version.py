@@ -5,7 +5,7 @@ import os
 
 log = logging.getLogger(__name__)
 
-__version__ = "0.0.9"
+__version__ = "0.0.10"
 
 # if we are running in a local copy, append the repo information
 # XXX do we want to do something more advanced when using `make publish` ?
@@ -30,7 +30,7 @@ try:
     if repo.is_dirty():
         __version__ = f"{__version__}+"
 
-except:
+except ModuleNotFoundError:
     pass
 
 log.info(f"notional-{__version__}")

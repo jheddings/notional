@@ -31,15 +31,15 @@ for block in notion.blocks.children.list(page):
     print(f"{block.type} => {type(block)}")
 
 # create a new page
-page = notion.pages.create(
-    parent=page, title="Hello World", children=[blocks.Heading1.from_text("Welcome!")]
-)
+welcome = blocks.Heading1.from_text("Welcome!")
+new_page = notion.pages.create(parent=page, title="Hello World", children=[welcome])
+
 print(f"{page.Title} => {page.url}")
 
 # add more blocks to the page...
 notion.blocks.children.append(
-    page, blocks.Paragraph.from_text("Good to see you again!")
+    new_page, blocks.Paragraph.from_text("Good to see you again!")
 )
 
 # archive (delete) the new page...
-notion.pages.delete(page)
+notion.pages.delete(new_page)

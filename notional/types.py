@@ -6,12 +6,12 @@ used in the Notion API as well as higher-level methods.
 
 import logging
 from datetime import date, datetime
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject
 from .schema import Function
-from .text import Color, FullColor, plain_text
+from .text import Color, RichTextObject, TextObject, plain_text
 from .user import User
 
 log = logging.getLogger(__name__)
@@ -23,44 +23,10 @@ class PageReference(DataObject):
     id: UUID
 
 
-class Annotations(DataObject):
-    """Style information for RichTextObject's."""
-
-    bold: bool = False
-    italic: bool = False
-    strikethrough: bool = False
-    underline: bool = False
-    code: bool = False
-    color: FullColor = None
-
-    @property
-    def is_plain(self):
-        if self.bold:
-            return False
-        if self.italic:
-            return False
-        if self.strikethrough:
-            return False
-        if self.underline:
-            return False
-        if self.code:
-            return False
-        if self.color is not None:
-            return False
-        return True
-
-
-class LinkObject(DataObject):
-    """Reference a URL."""
-
-    type: str = "url"
-    url: str = None
-
-
 class EmojiObject(TypedObject, type="emoji"):
     """A Notion emoji object."""
 
-    emoji: str = None
+    emoji: Optional[str] = None
 
 
 class FileObject(TypedObject):
@@ -78,19 +44,24 @@ class File(FileObject, type="file"):
     """A Notion file reference."""
 
     class NestedData(NestedObject):
-        url: str = None
-        expiry_time: datetime = None
+        url: Optional[str] = None
+        expiry_time: Optional[datetime] = None
 
-    file: NestedData = None
+    file: Optional[NestedData] = None
 
 
 class ExternalFile(FileObject, type="external"):
     """An external file reference."""
 
     class NestedData(NestedObject):
-        url: str = None
+        url: Optional[str] = None
 
-    external: NestedData = None
+    external: Optional[NestedData] = None
+
+    @classmethod
+    def from_url(cls, url):
+        data = cls.NestedData(url=url)
+        return cls(external=data)
 
 
 class DateRange(DataObject):
@@ -106,46 +77,6 @@ class DateRange(DataObject):
             return f"{self.start}"
 
         return f"{self.start} :: {self.end}"
-
-
-class RichTextObject(TypedObject):
-    """Base class for Notion rich text elements."""
-
-    plain_text: str
-    href: str = None
-    annotations: Annotations = None
-
-    def __str__(self):
-        """Return a string representation of this object."""
-
-        if self.href is None:
-            text = self.plain_text
-        else:
-            text = f"[{self.plain_text}]({self.href})"
-
-        # TODO add markdown for annotations
-        # e.g. something like: text = markup(text, self.annotations)
-
-        return text
-
-
-class TextObject(RichTextObject, type="text"):
-    """Notion text element."""
-
-    class NestedData(NestedObject):
-        content: str
-        link: LinkObject = None
-
-    text: NestedData = None
-
-    @classmethod
-    def from_value(cls, string):
-        """Return a TextObject from the native string."""
-
-        # TODO support markdown in the text string
-
-        text = cls.NestedData(content=string)
-        return cls(plain_text=string, text=text)
 
 
 class MentionData(TypedObject):
@@ -173,7 +104,7 @@ class MentionDate(MentionData, type="date"):
 class MentionObject(RichTextObject, type="mention"):
     """Notion mention element."""
 
-    mention: MentionData = None
+    mention: Optional[MentionData] = None
 
 
 class Expression(NestedObject):
@@ -183,7 +114,7 @@ class Expression(NestedObject):
 class EquationObject(RichTextObject, type="equation"):
     """Notion equation element."""
 
-    equation: Expression = None
+    equation: Optional[Expression] = None
 
     def __str__(self):
         """Return a string representation of this object."""
@@ -244,7 +175,7 @@ class NativeTypeMixin(object):
 class PropertyValue(TypedObject):
     """Base class for Notion property values."""
 
-    id: str = None
+    id: Optional[str] = None
 
 
 class Title(NativeTypeMixin, PropertyValue, type="title"):
@@ -267,9 +198,17 @@ class Title(NativeTypeMixin, PropertyValue, type="title"):
         return plain_text(*self.title)
 
     @classmethod
-    def from_value(cls, value):
-        text = TextObject.from_value(value)
-        return cls(title=[text])
+    def from_value(cls, *strings):
+
+        text = []
+
+        for string in strings:
+            if string is None:
+                continue
+
+            text.append(TextObject.from_value(string))
+
+        return cls(title=text)
 
 
 class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
@@ -291,15 +230,23 @@ class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
         return plain_text(*self.rich_text)
 
     @classmethod
-    def from_value(cls, value):
-        text = TextObject.from_value(value)
-        return cls(rich_text=[text])
+    def from_value(cls, *strings):
+
+        text = []
+
+        for string in strings:
+            if string is None:
+                continue
+
+            text.append(TextObject.from_value(string))
+
+        return cls(rich_text=text)
 
 
 class Number(NativeTypeMixin, PropertyValue, type="number"):
     """Simple number type."""
 
-    number: Union[float, int] = None
+    number: Optional[Union[float, int]] = None
 
     def __iadd__(self, other):
         """Add the given value to this Number."""
@@ -329,13 +276,13 @@ class Number(NativeTypeMixin, PropertyValue, type="number"):
 class Checkbox(NativeTypeMixin, PropertyValue, type="checkbox"):
     """Simple checkbox type; represented as a boolean."""
 
-    checkbox: bool = None
+    checkbox: Optional[bool] = None
 
 
 class Date(PropertyValue, type="date"):
     """Notion complex date type - may include timestamp and/or be a date range."""
 
-    date: DateRange = None
+    date: Optional[DateRange] = None
 
     def __contains__(self, other):
         """Determines if the given date is in the range (inclusive) of this Date.
@@ -349,10 +296,7 @@ class Date(PropertyValue, type="date"):
         return self.Start <= other <= self.End
 
     def __str__(self):
-        if self.date is None:
-            return ""
-
-        return str(self.date)
+        return "" if self.date is None else str(self.date)
 
     @property
     def IsRange(self):
@@ -374,7 +318,12 @@ class Date(PropertyValue, type="date"):
     @classmethod
     def from_value(cls, value):
         """Create a new Date from the native value."""
-        inner = DateRange(start=value)
+
+        if value is None:
+            inner = DateRange(start=None)
+        else:
+            inner = DateRange(start=value)
+
         return cls(date=inner)
 
 
@@ -382,8 +331,8 @@ class SelectValue(DataObject):
     """Values for select & multi-select properties."""
 
     name: str
-    id: Union[UUID, str] = None
-    color: Color = None
+    id: Optional[Union[UUID, str]] = None
+    color: Optional[Color] = None
 
     def __str__(self):
         """Return a string representation of this object."""
@@ -394,7 +343,7 @@ class SelectValue(DataObject):
 class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
     """Notion select type."""
 
-    select: SelectValue = None
+    select: Optional[SelectValue] = None
 
     def __str__(self):
         """Return a string representation of this object."""
@@ -408,7 +357,7 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
         """
 
         if self.select is None:
-            return other == None
+            return other is None
 
         return other == self.select.name
 
@@ -421,6 +370,10 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
 
     @classmethod
     def from_value(cls, value):
+
+        if value is None:
+            return cls(select={})
+
         return cls(select=SelectValue(name=value))
 
 
@@ -432,6 +385,10 @@ class MultiSelect(PropertyValue, type="multi_select"):
     def __str__(self):
         """Return a string representation of this object."""
         return ", ".join(self.Values)
+
+    def __len__(self):
+        """Counts the number of selected values."""
+        return len(self.multi_select)
 
     def __iadd__(self, other):
         """Add the given option to this MultiSelect."""
@@ -469,7 +426,7 @@ class MultiSelect(PropertyValue, type="multi_select"):
 
         for value in values:
             if value is None:
-                raise ValueError(f"'None' is an invalid value")
+                raise ValueError("'None' is an invalid value")
 
             if value not in self:
                 opt = SelectValue(name=value)
@@ -494,22 +451,30 @@ class MultiSelect(PropertyValue, type="multi_select"):
         return [str(val) for val in self.multi_select if val.name is not None]
 
     @classmethod
-    def from_value(cls, values):
+    def from_value(cls, value):
+        """Initialize a new MultiSelect from the given value."""
+
+        if type(value) is list:
+            return cls.from_values(*value)
+        else:
+            return cls.from_values(value)
+
+    @classmethod
+    def from_values(cls, *values):
         """This method accepts a list of values, converting them into SelectOption's.
 
         All values in the list will be automatically converted to strings.
         """
 
-        return cls(
-            multi_select=[
-                SelectValue(name=str(val)) for val in values if val is not None
-            ]
-        )
+        select = []
 
-    @classmethod
-    def from_values(cls, *values):
-        """Initialize a new MultiSelect from the given values."""
-        return cls.from_value(values)
+        for value in values:
+            if value is None:
+                continue
+
+            select.append(SelectValue(name=str(value)))
+
+        return cls(multi_select=select)
 
 
 class People(PropertyValue, type="people"):
@@ -546,19 +511,19 @@ class People(PropertyValue, type="people"):
 class URL(NativeTypeMixin, PropertyValue, type="url"):
     """Notion URL type."""
 
-    url: str = None
+    url: Optional[str] = None
 
 
 class Email(NativeTypeMixin, PropertyValue, type="email"):
     """Notion email type."""
 
-    email: str = None
+    email: Optional[str] = None
 
 
 class PhoneNumber(NativeTypeMixin, PropertyValue, type="phone_number"):
     """Notion phone type."""
 
-    phone_number: str = None
+    phone_number: Optional[str] = None
 
 
 class Files(PropertyValue, type="files"):
@@ -586,6 +551,11 @@ class Files(PropertyValue, type="files"):
     def __str__(self):
         return "; ".join([str(file) for file in self.files])
 
+    def append_url(self, url):
+        log.debug(f"append URL - {url}")
+        file = ExternalFile.from_url(url)
+        self.files.append(file)
+
 
 class FormulaResult(TypedObject):
     """A Notion formula result.
@@ -600,13 +570,13 @@ class FormulaResult(TypedObject):
     def Result(self):
         """Return the result of this FormulaResult."""
 
-        raise NotImplemented("Result unavailable")
+        raise NotImplementedError("Result unavailable")
 
 
 class StringFormula(FormulaResult, type="string"):
     """A Notion string formula result."""
 
-    string: str = None
+    string: Optional[str] = None
 
     @property
     def Result(self):
@@ -618,7 +588,7 @@ class StringFormula(FormulaResult, type="string"):
 class NumberFormula(FormulaResult, type="number"):
     """A Notion number formula result."""
 
-    number: Union[float, int] = None
+    number: Optional[Union[float, int]] = None
 
     @property
     def Result(self):
@@ -630,7 +600,7 @@ class NumberFormula(FormulaResult, type="number"):
 class DateFormula(FormulaResult, type="date"):
     """A Notion date formula result."""
 
-    date: DateRange = None
+    date: Optional[DateRange] = None
 
     @property
     def Result(self):
@@ -642,7 +612,7 @@ class DateFormula(FormulaResult, type="date"):
 class Formula(PropertyValue, type="formula"):
     """A Notion formula property value."""
 
-    formula: FormulaResult = None
+    formula: Optional[FormulaResult] = None
 
     def __str__(self):
         return str(self.Result or "")
@@ -666,43 +636,43 @@ class Relation(PropertyValue, type="relation"):
 class RollupObject(TypedObject):
     """A Notion rollup property value."""
 
-    function: Function
+    function: Optional[Function] = None
 
 
 class RollupNumber(RollupObject, type="number"):
     """A Notion rollup number property value."""
 
-    number: Union[float, int] = None
+    number: Optional[Union[float, int]] = None
 
 
 class RollupDate(RollupObject, type="date"):
     """A Notion rollup date property value."""
 
-    date: DateRange = None
+    date: Optional[DateRange] = None
 
 
 class RollupArray(RollupObject, type="array"):
     """A Notion rollup array property value."""
 
-    array: List[PropertyValue] = None
+    array: List[PropertyValue]
 
 
 class Rollup(PropertyValue, type="rollup"):
     """A Notion rollup property value."""
 
-    rollup: RollupObject
+    rollup: Optional[RollupObject] = None
 
 
 class CreatedTime(NativeTypeMixin, PropertyValue, type="created_time"):
     """A Notion created-time property value."""
 
-    created_time: datetime = None
+    created_time: datetime
 
 
 class CreatedBy(PropertyValue, type="created_by"):
     """A Notion created-by property value."""
 
-    created_by: User = None
+    created_by: User
 
     def __str__(self):
         return str(self.created_by)
@@ -711,13 +681,13 @@ class CreatedBy(PropertyValue, type="created_by"):
 class LastEditedTime(NativeTypeMixin, PropertyValue, type="last_edited_time"):
     """A Notion last-edited-time property value."""
 
-    last_edited_time: datetime = None
+    last_edited_time: datetime
 
 
 class LastEditedBy(PropertyValue, type="last_edited_by"):
     """A Notion last-edited-by property value."""
 
-    last_edited_by: User = None
+    last_edited_by: User
 
     def __str__(self):
         return str(self.last_edited_by)

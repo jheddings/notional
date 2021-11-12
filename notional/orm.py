@@ -4,7 +4,7 @@ import logging
 
 from .iterator import EndpointIterator
 from .records import DatabaseParent, Page
-from .types import NativeTypeMixin, PropertyValue, RichText
+from .types import NativeTypeMixin, RichText
 
 log = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class ConnectedPageBase(object):
         log.info(f"Committing pending changes :: {self.id}")
 
         if len(self._pending_props) == 0:
-            log.debug(f"no changes to commit; nothing to do")
+            log.debug("no changes to commit; nothing to do")
             return
 
         log.debug(f"committing {len(self._pending_props)} properties")
@@ -155,17 +155,22 @@ def Property(name, cls=RichText, default=None):
         # TODO only set the value if it has changed from the existing
         log.debug(f"setter {cls} [{name}] => {value} {type(value)}")
 
-        # convert from native objects to expected types
+        # convert native objects to expected types
         if isinstance(value, cls):
             prop = value
+
         elif hasattr(cls, "from_value"):
             from_value = getattr(cls, "from_value")
             prop = from_value(value)
+
         else:
             raise ValueError(f"Value does not match expected type: {cls}")
 
         # update the local property
         self.page[name] = prop
+
+        # XXX should we add support for automatic commit?  that behavior would be
+        # more like using the clients - changes are committed in real time...
 
         # save the updated property to our pending dict
         self._pending_props[name] = prop.to_api()
@@ -180,6 +185,7 @@ def connected_page(session=None, cls=ConnectedPageBase):
         raise ValueError("cls must subclass ConnectedPageBase")
 
     class _ConnectedPage(cls):
+        _orm_database_ = None
         _orm_database_id_ = None
         _orm_session_ = None
         _orm_late_bind_ = None
@@ -210,5 +216,8 @@ def connected_page(session=None, cls=ConnectedPageBase):
 
             cls._orm_late_bind_ = to_session
             cls._orm_session_ = to_session
+
+            # XXX if we want to grab the Database on binding...
+            # cls._orm_database_ = to_session.databases.retrieve(cls._orm_database_id_)
 
     return _ConnectedPage

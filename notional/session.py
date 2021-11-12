@@ -11,8 +11,10 @@ from .core import NamedObject
 from .iterator import EndpointIterator
 from .orm import ConnectedPageBase
 from .query import Query, ResultSet
+from .query import QueryBuilder, ResultSet, get_target_id
 from .records import Database, Page, ParentRef
-from .types import TextObject, Title
+from .text import TextObject
+from .types import Title
 from .user import User
 
 log = logging.getLogger(__name__)
@@ -129,9 +131,9 @@ class DatabasesEndpoint(Endpoint):
     def create(self, parent, schema, title=None):
         """Adds a database to the given Page parent."""
 
-        parent_id = get_parent_id(parent)
+        parent = ParentRef.from_record(parent)
 
-        log.info("Creating database [%s] - %s", parent_id, title)
+        log.info("Creating database %s - %s", parent, title)
 
         props = {name: prop.to_api() for name, prop in schema.items()}
 
@@ -139,7 +141,7 @@ class DatabasesEndpoint(Endpoint):
             title = TextObject.from_value(title)
 
         data = self().create(
-            parent=parent_id,
+            parent=parent.to_api(),
             title=[title.to_api()],
             properties=props,
         )
@@ -187,7 +189,7 @@ class DatabasesEndpoint(Endpoint):
         :param target: either a string with the database ID or an ORM class
         """
 
-        log.info("Initializing database query :: %s", target)
+        log.info("Initializing database query :: {%s}", get_target_id(target))
 
         query = EndpointIterator(endpoint=self().query)
         cls = None
@@ -209,7 +211,7 @@ class DatabasesEndpoint(Endpoint):
         else:
             raise ValueError("unsupported query target")
 
-        return Query(self.session, source=query, cls=cls)
+        return QueryBuilder(self.session, source=query, cls=cls)
 
 
 class PagesEndpoint(Endpoint):
@@ -219,23 +221,32 @@ class PagesEndpoint(Endpoint):
         return self.session.client.pages
 
     # https://developers.notion.com/reference/post-page
-    def create(self, parent, title=None, properties=dict(), children=list()):
+    def create(self, parent, title=None, properties=None, children=None):
         """Adds a page to the given parent (Page or Database)."""
 
         if parent is None:
             raise ValueError("'parent' must be provided")
 
-        parent_id = get_parent_id(parent)
+        parent = ParentRef.from_record(parent)
+        request = {"parent": parent.to_api()}
+
+        # the API requires a properties object, even if empty
+        if properties is None:
+            properties = dict()
 
         if title is not None:
             properties["title"] = Title.from_value(title)
 
-        props = {name: prop.to_api() for name, prop in properties.items()}
-        childs = [child.to_api() for child in children]
+        request["properties"] = {
+            name: prop.to_api() for name, prop in properties.items()
+        }
 
-        log.info("Creating page [%s] - %s", parent_id, title)
+        if children is not None:
+            request["children"] = [child.to_api() for child in children]
 
-        data = self().create(parent=parent_id, properties=props, children=childs)
+        log.info("Creating page %s - %s", parent, title)
+
+        data = self().create(**request)
 
         return Page.parse_obj(data)
 
@@ -299,7 +310,7 @@ class SearchEndpoint(Endpoint):
         if text is not None:
             search["query"] = text
 
-        return Query(self.session, source=search)
+        return QueryBuilder(self.session, source=search)
 
 
 class UsersEndpoint(Endpoint):
@@ -323,7 +334,17 @@ class UsersEndpoint(Endpoint):
 
         log.info("Retrieving user :: ", user_id)
 
-        data = self.users.retrieve(user_id)
+        data = self().retrieve(user_id)
+
+        return User.parse_obj(data)
+
+    # https://developers.notion.com/reference/get-self
+    def me(self):
+        """Returns the current bot User."""
+
+        log.info("Retrieving current integration bot")
+
+        data = self().me()
 
         return User.parse_obj(data)
 
@@ -342,6 +363,9 @@ class Session(object):
 
         log.info("Initialized Notion SDK client")
 
+    # TODO def get(self, ref):
+    #    """Inspects the provided referance and returns the corresponding object."""
+
     def ping(self):
         """Confirm that the session is active and able to connect to Notion.
 
@@ -352,12 +376,12 @@ class Session(object):
 
         try:
 
-            # get a quick list of users in the integration as a connectivity check
-            # NOTE we use the endpoint directly to bypass the iterator and limit results
+            me = self.users.me()
 
-            self.users().list(page_size=1)
+            if me is None:
+                raise SessionError("Unable to get current user")
 
-        except ConnectError as err:
+        except ConnectError:
             error = "Unable to connect to Notion"
 
         except APIResponseError as err:
@@ -367,17 +391,3 @@ class Session(object):
             raise SessionError(error)
 
         return True
-
-
-def get_parent_id(parent):
-    """Return the correct parent ID based on the object type."""
-
-    if isinstance(parent, ParentRef):
-        return parent.to_api()
-    elif isinstance(parent, Page):
-        return {"type": "page_id", "page_id": parent.id.hex}
-    elif isinstance(parent, Database):
-        return {"type": "database_id", "database_id": parent.id.hex}
-
-    # TODO should we support adding to the workspace?
-    raise ValueError("Unrecognized 'parent' attribute")

@@ -6,6 +6,8 @@ SRCDIR ?= $(BASEDIR)/notional
 DISTDIR ?= $(BASEDIR)/dist
 VENVDIR ?= $(BASEDIR)/.venv
 
+SOURCES = "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests"
+
 # TODO make configurable for real publishing...
 #TWINE_REPO ?= --repository-url https://test.pypi.org/legacy/
 
@@ -30,8 +32,9 @@ publish: build
 .PHONY: preflight
 
 preflight: venv-configured
-	isort --profile black "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests"
-	black "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests"
+	isort --profile black $(SOURCES)
+	black $(SOURCES)
+	flake8 --ignore=E266,E402,E501 $(SOURCES)
 
 ################################################################################
 .PHONY: test
@@ -43,7 +46,7 @@ test: venv-configured
 .PHONY: stats
 
 stats:
-	cloc "$(SRCDIR)" "$(BASEDIR)/tests" "$(BASEDIR)/examples"
+	cloc $(SOURCES)
 
 ################################################################################
 .PHONY: venv
@@ -67,7 +70,9 @@ endif
 
 clean:
 	rm -f "$(SRCDIR)/*.pyc"
+	rm -f "$(SRCDIR)/examples/*.pyc"
 	rm -Rf "$(SRCDIR)/__pycache__"
+	rm -Rf "$(SRCDIR)/tests/__pycache__"
 	rm -Rf "$(BASEDIR)/build"
 	rm -Rf "$(BASEDIR)/notional.egg-info"
 

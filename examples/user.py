@@ -13,11 +13,12 @@ import os
 logging.basicConfig(level=logging.INFO)
 
 import notional
-from notional.iterator import EndpointIterator
-from notional.user import User
 
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 notion = notional.connect(auth=auth_token)
+
+me = notion.users.me()
+print(f"My Bot: {me.name}")
 
 for user in notion.users.list():
     print(f"{user.name} => {user.type} :: {type(user)}")

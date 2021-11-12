@@ -1,7 +1,7 @@
 """Objects representing a database schema."""
 
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject

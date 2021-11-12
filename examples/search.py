@@ -15,14 +15,16 @@ import sys
 logging.basicConfig(level=logging.INFO)
 
 import notional
+from notional.query import SortDirection, SortTimestamp
 
 text = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 notion = notional.connect(auth=auth_token)
-sort = {"direction": "ascending", "timestamp": "last_edited_time"}
 
-query = notion.search(text).sort(sort)
+query = notion.search(text).sort(
+    timestamp=SortTimestamp.last_edited_time, direction=SortDirection.ascending
+)
 
 data = query.first()
 print("== First Result ==")

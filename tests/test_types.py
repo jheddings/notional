@@ -1,4 +1,3 @@
-import json
 import logging
 import unittest
 from datetime import date, datetime, timezone

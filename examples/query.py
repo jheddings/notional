@@ -16,19 +16,29 @@ import sys
 logging.basicConfig(level=logging.INFO)
 
 import notional
+from notional.query import SortDirection, TextCriteria
 
 dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 notion = notional.connect(auth=auth_token)
-sort = {"direction": "ascending", "property": "Title"}
 
-query = notion.databases.query(dbid).sort(sort)
+## query for all values sorted by Title
 
-data = query.first()
-print("== First Result ==")
-print(f"{json.dumps(data, indent=4)}")
+query = notion.databases.query(dbid).sort(
+    property="Title", direction=SortDirection.ascending
+)
 
-print("== All Results ==")
+print("== All Query Results ==")
 for data in query.execute():
     print(f"{data['id']} => {data['url']}")
+
+## filter for specific values...
+
+query = notion.databases.query(dbid).filter(
+    property="Title", text=TextCriteria(contains="project")
+)
+
+data = query.first()
+print("== First Query Result ==")
+print(f"{json.dumps(data, indent=4)}")
