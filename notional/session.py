@@ -1,6 +1,7 @@
 """Handle session management with the Notion SDK."""
 
 import logging
+from inspect import isclass
 
 import notion_client
 from httpx import ConnectError
@@ -189,25 +190,17 @@ class DatabasesEndpoint(Endpoint):
 
         log.info("Initializing database query :: {%s}", get_target_id(target))
 
-        query = EndpointIterator(endpoint=self().query)
+        query = EndpointIterator(
+            endpoint=self().query, database_id=get_target_id(target)
+        )
+
         cls = None
 
-        if isinstance(target, str):
-            query["database_id"] = target
-
-        elif issubclass(target, ConnectedPageBase):
+        if isclass(target) and issubclass(target, ConnectedPageBase):
             cls = target
 
             if cls._orm_session_ != self.session:
                 raise ValueError("ConnectedPage belongs to a different session")
-
-            if cls._orm_database_id_ is None:
-                raise ValueError("ConnectedPage has no database")
-
-            query["database_id"] = cls._orm_database_id_
-
-        else:
-            raise ValueError("unsupported query target")
 
         return QueryBuilder(self.session, source=query, cls=cls)
 

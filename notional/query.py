@@ -11,6 +11,7 @@ from pydantic import validator
 
 from .core import DataObject
 from .orm import ConnectedPageBase
+from .records import Database, Page, Record
 
 log = logging.getLogger(__name__)
 
@@ -24,6 +25,9 @@ def get_target_id(target):
 
     elif isinstance(target, UUID):
         return target.hex
+
+    elif isinstance(target, Record):
+        return target.id.hex
 
     elif isclass(target) and issubclass(target, ConnectedPageBase):
         if target._orm_database_id_ is None:
@@ -350,5 +354,13 @@ class ResultSet(object):
 
         if self.cls is not None:
             item = self.cls.parse_obj(item)
+
+        if "object" in item:
+            if item["object"] == "page":
+                item = Page.parse_obj(item)
+            elif item["object"] == "database":
+                item = Database.parse_obj(item)
+            else:
+                item = Record.parse_obj(item)
 
         return item
