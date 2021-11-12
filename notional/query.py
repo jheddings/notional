@@ -10,8 +10,8 @@ from uuid import UUID
 from pydantic import validator
 
 from .core import DataObject
-from .iterator import EndpointIterator
 from .orm import ConnectedPageBase
+from .iterator import EndpointIterator
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def get_target_id(target):
     elif isinstance(target, UUID):
         return target.hex
 
-    elif issubclass(target, ConnectedPageBase):
+    elif isclass(target) and issubclass(target, ConnectedPageBase):
         if target._orm_database_id_ is None:
             raise ValueError("ConnectedPage has no database")
 
@@ -275,12 +275,13 @@ class QueryBuilder(object):
     """A query builder for the Notion API.
 
     :param session: an active session with the Notion SDK
-    :param target: either a string with the database ID or an ORM class
+    :param source: an EndpointIterator for results
     """
 
-    def __init__(self, session, target):
+    def __init__(self, session, source, cls=None):
         self.session = session
-        self.target = target
+        self.source = source
+        self.cls = cls
 
         self._query = Query()
 
@@ -308,37 +309,20 @@ class QueryBuilder(object):
 
     # def start_at(self, page_id):
     #     """Set the start cursor to a specific page ID."""
-    #     self._start = page_id
+    #     self.source["start_cursor"] = page_id
     #     return self
 
-    # def limit(self, count):
-    #     """Limit the number of results to the given count size."""
-    #     self._start = page_id
+    # def limit(self, page_size):
+    #     """Limit the number of results to the given page size."""
+    #     self.source["page_size"] = page_size
     #     return self
 
     def execute(self):
         """Execute the current query and return an iterator for the results."""
 
-        params = {
-            "endpoint": self.session.databases().query,
-            "database_id": get_target_id(self.target),
-        }
+        log.debug("executing query - %s", self.source)
 
-        cls = None
-
-        if isclass(self.target) and issubclass(self.target, ConnectedPageBase):
-            cls = self.target
-
-        data = self._query.dict(exclude_none=True)
-        params.update(data)
-
-        log.debug("executing query - %s", params)
-
-        # FIXME in order to use start and limit, we need a different
-        # mechanism for iterating on results
-        items = EndpointIterator(**params)
-
-        return ResultSet(session=self.session, src=items, cls=cls)
+        return ResultSet(session=self.session, src=self.source, cls=self.cls)
 
     def first(self):
         """Execute the current query and return the first result only."""

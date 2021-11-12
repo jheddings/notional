@@ -7,7 +7,10 @@ from httpx import ConnectError
 from notion_client.errors import APIResponseError
 
 from .blocks import Block
+from .core import NamedObject
 from .iterator import EndpointIterator
+from .orm import ConnectedPageBase
+from .query import Query, ResultSet
 from .query import QueryBuilder, ResultSet, get_target_id
 from .records import Database, Page, ParentRef
 from .text import TextObject
@@ -188,7 +191,27 @@ class DatabasesEndpoint(Endpoint):
 
         log.info("Initializing database query :: {%s}", get_target_id(target))
 
-        return QueryBuilder(self.session, target)
+        query = EndpointIterator(endpoint=self().query)
+        cls = None
+
+        if isinstance(target, str):
+            query["database_id"] = target
+
+        elif issubclass(target, ConnectedPageBase):
+            cls = target
+
+            if cls._orm_session_ != self.session:
+                raise ValueError("ConnectedPage belongs to a different session")
+
+            if cls._orm_database_id_ is None:
+                raise ValueError("ConnectedPage has no database")
+
+            query["database_id"] = cls._orm_database_id_
+
+        else:
+            raise ValueError("unsupported query target")
+
+        return QueryBuilder(self.session, source=query, cls=cls)
 
 
 class PagesEndpoint(Endpoint):
@@ -275,6 +298,21 @@ class PagesEndpoint(Endpoint):
         return page.refresh(**data)
 
 
+class SearchEndpoint(Endpoint):
+    """Notional interface to the API 'search' endpoint."""
+
+    # https://developers.notion.com/reference/post-search
+    def __call__(self, text=None):
+        """Performs a search with the optional text."""
+
+        search = EndpointIterator(endpoint=self.session.client.search)
+
+        if text is not None:
+            search["query"] = text
+
+        return QueryBuilder(self.session, source=search)
+
+
 class UsersEndpoint(Endpoint):
     """Notional interface to the API 'users' endpoint."""
 
@@ -320,7 +358,7 @@ class Session(object):
         self.blocks = BlocksEndpoint(self)
         self.databases = DatabasesEndpoint(self)
         self.pages = PagesEndpoint(self)
-        # self.search = SearchEndpoint(self) ??
+        self.search = SearchEndpoint(self)
         self.users = UsersEndpoint(self)
 
         log.info("Initialized Notion SDK client")
