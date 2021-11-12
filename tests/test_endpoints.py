@@ -10,7 +10,7 @@ from notional import blocks, records
 logging.basicConfig(level=logging.FATAL)
 
 
-class SessionTest(object):
+class EndpointTest(object):
     """Base class for live tests (manage connectivity to Notion)."""
 
     cleanup_pages = list()
@@ -48,7 +48,7 @@ class SessionTest(object):
         return page
 
 
-class SessionBlockTests(SessionTest, unittest.TestCase):
+class BlockEndpointTests(EndpointTest, unittest.TestCase):
     """Test live blocks through the Notion API."""
 
     def confirm_blocks(self, page, *blocks):
@@ -78,7 +78,7 @@ class SessionBlockTests(SessionTest, unittest.TestCase):
         self.confirm_blocks(page, para)
 
 
-class SessionPageTests(SessionTest, unittest.TestCase):
+class PageEndpointTests(EndpointTest, unittest.TestCase):
     """Test live pages through the Notion API."""
 
     def test_BlankPage(self):
@@ -92,3 +92,21 @@ class SessionPageTests(SessionTest, unittest.TestCase):
 
         diff = datetime.now(timezone.utc) - new_page.created_time
         self.assertLessEqual(diff.total_seconds(), 60)
+
+
+class SearchEndpointTests(EndpointTest, unittest.TestCase):
+    """Test searching through the Notion API."""
+
+    def test_SimpleSearch(self):
+        """Make sure search returns some results."""
+
+        search = self.notion.search()
+
+        num_results = 0
+
+        for result in search.execute():
+            self.assertIn("object", result)
+            num_results += 1
+
+        # sanity check to make sure some results came back
+        self.assertGreater(num_results, 0)
