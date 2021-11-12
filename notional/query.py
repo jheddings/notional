@@ -11,7 +11,6 @@ from pydantic import validator
 
 from .core import DataObject
 from .orm import ConnectedPageBase
-from .iterator import EndpointIterator
 
 log = logging.getLogger(__name__)
 

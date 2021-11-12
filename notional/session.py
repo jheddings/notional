@@ -7,10 +7,8 @@ from httpx import ConnectError
 from notion_client.errors import APIResponseError
 
 from .blocks import Block
-from .core import NamedObject
 from .iterator import EndpointIterator
 from .orm import ConnectedPageBase
-from .query import Query, ResultSet
 from .query import QueryBuilder, ResultSet, get_target_id
 from .records import Database, Page, ParentRef
 from .text import TextObject
