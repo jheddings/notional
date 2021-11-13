@@ -93,6 +93,13 @@ class PageEndpointTests(EndpointTest, unittest.TestCase):
         diff = datetime.now(timezone.utc) - new_page.created_time
         self.assertLessEqual(diff.total_seconds(), 60)
 
+    def test_PageParent(self):
+        """Verify page parent references."""
+
+        page = self.create_temp_page()
+
+        self.assertEqual(self.parent, page.parent)
+
 
 class SearchEndpointTests(EndpointTest, unittest.TestCase):
     """Test searching through the Notion API."""
@@ -105,7 +112,7 @@ class SearchEndpointTests(EndpointTest, unittest.TestCase):
         num_results = 0
 
         for result in search.execute():
-            self.assertIn("object", result)
+            self.assertIsInstance(result, records.Record)
             num_results += 1
 
         # sanity check to make sure some results came back

@@ -1,23 +1,46 @@
 """Wrapper for Notion User objects."""
 
 import logging
+from enum import Enum
+from typing import Optional
 from uuid import UUID
 
-from .core import NestedObject, TypedObject
+from .core import DataObject, NestedObject
 
 log = logging.getLogger(__name__)
 
 
-class User(TypedObject):
+class UserType(str, Enum):
+    """Available user types."""
+
+    person = "person"
+    bot = "bot"
+
+
+class User(DataObject):
     """Represents a User in Notion."""
 
+    id: UUID
     object: str = "user"
-    id: UUID = None
-    name: str = None
-    avatar_url: str = None
+    type: Optional[UserType] = None
+    name: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+    @classmethod
+    def parse_obj(cls, obj):
+        if obj is None:
+            return None
+
+        if "type" in obj:
+            if obj["type"] == "person":
+                return Person(obj)
+            elif obj["type"] == "bot":
+                return Bot(obj)
+
+        return cls(obj)
 
 
-class Person(User, type="person"):
+class Person(User):
     """Represents a Person in Notion."""
 
     class NestedPerson(NestedObject):
@@ -32,7 +55,7 @@ class Person(User, type="person"):
         return f"[@{self.name}]"
 
 
-class Bot(User, type="bot"):
+class Bot(User):
     """Represents a Bot in Notion."""
 
     class NestedBot(NestedObject):

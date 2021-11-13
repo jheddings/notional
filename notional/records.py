@@ -43,6 +43,22 @@ class ParentRef(DataObject):
 
         raise ValueError("Unrecognized 'parent' attribute")
 
+    @classmethod
+    def parse_obj(cls, obj):
+        if obj is None:
+            return None
+
+        if "page_id" in obj:
+            return PageParent(obj)
+
+        if "database_id" in obj:
+            return DatabaseParent(obj)
+
+        if "workspace" in obj:
+            return WorkspaceParent(obj)
+
+        return cls()
+
 
 class DatabaseParent(ParentRef):
     """Reference a database."""
