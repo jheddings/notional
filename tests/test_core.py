@@ -76,13 +76,13 @@ class CustomTypes(str, Enum):
     TYPE_THREE = "three"
 
 
-class ComplexDataObject(DataObject):
+class ComplexDataObject(TypedObject, type="nested"):
     class NestedData(NestedObject):
-        key: str
+        key: str = None
         value: str = None
 
     id: str
-    nested: NestedData = None
+    nested: NestedData = NestedData()
     simple: List[Person] = []
     custom: CustomTypes = None
 
@@ -147,3 +147,20 @@ class TypedObjectTests(unittest.TestCase):
         """Verify that "type" is set by default on new TypedObject's."""
         bruce = Dog(name="bruce", age=3, breed="collie")
         self.assertEqual(bruce.type, "dog")
+
+
+class NestedObjectTest(unittest.TestCase):
+    def test_StandardNestedObject(self):
+        """Check usage of get/set items in TypedObject'."""
+        nested = ComplexDataObject.NestedData(key="foo", value="bar")
+        complex = ComplexDataObject(id="complex", nested=nested)
+
+        self.assertEqual(complex.nested.value, "bar")
+
+    def test_GetSetItem(self):
+        """Check usage of get/set items in TypedObject'."""
+        complex = ComplexDataObject(id="complex")
+        self.assertIsNone(complex["value"])
+
+        complex["value"] = "bar"
+        self.assertEqual(complex.nested.value, "bar")

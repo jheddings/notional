@@ -161,6 +161,14 @@ class TypedObject(DataObject):
 
         cls._subtypes_[sub_type] = cls
 
+    def __getitem__(self, name):
+        nested = getattr(self, self.type)
+        return getattr(nested, name)
+
+    def __setitem__(self, name, value):
+        nested = getattr(self, self.type)
+        setattr(nested, name, value)
+
     @classmethod
     def __get_validators__(cls):
         yield cls._convert_to_real_type_
