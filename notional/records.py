@@ -49,13 +49,13 @@ class ParentRef(DataObject):
             return None
 
         if "page_id" in obj:
-            return PageParent(obj)
+            return PageParent(**obj)
 
         if "database_id" in obj:
-            return DatabaseParent(obj)
+            return DatabaseParent(**obj)
 
         if "workspace" in obj:
-            return WorkspaceParent(obj)
+            return WorkspaceParent(**obj)
 
         return cls()
 

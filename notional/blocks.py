@@ -7,7 +7,7 @@ used in the Notion API as well as higher-level methods.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 from .core import NestedObject, TypedObject
 from .records import Record
@@ -26,7 +26,10 @@ class Block(Record, TypedObject, object="block"):
 class UnsupportedBlock(Block, type="unsupported"):
     """A placeholder for unsupported blocks in the API."""
 
-    unsupported: Optional[Dict[str, Any]] = None
+    class NestedData(NestedObject):
+        pass
+
+    unsupported: Optional[NestedData] = None
 
 
 class TextBlock(Block):
@@ -169,19 +172,28 @@ class Toggle(TextBlock, type="toggle"):
 class Divider(Block, type="divider"):
     """A divider block in Notion."""
 
-    divider: Any = dict()
+    class NestedData(NestedObject):
+        pass
+
+    divider: Optional[NestedData] = None
 
 
 class TableOfContents(Block, type="table_of_contents"):
     """A table_of_contents block in Notion."""
 
-    table_of_contents: Any = dict()
+    class NestedData(NestedObject):
+        pass
+
+    table_of_contents: Optional[NestedData] = None
 
 
 class Breadcrumb(Block, type="breadcrumb"):
     """A breadcrumb block in Notion."""
 
-    breadcrumb: Any = dict()
+    class NestedData(NestedObject):
+        pass
+
+    breadcrumb: Optional[NestedData] = None
 
 
 class Embed(Block, type="embed"):
@@ -266,7 +278,10 @@ class ChildDatabase(Block, type="child_database"):
 class ColumnList(Block, type="column_list"):
     """A column list block in Notion."""
 
-    column_list: Any = dict()
+    class NestedData(NestedObject):
+        pass
+
+    column_list: Optional[NestedData] = None
 
     # TODO convenience method to get child columns
 
@@ -274,7 +289,10 @@ class ColumnList(Block, type="column_list"):
 class Column(Block, type="column"):
     """A column block in Notion."""
 
-    column: Any = dict()
+    class NestedData(NestedObject):
+        pass
+
+    column: Optional[NestedData] = None
 
     # TODO convenience method to get child blocks
 

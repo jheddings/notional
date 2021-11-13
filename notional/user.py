@@ -33,9 +33,9 @@ class User(DataObject):
 
         if "type" in obj:
             if obj["type"] == "person":
-                return Person(obj)
+                return Person(**obj)
             elif obj["type"] == "bot":
-                return Bot(obj)
+                return Bot(**obj)
 
         return cls(obj)
 
@@ -43,13 +43,10 @@ class User(DataObject):
 class Person(User):
     """Represents a Person in Notion."""
 
-    class NestedPerson(NestedObject):
+    class NestedData(NestedObject):
         email: str
 
-    person: NestedPerson = None
-
-    def __getitem__(self, key):
-        return self.person[key]
+    person: NestedData = None
 
     def __str__(self):
         return f"[@{self.name}]"
@@ -58,13 +55,10 @@ class Person(User):
 class Bot(User):
     """Represents a Bot in Notion."""
 
-    class NestedBot(NestedObject):
+    class NestedData(NestedObject):
         pass
 
-    bot: NestedBot = None
-
-    def __getitem__(self, key):
-        return self.bot[key]
+    bot: NestedData = None
 
     def __str__(self):
         return f"[%{self.name}]"
