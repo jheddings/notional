@@ -3,7 +3,7 @@ import unittest
 from enum import Enum
 from typing import List
 
-from notional.core import DataObject, NamedObject, NestedObject, TypedObject
+from notional.core import NamedObject, NestedObject, TypedObject
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.INFO)
