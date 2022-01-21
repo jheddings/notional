@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Union
 from uuid import UUID
 
-from .core import DataObject, NamedObject
+from .core import NamedObject, TypedObject
 from .schema import PropertyObject
 from .text import plain_text
 from .types import EmojiObject, FileObject, PropertyValue, RichTextObject
@@ -21,7 +21,7 @@ from .types import EmojiObject, FileObject, PropertyValue, RichTextObject
 log = logging.getLogger(__name__)
 
 
-class ParentRef(DataObject):
+class ParentRef(TypedObject):
     """Reference another block."""
 
     # XXX Notion does not handle parent references consistently in the API...
@@ -43,36 +43,20 @@ class ParentRef(DataObject):
 
         raise ValueError("Unrecognized 'parent' attribute")
 
-    @classmethod
-    def parse_obj(cls, obj):
-        if obj is None:
-            return None
 
-        if "page_id" in obj:
-            return PageParent(**obj)
-
-        if "database_id" in obj:
-            return DatabaseParent(**obj)
-
-        if "workspace" in obj:
-            return WorkspaceParent(**obj)
-
-        return cls()
-
-
-class DatabaseParent(ParentRef):
+class DatabaseParent(ParentRef, type="database_id"):
     """Reference a database."""
 
     database_id: UUID
 
 
-class PageParent(ParentRef):
+class PageParent(ParentRef, type="page_id"):
     """Reference a page."""
 
     page_id: UUID
 
 
-class WorkspaceParent(ParentRef):
+class WorkspaceParent(ParentRef, type="workspace"):
     """Reference the workspace."""
 
     workspace: bool = True
