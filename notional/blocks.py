@@ -17,6 +17,9 @@ from .types import EmojiObject, FileObject
 log = logging.getLogger(__name__)
 
 
+# TODO consider adding helper methods for blocks that support children...
+
+
 class Block(Record, TypedObject, object="block"):
     """A standard block object in Notion."""
 
@@ -284,8 +287,6 @@ class ColumnList(Block, type="column_list"):
 
     column_list: Optional[NestedData] = None
 
-    # TODO convenience method to get child columns
-
 
 class Column(Block, type="column"):
     """A column block in Notion."""
@@ -294,8 +295,6 @@ class Column(Block, type="column"):
         pass
 
     column: Optional[NestedData] = None
-
-    # TODO convenience method to get child blocks
 
 
 class LinkPreview(Block, type="link_preview"):
@@ -322,6 +321,6 @@ class TableRow(Block, type="table_row"):
     """A table_row block in Notion."""
 
     class NestedData(NestedObject):
-        cells: List[RichTextObject] = []
+        cells: List[List[RichTextObject]] = None
 
     table_row: NestedData = NestedData()
