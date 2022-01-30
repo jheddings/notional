@@ -26,9 +26,14 @@ notion = notional.connect(auth=auth_token)
 page = notion.pages.retrieve(page_id)
 print(f"{page.Title} => {page.url}")
 
-# print all children blocks on this page...
+# print all blocks on this page...
 for block in notion.blocks.children.list(page):
-    print(f"{block.type} => {type(block)}")
+    print(f"{block.type} => {type(block)} [{block.id}]")
+
+    # ...and any children they might have
+    if block.has_children:
+        for child in notion.blocks.children.list(block):
+            print(f"-- {child.type} => {type(child)} [{child.id}]")
 
 # create a new page
 welcome = blocks.Heading1.from_text("Welcome!")
