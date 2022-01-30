@@ -31,7 +31,7 @@ publish: build
 ################################################################################
 .PHONY: preflight
 
-preflight: venv-configured
+preflight: venv-configured test
 	isort --profile black $(SOURCES)
 	black $(SOURCES)
 	flake8 --ignore=E266,E402,E501 $(SOURCES)
@@ -83,4 +83,3 @@ clean:
 clobber: clean
 	rm -Rf "$(BASEDIR)/dist"
 	rm -Rf "$(BASEDIR)/.venv"
-
