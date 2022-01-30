@@ -1,2 +1,2 @@
-notion-client==0.7.1
+notion-client==0.8.0
 pydantic==1.8.2
