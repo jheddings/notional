@@ -112,6 +112,7 @@ class Code(TextBlock, type="code"):
 
     class NestedData(NestedObject):
         text: List[RichTextObject] = []
+        caption: List[RichTextObject] = []
         language: CodingLanguage = CodingLanguage.plain_text
 
     code: NestedData = NestedData()
