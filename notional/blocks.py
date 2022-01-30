@@ -305,3 +305,23 @@ class LinkPreview(Block, type="link_preview"):
         url: str = None
 
     link_preview: NestedData = NestedData()
+
+
+class Table(Block, type="table"):
+    """A table block in Notion."""
+
+    class NestedData(NestedObject):
+        table_width: int = 0
+        has_column_header: bool = False
+        has_row_header: bool = False
+
+    table: NestedData = NestedData()
+
+
+class TableRow(Block, type="table_row"):
+    """A table_row block in Notion."""
+
+    class NestedData(NestedObject):
+        cells: List[RichTextObject] = []
+
+    table_row: NestedData = NestedData()
