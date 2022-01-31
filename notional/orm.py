@@ -12,14 +12,7 @@ log = logging.getLogger(__name__)
 class ConnectedPageBase(object):
     """Base class for "live" pages via the Notion API.
 
-    When interacting with the ConnectedPage, it is important to note whether the
-    operation reuires a commit stage.  Some operations, such as create(...), occur on
-    the server and take place immediately.  Any changes that occur locally require
-    calling commit(...) to persist the change on the server.
-
-    In general:
-    - creating new (pages and blocks) content takes place on the server
-    - modifying content (properties and text) of the page take place locally
+    All changes are committed in real time.
     """
 
     def __init__(self, **data):
@@ -51,23 +44,6 @@ class ConnectedPageBase(object):
 
         return self
 
-    def commit(self):
-        """Commit any pending changes to this ConnectedPage.
-
-        If there are no pending changes, this call does nothing.
-        """
-
-        log.info(f"Committing pending changes :: {self.id}")
-
-        if len(self._pending_props) == 0:
-            log.debug("no changes to commit; nothing to do")
-            return
-
-        log.debug(f"committing {len(self._pending_props)} properties")
-        self._orm_session_.pages.update(self.page, properties=self._pending_props)
-
-        self._pending_props.clear()
-
     def append(self, *blocks):
         """Append the given blocks as children of this ConnectedPage.
 
@@ -96,12 +72,10 @@ class ConnectedPageBase(object):
         connected = cls()
         connected.page = cls._orm_session_.pages.create(parent=parent)
 
+        # FIXME it would be better to convert properties to a dict and pass to the API,
+        # rather than setting them individually here...  this is bad performance.
         for name, value in properties.items():
             setattr(connected, name, value)
-
-        # FIXME it would be better to convert properties to a dict and pass to the API,
-        # rather than requiring a separate commit here...  someday perhaps
-        connected.commit()
 
         return connected
 
@@ -169,11 +143,10 @@ def Property(name, cls=RichText, default=None):
         # update the local property
         self.page[name] = prop
 
-        # XXX should we add support for automatic commit?  that behavior would be
-        # more like using the clients - changes are committed in real time...
+        # update the property live on the server
+        self._orm_session_.pages.update(self.page, properties={name: prop.to_api()})
 
-        # save the updated property to our pending dict
-        self._pending_props[name] = prop.to_api()
+        # TODO consider reloading things like last_edited_time and formulas
 
     return property(getter, setter)
 
