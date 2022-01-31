@@ -58,8 +58,6 @@ for task in query.execute():
     if "To Review" not in task.Tags:
         task.Tags += "To Review"
 
-    task.commit()
-
 # create a task...  properties can be set using keywords, according to their type
 
 one_week = date.today() + timedelta(days=7)
@@ -83,5 +81,3 @@ task += blocks.Paragraph.from_text("Welcome to the matrix.")
 
 # alternative form to append multiple blocks in a single call...
 # task.append(blocks.Divider(), blocks.Quote.from_text("There is no spoon."))
-
-task.commit()

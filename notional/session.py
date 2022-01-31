@@ -67,7 +67,7 @@ class BlocksEndpoint(Endpoint):
 
             log.info("Listing blocks for %s...", parent.id)
 
-            return ResultSet(session=self, src=blocks, cls=Block)
+            return ResultSet(session=self, exec=blocks, cls=Block)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -156,7 +156,7 @@ class DatabasesEndpoint(Endpoint):
         log.info("Listing known databases...")
 
         databases = EndpointIterator(endpoint=self().list)
-        return ResultSet(session=self, src=databases, cls=Database)
+        return ResultSet(session=self, exec=databases, cls=Database)
 
     # https://developers.notion.com/reference/retrieve-a-database
     def retrieve(self, database_id):
@@ -190,9 +190,7 @@ class DatabasesEndpoint(Endpoint):
 
         log.info("Initializing database query :: {%s}", get_target_id(target))
 
-        query = EndpointIterator(
-            endpoint=self().query, database_id=get_target_id(target)
-        )
+        database_id = get_target_id(target)
 
         cls = None
 
@@ -202,7 +200,12 @@ class DatabasesEndpoint(Endpoint):
             if cls._orm_session_ != self.session:
                 raise ValueError("ConnectedPage belongs to a different session")
 
-        return QueryBuilder(self.session, source=query, cls=cls)
+        return QueryBuilder(
+            session=self.session,
+            endpoint=self().query,
+            cls=cls,
+            database_id=database_id,
+        )
 
 
 class PagesEndpoint(Endpoint):
@@ -235,7 +238,7 @@ class PagesEndpoint(Endpoint):
         if children is not None:
             request["children"] = [child.to_api() for child in children]
 
-        log.info("Creating page %s - %s", parent, title)
+        log.info("Creating page :: %s => %s", parent, title)
 
         data = self().create(**request)
 
@@ -296,12 +299,12 @@ class SearchEndpoint(Endpoint):
     def __call__(self, text=None):
         """Performs a search with the optional text."""
 
-        search = EndpointIterator(endpoint=self.session.client.search)
+        params = dict()
 
         if text is not None:
-            search["query"] = text
+            params["query"] = text
 
-        return QueryBuilder(self.session, source=search)
+        return QueryBuilder(endpoint=self.session.client.search, **params)
 
 
 class UsersEndpoint(Endpoint):
@@ -317,7 +320,7 @@ class UsersEndpoint(Endpoint):
         users = EndpointIterator(endpoint=self().list)
         log.info("Listing known users...")
 
-        return ResultSet(session=self.session, src=users, cls=User)
+        return ResultSet(session=self.session, exec=users, cls=User)
 
     # https://developers.notion.com/reference/get-user
     def retrieve(self, user_id):

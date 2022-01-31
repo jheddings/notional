@@ -9,14 +9,13 @@ from uuid import UUID
 
 from pydantic import validator
 
+from .blocks import Block
 from .core import DataObject
+from .iterator import EndpointIterator
 from .orm import ConnectedPageBase
 from .records import Database, Page, Record
 
 log = logging.getLogger(__name__)
-
-# TODO add support for start_cursor and page_size - the challenge is that we are using
-# EndpointIterator for the results, which overrides those parameters for all results
 
 
 def get_target_id(target):
@@ -42,7 +41,7 @@ class QueryFilter(DataObject):
     """Base class for query filters."""
 
 
-class TextCriteria(DataObject):
+class TextConstraint(DataObject):
     """Represents text criteria in Notion."""
 
     equals: Optional[str] = None
@@ -55,7 +54,7 @@ class TextCriteria(DataObject):
     is_not_empty: Optional[bool] = None
 
 
-class NumberCriteria(DataObject):
+class NumberConstraint(DataObject):
     """Represents number criteria in Notion."""
 
     equals: Optional[Union[float, int]] = None
@@ -68,14 +67,14 @@ class NumberCriteria(DataObject):
     is_not_empty: Optional[bool] = None
 
 
-class CheckboxCriteria(DataObject):
+class CheckboxConstraint(DataObject):
     """Represents checkbox criteria in Notion."""
 
     equals: Optional[bool] = None
     does_not_equal: Optional[bool] = None
 
 
-class SelectOneCriteria(DataObject):
+class SelectOneConstraint(DataObject):
     """Represents select criteria in Notion."""
 
     equals: Optional[str] = None
@@ -84,7 +83,7 @@ class SelectOneCriteria(DataObject):
     is_not_empty: Optional[bool] = None
 
 
-class MultiSelectCriteria(DataObject):
+class MultiSelectConstraint(DataObject):
     """Represents a multi_select criteria in Notion."""
 
     contains: Optional[str] = None
@@ -93,7 +92,7 @@ class MultiSelectCriteria(DataObject):
     is_not_empty: Optional[bool] = None
 
 
-class DateCriteria(DataObject):
+class DateConstraint(DataObject):
     """Represents date criteria in Notion."""
 
     equals: Optional[Union[date, datetime]] = None
@@ -113,7 +112,7 @@ class DateCriteria(DataObject):
     next_year: Optional[Any] = None
 
 
-class PeopleCriteria(DataObject):
+class PeopleConstraint(DataObject):
     """Represents people criteria in Notion."""
 
     contains: Optional[UUID] = None
@@ -122,14 +121,14 @@ class PeopleCriteria(DataObject):
     is_not_empty: Optional[bool] = None
 
 
-class FilesCriteria(DataObject):
+class FilesConstraint(DataObject):
     """Represents files criteria in Notion."""
 
     is_empty: Optional[bool] = None
     is_not_empty: Optional[bool] = None
 
 
-class RelationCriteria(DataObject):
+class RelationConstraint(DataObject):
     """Represents relation criteria in Notion."""
 
     contains: Optional[UUID] = None
@@ -138,13 +137,13 @@ class RelationCriteria(DataObject):
     is_not_empty: Optional[bool] = None
 
 
-class FormulaCriteria(DataObject):
+class FormulaConstraint(DataObject):
     """Represents formula criteria in Notion."""
 
-    text: Optional[TextCriteria] = None
-    checkbox: Optional[CheckboxCriteria] = None
-    number: Optional[NumberCriteria] = None
-    date: Optional[DateCriteria] = None
+    text: Optional[TextConstraint] = None
+    checkbox: Optional[CheckboxConstraint] = None
+    number: Optional[NumberConstraint] = None
+    date: Optional[DateConstraint] = None
 
 
 class PropertyFilter(QueryFilter):
@@ -152,62 +151,24 @@ class PropertyFilter(QueryFilter):
 
     property: str
 
-    text: Optional[TextCriteria] = None
-    number: Optional[NumberCriteria] = None
-    checkbox: Optional[CheckboxCriteria] = None
-    select: Optional[SelectOneCriteria] = None
-    multi_select: Optional[MultiSelectCriteria] = None
-    date: Optional[DateCriteria] = None
-    people: Optional[PeopleCriteria] = None
-    files: Optional[FilesCriteria] = None
-    relation: Optional[RelationCriteria] = None
-    formula: Optional[FormulaCriteria] = None
-
-    def where_text(self, **kwargs):
-        """Method to set the text criteria on this PropertyFilter."""
-        self.text = TextCriteria(**kwargs)
-
-    def where_number(self, **kwargs):
-        """Method to set the number criteria on this PropertyFilter."""
-        self.number = NumberCriteria(**kwargs)
-
-    def where_checkbox(self, **kwargs):
-        """Method to set the checkbox criteria on this PropertyFilter."""
-        self.checkbox = CheckboxCriteria(**kwargs)
-
-    def where_select(self, **kwargs):
-        """Method to set the select criteria on this PropertyFilter."""
-        self.select = SelectOneCriteria(**kwargs)
-
-    def where_multi_select(self, **kwargs):
-        """Method to set the multi_select criteria on this PropertyFilter."""
-        self.multi_select = MultiSelectCriteria(**kwargs)
-
-    def where_date(self, **kwargs):
-        """Method to set the date criteria on this PropertyFilter."""
-        self.date = DateCriteria(**kwargs)
-
-    def where_people(self, **kwargs):
-        """Method to set the people criteria on this PropertyFilter."""
-        self.people = PeopleCriteria(**kwargs)
-
-    def where_files(self, **kwargs):
-        """Method to set the files criteria on this PropertyFilter."""
-        self.files = FilesCriteria(**kwargs)
-
-    def where_formula(self, **kwargs):
-        """Method to set the formula criteria on this PropertyFilter."""
-        self.formula = FormulaCriteria(**kwargs)
-
-    def where_relation(self, **kwargs):
-        """Method to set the relation criteria on this PropertyFilter."""
-        self.relation = RelationCriteria(**kwargs)
+    text: Optional[TextConstraint] = None
+    number: Optional[NumberConstraint] = None
+    checkbox: Optional[CheckboxConstraint] = None
+    select: Optional[SelectOneConstraint] = None
+    multi_select: Optional[MultiSelectConstraint] = None
+    date: Optional[DateConstraint] = None
+    people: Optional[PeopleConstraint] = None
+    files: Optional[FilesConstraint] = None
+    relation: Optional[RelationConstraint] = None
+    formula: Optional[FormulaConstraint] = None
 
 
 class CompoundFilter(QueryFilter):
     """Represents a compound filter in Notion."""
 
-    # TODO fix reserved keywords in field names...
+    class Config:
+        allow_population_by_field_name = True
+        fields = {"and_": "and", "or_": "or"}
 
     and_: Optional[List[QueryFilter]] = None
     or_: Optional[List[QueryFilter]] = None
@@ -248,52 +209,30 @@ class Query(DataObject):
         assert value <= 100, "size must be less than or equal to 100"
         return value
 
-    def where(self, filters):
-
-        # TODO if self._filter is not None, create a compound for both filters
-        # if self._filter is already compound, append to its internal list
-
-        self.filter = filters
-
-    def sort_by(self, *sorts):
-        """Add the given sort elements to the query."""
-
-        if not self.sorts:
-            self.sorts = list()
-
-        self.sorts.extend(sorts)
-
-    def start_at(self, page_id):
-        """Set the start cursor to a specific page ID."""
-
-        self.start_cursor = page_id
-
-    def limit(self, count):
-        """Limit the number of results to the given count."""
-
-        self.page_size = count
-
 
 class QueryBuilder(object):
     """A query builder for the Notion API.
 
     :param session: an active session with the Notion SDK
-    :param source: an EndpointIterator for results
+    :param cls: an optional DataObject class for returns results
+    :param params: optional params that will be used in the query
     """
 
-    def __init__(self, session, source, cls=None):
+    def __init__(self, session, endpoint, cls=None, **params):
         self.session = session
-        self.source = source
+        self.endpoint = endpoint
+        self.params = params
         self.cls = cls
 
-        self._query = Query()
+        self.query = Query()
 
     def filter(self, **kwargs):
         """Add the given filter to the query."""
 
-        filter = PropertyFilter(**kwargs)
+        # TODO if self.filter is not None, create a compound for both filters
+        # if self.filter is already compound, append to its internal list
 
-        self._query.where(filter)
+        self.query.filter = PropertyFilter(**kwargs)
 
         return self
 
@@ -304,28 +243,37 @@ class QueryBuilder(object):
         # e.g. - query.sort(property=Task.Title)
         # but users won't always use ORM for queries...
 
-        sort = PropertySort(**kwargs)
-
-        self._query.sort_by(sort)
+        self.query.sorts = [PropertySort(**kwargs)]
 
         return self
 
-    # def start_at(self, page_id):
-    #     """Set the start cursor to a specific page ID."""
-    #     self.source["start_cursor"] = page_id
-    #     return self
+    def start_at(self, page_id):
+        """Set the start cursor to a specific page ID."""
 
-    # def limit(self, page_size):
-    #     """Limit the number of results to the given page size."""
-    #     self.source["page_size"] = page_size
-    #     return self
+        self.query.start_cursor = page_id
+
+        return self
+
+    def limit(self, page_size):
+        """Limit the number of results to the given page size."""
+
+        self.query.page_size = page_size
+
+        return self
 
     def execute(self):
         """Execute the current query and return an iterator for the results."""
 
-        log.debug("executing query - %s", self.source)
+        log.debug("executing query - %s", self.query)
 
-        return ResultSet(session=self.session, src=self.source, cls=self.cls)
+        query = self.query.to_api()
+
+        if self.params:
+            query.update(self.params)
+
+        exec = EndpointIterator(endpoint=self.endpoint, **query)
+
+        return ResultSet(session=self.session, exec=exec, cls=self.cls)
 
     def first(self):
         """Execute the current query and return the first result only."""
@@ -341,9 +289,9 @@ class QueryBuilder(object):
 class ResultSet(object):
     """A result for a specific query."""
 
-    def __init__(self, session, src, cls=None):
+    def __init__(self, session, exec, cls=None):
         self.session = session
-        self.source = src
+        self.source = exec
         self.cls = cls
 
     def __iter__(self):
@@ -355,11 +303,13 @@ class ResultSet(object):
         if self.cls is not None:
             item = self.cls.parse_obj(item)
 
-        if "object" in item:
+        elif "object" in item:
             if item["object"] == "page":
                 item = Page.parse_obj(item)
             elif item["object"] == "database":
                 item = Database.parse_obj(item)
+            elif item["object"] == "block":
+                item = Block.parse_obj(item)
             else:
                 item = Record.parse_obj(item)
 

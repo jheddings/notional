@@ -8,15 +8,14 @@ query the database for all results and display some information.
 The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 """
 
-import json
 import logging
 import os
 import sys
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 import notional
-from notional.query import SortDirection, TextCriteria
+from notional.query import SortDirection, TextConstraint
 
 dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
@@ -31,14 +30,16 @@ query = notion.databases.query(dbid).sort(
 
 print("== All Query Results ==")
 for data in query.execute():
-    print(f"{data['id']} => {data['url']}")
+    print(f"{data.id} => {data.url}")
 
 ## filter for specific values...
 
-query = notion.databases.query(dbid).filter(
-    property="Title", text=TextCriteria(contains="project")
+query = (
+    notion.databases.query(dbid)
+    .filter(property="Title", text=TextConstraint(contains="project"))
+    .limit(1)
 )
 
 data = query.first()
 print("== First Query Result ==")
-print(f"{json.dumps(data, indent=4)}")
+print(f"{data.json(indent=4)}")
