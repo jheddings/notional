@@ -13,6 +13,11 @@ def plain_text(*rtf):
     return "".join(text.plain_text for text in rtf)
 
 
+def markdown(*rtf):
+    """Return text as markdown from the list of RichText objects."""
+    return "".join(str(text) for text in rtf)
+
+
 class Color(str, Enum):
     """Basic color values."""
 
@@ -98,12 +103,23 @@ class RichTextObject(TypedObject):
         """Return a string representation of this object."""
 
         if self.href is None:
-            text = self.plain_text
+            text = self.plain_text or ""
+        elif self.plain_text is None or len(self.plain_text) == 0:
+            text = f"({self.href})"
         else:
             text = f"[{self.plain_text}]({self.href})"
 
-        # TODO add markdown for annotations
-        # e.g. something like: text = markup(text, self.annotations)
+        if self.annotations:
+            if self.annotations.bold:
+                text = f"*{text}*"
+            if self.annotations.italic:
+                text = f"**{text}**"
+            if self.annotations.underline:
+                text = f"_{text}_"
+            if self.annotations.strikethrough:
+                text = f"~{text}~"
+            if self.annotations.code:
+                text = f"`{text}`"
 
         return text
 
@@ -118,16 +134,19 @@ class TextObject(RichTextObject, type="text"):
     text: NestedData = None
 
     @classmethod
-    def from_value(cls, string):
+    def from_value(cls, string=None, href=None, **annotate):
         """Return a TextObject from the native string."""
 
         if string is None or len(string) == 0:
-            return cls(plain_text=None, text=None)
+            return cls(plain_text="", href=href)
 
-        # TODO support markdown in the text string
+        # TODO convert markdown in string to RichText
 
-        text = cls.NestedData(content=string)
-        return cls(plain_text=string, text=text)
+        style = Annotations(**annotate) if annotate else None
+        link = LinkObject(url=href) if href else None
+        text = cls.NestedData(content=str(string), link=link)
+
+        return cls(plain_text=str(string), text=text, href=href, annotations=style)
 
 
 class CodingLanguage(str, Enum):

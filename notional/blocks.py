@@ -11,7 +11,7 @@ from typing import List, Optional, Union
 
 from .core import NestedObject, TypedObject
 from .records import Record
-from .text import CodingLanguage, RichTextObject, TextObject, plain_text
+from .text import CodingLanguage, RichTextObject, TextObject, markdown, plain_text
 from .types import EmojiObject, FileObject
 
 log = logging.getLogger(__name__)
@@ -62,6 +62,12 @@ class TextBlock(Block):
         content = getattr(self, self.__class__.type)
         return plain_text(*content.text)
 
+    @property
+    def Markdown(self):
+        # content is stored in the nested data, named by the object type
+        content = getattr(self, self.__class__.type)
+        return markdown(*content.text)
+
 
 class Paragraph(TextBlock, type="paragraph"):
     """A paragraph block in Notion."""
@@ -81,6 +87,10 @@ class Heading1(TextBlock, type="heading_1"):
 
     heading_1: NestedData = NestedData()
 
+    @property
+    def Markdown(self):
+        return f"# {super().Markdown} #"
+
 
 class Heading2(TextBlock, type="heading_2"):
     """A heading_2 block in Notion."""
@@ -90,6 +100,10 @@ class Heading2(TextBlock, type="heading_2"):
 
     heading_2: NestedData = NestedData
 
+    @property
+    def Markdown(self):
+        return f"## {super().Markdown} ##"
+
 
 class Heading3(TextBlock, type="heading_3"):
     """A heading_3 block in Notion."""
@@ -98,6 +112,10 @@ class Heading3(TextBlock, type="heading_3"):
         text: List[RichTextObject] = []
 
     heading_3: NestedData = NestedData()
+
+    @property
+    def Markdown(self):
+        return f"### {super().Markdown} ###"
 
 
 class Quote(TextBlock, type="quote"):
@@ -109,6 +127,10 @@ class Quote(TextBlock, type="quote"):
 
     quote: NestedData = NestedData()
 
+    @property
+    def Markdown(self):
+        return f"> {super().Markdown}"
+
 
 class Code(TextBlock, type="code"):
     """A code block in Notion."""
@@ -119,6 +141,13 @@ class Code(TextBlock, type="code"):
         language: CodingLanguage = CodingLanguage.plain_text
 
     code: NestedData = NestedData()
+
+    @property
+    def Markdown(self):
+        if self.code and self.code.language:
+            lang = self.code.language
+
+        return f"```{lang}\n{super().Markdown}\n```"
 
 
 class Callout(TextBlock, type="callout"):
@@ -141,6 +170,10 @@ class BulletedListItem(TextBlock, type="bulleted_list_item"):
 
     bulleted_list_item: NestedData = NestedData()
 
+    @property
+    def Markdown(self):
+        return f"- {super().Markdown}"
+
 
 class NumberedListItem(TextBlock, type="numbered_list_item"):
     """A numbered list item in Notion."""
@@ -150,6 +183,10 @@ class NumberedListItem(TextBlock, type="numbered_list_item"):
         children: Optional[List[Block]] = None
 
     numbered_list_item: NestedData = NestedData()
+
+    @property
+    def Markdown(self):
+        return f"1. {super().Markdown}"
 
 
 class ToDo(TextBlock, type="to_do"):
@@ -180,6 +217,10 @@ class Divider(Block, type="divider"):
         pass
 
     divider: Optional[NestedData] = None
+
+    @property
+    def Markdown(self):
+        return "---"
 
 
 class TableOfContents(Block, type="table_of_contents"):

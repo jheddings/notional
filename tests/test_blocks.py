@@ -13,6 +13,7 @@ class Heading1BlockTest(unittest.TestCase):
     def test_FromText(self):
         head = blocks.Heading1.from_text("Welcome!")
         self.assertEqual(head.PlainText, "Welcome!")
+        self.assertEqual(head.Markdown, "# Welcome! #")
 
 
 class ParagraphBlockTest(unittest.TestCase):
@@ -56,6 +57,7 @@ class ParagraphBlockTest(unittest.TestCase):
         self.assertEqual(para.object, "block")
         self.assertEqual(para.type, "paragraph")
         self.assertEqual(para.PlainText, "Lorem ipsum dolor sit amet")
+        self.assertEqual(para.Markdown, "Lorem ipsum dolor sit amet")
         self.assertFalse(para.has_children)
 
 
@@ -65,6 +67,7 @@ class QuoteBlockTest(unittest.TestCase):
     def test_FromText(self):
         quote = blocks.Quote.from_text("Now is the time for all good men...")
         self.assertEqual(quote.PlainText, "Now is the time for all good men...")
+        self.assertEqual(quote.Markdown, "> Now is the time for all good men...")
 
 
 class BookmarkBlockTest(unittest.TestCase):
