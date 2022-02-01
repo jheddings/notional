@@ -10,12 +10,12 @@ from .core import DataObject, NestedObject, TypedObject
 
 def plain_text(*rtf):
     """Return the combined plain text from the list of RichText objects."""
-    return "".join(text.plain_text for text in rtf)
+    return ("".join(text.plain_text for text in rtf)).strip()
 
 
 def markdown(*rtf):
     """Return text as markdown from the list of RichText objects."""
-    return "".join(str(text) for text in rtf)
+    return ("".join(str(text) for text in rtf)).strip()
 
 
 class Color(str, Enum):
