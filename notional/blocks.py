@@ -62,12 +62,6 @@ class TextBlock(Block):
         content = getattr(self, self.__class__.type)
         return plain_text(*content.text)
 
-    @property
-    def Markdown(self):
-        # content is stored in the nested data, named by the object type
-        content = getattr(self, self.__class__.type)
-        return markdown(*content.text)
-
 
 class Paragraph(TextBlock, type="paragraph"):
     """A paragraph block in Notion."""
@@ -77,6 +71,13 @@ class Paragraph(TextBlock, type="paragraph"):
         children: Optional[List[Block]] = None
 
     paragraph: NestedData = NestedData()
+
+    @property
+    def Markdown(self):
+        if self.paragraph and self.paragraph.text:
+            return markdown(*self.paragraph.text)
+
+        return ""
 
 
 class Heading1(TextBlock, type="heading_1"):
@@ -89,7 +90,10 @@ class Heading1(TextBlock, type="heading_1"):
 
     @property
     def Markdown(self):
-        return f"# {super().Markdown} #"
+        if self.heading_1 and self.heading_1.text:
+            return f"# {markdown(*self.heading_1.text)} #"
+
+        return ""
 
 
 class Heading2(TextBlock, type="heading_2"):
@@ -102,7 +106,10 @@ class Heading2(TextBlock, type="heading_2"):
 
     @property
     def Markdown(self):
-        return f"## {super().Markdown} ##"
+        if self.heading_2 and self.heading_2.text:
+            return f"## {markdown(*self.heading_2.text)} ##"
+
+        return ""
 
 
 class Heading3(TextBlock, type="heading_3"):
@@ -115,7 +122,10 @@ class Heading3(TextBlock, type="heading_3"):
 
     @property
     def Markdown(self):
-        return f"### {super().Markdown} ###"
+        if self.heading_3 and self.heading_3.text:
+            return f"### {markdown(*self.heading_3.text)} ###"
+
+        return ""
 
 
 class Quote(TextBlock, type="quote"):
@@ -129,7 +139,10 @@ class Quote(TextBlock, type="quote"):
 
     @property
     def Markdown(self):
-        return f"> {super().Markdown}"
+        if self.quote and self.quote.text:
+            return "> " + markdown(*self.quote.text)
+
+        return ""
 
 
 class Code(TextBlock, type="code"):
@@ -144,10 +157,14 @@ class Code(TextBlock, type="code"):
 
     @property
     def Markdown(self):
-        if self.code and self.code.language:
-            lang = self.code.language
+        lang = self.code.language if self.code and self.code.language else ""
 
-        return f"```{lang}\n{super().Markdown}\n```"
+        # FIXME this is not the standard way to represent code blocks in markdown...
+
+        if self.code and self.code.text:
+            return f"```{lang}\n{self.code.text}\n```"
+
+        return ""
 
 
 class Callout(TextBlock, type="callout"):
