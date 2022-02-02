@@ -304,7 +304,9 @@ class SearchEndpoint(Endpoint):
         if text is not None:
             params["query"] = text
 
-        return QueryBuilder(endpoint=self.session.client.search, **params)
+        return QueryBuilder(
+            session=self.session, endpoint=self.session.client.search, **params
+        )
 
 
 class UsersEndpoint(Endpoint):
