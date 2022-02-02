@@ -137,8 +137,8 @@ class TextObject(RichTextObject, type="text"):
     def from_value(cls, string=None, href=None, **annotate):
         """Return a TextObject from the native string."""
 
-        if string is None or len(string) == 0:
-            return cls(plain_text="", href=href)
+        if string is None:
+            return None
 
         # TODO convert markdown in string to RichText
 
