@@ -10,7 +10,7 @@ from .core import DataObject, NestedObject, TypedObject
 
 def plain_text(*rtf):
     """Return the combined plain text from the list of RichText objects."""
-    return ("".join(text.plain_text for text in rtf)).strip()
+    return ("".join(text.plain_text for text in rtf if text)).strip()
 
 
 def markdown(*rtf):
