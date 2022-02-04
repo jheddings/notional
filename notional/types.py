@@ -40,7 +40,7 @@ class FileObject(TypedObject):
         return self.name or "_unknown_"
 
 
-class File(FileObject, type="file"):
+class HostedFile(FileObject, type="file"):
     """A Notion file reference."""
 
     class NestedData(NestedObject):
