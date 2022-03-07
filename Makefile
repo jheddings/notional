@@ -2,7 +2,7 @@
 
 BASEDIR ?= $(PWD)
 APPNAME ?= notional
-SRCDIR ?= $(BASEDIR)/notional
+SRCDIR ?= $(BASEDIR)/$(APPNAME)
 DISTDIR ?= $(BASEDIR)/dist
 VENVDIR ?= $(BASEDIR)/.venv
 
@@ -72,7 +72,7 @@ clean:
 	rm -f "$(SRCDIR)/*.pyc"
 	rm -f "$(SRCDIR)/examples/*.pyc"
 	rm -Rf "$(SRCDIR)/__pycache__"
-	rm -Rf "$(SRCDIR)/tests/__pycache__"
+	rm -Rf "$(BASEDIR)/tests/__pycache__"
 	rm -Rf "$(BASEDIR)/build"
 	rm -Rf "$(BASEDIR)/notional.egg-info"
 
