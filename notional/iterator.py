@@ -17,14 +17,14 @@ class ContentIterator(ABC):
     def __init__(self):
         self.log = log.getChild("ContentIterator")
 
-    def __iter__(self):
-        """Initialize the iterator."""
-        self.log.debug("initializing content iterator")
-
         self.page = None
         self.page_index = -1
         self.page_num = 0
         self.n_items = 0
+
+    def __iter__(self):
+        """Initialize the iterator."""
+        self.log.debug("initializing content iterator")
 
         return self
 
