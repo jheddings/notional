@@ -52,7 +52,9 @@ class EndpointIteratorTest(unittest.TestCase):
             self.assertEqual(item["index"], n_items)
             self.assertEqual(item["pagenum"], iter.page_number)
             self.assertEqual(item["content"], "testing")
+
             n_items += 1
+            self.assertEqual(iter.total_items, n_items)
 
         self.assertEqual(n_items, 1042)
 
