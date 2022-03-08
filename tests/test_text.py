@@ -11,10 +11,10 @@ class PlainTextTest(unittest.TestCase):
     """Unit tests for working with plain text."""
 
     def test_EmptyText(self):
-        rtf = (text.TextObject.from_value(None),)
+        rtf = text.TextObject.from_value(None)
         self.assertIsNone(rtf)
 
-    def test_EmptyText(self):
+    def test_ZeroLengthText(self):
         rtf = [
             text.TextObject.from_value(None),
             text.TextObject.from_value(""),
