@@ -67,7 +67,7 @@ class BlocksEndpoint(Endpoint):
 
             log.info("Listing blocks for %s...", parent.id)
 
-            return ResultSet(session=self, exec=blocks, cls=Block)
+            return ResultSet(exec=blocks, cls=Block)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -156,7 +156,7 @@ class DatabasesEndpoint(Endpoint):
         log.info("Listing known databases...")
 
         databases = EndpointIterator(endpoint=self().list)
-        return ResultSet(session=self, exec=databases, cls=Database)
+        return ResultSet(exec=databases, cls=Database)
 
     # https://developers.notion.com/reference/retrieve-a-database
     def retrieve(self, database_id):
@@ -200,12 +200,7 @@ class DatabasesEndpoint(Endpoint):
             if cls._orm_session_ != self.session:
                 raise ValueError("ConnectedPage belongs to a different session")
 
-        return QueryBuilder(
-            session=self.session,
-            endpoint=self().query,
-            cls=cls,
-            database_id=database_id,
-        )
+        return QueryBuilder(endpoint=self().query, cls=cls, database_id=database_id)
 
 
 class PagesEndpoint(Endpoint):
@@ -304,9 +299,7 @@ class SearchEndpoint(Endpoint):
         if text is not None:
             params["query"] = text
 
-        return QueryBuilder(
-            session=self.session, endpoint=self.session.client.search, **params
-        )
+        return QueryBuilder(endpoint=self.session.client.search, **params)
 
 
 class UsersEndpoint(Endpoint):
@@ -322,7 +315,7 @@ class UsersEndpoint(Endpoint):
         users = EndpointIterator(endpoint=self().list)
         log.info("Listing known users...")
 
-        return ResultSet(session=self.session, exec=users, cls=User)
+        return ResultSet(exec=users, cls=User)
 
     # https://developers.notion.com/reference/get-user
     def retrieve(self, user_id):
