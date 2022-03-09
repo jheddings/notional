@@ -112,7 +112,7 @@ class Heading2(TextBlock, type="heading_2"):
         text: List[RichTextObject] = []
         color: FullColor = FullColor.default
 
-    heading_2: NestedData = NestedData
+    heading_2: NestedData = NestedData()
 
     @property
     def Markdown(self):
