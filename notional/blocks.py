@@ -70,7 +70,32 @@ class TextBlock(Block):
         return plain_text(*content.text)
 
 
-class Paragraph(TextBlock, type="paragraph"):
+class AppendChildren(object):
+    def __iadd__(self, block):
+        self.append(block)
+        return self
+
+    def append(self, block):
+        type = getattr(self, "type", None)
+
+        if type is None:
+            raise AttributeError("type not found")
+
+        nested = getattr(self, type)
+
+        if nested is None:
+            raise AttributeError("missing nested data")
+
+        if not hasattr(nested, "children"):
+            raise AttributeError("nested data does not support children")
+
+        if nested.children is None:
+            nested.children = list()
+
+        nested.children.append(block)
+
+
+class Paragraph(TextBlock, AppendChildren, type="paragraph"):
     """A paragraph block in Notion."""
 
     class NestedData(NestedObject):
@@ -139,7 +164,7 @@ class Heading3(TextBlock, type="heading_3"):
         return ""
 
 
-class Quote(TextBlock, type="quote"):
+class Quote(TextBlock, AppendChildren, type="quote"):
     """A quote block in Notion."""
 
     class NestedData(NestedObject):
@@ -179,7 +204,7 @@ class Code(TextBlock, type="code"):
         return ""
 
 
-class Callout(TextBlock, type="callout"):
+class Callout(TextBlock, AppendChildren, type="callout"):
     """A callout block in Notion."""
 
     class NestedData(NestedObject):
@@ -191,7 +216,7 @@ class Callout(TextBlock, type="callout"):
     callout: NestedData = NestedData()
 
 
-class BulletedListItem(TextBlock, type="bulleted_list_item"):
+class BulletedListItem(TextBlock, AppendChildren, type="bulleted_list_item"):
     """A bulleted list item in Notion."""
 
     class NestedData(NestedObject):
@@ -206,7 +231,7 @@ class BulletedListItem(TextBlock, type="bulleted_list_item"):
         return f"- {super().Markdown}"
 
 
-class NumberedListItem(TextBlock, type="numbered_list_item"):
+class NumberedListItem(TextBlock, AppendChildren, type="numbered_list_item"):
     """A numbered list item in Notion."""
 
     class NestedData(NestedObject):
@@ -221,7 +246,7 @@ class NumberedListItem(TextBlock, type="numbered_list_item"):
         return f"1. {super().Markdown}"
 
 
-class ToDo(TextBlock, type="to_do"):
+class ToDo(TextBlock, AppendChildren, type="to_do"):
     """A todo list item in Notion."""
 
     class NestedData(NestedObject):
@@ -233,7 +258,7 @@ class ToDo(TextBlock, type="to_do"):
     to_do: NestedData = NestedData()
 
 
-class Toggle(TextBlock, type="toggle"):
+class Toggle(TextBlock, AppendChildren, type="toggle"):
     """A toggle list item in Notion."""
 
     class NestedData(NestedObject):
@@ -400,11 +425,12 @@ class TableRow(Block, type="table_row"):
 
     table_row: NestedData = NestedData()
 
-class Template(Block, type="template"):
+
+class Template(Block, AppendChildren, type="template"):
     """A template block in Notion."""
 
     class NestedData(NestedObject):
-        rich_text: List[RichTextObject] = None
-        children: List[Block] = None
+        rich_text: Optional[List[RichTextObject]] = None
+        children: Optional[List[Block]] = None
 
     template: NestedData = NestedData()
