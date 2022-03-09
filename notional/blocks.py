@@ -233,7 +233,7 @@ class Divider(Block, type="divider"):
     class NestedData(NestedObject):
         pass
 
-    divider: Optional[NestedData] = None
+    divider: NestedData = NestedData()
 
     @property
     def Markdown(self):
