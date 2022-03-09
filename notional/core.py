@@ -88,7 +88,7 @@ class DataObject(BaseModel):
 
         # the API doesn't like "undefined" values...
 
-        data = self.dict(exclude_none=True)
+        data = self.dict(exclude_none=True, by_alias=True)
 
         # we need to convert "special" types to string forms to help the JSON encoder.
         # there are efforts underway in pydantic to make this easier, but for now...
