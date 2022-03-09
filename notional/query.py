@@ -7,7 +7,7 @@ from inspect import isclass
 from typing import Any, List, Optional, Union
 from uuid import UUID
 
-from pydantic import validator
+from pydantic import Field, validator
 
 from .blocks import Block
 from .core import DataObject
@@ -168,10 +168,9 @@ class CompoundFilter(QueryFilter):
 
     class Config:
         allow_population_by_field_name = True
-        fields = {"and_": "and", "or_": "or"}
 
-    and_: Optional[List[QueryFilter]] = None
-    or_: Optional[List[QueryFilter]] = None
+    and_: Optional[List[QueryFilter]] = Field(None, alias="and")
+    or_: Optional[List[QueryFilter]] = Field(None, alias="or")
 
 
 class SortTimestamp(str, Enum):
@@ -197,6 +196,7 @@ class PropertySort(DataObject):
 
 
 class Query(DataObject):
+    """Represents a query object in Notion."""
 
     sorts: Optional[List[PropertySort]] = None
     filter: Optional[QueryFilter] = None
@@ -213,37 +213,61 @@ class Query(DataObject):
 class QueryBuilder(object):
     """A query builder for the Notion API.
 
-    :param session: an active session with the Notion SDK
-    :param cls: an optional DataObject class for returns results
-    :param params: optional params that will be used in the query
+    :param endpoint: the session endpoint used to execute the query
+    :param cls: an optional DataObject class for parsing results
+    :param params: optional params that will be passed to the query
     """
 
-    def __init__(self, session, endpoint, cls=None, **params):
-        self.session = session
+    def __init__(self, endpoint, cls=None, **params):
         self.endpoint = endpoint
         self.params = params
         self.cls = cls
 
         self.query = Query()
 
-    def filter(self, **kwargs):
+    def filter(self, filter=None, **kwargs):
         """Add the given filter to the query."""
 
-        # TODO if self.filter is not None, create a compound for both filters
-        # if self.filter is already compound, append to its internal list
+        if filter is None:
+            filter = PropertyFilter(**kwargs)
 
-        self.query.filter = PropertyFilter(**kwargs)
+        elif not isinstance(filter, QueryFilter):
+            raise ValueError("filter must be of type QueryFilter")
+
+        # use CompoundFilter when necessary...
+
+        if self.query.filter is None:
+            self.query.filter = filter
+
+        elif isinstance(self.query.filter, CompoundFilter):
+            self.query.filter.and_.append(filter)
+
+        else:
+            old_filter = self.query.filter
+            self.query.filter = CompoundFilter(and_=[old_filter, filter])
 
         return self
 
-    def sort(self, **kwargs):
+    def sort(self, sort=None, **kwargs):
         """Add the given sort elements to the query."""
 
         # XXX should this support ORM properties also?
         # e.g. - query.sort(property=Task.Title)
         # but users won't always use ORM for queries...
 
-        self.query.sorts = [PropertySort(**kwargs)]
+        if sort is None:
+            sort = PropertySort(**kwargs)
+
+        elif not isinstance(filter, PropertySort):
+            raise ValueError("sort must be of type PropertySort")
+
+        # use multiple sorts when necessary
+
+        if self.query.sorts is None:
+            self.query.sorts = [sort]
+
+        else:
+            self.query.sorts.append(sort)
 
         return self
 
@@ -264,6 +288,9 @@ class QueryBuilder(object):
     def execute(self):
         """Execute the current query and return an iterator for the results."""
 
+        if self.endpoint is None:
+            raise ValueError("cannot execute query; no endpoint provided")
+
         log.debug("executing query - %s", self.query)
 
         query = self.query.to_api()
@@ -273,7 +300,7 @@ class QueryBuilder(object):
 
         exec = EndpointIterator(endpoint=self.endpoint, **query)
 
-        return ResultSet(session=self.session, exec=exec, cls=self.cls)
+        return ResultSet(exec=exec, cls=self.cls)
 
     def first(self):
         """Execute the current query and return the first result only."""
@@ -289,8 +316,7 @@ class QueryBuilder(object):
 class ResultSet(object):
     """A result for a specific query."""
 
-    def __init__(self, session, exec, cls=None):
-        self.session = session
+    def __init__(self, exec, cls=None):
         self.source = exec
         self.cls = cls
 
