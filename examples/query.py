@@ -15,7 +15,7 @@ import sys
 logging.basicConfig(level=logging.DEBUG)
 
 import notional
-from notional.query import SortDirection, TextConstraint
+from notional.query import NumberConstraint, SortDirection, TextConstraint
 
 dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
@@ -37,9 +37,14 @@ for data in query.execute():
 query = (
     notion.databases.query(dbid)
     .filter(property="Title", text=TextConstraint(contains="project"))
+    .filter(property="Cost", number=NumberConstraint(greater_than=1000000))
     .limit(1)
 )
 
 data = query.first()
-print("== First Query Result ==")
-print(f"{data.json(indent=4)}")
+
+if data:
+    print("== First Query Result ==")
+    print(f"{data.json(indent=4)}")
+else:
+    print("== Empty Result Set ==")
