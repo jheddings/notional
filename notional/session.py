@@ -48,8 +48,11 @@ class BlocksEndpoint(Endpoint):
         def append(self, parent, *blocks):
             """Adds the given blocks as children of the specified parent.
 
-            The parent info will be refreshed to the latest version from the server.
+            The blocks info will be refreshed based on returned data.
             """
+
+            if parent is None or parent.id is None:
+                raise ValueError("Missing parent for append")
 
             children = [block.to_api() for block in blocks if block is not None]
 
@@ -57,7 +60,21 @@ class BlocksEndpoint(Endpoint):
 
             data = self().append(block_id=parent.id.hex, children=children)
 
-            return parent.refresh(**data)
+            if "results" in data:
+
+                if len(blocks) == len(data["results"]):
+                    for idx in range(len(blocks)):
+                        block = blocks[idx]
+                        result = data["results"][idx]
+                        block.refresh(**result)
+
+                else:
+                    log.warn("Unable to refresh results; size mismatch")
+
+            else:
+                log.warn("Unable to refresh results; not provided")
+
+            return parent
 
         # https://developers.notion.com/reference/get-block-children
         def list(self, parent):
