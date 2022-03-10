@@ -4,8 +4,9 @@
 <a href="LICENSE"><img src="https://img.shields.io/github/license/jheddings/notional" alt="License"></a>
 <a href="https://github.com/ambv/black"><img src="https://img.shields.io/badge/code%20style-black-black" alt="Code style"></a>
 
-A simplified object model for the Notion SDK.  This is loosely modeled after concepts
-found in [SQLAlchemy](https://www.sqlalchemy.org).
+A high level interface and object model for the Notion SDK.  This is loosely modeled
+after concepts found in [SQLAlchemy](http://www.sqlalchemy.org) and
+[MongoEngine](http://mongoengine.org).
 
 > :warning: **Work In Progress**: The interfaces in this module are still in development
 and are likely to change frequently.  Furthermore, documentation is pretty sparse so use
