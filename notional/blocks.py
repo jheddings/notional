@@ -440,7 +440,7 @@ class Table(Block, AppendChildren, type="table"):
         table_width: int = 0
         has_column_header: bool = False
         has_row_header: bool = False
-        
+
         # note that children will not be populated when getting this block
         # https://developers.notion.com/reference/block#table-blocks
         children: Optional[List[TableRow]] = None
