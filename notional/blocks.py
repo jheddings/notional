@@ -406,17 +406,6 @@ class LinkPreview(Block, type="link_preview"):
     link_preview: NestedData = NestedData()
 
 
-class Table(Block, type="table"):
-    """A table block in Notion."""
-
-    class NestedData(NestedObject):
-        table_width: int = 0
-        has_column_header: bool = False
-        has_row_header: bool = False
-
-    table: NestedData = NestedData()
-
-
 class TableRow(Block, type="table_row"):
     """A table_row block in Notion."""
 
@@ -424,6 +413,55 @@ class TableRow(Block, type="table_row"):
         cells: List[List[RichTextObject]] = None
 
     table_row: NestedData = NestedData()
+
+    def append(self, text):
+        if self.table_row.cells is None:
+            self.table_row.cells = list()
+
+        if isinstance(text, list):
+            self.table_row.cells.append(list)
+
+        elif isinstance(text, RichTextObject):
+            self.table_row.cells.append([text])
+
+        else:
+            rtf = TextObject.from_value(text)
+            self.table_row.cells.append([rtf])
+
+    @property
+    def Width(self):
+        return len(self.table_row.cells) if self.table_row.cells else 0
+
+
+class Table(Block, AppendChildren, type="table"):
+    """A table block in Notion."""
+
+    class NestedData(NestedObject):
+        table_width: int = 0
+        has_column_header: bool = False
+        has_row_header: bool = False
+        
+        # note that children will not be populated when getting this block
+        # https://developers.notion.com/reference/block#table-blocks
+        children: Optional[List[TableRow]] = None
+
+    table: NestedData = NestedData()
+
+    def append(self, row: TableRow):
+        # when creating a new table via the API, we must provide at least one row
+        # XXX need to review whether this is applicable during update...  may need
+        # to raise an error if the block has already been created on the server
+
+        if self.Width == 0:
+            self.table.table_width = row.Width
+        elif self.Width != row.Width:
+            raise ValueError("Row size mismatch")
+
+        super().append(row)
+
+    @property
+    def Width(self):
+        return self.table.table_width
 
 
 class Template(Block, AppendChildren, type="template"):
