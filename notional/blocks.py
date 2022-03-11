@@ -47,6 +47,8 @@ class TextBlock(Block):
 
     @classmethod
     def from_text(cls, text):
+        if text is None:
+            raise ValueError("text cannot be None")
 
         # TODO split long text blocks into multiple (rather than truncate)?
         obj = TextObject.from_value(text[:2000])
