@@ -8,9 +8,6 @@ VENVDIR ?= $(BASEDIR)/.venv
 
 SOURCES = "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests"
 
-# TODO make configurable for real publishing...
-#TWINE_REPO ?= --repository-url https://test.pypi.org/legacy/
-
 ################################################################################
 .PHONY: all
 
@@ -26,7 +23,7 @@ build: venv-configured preflight test
 .PHONY: publish
 
 publish: build
-	twine upload $(TWINE_REPO) $(DISTDIR)/*
+	twine upload --repository notional $(DISTDIR)/*
 
 ################################################################################
 .PHONY: preflight
