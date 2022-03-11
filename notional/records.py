@@ -56,6 +56,12 @@ class PageParent(ParentRef, type="page_id"):
     page_id: UUID
 
 
+class BlockParent(ParentRef, type="block_id"):
+    """Reference a block."""
+
+    block_id: UUID
+
+
 class WorkspaceParent(ParentRef, type="workspace"):
     """Reference the workspace."""
 

@@ -10,7 +10,7 @@ import logging
 from typing import List, Optional, Union
 
 from .core import NestedObject, TypedObject
-from .records import Record
+from .records import BlockParent, Record
 from .text import (
     CodingLanguage,
     FullColor,
@@ -471,6 +471,20 @@ class Table(Block, AppendChildren, type="table"):
     @property
     def Width(self):
         return self.table.table_width
+
+
+class SyncedBlock(Block, AppendChildren, type="synced_block"):
+    """A synced_block block in Notion - either original or synced."""
+
+    class NestedData(NestedObject):
+        synced_from: Optional[BlockParent] = None
+        children: Optional[List[Block]] = None
+
+    synced_block: NestedData = NestedData()
+
+    @property
+    def IsOriginal(self):
+        return self.synced_block.synced_from is None
 
 
 class Template(Block, AppendChildren, type="template"):
