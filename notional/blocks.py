@@ -310,12 +310,12 @@ class Embed(Block, type="embed"):
 
     @property
     def URL(self):
-        return None if self.embed is None else self.embed.url
+        return self.embed.url
 
     @classmethod
     def from_url(cls, url):
-        obj = cls.NestedData(url=url)
-        return Embed(embed=obj)
+        nested = cls.NestedData(url=url)
+        return Embed(embed=nested)
 
 
 class Bookmark(Block, type="bookmark"):
@@ -327,14 +327,32 @@ class Bookmark(Block, type="bookmark"):
 
     bookmark: NestedData = NestedData()
 
+    @property
+    def URL(self):
+        return self.bookmark.url
+
     @classmethod
     def from_url(cls, url):
-        obj = cls.NestedData(url=url)
-        return Bookmark(bookmark=obj)
+        nested = cls.NestedData(url=url)
+        return Bookmark(bookmark=nested)
+
+
+class LinkPreview(Block, type="link_preview"):
+    """A link_preview block in Notion."""
+
+    class NestedData(NestedObject):
+        url: str = None
+
+    link_preview: NestedData = NestedData()
 
     @property
     def URL(self):
-        return None if self.bookmark is None else self.bookmark.url
+        return self.link_preview.url
+
+    @classmethod
+    def from_url(cls, url):
+        nested = cls.NestedData(url=url)
+        return LinkPreview(link_preview=nested)
 
 
 class File(Block, type="file"):
@@ -395,15 +413,6 @@ class Column(Block, type="column"):
         pass
 
     column: NestedData = NestedData()
-
-
-class LinkPreview(Block, type="link_preview"):
-    """A link_preview block in Notion."""
-
-    class NestedData(NestedObject):
-        url: str = None
-
-    link_preview: NestedData = NestedData()
 
 
 class TableRow(Block, type="table_row"):
