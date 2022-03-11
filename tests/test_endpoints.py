@@ -27,7 +27,7 @@ class EndpointTest(object):
             raise unittest.SkipTest("missing NOTION_TEST_AREA")
 
         self.notion = notional.connect(auth=auth_token)
-        self.parent = records.PageParent(page_id=parent_id)
+        self.parent = records.PageRef(page_id=parent_id)
 
         # FIXME why does this fail???
         # self.parent = self.notion.pages.retrieve(page_id=parent_id)

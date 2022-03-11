@@ -10,7 +10,7 @@ import logging
 from typing import List, Optional, Union
 
 from .core import NestedObject, TypedObject
-from .records import BlockParent, Record
+from .records import BlockRef, ParentRef, Record
 from .text import (
     CodingLanguage,
     FullColor,
@@ -473,11 +473,17 @@ class Table(Block, AppendChildren, type="table"):
         return self.table.table_width
 
 
+class LinkToPage(Block, type="link_to_page"):
+    """A link_to_page block in Notion."""
+
+    link_to_page: ParentRef
+
+
 class SyncedBlock(Block, AppendChildren, type="synced_block"):
     """A synced_block block in Notion - either original or synced."""
 
     class NestedData(NestedObject):
-        synced_from: Optional[BlockParent] = None
+        synced_from: Optional[BlockRef] = None
         children: Optional[List[Block]] = None
 
     synced_block: NestedData = NestedData()

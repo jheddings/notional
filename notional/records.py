@@ -36,27 +36,27 @@ class ParentRef(TypedObject):
             return record
 
         elif isinstance(record, Page):
-            return PageParent(page_id=record.id)
+            return PageRef(page_id=record.id)
 
         elif isinstance(record, Database):
-            return DatabaseParent(database_id=record.id)
+            return DatabaseRef(database_id=record.id)
 
         raise ValueError("Unrecognized 'parent' attribute")
 
 
-class DatabaseParent(ParentRef, type="database_id"):
+class DatabaseRef(ParentRef, type="database_id"):
     """Reference a database."""
 
     database_id: UUID
 
 
-class PageParent(ParentRef, type="page_id"):
+class PageRef(ParentRef, type="page_id"):
     """Reference a page."""
 
     page_id: UUID
 
 
-class BlockParent(ParentRef, type="block_id"):
+class BlockRef(ParentRef, type="block_id"):
     """Reference a block."""
 
     block_id: UUID

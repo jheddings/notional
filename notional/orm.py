@@ -3,7 +3,7 @@
 import logging
 
 from .iterator import EndpointIterator
-from .records import DatabaseParent, Page
+from .records import DatabaseRef, Page
 from .types import NativeTypeMixin, RichText
 
 log = logging.getLogger(__name__)
@@ -66,7 +66,7 @@ class ConnectedPageBase(object):
 
         log.debug(f"creating new {cls} :: {cls._orm_database_id_}")
 
-        parent = DatabaseParent(database_id=cls._orm_database_id_)
+        parent = DatabaseRef(database_id=cls._orm_database_id_)
 
         # bypass the data constructor to avoid multiple copies of the page data...
         connected = cls()
