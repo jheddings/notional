@@ -1,4 +1,4 @@
-"""Handle session management with the Notion SDK."""
+"""Provides direct access to the Notion API."""
 
 import logging
 from inspect import isclass
@@ -100,7 +100,7 @@ class BlocksEndpoint(Endpoint):
 
         log.info("Deleting block :: %s", block.id)
 
-        data = self().update(block.id.hex, archived=True)
+        data = self().delete(block.id.hex)
 
         return block.refresh(**data)
 
@@ -198,6 +198,22 @@ class DatabasesEndpoint(Endpoint):
 
         return database.refresh(**data)
 
+    def delete(self, database):
+        """Delete (archive) the specified Database."""
+
+        log.info("Deleting database :: %s", database.id)
+
+        return self.session.blocks.delete(database)
+
+    def restore(self, database):
+        """Restore (unarchive) the specified Database."""
+
+        log.info("Restoring database :: %s", database.id)
+
+        data = self().update(database.id.hex, archived=False)
+
+        return database.refresh(**data)
+
     # https://developers.notion.com/reference/post-database-query
     def query(self, target):
         """Initialized a new Query object with the target data class.
@@ -261,9 +277,7 @@ class PagesEndpoint(Endpoint):
 
         log.info("Deleting page :: %s", page.id)
 
-        data = self().update(page.id.hex, archived=True)
-
-        return page.refresh(**data)
+        return self.session.blocks.delete(page)
 
     def restore(self, page):
         """Restore (unarchive) the specified Page."""
@@ -285,21 +299,25 @@ class PagesEndpoint(Endpoint):
         return Page.parse_obj(data)
 
     # https://developers.notion.com/reference/patch-page
-    def update(self, page, **content):
-        """Updates the Page object on the server.
+    def update(self, page, **properties):
+        """Updates the Page object properties on the server.
 
-        If `content` are provided, only those fields will be updated.  If `content` is
-        empty, the entire page will be updated.
+        If `properties` are provided, only those values will be updated.  If
+        `properties` is empty, all page properties will be updated.
+
+        `properties` are specified as `"name"`: `PropertyValue` pairs.
 
         The page info will be refreshed to the latest version from the server.
         """
 
         log.info("Updating page info :: %s", page.id)
 
-        if not content:
-            content = page.to_api()
+        if not properties:
+            properties = page.properties
 
-        data = self().update(page.id.hex, **content)
+        props = {name: value.to_api() for name, value in properties.items()}
+
+        data = self().update(page.id.hex, properties=props)
 
         return page.refresh(**data)
 
@@ -368,9 +386,6 @@ class Session(object):
         self.users = UsersEndpoint(self)
 
         log.info("Initialized Notion SDK client")
-
-    # TODO def get(self, ref):
-    #    """Inspects the provided referance and returns the corresponding object."""
 
     def ping(self):
         """Confirm that the session is active and able to connect to Notion.

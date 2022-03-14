@@ -12,10 +12,12 @@ import logging
 import os
 import sys
 
+from notional import records
+
 logging.basicConfig(level=logging.INFO)
 
 import notional
-from notional import blocks
+from notional import blocks, types
 
 page_id = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
@@ -45,6 +47,9 @@ print(f"{page.Title} => {page.url}")
 notion.blocks.children.append(
     new_page, blocks.Paragraph.from_text("Good to see you again!")
 )
+
+# change the page properties...
+notion.pages.update(new_page, title=types.Title.from_value("Farewell"))
 
 # archive (delete) the new page...
 notion.pages.delete(new_page)
