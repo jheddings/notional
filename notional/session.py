@@ -186,7 +186,7 @@ class DatabasesEndpoint(Endpoint):
         return Database.parse_obj(data)
 
     # https://developers.notion.com/reference/update-a-database
-    def update(self, database):
+    def update(self, database, title=None, **schema):
         """Updates the Database object on the server.
 
         The database info will be refreshed to the latest version from the server.
@@ -194,9 +194,26 @@ class DatabasesEndpoint(Endpoint):
 
         log.info("Updating database info :: ", database.id)
 
-        data = self().update(database.id.hex, **database.to_api())
+        request = {}
 
-        return database.refresh(**data)
+        if title:
+            prop = Title.from_value(title)
+
+            if prop:
+                request["title"] = title.to_api()
+            else:
+                raise ValueError("Invalid title")
+
+        if schema:
+            request["properties"] = {
+                name: value.to_api() for name, value in schema.items()
+            }
+
+        if request:
+            data = self().update(database.id.hex, **request)
+            database = database.refresh(**data)
+
+        return database
 
     def delete(self, database):
         """Delete (archive) the specified Database."""

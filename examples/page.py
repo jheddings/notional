@@ -12,8 +12,6 @@ import logging
 import os
 import sys
 
-from notional import records
-
 logging.basicConfig(level=logging.INFO)
 
 import notional
