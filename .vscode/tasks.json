@@ -1,0 +1,57 @@
+{
+    "version": "2.0.0",
+
+    "tasks": [
+        {
+            "label": "Build Local Environment",
+            "type": "shell",
+            "command": "make",
+            "args": [ "venv" ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Package",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "clean",
+                "build",
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Publish Package",
+            "type": "shell",
+            "command": "make",
+            "args": [ "publish" ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Preflight Checks",
+            "type": "shell",
+            "command": "make",
+            "args": [ "preflight" ],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

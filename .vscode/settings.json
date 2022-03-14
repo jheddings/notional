@@ -1,0 +1,13 @@
+{
+    "python.envFile": "${workspaceFolder}/local.env",
+    "python.formatting.provider": "black",
+
+    "python.testing.unittestEnabled": true,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests",
+        "-p",
+        "test_*.py"
+    ],
+}
