@@ -18,6 +18,11 @@ def markdown(*rtf):
     return ("".join(str(text) for text in rtf)).strip()
 
 
+def chunky(text, length):
+    """Break the given `text` into chunks of at most `length` size."""
+    return (text[idx : idx + length] for idx in range(0, len(text), length))
+
+
 class Color(str, Enum):
     """Basic color values."""
 
@@ -134,19 +139,19 @@ class TextObject(RichTextObject, type="text"):
     text: NestedData = None
 
     @classmethod
-    def from_value(cls, string=None, href=None, **annotate):
+    def from_value(cls, content=None, href=None, **annotate):
         """Return a TextObject from the native string."""
 
-        if string is None:
+        if content is None:
             return None
 
-        # TODO convert markdown in string to RichText
+        # TODO convert markdown in string to RichText?
 
         style = Annotations(**annotate) if annotate else None
         link = LinkObject(url=href) if href else None
-        text = cls.NestedData(content=str(string), link=link)
+        data = cls.NestedData(content=str(content), link=link)
 
-        return cls(plain_text=str(string), text=text, href=href, annotations=style)
+        return cls(plain_text=str(content), text=data, href=href, annotations=style)
 
 
 class CodingLanguage(str, Enum):

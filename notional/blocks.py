@@ -7,6 +7,7 @@ used in the Notion API as well as higher-level methods.
 """
 
 import logging
+import textwrap
 from typing import List, Optional, Union
 
 from .core import NestedObject, TypedObject
@@ -16,6 +17,7 @@ from .text import (
     FullColor,
     RichTextObject,
     TextObject,
+    chunky,
     markdown,
     plain_text,
 )
@@ -23,8 +25,8 @@ from .types import EmojiObject, FileObject
 
 log = logging.getLogger(__name__)
 
-
-# TODO consider adding helper methods for blocks that support children...
+# the max text size according to the Notion API is 2000 characters...
+MAX_TEXT_OBJECT_SIZE = 1980
 
 
 class Block(Record, TypedObject, object="block"):
@@ -46,12 +48,9 @@ class TextBlock(Block):
     """A standard text block object in Notion."""
 
     @classmethod
-    def from_text(cls, text):
+    def from_text(cls, *text):
         if text is None:
-            raise ValueError("text cannot be None")
-
-        # TODO split long text blocks into multiple (rather than truncate)?
-        obj = TextObject.from_value(text[:2000])
+            return None
 
         if not hasattr(cls, "type") or cls.type is None:
             raise TypeError(f"class type is not defined: {cls}")
@@ -59,11 +58,23 @@ class TextBlock(Block):
         # text types have a nested object with 'type' name and a 'text' child
         # here, we use the local constructor to build out the nested object...
 
-        # TODO convert markdown to RichText elements
+        data = cls.NestedData()
 
-        log.debug("%s => from_text :: %s", cls.type, text[:10])
+        for obj in text:
+            if obj is None:
+                continue
 
-        return cls(**{cls.type: {"text": [obj]}})
+            elif isinstance(obj, RichTextObject):
+                data.text.append(obj)
+
+            elif isinstance(obj, str):
+                for chunk in chunky(obj, MAX_TEXT_OBJECT_SIZE):
+                    data.text.append(TextObject.from_value(chunk))
+
+            else:
+                raise ValueError("unsupported text object")
+
+        return cls(**{cls.type: data})
 
     @property
     def PlainText(self):
