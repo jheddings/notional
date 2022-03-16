@@ -7,7 +7,6 @@ used in the Notion API as well as higher-level methods.
 """
 
 import logging
-import textwrap
 from typing import List, Optional, Union
 
 from .core import NestedObject, TypedObject
@@ -24,9 +23,6 @@ from .text import (
 from .types import EmojiObject, FileObject
 
 log = logging.getLogger(__name__)
-
-# the max text size according to the Notion API is 2000 characters...
-MAX_TEXT_OBJECT_SIZE = 1980
 
 
 class Block(Record, TypedObject, object="block"):
@@ -68,7 +64,7 @@ class TextBlock(Block):
                 data.text.append(obj)
 
             elif isinstance(obj, str):
-                for chunk in chunky(obj, MAX_TEXT_OBJECT_SIZE):
+                for chunk in chunky(obj):
                     data.text.append(TextObject.from_value(chunk))
 
             else:

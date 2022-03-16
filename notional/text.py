@@ -8,6 +8,10 @@ from .core import DataObject, NestedObject, TypedObject
 # rich text, etc...  the challenge is not importing types due to a circular ref.
 
 
+# the max text size according to the Notion API is 2000 characters...
+MAX_TEXT_OBJECT_SIZE = 1980
+
+
 def plain_text(*rtf):
     """Return the combined plain text from the list of RichText objects."""
     return ("".join(text.plain_text for text in rtf if text)).strip()
@@ -18,7 +22,7 @@ def markdown(*rtf):
     return ("".join(str(text) for text in rtf)).strip()
 
 
-def chunky(text, length):
+def chunky(text, length=MAX_TEXT_OBJECT_SIZE):
     """Break the given `text` into chunks of at most `length` size."""
     return (text[idx : idx + length] for idx in range(0, len(text), length))
 
