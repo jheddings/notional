@@ -14,12 +14,12 @@ MAX_TEXT_OBJECT_SIZE = 1980
 
 def plain_text(*rtf):
     """Return the combined plain text from the list of RichText objects."""
-    return ("".join(text.plain_text for text in rtf if text)).strip()
+    return ("".join(text.plain_text for text in rtf if text))
 
 
 def markdown(*rtf):
     """Return text as markdown from the list of RichText objects."""
-    return ("".join(str(text) for text in rtf)).strip()
+    return ("".join(str(text) for text in rtf))
 
 
 def chunky(text, length=MAX_TEXT_OBJECT_SIZE):
