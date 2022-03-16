@@ -31,7 +31,7 @@ publish: build
 preflight: venv-configured test
 	isort --profile black $(SOURCES)
 	black $(SOURCES)
-	flake8 --ignore=E266,E402,E501 $(SOURCES)
+	flake8 --ignore=E266,E402,E501,E203 $(SOURCES)
 
 ################################################################################
 .PHONY: test
