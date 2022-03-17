@@ -208,7 +208,7 @@ class Code(TextBlock, type="code"):
         # FIXME this is not the standard way to represent code blocks in markdown...
 
         if self.code and self.code.text:
-            return f"```{lang}\n{self.code.text}\n```"
+            return f"```{lang}\n{markdown(*self.code.text)}\n```"
 
         return ""
 
@@ -237,7 +237,10 @@ class BulletedListItem(TextBlock, AppendChildren, type="bulleted_list_item"):
 
     @property
     def Markdown(self):
-        return f"- {super().Markdown}"
+        if self.bulleted_list_item and self.bulleted_list_item.text:
+            return f"- {markdown(*self.bulleted_list_item.text)}"
+
+        return ""
 
 
 class NumberedListItem(TextBlock, AppendChildren, type="numbered_list_item"):
@@ -252,7 +255,10 @@ class NumberedListItem(TextBlock, AppendChildren, type="numbered_list_item"):
 
     @property
     def Markdown(self):
-        return f"1. {super().Markdown}"
+        if self.numbered_list_item and self.numbered_list_item.text:
+            return f"1. {markdown(*self.numbered_list_item.text)}"
+
+        return ""
 
 
 class ToDo(TextBlock, AppendChildren, type="to_do"):
@@ -265,6 +271,16 @@ class ToDo(TextBlock, AppendChildren, type="to_do"):
         color: FullColor = FullColor.default
 
     to_do: NestedData = NestedData()
+
+    @property
+    def Markdown(self):
+        if self.to_do and self.to_do.text:
+            if self.to_do.checked:
+                return f"- [x] {markdown(*self.to_do.text)}"
+            else:
+                return f"- [ ] {markdown(*self.to_do.text)}"
+
+        return ""
 
 
 class Toggle(TextBlock, AppendChildren, type="toggle"):
@@ -321,6 +337,13 @@ class Embed(Block, type="embed"):
     def URL(self):
         return self.embed.url
 
+    @property
+    def Markdown(self):
+        if self.embed and self.emdeb.url:
+            return f"<{self.embed.url}>"
+
+        return ""
+
     @classmethod
     def from_url(cls, url):
         nested = cls.NestedData(url=url)
@@ -340,6 +363,13 @@ class Bookmark(Block, type="bookmark"):
     def URL(self):
         return self.bookmark.url
 
+    @property
+    def Markdown(self):
+        if self.bookmark and self.bookmark.url:
+            return f"<{self.bookmark.url}>"
+
+        return ""
+
     @classmethod
     def from_url(cls, url):
         nested = cls.NestedData(url=url)
@@ -357,6 +387,13 @@ class LinkPreview(Block, type="link_preview"):
     @property
     def URL(self):
         return self.link_preview.url
+
+    @property
+    def Markdown(self):
+        if self.link_preview and self.link_preview.url:
+            return f"<{self.link_preview.url}>"
+
+        return ""
 
     @classmethod
     def from_url(cls, url):

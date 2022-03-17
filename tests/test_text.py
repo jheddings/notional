@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from notional import text
+from notional import blocks, text
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.FATAL)
@@ -31,6 +31,10 @@ class PlainTextTest(unittest.TestCase):
         plain = text.plain_text(*rtf)
         self.assertEqual(plain, "hello world")
 
+
+class LinkedTextTest(unittest.TestCase):
+    """Unit tests for working with links."""
+
     def test_BasicLinks(self):
         rtf = [
             text.TextObject.from_value("Search Me", href="https://www.google.com/"),
@@ -41,6 +45,10 @@ class PlainTextTest(unittest.TestCase):
 
         md = text.markdown(*rtf)
         self.assertEqual(md, "[Search Me](https://www.google.com/)")
+
+
+class StyledTextTest(unittest.TestCase):
+    """Unit tests for working with annotated text."""
 
     def test_BoldText(self):
         rtf = [
@@ -114,3 +122,62 @@ class PlainTextTest(unittest.TestCase):
 
         md = text.markdown(*rtf)
         self.assertEqual(md, "look at this `keyword`")
+
+
+class BlockFormatTest(unittest.TestCase):
+    """Verify markdown for block objects."""
+
+    def test_Heading1(self):
+        block = blocks.Heading1.from_text("Introduction")
+
+        self.assertEqual(block.PlainText, "Introduction")
+        self.assertEqual(block.Markdown, "# Introduction #")
+
+    def test_Heading2(self):
+        block = blocks.Heading2.from_text("More Context")
+
+        self.assertEqual(block.PlainText, "More Context")
+        self.assertEqual(block.Markdown, "## More Context ##")
+
+    def test_Heading3(self):
+        block = blocks.Heading3.from_text("Minor Point")
+
+        self.assertEqual(block.PlainText, "Minor Point")
+        self.assertEqual(block.Markdown, "### Minor Point ###")
+
+    def test_BulletedItemList(self):
+        block = blocks.BulletedListItem.from_text("point number one")
+
+        self.assertEqual(block.PlainText, "point number one")
+        self.assertEqual(block.Markdown, "- point number one")
+
+    def test_NumberedItemList(self):
+        block = blocks.NumberedListItem.from_text("first priority")
+
+        self.assertEqual(block.PlainText, "first priority")
+        self.assertEqual(block.Markdown, "1. first priority")
+
+    def test_ToDo(self):
+        block = blocks.ToDo.from_text("COMPLETED")
+        block.to_do.checked = True
+
+        self.assertEqual(block.PlainText, "COMPLETED")
+        self.assertEqual(block.Markdown, "- [x] COMPLETED")
+
+        block = blocks.ToDo.from_text("INCOMPLETE")
+        block.to_do.checked = False
+
+        self.assertEqual(block.PlainText, "INCOMPLETE")
+        self.assertEqual(block.Markdown, "- [ ] INCOMPLETE")
+
+    def test_Bookmark(self):
+        block = blocks.Bookmark.from_url("https://example.com/")
+
+        self.assertEqual(block.Markdown, "<https://example.com/>")
+
+    def test_Code(self):
+        code = "import sys\nprint('hello world')\nsys.exit(0)"
+        block = blocks.Code.from_text(code)
+        block.code.language = text.CodingLanguage.python
+
+        self.assertEqual(block.Markdown, f"```python\n{code}\n```")
