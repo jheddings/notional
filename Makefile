@@ -63,6 +63,13 @@ ifneq ($(VIRTUAL_ENV), $(VENVDIR))
 endif
 
 ################################################################################
+.PHONY: upgrade-venv
+
+upgrade-venv:
+	cat "$(BASEDIR)/requirements/core.txt" "$(BASEDIR)/requirements/dev.txt" \
+		| cut -f1 -d= | xargs pip3 install --upgrade
+
+################################################################################
 .PHONY: clean
 
 clean:

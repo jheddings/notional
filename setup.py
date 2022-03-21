@@ -19,7 +19,8 @@ def get_version(rel_path: str) -> str:
     raise RuntimeError("Unable to find version string.")
 
 
-requirements = ["notion-client>=0.7", "pydantic>=1.8.2"]
+# TODO read from requirements/core.txt
+requirements = ["notion-client>=0.9.0", "pydantic>=1.9.0"]
 
 setup(
     name="notional",
