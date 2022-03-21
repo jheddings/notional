@@ -163,6 +163,50 @@ class PropertyFilter(QueryFilter):
     formula: Optional[FormulaConstraint] = None
 
 
+class TimestampKind(str, Enum):
+    """Possible timestamp types."""
+
+    created_time = "created_time"
+    last_edited_time = "last_edited_time"
+
+
+class TimestampFilter(QueryFilter):
+    """Represents a timestamp filter in Notion."""
+
+    timestamp: TimestampKind
+
+    @classmethod
+    def create(cls, kind, constraint):
+        if kind == TimestampKind.created_time:
+            return CreatedTimeFilter.create(constraint)
+        elif kind == TimestampKind.last_edited_time:
+            return LastEditedTimeFilter.create(constraint)
+
+        raise ValueError("Unsupported kind for timestamp")
+
+
+class CreatedTimeFilter(TimestampFilter):
+    """Represents a created_time filter in Notion."""
+
+    timestamp: TimestampKind = TimestampKind.created_time
+    created_time: DateConstraint
+
+    @classmethod
+    def create(cls, constraint):
+        return CreatedTimeFilter(created_time=constraint)
+
+
+class LastEditedTimeFilter(TimestampFilter):
+    """Represents a last_edited_time filter in Notion."""
+
+    timestamp: TimestampKind = TimestampKind.last_edited_time
+    last_edited_time: DateConstraint
+
+    @classmethod
+    def create(cls, constraint):
+        return LastEditedTimeFilter(last_edited_time=constraint)
+
+
 class CompoundFilter(QueryFilter):
     """Represents a compound filter in Notion."""
 
@@ -171,13 +215,6 @@ class CompoundFilter(QueryFilter):
 
     and_: Optional[List[QueryFilter]] = Field(None, alias="and")
     or_: Optional[List[QueryFilter]] = Field(None, alias="or")
-
-
-class SortTimestamp(str, Enum):
-    """Time sort fields."""
-
-    created_time = "created_time"
-    last_edited_time = "last_edited_time"
 
 
 class SortDirection(str, Enum):
@@ -191,7 +228,7 @@ class PropertySort(DataObject):
     """Represents a sort instruction in Notion."""
 
     property: Optional[str] = None
-    timestamp: Optional[SortTimestamp] = None
+    timestamp: Optional[TimestampKind] = None
     direction: Optional[SortDirection] = None
 
 
@@ -229,7 +266,15 @@ class QueryBuilder(object):
         """Add the given filter to the query."""
 
         if filter is None:
-            filter = PropertyFilter(**kwargs)
+
+            if "property" in kwargs:
+                filter = PropertyFilter.parse_obj(kwargs)
+            elif "timestamp" in kwargs and kwargs["timestamp"] == "created_time":
+                filter = CreatedTimeFilter.parse_obj(kwargs)
+            elif "timestamp" in kwargs and kwargs["timestamp"] == "last_edited_time":
+                filter = LastEditedTimeFilter.parse_obj(kwargs)
+            else:
+                raise ValueError("unrecognized filter")
 
         elif not isinstance(filter, QueryFilter):
             raise ValueError("filter must be of type QueryFilter")

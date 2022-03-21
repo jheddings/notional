@@ -15,7 +15,13 @@ import sys
 logging.basicConfig(level=logging.DEBUG)
 
 import notional
-from notional.query import NumberConstraint, SortDirection, TextConstraint
+from notional.query import (
+    DateConstraint,
+    LastEditedTimeFilter,
+    NumberConstraint,
+    SortDirection,
+    TextConstraint,
+)
 
 dbid = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
@@ -38,6 +44,7 @@ query = (
     notion.databases.query(dbid)
     .filter(property="Title", text=TextConstraint(contains="project"))
     .filter(property="Cost", number=NumberConstraint(greater_than=1000000))
+    .filter(LastEditedTimeFilter.create(DateConstraint(past_week={})))
     .limit(1)
 )
 
