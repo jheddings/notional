@@ -144,7 +144,7 @@ def Property(name, cls=RichText, default=None):
         self.page[name] = prop
 
         # update the property live on the server
-        self._orm_session_.pages.update(self.page, properties={name: prop.to_api()})
+        self._orm_session_.pages.update(self.page, **{name: prop})
 
         # TODO consider reloading things like last_edited_time and formulas
 
@@ -163,19 +163,23 @@ def connected_page(session=None, cls=ConnectedPageBase):
         _orm_session_ = None
         _orm_late_bind_ = None
 
-        def __init_subclass__(cls, database, **kwargs):
+        def __init_subclass__(cls, database=None, **kwargs):
             """Attach the ConnectedPage to the given database ID."""
             super().__init_subclass__(**kwargs)
-
-            if database is None:
-                raise ValueError("Missing 'database' for ConnectedPage: {cls}")
 
             if cls._orm_database_id_ is not None:
                 raise TypeError("Object {cls} registered to: {database}")
 
-            cls._orm_database_id_ = database
+            if database:
+                cls._orm_database_id_ = database
 
-            # if the local session is None, we will attempt to use the bind_session
+            elif hasattr(cls, "__database__"):
+                cls._orm_database_id_ = getattr(cls, "__database__")
+
+            else:
+                raise ValueError("Missing 'database' for ConnectedPage: {cls}")
+
+            # if the local session is None, we will use _orm_bind_session_
             cls.bind(session or cls._orm_late_bind_)
 
             log.debug(f"registered connected page :: {cls} => {database}")

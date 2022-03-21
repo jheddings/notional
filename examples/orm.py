@@ -31,8 +31,10 @@ notion = notional.connect(auth=auth_token)
 CustomPage = connected_page(session=notion)
 
 
-class Task(CustomPage, database=sys.argv[1]):
+class Task(CustomPage):
     """Defines a custom Task data type."""
+
+    __database__ = sys.argv[1]
 
     Title = Property("Title", types.Title)
     Priority = Property("Priority", types.SelectOne)
@@ -80,4 +82,4 @@ task.Attachments.append_url(
 task += blocks.Paragraph.from_text("Welcome to the matrix.")
 
 # alternative form to append multiple blocks in a single call...
-# task.append(blocks.Divider(), blocks.Quote.from_text("There is no spoon."))
+task.append(blocks.Divider(), blocks.Quote.from_text("There is no spoon."))
