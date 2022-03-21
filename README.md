@@ -17,11 +17,17 @@ use case and how you are incorporating this into your project.
 
 ## Installation ##
 
-Install using PyPi:
+Install the most recent release using PyPi:
 
-```
+
+```shell
 pip install notional
+```
 
+Or install the most recent code from the GitHub repo (this is unstable!):
+
+```shell
+pip install git+https://github.com/jheddings/notional.git
 ```
 
 *Note:* it is recommended to use a virtual environment (`venv`) for installing libraries
@@ -71,13 +77,40 @@ given endpoint.
 
 ## Query Builder ###
 
-Notional provides a query builder for interating with the Notion API.  Query targets can be
-either a specific database ID or a custom ORM type.
+Notional provides a query builder for interating with the Notion API.  Query targets can
+be either a specific database ID or a custom ORM type.
+
+### Filters ###
+
+Filters can be added for either timestamps or properties using the query builder.  They
+operate using a set of constraints, depending on the object being filtered.  Constraints
+may be appended to the query builder using keywords or by creating them directly:
+
 
 ```python
 notion = notional.connect(auth=auth_token)
-sorts = [{"direction": "ascending", "property": "Last Update"}]
-query = notion.databases.query(dbid).sort(sorts)
+
+query = (
+    notion.databases.query(dbid)
+    .filter(property="Title", text=TextConstraint(contains="project"))
+    .filter(LastEditedTimeFilter.create(DateConstraint(past_week={})))
+    .limit(1)
+)
+
+data = query.first()
+# process query result
+```
+
+### Sorting ###
+
+Sorts can be added to the query using the `sort()` method:
+
+```python
+notion = notional.connect(auth=auth_token)
+
+query = notion.databases.query(dbid).sort(
+    property="Title", direction=SortDirection.ascending
+)
 
 for data in query.execute():
     # something magic happens
@@ -106,13 +139,15 @@ for task in notion.databases.query(Task).execute():
     task.commit()
 ```
 
-See the examples for more information.
+See the [examples](https://github.com/jheddings/notional/tree/main/examples) for more
+information.
 
 ### Token Security ###
 
 It is generally a best practice to read the auth token from an environment variable or
 a secrets file.  To prevent accidental exposure, it is NOT recommended to save the token
-in source.  For more information, read about Notion authorization here.
+in source.  For more information, read about Notion authorization 
+[here](https://developers.notion.com/docs/authorization).
 
 ## Contributing ##
 
@@ -124,12 +159,12 @@ Any pull requests or other submissions are welcome.  As most open source project
 is a side project.  Large submissions will take time to review for acceptance, so breaking
 them into smaller pieces is always preferred.  Thanks in advance!
 
-Formatted using `black` and `isort`.
+Formatted using `black` and `isort`, checked using `flake8`.
 
 ### Known Issues ###
 
-See Issues on github.
+See [Issues](https://github.com/jheddings/notional/issues) on github.
 
 ### Feature Requests ###
 
-See Issues on github.
+See [Issues](https://github.com/jheddings/notional/issues) on github.

@@ -37,10 +37,6 @@ def get_target_id(target):
     raise ValueError("unsupported query target")
 
 
-class QueryFilter(DataObject):
-    """Base class for query filters."""
-
-
 class TextConstraint(DataObject):
     """Represents text criteria in Notion."""
 
@@ -144,6 +140,10 @@ class FormulaConstraint(DataObject):
     checkbox: Optional[CheckboxConstraint] = None
     number: Optional[NumberConstraint] = None
     date: Optional[DateConstraint] = None
+
+
+class QueryFilter(DataObject):
+    """Base class for query filters."""
 
 
 class PropertyFilter(QueryFilter):
