@@ -5,8 +5,10 @@ used in the Notion API as well as higher-level methods.
 """
 
 import logging
+import os
 from datetime import date, datetime
 from typing import List, Optional, Union
+from urllib.parse import urlparse
 from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject
@@ -26,35 +28,41 @@ class PageReference(DataObject):
 class EmojiObject(TypedObject, type="emoji"):
     """A Notion emoji object."""
 
-    emoji: Optional[str] = None
+    emoji: str
 
 
 class FileObject(TypedObject):
-    """A Notion file object."""
+    """A Notion file object.
+
+    Depending on the context, a FileObject may require a name (such as in the `Files`
+    property).  This makes the object heirarchy difficult, so here we simply allow
+    `name` to be optional.  It is the responsibility of the caller to set `name` if
+    required by the API.
+    """
 
     name: Optional[str] = None
 
     def __str__(self):
         """Return a string representation of this object."""
 
-        return self.name or "_unknown_"
+        return self.name or "__unknown__"
 
 
 class HostedFile(FileObject, type="file"):
-    """A Notion file reference."""
+    """A Notion file object."""
 
     class NestedData(NestedObject):
-        url: Optional[str] = None
+        url: str
         expiry_time: Optional[datetime] = None
 
     file: Optional[NestedData] = None
 
 
 class ExternalFile(FileObject, type="external"):
-    """An external file reference."""
+    """An external file object."""
 
     class NestedData(NestedObject):
-        url: Optional[str] = None
+        url: str
 
     external: Optional[NestedData] = None
 
@@ -532,18 +540,15 @@ class Files(PropertyValue, type="files"):
     files: List[FileObject] = []
 
     def __contains__(self, other):
-        """Determines if the given FileObject or name is in the file list.
-
-        To avoid confusion, only names are considered for comparison.
-        """
+        """Determines if the given FileObject or name is in the property."""
 
         if self.files is None:
             return False
 
-        for file in self.files:
-            if file == other:
+        for ref in self.files:
+            if ref == other:
                 return True
-            elif file.name == other:
+            elif ref.name == other:
                 return True
 
         return False
@@ -551,10 +556,27 @@ class Files(PropertyValue, type="files"):
     def __str__(self):
         return "; ".join([str(file) for file in self.files])
 
-    def append_url(self, url):
-        log.debug(f"append URL - {url}")
-        file = ExternalFile.from_url(url)
-        self.files.append(file)
+    def __iadd__(self, ref):
+        if ref in self:
+            raise ValueError(f"Item exists: {ref}")
+
+        self.append(ref)
+        return self
+
+    def __isub__(self, ref):
+        if ref not in self:
+            raise ValueError(f"No such item: {ref}")
+
+        self.remove(ref)
+        return self
+
+    def append(self, ref):
+        log.debug(f"append file - {ref}")
+        self.files.append(ref)
+
+    def remove(self, ref):
+        log.debug(f"remove file - {ref}")
+        self.files.remove(ref)
 
 
 class FormulaResult(TypedObject):
