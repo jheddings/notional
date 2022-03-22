@@ -291,18 +291,12 @@ class PagesEndpoint(Endpoint):
 
     def delete(self, page):
         """Delete (archive) the specified Page."""
-
-        log.info("Deleting page :: %s", page.id)
-
-        return self.session.blocks.delete(page)
+        data = self.set(page, archived=True)
+        return page.refresh(**data)
 
     def restore(self, page):
         """Restore (unarchive) the specified Page."""
-
-        log.info("Restoring page :: %s", page.id)
-
-        data = self().update(page.id.hex, archived=False)
-
+        data = self.set(page, archived=False)
         return page.refresh(**data)
 
     # https://developers.notion.com/reference/retrieve-a-page
@@ -335,6 +329,35 @@ class PagesEndpoint(Endpoint):
         props = {name: value.to_api() for name, value in properties.items()}
 
         data = self().update(page.id.hex, properties=props)
+
+        return page.refresh(**data)
+
+    def set(self, page, cover=False, icon=False, archived=None):
+        """Set specific page attributes (such as cover, icon, etc) on the server.
+
+        To remove an attribute, set its value to None.
+        """
+
+        if cover is None:
+            log.info("Removing page cover :: %s", page.id)
+            data = self().update(page.id.hex, cover={})
+        elif cover is not False:
+            log.info("Setting page cover :: %s => %s", page.id, cover)
+            data = self().update(page.id.hex, cover=cover.to_api())
+
+        if icon is None:
+            log.info("Removing page icon :: %s", page.id)
+            data = self().update(page.id.hex, icon={})
+        elif icon is not False:
+            log.info("Setting page icon :: %s => %s", page.id, icon)
+            data = self().update(page.id.hex, icon=icon.to_api())
+
+        if archived is False:
+            log.info("Restoring page :: %s", page.id)
+            data = self().update(page.id.hex, archived=False)
+        elif archived is True:
+            log.info("Archiving page :: %s", page.id)
+            data = self().update(page.id.hex, archived=True)
 
         return page.refresh(**data)
 
