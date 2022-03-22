@@ -5,10 +5,8 @@ used in the Notion API as well as higher-level methods.
 """
 
 import logging
-import os
 from datetime import date, datetime
 from typing import List, Optional, Union
-from urllib.parse import urlparse
 from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject
