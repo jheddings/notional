@@ -291,13 +291,11 @@ class PagesEndpoint(Endpoint):
 
     def delete(self, page):
         """Delete (archive) the specified Page."""
-        data = self.set(page, archived=True)
-        return page.refresh(**data)
+        return self.set(page, archived=True)
 
     def restore(self, page):
         """Restore (unarchive) the specified Page."""
-        data = self.set(page, archived=False)
-        return page.refresh(**data)
+        return self.set(page, archived=False)
 
     # https://developers.notion.com/reference/retrieve-a-page
     def retrieve(self, page_id):
