@@ -510,7 +510,7 @@ class Table(Block, AppendChildren, type="table"):
         if self.Width == 0:
             self.table.table_width = row.Width
         elif self.Width != row.Width:
-            raise ValueError("Row size mismatch")
+            raise ValueError("Number of cells in row must match table")
 
         super().append(row)
 
