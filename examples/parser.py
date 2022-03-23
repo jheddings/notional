@@ -14,10 +14,10 @@ import logging
 import os
 import sys
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 import notional
-from notional import parser
+from notional.parser import HtmlDocumentParser
 
 page_id = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
@@ -28,8 +28,14 @@ notion = notional.connect(auth=auth_token)
 page = notion.pages.retrieve(page_id)
 print(f"{page.Title} => {page.url}")
 
+# create the page where we will import content
+doc = notion.pages.create(parent=page)
+
+# setup the parser, which is one-time use
+parser = HtmlDocumentParser(notion, doc)
+
+# parse the source content
 with open(sys.argv[2], "r") as fp:
     html = fp.read()
 
-doc = notion.pages.create(parent=page)
-parser.HtmlDocumentParser(notion, doc).parse(html)
+parser.parse(html)
