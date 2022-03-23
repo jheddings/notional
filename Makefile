@@ -6,7 +6,7 @@ SRCDIR ?= $(BASEDIR)/$(APPNAME)
 DISTDIR ?= $(BASEDIR)/dist
 VENVDIR ?= $(BASEDIR)/.venv
 
-SOURCES = "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests"
+SOURCES = "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests" "$(BASEDIR)/setup.py"
 
 ################################################################################
 .PHONY: all
