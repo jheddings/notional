@@ -1,9 +1,10 @@
 import os
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 # used from pip's setup.py:
 # https://github.com/pypa/pip/blob/main/setup.py
+
 
 def read_file(rel_path: str) -> str:
     here = os.path.abspath(os.path.dirname(__file__))
@@ -20,7 +21,11 @@ def get_version(rel_path: str) -> str:
 
 
 # TODO read from requirements/core.txt
-requirements = ["notion-client>=0.9.0", "pydantic>=1.9.0"]
+requirements = [
+    "notion-client>=0.9.0",
+    "pydantic>=1.9.0",
+    "beautifulsoup4>=4.10.0",
+]
 
 setup(
     name="notional",
