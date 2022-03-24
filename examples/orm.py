@@ -74,8 +74,10 @@ task = Task.create(
 
 print(f"{task.Title} @ {task.LastUpdate}")
 
-task.Attachments.append_url(
-    "https://miro.medium.com/max/2872/1*T-qHsJ6L5UjpJP-6JVZz0w.jpeg"
+task.Attachments.append(
+    types.ExternalFile.from_url(
+        "https://miro.medium.com/max/2872/1*T-qHsJ6L5UjpJP-6JVZz0w.jpeg"
+    )
 )
 
 # add task content as child blocks of this task...
