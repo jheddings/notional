@@ -3,16 +3,15 @@
 NOTE: this is a _very_ prelimiary implementation and will likely change frequently.
 """
 
-# XXX it would be much nicer if the parser just returned an array of RichTextObject's
-
 # TODO preserve all text formatting when combining styles
-# TODO support embedded pictures (e.g. from Apple Notes)
-# TODO test this with other HTML, especially poorly formatted content
+# TODO support embedded pictures (e.g. from Apple Notes) - API limitation
+# TODO consider using lxml.etree for consistency with other parsers
+# TODO add more options for callers to customize output
 
 import logging
 import re
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 
 from . import blocks, types
 
@@ -22,187 +21,133 @@ log = logging.getLogger(__name__)
 img_data_re = re.compile("^data:image/([^;]+);([^,]+),(.+)$")
 
 
-def gather_text(elem):
+def gather_text(elem, stripped=True, condensed=True):
     text = " ".join(elem.strings)
-    return text.strip() or None
+
+    if stripped and text:
+        text = text.strip()
+
+    if condensed and text:
+        text = re.sub(r"\s+", " ", text, flags=re.MULTILINE)
+
+    return text or None
 
 
 class HtmlDocumentParser(object):
-    def __init__(self, session, page):
-        self.session = session
-        self.page = page
+    def __init__(self, base=None):
+        self.base = base
+
+        self.title = None
+        self.content = list()
+        self.meta = dict()
+        self.comments = list()
 
     def parse(self, html):
 
         log.debug("BEGIN parsing")
 
         soup = BeautifulSoup(html, "html.parser")
-        self.process(soup)
+        self._process(soup)
 
         log.debug("END parsing")
 
-        return self.page
-
-    def append(self, block, parent=None):
-        if block is None:
-            return
-
-        if parent is None:
-            parent = self.page
-
-        self.session.blocks.children.append(parent, block)
-
-        return block
-
-    def process(self, elem, parent=None):
+    def _process(self, elem, parent=None):
         log.debug("processing element - %s", elem.name)
 
         if parent is None:
-            parent = self.page
-
-        pending_text = list()
+            parent = self.content
 
         for child in elem.children:
-            if self.parse_elem(child, parent):
-                continue
+            self._parse_elem(child, parent)
 
-            # accumulate leftover text...
-            text = self.strip_text(child)
+        log.debug("block complete; %d content block(s)", len(self.content))
 
-            if text is not None:
-                pending_text.append(text)
-
-        log.debug("block complete; %d pending block(s)", len(pending_text))
-
-        # ...deal with leftover text (if we found any)
-        if len(pending_text) > 0:
-            block = blocks.Paragraph.from_text(*pending_text)
-            self.append(block, parent)
-
-    # process as much text as possible from the element
-    def strip_text(self, elem):
-
-        if hasattr(self, f"text_{elem.name}"):
-            log.debug("apply text -- text_%s", elem.name)
-            strip = getattr(self, f"text_{elem.name}")
-
-            return strip(elem)
-
-        return self.text(elem)
-
-    def text(self, elem, **style):
-        txt = elem.string
-
-        if txt is None or txt.isspace():
-            return None
-
-        return blocks.TextObject.from_value(txt, **style)
-
-    def text_b(self, elem):
-        return self.text(elem, bold=True)
-
-    def text_strong(self, elem):
-        return self.text_b(elem)
-
-    def text_i(self, elem):
-        return self.text(elem, italic=True)
-
-    def text_em(self, elem):
-        return self.text_i(elem)
-
-    def text_u(self, elem):
-        return self.text(elem, underline=True)
-
-    def text_ins(self, elem):
-        return self.text_u(elem)
-
-    def text_s(self, elem):
-        return self.text_del(elem)
-
-    def text_strike(self, elem):
-        return self.text_del(elem)
-
-    def text_del(self, elem):
-        return self.text(elem, strikethrough=True)
-
-    def text_kbd(self, elem):
-        return self.text_code(elem)
-
-    def text_code(self, elem):
-        return self.text(elem, code=True)
-
-    # returns any collected text that could not be handled directly
-    def parse_elem(self, elem, parent=None):
+    def _parse_elem(self, elem, parent=None):
         if elem is None:
-            return None
+            return
 
         log.debug("parsing element - %s", elem.name)
 
-        if hasattr(self, f"parse_{elem.name}"):
-            log.debug("parser func -- parse_%s", elem.name)
-            pfunc = getattr(self, f"parse_{elem.name}")
+        # handle known blocks...
+        if hasattr(self, f"_parse_{elem.name}"):
+            log.debug("parser func -- _parse_%s", elem.name)
+            pfunc = getattr(self, f"_parse_{elem.name}")
 
             pfunc(elem, parent)
-            return True
 
-        return False
+        # grab all possible text...
+        else:
+            self._parse_p(elem, parent)
 
-    def parse_html(self, elem, parent):
-        self.process(elem, parent)
+    def _parse_html(self, elem, parent):
+        self._process(elem, parent)
 
-    def parse_head(self, elem, parent):
-        # TODO parse the title only
-        self.process(elem, parent)
+    def _parse_head(self, elem, parent):
+        self._process(elem, parent)
 
-    def parse_meta(self, elem, parent):
+    def _parse_script(self, elem, parent):
         pass
 
-    def parse_title(self, elem, parent):
-        text = self.strip_text(elem)
-        self.session.pages.update(self.page, title=types.Title.from_value(text))
+    def _parse_meta(self, elem, parent):
+        name = elem.get("name")
+        if name is not None:
+            value = elem.get("content")
+            if value is not None:
+                self.meta[name] = value
 
-    def parse_body(self, elem, parent):
-        self.process(elem, parent)
-
-    def parse_br(self, elem, parent):
+    def _parse_link(self, elem, parent):
         pass
 
-    def parse_hr(self, elem, parent):
+    def _parse_style(self, elem, parent):
+        pass
+
+    def _parse_title(self, elem, parent):
+        self.title = gather_text(elem)
+
+    def _parse_body(self, elem, parent):
+        self._process(elem, parent)
+
+    def _parse_br(self, elem, parent):
+        pass
+
+    def _parse_hr(self, elem, parent):
         block = blocks.Divider()
-        self.append(block, parent)
+        parent.append(block)
 
-    def parse_iframe(self, elem, parent):
+    def _parse_iframe(self, elem, parent):
         src = elem.get("src")
-        block = blocks.Embed.from_url(src)
-        self.append(block, parent)
+        if src is not None:
+            block = blocks.Embed.from_url(src)
+            parent.append(block)
 
-    def parse_div(self, elem, parent):
-        self.process(elem, parent)
+    def _parse_div(self, elem, parent):
+        self._process(elem, parent)
 
-    def parse_object(self, elem, parent):
-        self.process(elem, parent)
+    def _parse_object(self, elem, parent):
+        self._process(elem, parent)
 
-    def parse_h1(self, elem, parent):
+    def _parse_h1(self, elem, parent):
         text = gather_text(elem)
         block = blocks.Heading1.from_text(text)
-        self.append(block, parent)
+        parent.append(block)
 
-    def parse_h2(self, elem, parent):
+    def _parse_h2(self, elem, parent):
         text = gather_text(elem)
         block = blocks.Heading2.from_text(text)
-        self.append(block, parent)
+        parent.append(block)
 
-    def parse_h3(self, elem, parent):
+    def _parse_h3(self, elem, parent):
         text = gather_text(elem)
         block = blocks.Heading3.from_text(text)
-        self.append(block, parent)
+        parent.append(block)
 
-    def parse_p(self, elem, parent):
+    def _parse_p(self, elem, parent):
         text = gather_text(elem)
-        block = blocks.Paragraph.from_text(text)
-        self.append(block, parent)
+        if text is not None and len(text) > 0:
+            block = blocks.Paragraph.from_text(text)
+            parent.append(block)
 
-    def parse_list(self, elem, parent, list_type):
+    def _parse_list(self, elem, parent, list_type):
         item = None
 
         # lists are tricky since we have to keep an eye on the containing element,
@@ -215,78 +160,84 @@ class HtmlDocumentParser(object):
 
                 if text is not None:
                     item = list_type.from_text(text)
-                    self.append(item, parent)
+                    parent.append(item)
 
             else:
-                self.parse_elem(child, item)
+                self._parse_elem(child, item)
 
-    def parse_ul(self, elem, parent):
-        self.parse_list(elem, parent, blocks.BulletedListItem)
+    def _parse_ul(self, elem, parent):
+        self._parse_list(elem, parent, blocks.BulletedListItem)
 
-    def parse_ol(self, elem, parent):
-        self.parse_list(elem, parent, blocks.NumberedListItem)
+    def _parse_ol(self, elem, parent):
+        self._parse_list(elem, parent, blocks.NumberedListItem)
 
-    # def parse_dl(self, elem, parent):
-    # def parse_dd(self, elem, parent):
-    # def parse_dt(self, elem, parent):
+    # def _parse_dl(self, elem, parent):
+    # def _parse_dd(self, elem, parent):
+    # def _parse_dt(self, elem, parent):
 
-    def parse_script(self, elem, parent):
-        self.parse_pre(elem, parent=parent)
+    def _parse_tt(self, elem, parent):
+        self._parse_pre(elem, parent=parent)
 
-    def parse_tt(self, elem, parent):
-        self.parse_pre(elem, parent=parent)
-
-    def parse_pre(self, elem, parent):
-        text = gather_text(elem)
+    def _parse_pre(self, elem, parent):
+        text = gather_text(elem, condensed=False)
         block = blocks.Code.from_text(text)
-        self.append(block, parent)
+        parent.append(block)
 
-    def parse_blockquote(self, elem, parent):
+    def _parse_blockquote(self, elem, parent):
         text = gather_text(elem)
         block = blocks.Quote.from_text(text)
-        self.append(block, parent)
+        parent.append(block)
 
-    def parse_table(self, elem, parent):
+    def _parse_table(self, elem, parent):
         log.debug("building table")
 
         table = blocks.Table()
 
-        self.process(elem, parent=table)
+        self._process(elem, parent=table)
 
         if table.Width > 0:
-            self.append(table, parent)
+            parent.append(table)
 
-    def parse_thead(self, elem, parent):
-        self.process(elem, parent=parent)
+    def _parse_thead(self, elem, parent):
+        parent.table.has_column_header = True
+        self._process(elem, parent=parent)
 
-    def parse_tbody(self, elem, parent):
-        self.process(elem, parent=parent)
+    def _parse_tbody(self, elem, parent):
+        self._process(elem, parent=parent)
 
-    def parse_tfoot(self, elem, parent):
-        self.process(elem, parent=parent)
+    def _parse_tfoot(self, elem, parent):
+        self._process(elem, parent=parent)
 
-    def parse_tr(self, elem, parent):
+    def _parse_tr(self, elem, parent):
         # table rows must be directly appended to the table
         row = blocks.TableRow()
-        self.process(elem, parent=row)
+        self._process(elem, parent=row)
         parent.append(row)
 
-    def parse_th(self, elem, parent):
-        self.parse_td(elem, parent)
+    def _parse_th(self, elem, parent):
+        self._parse_td(elem, parent)
 
-    def parse_td(self, elem, parent):
+    def _parse_td(self, elem, parent):
         # table data must be directly appended to the row
         text = gather_text(elem)
         parent.append(text or "")
 
-    def parse_img(self, elem, parent):
+    def _parse_img(self, elem, parent):
+        href = elem["src"]
+
+        # TODO use self.base for relative paths - or upload as HostedFile?
+        # TODO support embedded images (data:image) as HostedFile...
+
+        src = types.ExternalFile.from_url(href)
+        img = blocks.Image(image=src)
+
+        parent.append(img)
+
+    def _parse_img_data(self, elem, parent):
         import base64
         import tempfile
 
         log.debug("processing image")
-
-        # Notes uses embedded images...  we need to extract the image, upload it
-        # and reference it in the block
 
         # TODO this probably needs more error handling and better flow
 

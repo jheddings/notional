@@ -1,18 +1,110 @@
 <html>
+
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="cake.css" type="text/css" />
+    <script id="customjs" src="teatime.js"></script>
     <title>The Dormouse's Story</title>
 </head>
+
 <body>
-    <p class="story">
-        Once upon a time there were three little sisters; and their names were
-        <a href="http://example.com/elsie" class="sister" id="link1">Elsie</a>,
-        <a href="http://example.com/lacie" class="sister" id="link2">Lacie</a> and
-        <a href="http://example.com/tillie" class="sister" id="link3">Tillie</a>;
+    <h1>Mad Tea Party</h1>
+
+    <!-- Some special block types... -->
+
+    <blockquote>
+        There was a table set out under a tree in front of the house, and the March Hare
+        and the Hatter were having tea at it: a Dormouse was sitting between them, fast
+        asleep, and the other two were using it as a cushion, resting their elbows on it,
+        and talking over its head. "Very uncomfortable for the Dormouse," thought Alice;
+        "only, as it's asleep, I suppose it doesn't mind."
+    </blockquote>
+
+    <pre>
+The table was a large one, but the three were all crowded together at one corner
+of it: "No room! No room!" they cried out when they saw Alice coming. "There's
+plenty of room!" said Alice indignantly, and she sat down in a large arm-chair
+at one end of the table.
+    </pre>
+
+    <img src="https://www.cs.cmu.edu/~rgs/alice25a.gif">
+
+    <div class="content">
+        Once upon a time there were three little sisters; and their names were:
+        <a href="http://example.com/elsie" id="link1">Elsie</a>,
+        <a href="http://example.com/lacie" id="link2">Lacie</a>, and
+        <a href="http://example.com/tillie" id="link3">Tillie</a>;
         and they lived at the bottom of a well.
+    </div>
+
+    <!-- Text formatting -->
+
+    <p class="story">
+        "What did they <em>live</em> on?" said Alice, who always took a great interest in
+        questions of <u>eating</u> and <u>drinking</u>.
     </p>
 
-    <blockquote>The End</blockquote>
+    <p class="story">
+        "They lived on <strong>treacle</strong>," said the Dormouse, after thinking a
+        minute or two.
+    </p>
+        
+    <p class="story">
+        "They couldn't have done that, <del>you know,</del>" Alice gently remarked;
+        "they'd have been ill."
+    </p>
+        
+    <p class="story">
+        "So they were," said the Dormouse; "very <code>ill</code>."
+    </p>
 
-    <p>Remember, <em>feed your head</em>.</p>
+    <!-- Tables -->
+
+    <table>
+        <thead>
+            <tr>
+                <td>Alice</td>
+                <td>Hatter</td>
+                <td>March Hare</td>
+                <td>Dormouse</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Riddle</td>
+                <td></td>
+                <td>Tea</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>Time</td>
+                <td></td>
+                <td>Sleep</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Lists -->
+
+    <ul>
+        <li>Late</li>
+        <li>Later
+            <ul>
+                <li>More</li>
+                <li>Less</li>
+            </ul>
+        </li>
+        <li>Latest</li>
+    </ul>
+
+    <!-- Other elements -->
+    <hr>
+
+    <div class="footer">
+        <p>Remember, <em>feed your head</em>. 🎶</p>
+    </div>
 </body>
+
 </html>

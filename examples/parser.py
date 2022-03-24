@@ -19,23 +19,31 @@ logging.basicConfig(level=logging.INFO)
 import notional
 from notional.parser import HtmlDocumentParser
 
-page_id = sys.argv[1]
-auth_token = os.getenv("NOTION_AUTH_TOKEN")
+parent_id = sys.argv[1]
+filename = sys.argv[2]
 
+auth_token = os.getenv("NOTION_AUTH_TOKEN")
 notion = notional.connect(auth=auth_token)
 
-# get an existing page...
-page = notion.pages.retrieve(page_id)
-print(f"{page.Title} => {page.url}")
+print(f"Parsing document: {filename}...")
 
-# create the page where we will import content
-doc = notion.pages.create(parent=page)
+# get the existing parent page...
+page = notion.pages.retrieve(parent_id)
 
-# setup the parser, which is one-time use
-parser = HtmlDocumentParser(notion, doc)
+# setup the parser, which is stateful (e.g. no concurrent use)
+parser = HtmlDocumentParser(base="http://www.example.com/")
 
 # parse the source content
-with open(sys.argv[2], "r") as fp:
+with open(filename, "r") as fp:
     html = fp.read()
 
 parser.parse(html)
+
+# create the page and upload the parsed content
+doc = notion.pages.create(
+    parent=page,
+    title=parser.title,
+    children=parser.content,
+)
+
+print(f"{doc.Title} => {doc.url}")
