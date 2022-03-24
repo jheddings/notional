@@ -1,6 +1,7 @@
 """Utilities for working text, markdown & Rich Text in Notion."""
 
 from enum import Enum
+from typing import Optional
 
 from .core import DataObject, NestedObject, TypedObject
 
@@ -105,8 +106,8 @@ class RichTextObject(TypedObject):
     """Base class for Notion rich text elements."""
 
     plain_text: str
-    href: str = None
-    annotations: Annotations = None
+    href: Optional[str] = None
+    annotations: Optional[Annotations] = None
 
     def __str__(self):
         """Return a string representation of this object."""
@@ -137,10 +138,10 @@ class TextObject(RichTextObject, type="text"):
     """Notion text element."""
 
     class NestedData(NestedObject):
-        content: str
-        link: LinkObject = None
+        content: str = None
+        link: Optional[LinkObject] = None
 
-    text: NestedData = None
+    text: NestedData = NestedData()
 
     @classmethod
     def from_value(cls, content=None, href=None, **annotate):
