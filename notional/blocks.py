@@ -80,11 +80,18 @@ class TextBlock(Block):
 
 
 class AppendChildren(object):
+    """Mixin for blocks that support children blocks."""
+
     def __iadd__(self, block):
         self.append(block)
         return self
 
     def append(self, block):
+        """Append the given block to the children of this block."""
+
+        if block is None:
+            raise AttributeError("block cannot be None")
+
         type = getattr(self, "type", None)
 
         if type is None:
@@ -96,7 +103,7 @@ class AppendChildren(object):
             raise AttributeError("missing nested data")
 
         if not hasattr(nested, "children"):
-            raise AttributeError("nested data does not support children")
+            raise AttributeError("nested data does not contain children")
 
         if nested.children is None:
             nested.children = list()
@@ -512,7 +519,7 @@ class Table(Block, AppendChildren, type="table"):
         elif self.Width != row.Width:
             raise ValueError("Number of cells in row must match table")
 
-        super().append(row)
+        self.table.children.append(row)
 
     @property
     def Width(self):
