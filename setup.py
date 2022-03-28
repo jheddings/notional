@@ -25,6 +25,7 @@ requirements = [
     "notion-client>=0.9.0",
     "pydantic>=1.9.0",
     "beautifulsoup4>=4.10.0",
+    "lxml>=4.8.0",
 ]
 
 setup(
