@@ -43,34 +43,53 @@ class UnsupportedBlock(Block, type="unsupported"):
 class TextBlock(Block):
     """A standard text block object in Notion."""
 
-    @classmethod
-    def from_text(cls, *text):
+    def concat(self, *text):
+        """Concatenate the given text to this block."""
+
         if text is None:
-            return None
+            raise AttributeError("block cannot be None")
 
-        if not hasattr(cls, "type") or cls.type is None:
-            raise TypeError(f"class type is not defined: {cls}")
+        # text blocks have a nested object with 'type' name and a 'text' child
 
-        # text types have a nested object with 'type' name and a 'text' child
-        # here, we use the local constructor to build out the nested object...
+        type = getattr(self, "type", None)
 
-        data = cls.NestedData()
+        if type is None:
+            raise AttributeError("type not found")
+
+        nested = getattr(self, type)
+
+        if nested is None:
+            raise AttributeError("missing nested data")
+
+        if not hasattr(nested, "text"):
+            raise AttributeError("nested data does not contain text")
+
+        if nested.text is None:
+            nested.text = list()
 
         for obj in text:
             if obj is None:
                 continue
 
             elif isinstance(obj, RichTextObject):
-                data.text.append(obj)
+                nested.text.append(obj)
 
             elif isinstance(obj, str):
                 for chunk in chunky(obj):
-                    data.text.append(TextObject.from_value(chunk))
+                    nested.text.append(TextObject.from_value(chunk))
 
             else:
                 raise ValueError("unsupported text object")
 
-        return cls(**{cls.type: data})
+    @classmethod
+    def from_text(cls, *text):
+        if text is None:
+            return None
+
+        obj = cls()
+        obj.concat(*text)
+
+        return obj
 
     @property
     def PlainText(self):
@@ -505,7 +524,7 @@ class Table(Block, AppendChildren, type="table"):
 
         # note that children will not be populated when getting this block
         # https://developers.notion.com/reference/block#table-blocks
-        children: Optional[List[TableRow]] = None
+        children: List[TableRow] = []
 
     table: NestedData = NestedData()
 
