@@ -524,7 +524,7 @@ class Table(Block, AppendChildren, type="table"):
 
         # note that children will not be populated when getting this block
         # https://developers.notion.com/reference/block#table-blocks
-        children: List[TableRow] = []
+        children: Optional[List[TableRow]] = []
 
     table: NestedData = NestedData()
 
