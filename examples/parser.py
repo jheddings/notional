@@ -17,7 +17,7 @@ import sys
 logging.basicConfig(level=logging.INFO)
 
 import notional
-from notional.parser import HtmlDocumentParser
+from notional.parser import HtmlParser
 
 parent_id = sys.argv[1]
 filename = sys.argv[2]
@@ -31,7 +31,7 @@ print(f"Parsing document: {filename}...")
 page = notion.pages.retrieve(parent_id)
 
 # setup the parser, which is stateful (e.g. no concurrent use)
-parser = HtmlDocumentParser(base="http://www.example.com/")
+parser = HtmlParser(base="http://www.example.com/")
 
 # parse the source content
 with open(filename, "r") as fp:
