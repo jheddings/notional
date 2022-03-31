@@ -28,7 +28,21 @@ log = logging.getLogger(__name__)
 class Block(Record, TypedObject, object="block"):
     """A standard block object in Notion."""
 
-    # Blocks are Records with a type...
+    # Blocks are Records with a type and (typically) nested data...
+
+    @property
+    def __nested_data__(self):
+        type = getattr(self, "type", None)
+
+        if type is None:
+            raise AttributeError("type not found")
+
+        nested = getattr(self, type)
+
+        if nested is None:
+            raise AttributeError("missing nested data")
+
+        return nested
 
 
 class UnsupportedBlock(Block, type="unsupported"):
@@ -43,23 +57,26 @@ class UnsupportedBlock(Block, type="unsupported"):
 class TextBlock(Block):
     """A standard text block object in Notion."""
 
+    # text blocks have a nested object with 'type' name and a 'text' child
+
+    @property
+    def __text__(self):
+        """Provide short-hand access to the nested text content in this block."""
+
+        nested = self.__nested_data__
+
+        if not hasattr(nested, "text"):
+            raise AttributeError("nested data does not contain text")
+
+        return nested.text
+
     def concat(self, *text):
         """Concatenate the given text to this block."""
 
         if text is None:
-            raise AttributeError("block cannot be None")
+            raise AttributeError("text cannot be None")
 
-        # text blocks have a nested object with 'type' name and a 'text' child
-
-        type = getattr(self, "type", None)
-
-        if type is None:
-            raise AttributeError("type not found")
-
-        nested = getattr(self, type)
-
-        if nested is None:
-            raise AttributeError("missing nested data")
+        nested = self.__nested_data__
 
         if not hasattr(nested, "text"):
             raise AttributeError("nested data does not contain text")
@@ -528,10 +545,13 @@ class Table(Block, AppendChildren, type="table"):
 
     table: NestedData = NestedData()
 
-    def append(self, row: TableRow):
+    def append(self, row):
         # when creating a new table via the API, we must provide at least one row
         # XXX need to review whether this is applicable during update...  may need
         # to raise an error if the block has already been created on the server
+
+        if not isinstance(row, TableRow):
+            raise ValueError("Only TableRow may be appended to Table blocks.")
 
         if self.Width == 0:
             self.table.table_width = row.Width
