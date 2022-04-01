@@ -14,7 +14,6 @@ future, which would effectively render these parsers unnecessary.
 import logging
 import re
 from abc import ABC, abstractmethod
-from xml.etree import ElementTree
 
 import html5lib
 
@@ -32,6 +31,13 @@ def normalize_text(text):
     if text is None:
         return None
 
+    return condense_text(text.strip())
+
+
+def condense_text(text):
+    if text is None:
+        return None
+
     text = re.sub(r"\s+", " ", text, flags=re.MULTILINE)
 
     return text or None
@@ -39,9 +45,7 @@ def normalize_text(text):
 
 def gather_text(elem):
     text = "".join(elem.itertext())
-    text = text.strip()
-    text = normalize_text(text)
-    return text or None
+    return normalize_text(text)
 
 
 class DocumentParser(ABC):
@@ -76,9 +80,6 @@ class HtmlParser(DocumentParser):
     def parse(self, html):
 
         log.debug("BEGIN parsing")
-
-        # alternative: use lxml.etree interchangeably...
-        # doc = lxml.etree.HTML(html)
 
         doc = html5lib.parse(html, namespaceHTMLElements=False)
 
@@ -135,7 +136,9 @@ class HtmlParser(DocumentParser):
         self._process_contents(elem, parent=parent)
 
     def _render_del(self, elem, parent):
-        self._render_strike(elem, parent)
+        self._current_text_style.strikethrough = True
+        self._process_contents(elem, parent=parent)
+        self._current_text_style.strikethrough = False
 
     def _render_div(self, elem, parent):
         self._process_contents(elem, parent)
@@ -237,15 +240,13 @@ class HtmlParser(DocumentParser):
         parent.append(block)
 
     def _render_s(self, elem, parent):
-        self._render_strike(self, elem, parent)
+        self._render_del(self, elem, parent)
 
     def _render_samp(self, elem, parent):
         self._render_code(elem, parent)
 
     def _render_strike(self, elem, parent):
-        self._current_text_style.strikethrough = True
-        self._process_contents(elem, parent=parent)
-        self._current_text_style.strikethrough = False
+        self._render_del(elem, parent)
 
     def _render_strong(self, elem, parent):
         self._render_b(elem, parent)
@@ -267,7 +268,7 @@ class HtmlParser(DocumentParser):
             self._process_contents(elem, parent=parent)
 
     def _render_tfoot(self, elem, parent):
-        self._process_contents(elem, parent)
+        self._process_contents(elem, parent=parent)
 
     def _render_th(self, elem, parent):
         self._render_td(elem, parent=parent)
@@ -286,7 +287,7 @@ class HtmlParser(DocumentParser):
         parent.append(row)
 
     def _render_tt(self, elem, parent):
-        self._render_pre(elem, parent)
+        self._render_pre(elem, parent=parent)
 
     def _render_u(self, elem, parent):
         self._current_text_style.underline = True
@@ -300,11 +301,11 @@ class HtmlParser(DocumentParser):
             parent.append(block)
 
     def _render_var(self, elem, parent):
-        self._render_code(elem, parent)
+        self._render_code(elem, parent=parent)
 
     def _process_text(self, text, parent):
         if not isinstance(parent, blocks.Code):
-            text = normalize_text(text)
+            text = condense_text(text)
 
         style = self._current_text_style.dict()
         href = self._current_href
@@ -335,6 +336,9 @@ class HtmlParser(DocumentParser):
         for child in elem:
             self._render(child, parent)
             self._process_text(child.tail, parent)
+
+        # TODO strip left & right in TextBlock
+        # TODO remove all whitespace in TextBlock
 
     def _process_img_data(self, elem):
         import base64
