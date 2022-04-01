@@ -151,16 +151,23 @@ class DatabasesEndpoint(Endpoint):
 
         log.info("Creating database %s - %s", parent, title)
 
-        props = {name: prop.to_api() for name, prop in schema.items()}
+        request = {
+            "parent": parent.to_api(),
+            "properties": {
+                name: value.to_api() for name, value in schema.items()
+            }
+        }
 
-        if title is not None:
+        if isinstance(title, str):
             title = TextObject.from_value(title)
 
-        data = self().create(
-            parent=parent.to_api(),
-            title=[title.to_api()],
-            properties=props,
-        )
+        if isinstance(title, TextObject):
+            request["title"] = [title.to_api()]
+
+        elif title is not None:
+            raise ValueError("Unrecognized data in 'title'")
+
+        data = self().create(**request)
 
         return Database.parse_obj(data)
 
