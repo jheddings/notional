@@ -5,8 +5,6 @@ and Notion Web Clipper.  Perhaps that capability will be exposed to the API in t
 future, which would effectively render these parsers unnecessary.
 """
 
-# FIXME don't discard implicit text blocks / phrasing elements
-# FIXME add support for links
 # FIXME improve extra spacing around text elements
 
 # TODO add more options for callers to customize output
@@ -304,18 +302,13 @@ class HtmlParser(DocumentParser):
     def _render_var(self, elem, parent):
         self._render_code(elem, parent)
 
-    def _find_and_render(self, parent, elem, *tags):
-        for tag in tags:
-            child = elem.find(tag)
-            if tag is not None:
-                self._render(child, parent)
-
     def _process_text(self, text, parent):
         if not isinstance(parent, blocks.Code):
             text = normalize_text(text)
 
         style = self._current_text_style.dict()
-        obj = TextObject.from_value(text, **style)
+        href = self._current_href
+        obj = TextObject.from_value(text, href=href, **style)
 
         if isinstance(parent, blocks.TextBlock):
             if obj is not None:
@@ -329,19 +322,19 @@ class HtmlParser(DocumentParser):
 
         #if isinstance(parent, blocks.TextBlock):
         #    text_parent = parent
-        #    implicit_text = False
+
+        #elif isinstance(parent, blocks.TableRow):
+        #    text_parent = parent
+
         #else:
         #    text_parent = blocks.Paragraph()
-        #    implicit_text = True
+        #    parent.append(text_parent)
 
         self._process_text(elem.text, parent)
 
         for child in elem:
             self._render(child, parent)
             self._process_text(child.tail, parent)
-
-        #if implicit_text:
-        #    parent.append(text_parent)
 
     def _process_img_data(self, elem):
         import base64
