@@ -11,15 +11,17 @@ future, which would effectively render these parsers unnecessary.
 # TODO look for options to handle text styled using CSS
 # TODO consider how to handle <form> content
 
+import csv
+import io
 import logging
 import re
+from os.path import basename
 from abc import ABC, abstractmethod
 
 import html5lib
 
-from notional.text import Annotations, TextObject
-
-from . import blocks, types
+from . import blocks, types, schema
+from .text import Annotations, TextObject
 
 log = logging.getLogger(__name__)
 
@@ -59,7 +61,94 @@ class DocumentParser(ABC):
 
     @abstractmethod
     def parse(self, data):
-        pass
+        if hasattr(data, "name"):
+            self.title = basename(data.name)
+
+
+class CsvParser(DocumentParser):
+    """A standard CSV parser."""
+
+    schema: dict()
+
+    def __init__(self, header_row=True, title_column=0):
+        super().__init__()
+
+        self._has_header = header_row
+        self._title_index = title_column
+
+        self.schema = dict()
+
+        self._field_names = list()
+
+    def parse(self, data):
+        super().parse(data)
+
+        if isinstance(data, str):
+            data = io.StringIO(data, newline="")
+
+        reader = csv.reader(data)
+
+        self._process(reader)
+
+    def _process(self, csv):
+
+        # build the schema based on the first row
+
+        try:
+            header = next(csv)
+        except StopIteration:
+            raise ValueError("Invalid CSV: empty data")
+
+        if self._has_header:
+            self._build_schema(*header)
+        else:
+            cols = [num for num in range(len(header))]
+            self._build_schema(*cols)
+            self._build_record(*header)
+        
+        # process remaining entries
+
+        for entry in csv:
+            self._build_record(*entry)
+
+    def _build_schema(self, *fields):
+        if fields is None or len(fields) < 1:
+            raise ValueError("Invalid CSV: empty header")
+
+        column = 0
+
+        for field in fields:
+            field = field.strip()
+
+            while field in self._field_names:
+                field = f"{field}_{column}"
+
+            if column == self._title_index:
+                self.schema[field] = schema.Title()
+            else:
+                self.schema[field] = schema.RichText()
+
+            self._field_names.append(field)
+
+            column += 1
+
+    def _build_record(self, *fields):
+        if len(fields) != len(self.schema):
+            raise ValueError("Invalid CSV: incorrect number of fields in data")
+
+        record = dict()
+
+        for col in range(len(fields)):
+            name = self._field_names[col]
+
+            if col == self._title_index:
+                value = types.Title.from_value(fields[col])
+            else:
+                value = types.RichText.from_value(fields[col])
+
+            record[name] = value
+
+        self.content.append(record)
 
 
 class HtmlParser(DocumentParser):
@@ -77,15 +166,12 @@ class HtmlParser(DocumentParser):
         self._current_href = None
         self._current_text_style = Annotations()
 
-    def parse(self, html):
+    def parse(self, data):
+        super().parse(data)
 
-        log.debug("BEGIN parsing")
-
-        doc = html5lib.parse(html, namespaceHTMLElements=False)
+        doc = html5lib.parse(data, namespaceHTMLElements=False)
 
         self._render(doc)
-
-        log.debug("END parsing")
 
     def _render(self, elem, parent=None):
         log.debug("rendering element - %s :: [%s]", elem.tag, parent)
@@ -331,11 +417,14 @@ class HtmlParser(DocumentParser):
         #    text_parent = blocks.Paragraph()
         #    parent.append(text_parent)
 
-        self._process_text(elem.text, parent)
+        if parent is not None:
+            self._process_text(elem.text, parent)
 
         for child in elem:
             self._render(child, parent)
-            self._process_text(child.tail, parent)
+
+            if parent is not None:
+                self._process_text(child.tail, parent)
 
         # TODO strip left & right in TextBlock
         # TODO remove all whitespace in TextBlock
