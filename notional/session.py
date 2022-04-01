@@ -153,9 +153,7 @@ class DatabasesEndpoint(Endpoint):
 
         request = {
             "parent": parent.to_api(),
-            "properties": {
-                name: value.to_api() for name, value in schema.items()
-            }
+            "properties": {name: value.to_api() for name, value in schema.items()},
         }
 
         if isinstance(title, str):

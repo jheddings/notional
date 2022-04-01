@@ -62,7 +62,7 @@ elif ext == ".csv":
     db = notion.databases.create(
         parent=parent,
         title=parser.title,
-        schema=parser.schema
+        schema=parser.schema,
     )
 
     print(f"{db.Title} => {db.url}")
