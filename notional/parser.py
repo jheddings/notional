@@ -101,8 +101,9 @@ class CsvParser(DocumentParser):
 
         if self._has_header:
             self._build_schema(*header)
+
         else:
-            cols = [num for num in range(len(header))]
+            cols = [str(num) for num in range(len(header))]
             self._build_schema(*cols)
             self._build_record(*header)
         
@@ -133,20 +134,22 @@ class CsvParser(DocumentParser):
             column += 1
 
     def _build_record(self, *fields):
-        if len(fields) != len(self.schema):
+        if len(fields) != len(self._field_names):
             raise ValueError("Invalid CSV: incorrect number of fields in data")
 
         record = dict()
 
-        for col in range(len(fields)):
-            name = self._field_names[col]
+        column = 0
 
-            if col == self._title_index:
-                value = types.Title.from_value(fields[col])
+        for col in self._field_names:
+            value = fields[column]
+
+            if column == self._title_index:
+                record[col] = types.Title.from_value(value)
             else:
-                value = types.RichText.from_value(fields[col])
+                record[col] = types.RichText.from_value(value)
 
-            record[name] = value
+            column += 1
 
         self.content.append(record)
 
