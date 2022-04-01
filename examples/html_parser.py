@@ -31,13 +31,11 @@ print(f"Parsing document: {filename}...")
 page = notion.pages.retrieve(parent_id)
 
 # setup the parser, which is stateful (e.g. no concurrent use)
-parser = HtmlParser(base="http://www.example.com/")
+parser = HtmlParser(base="https://www.example.com/")
 
 # parse the source content
 with open(filename, "r") as fp:
-    html = fp.read()
-
-parser.parse(html)
+    parser.parse(fp)
 
 # create the page and upload the parsed content
 doc = notion.pages.create(
