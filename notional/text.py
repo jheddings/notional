@@ -10,7 +10,7 @@ from .core import DataObject, NestedObject, TypedObject
 
 
 # the max text size according to the Notion API is 2000 characters...
-MAX_TEXT_OBJECT_SIZE = 1980
+MAX_TEXT_OBJECT_SIZE = 2000
 
 
 def plain_text(*rtf):
