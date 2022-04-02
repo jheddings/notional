@@ -107,10 +107,30 @@ class MentionDate(MentionData, type="date"):
     date: DateRange
 
 
+class MentionLink(MentionData, type="link_preview"):
+    url: str
+
+
+class MentionTemplateData(TypedObject):
+    pass
+
+
+class MentionTemplateDate(MentionTemplateData, type="template_mention_date"):
+    template_mention_date: str
+
+
+class MentionTemplateUser(MentionTemplateData, type="template_mention_user"):
+    template_mention_user: str
+
+
+class MentionTemplate(MentionData, type="template_mention"):
+    template_mention: MentionTemplateData
+
+
 class MentionObject(RichTextObject, type="mention"):
     """Notion mention element."""
 
-    mention: Optional[MentionData] = None
+    mention: MentionData
 
 
 class Expression(NestedObject):
@@ -120,7 +140,7 @@ class Expression(NestedObject):
 class EquationObject(RichTextObject, type="equation"):
     """Notion equation element."""
 
-    equation: Optional[Expression] = None
+    equation: Expression
 
     def __str__(self):
         """Return a string representation of this object."""
