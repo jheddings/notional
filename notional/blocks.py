@@ -60,7 +60,7 @@ class TextBlock(Block):
     # text blocks have a nested object with 'type' name and a 'text' child
 
     @property
-    def __text__(self):
+    def __nested_text__(self):
         """Provide short-hand access to the nested text content in this block."""
 
         nested = self.__nested_data__
