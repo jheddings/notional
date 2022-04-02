@@ -15,25 +15,18 @@ import csv
 import io
 import logging
 import re
-from os.path import basename
 from abc import ABC, abstractmethod
+from os.path import basename
 
 import html5lib
 
-from . import blocks, types, schema
+from . import blocks, schema, types
 from .text import Annotations, TextObject
 
 log = logging.getLogger(__name__)
 
 # parse embedded image data
 img_data_re = re.compile("^data:image/([^;]+);([^,]+),(.+)$")
-
-
-def normalize_text(text):
-    if text is None:
-        return None
-
-    return condense_text(text.strip())
 
 
 def condense_text(text):
@@ -45,9 +38,65 @@ def condense_text(text):
     return text or None
 
 
+def normalize_text(text):
+    if text is None:
+        return None
+
+    text = text.strip()
+
+    return condense_text(text)
+
+
 def gather_text(elem):
     text = "".join(elem.itertext())
     return normalize_text(text)
+
+
+def strip_text_block(block):
+    """Remove leading and trailing whitespace from text in the given block."""
+
+    if not isinstance(block, blocks.TextBlock):
+        return
+
+    if isinstance(block, blocks.Code):
+        return
+
+    all_text = block.__nested_text__
+
+    if all_text is None or len(all_text) == 0:
+        return
+
+    ltext = all_text[0]
+
+    if isinstance(ltext, TextObject) and ltext.text and ltext.text.content:
+        strip_text = ltext.text.content.lstrip()
+        ltext.text.content = strip_text
+        ltext.plain_text = strip_text
+
+    rtext = all_text[-1]
+
+    if isinstance(rtext, TextObject) and rtext.text and rtext.text.content:
+        strip_text = rtext.text.content.rstrip()
+        rtext.text.content = strip_text
+        rtext.plain_text = strip_text
+
+
+def is_clear_text(elem):
+
+    # first, check the direct text of the element...
+    if elem.text is not None:
+        if not elem.text.isspace():
+            return False
+
+    # now, we need to check the tail of each child...
+    for child in elem:
+        if child.tail is None:
+            continue
+
+        if not child.tail.isspace():
+            return False
+
+    return True
 
 
 class DocumentParser(ABC):
@@ -106,7 +155,7 @@ class CsvParser(DocumentParser):
             cols = [str(num) for num in range(len(header))]
             self._build_schema(*cols)
             self._build_record(*header)
-        
+
         # process remaining entries
 
         for entry in csv:
@@ -258,7 +307,19 @@ class HtmlParser(DocumentParser):
         self._process_contents(elem, parent=h3)
         parent.append(h3)
 
+    def _render_h4(self, elem, parent):
+        self._render_h3(elem, parent)
+
+    def _render_h5(self, elem, parent):
+        self._render_h3(elem, parent)
+
+    def _render_h6(self, elem, parent):
+        self._render_h3(elem, parent)
+
     def _render_head(self, elem, parent):
+        self._process_contents(elem, parent=parent)
+
+    def _render_hgroup(self, elem, parent):
         self._process_contents(elem, parent=parent)
 
     def _render_hr(self, elem, parent):
@@ -333,6 +394,9 @@ class HtmlParser(DocumentParser):
 
     def _render_samp(self, elem, parent):
         self._render_code(elem, parent)
+
+    def _render_span(self, elem, parent):
+        self._process_contents(elem, parent=parent)
 
     def _render_strike(self, elem, parent):
         self._render_del(elem, parent)
@@ -410,27 +474,36 @@ class HtmlParser(DocumentParser):
     def _process_contents(self, elem, parent):
         log.debug("processing contents :: %s [%s]", elem, parent)
 
-        #if isinstance(parent, blocks.TextBlock):
-        #    text_parent = parent
+        # empty elements don't need text processing...
+        if is_clear_text(elem):
+            has_text = False
 
-        #elif isinstance(parent, blocks.TableRow):
-        #    text_parent = parent
+        # TextBlock's can hold text directly...
+        elif isinstance(parent, blocks.TextBlock):
+            has_text = True
 
-        #else:
-        #    text_parent = blocks.Paragraph()
-        #    parent.append(text_parent)
+        # so can TableRow's...
+        elif isinstance(parent, blocks.TableRow):
+            has_text = True
 
-        if parent is not None:
+        # otherwise, we need a new parent to hold text...
+        else:
+            has_text = True
+            new_parent = blocks.Paragraph()
+            parent.append(new_parent)
+            parent = new_parent
+
+        if has_text:
             self._process_text(elem.text, parent)
 
         for child in elem:
             self._render(child, parent)
 
-            if parent is not None:
+            if has_text:
                 self._process_text(child.tail, parent)
 
-        # TODO strip left & right in TextBlock
-        # TODO remove all whitespace in TextBlock
+        if isinstance(parent, blocks.TextBlock):
+            strip_text_block(parent)
 
     def _process_img_data(self, elem):
         import base64

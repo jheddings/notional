@@ -2,8 +2,8 @@ import logging
 import os
 import unittest
 
-from notional import blocks
-from notional.parser import HtmlParser
+from notional import blocks, schema, types
+from notional.parser import CsvParser, HtmlParser
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.FATAL)
@@ -12,7 +12,7 @@ BASEDIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class HtmlDocumentTest(unittest.TestCase):
-    """Unit tests for the HtmlDocument parser."""
+    """Unit tests for the HtmlParser class."""
 
     def check_single_block(self, html, expected_type, expected_text):
         parser = HtmlParser()
@@ -102,6 +102,13 @@ class HtmlDocumentTest(unittest.TestCase):
             expected_text="Lorem ipsum dolor sit amet, ...",
         )
 
+    def test_ExtraWhitespace(self):
+        self.check_single_block(
+            html="<p> ...\tconsectetur   adipiscing\nelit.  </p>",
+            expected_type=blocks.Paragraph,
+            expected_text="... consectetur adipiscing elit.",
+        )
+
     def test_NakedText(self):
         self.check_single_block(
             html="Look ma, no tags!",
@@ -157,3 +164,31 @@ class HtmlDocumentTest(unittest.TestCase):
 
         self.assertEqual(len(block.paragraph.text), 1)
         self.check_style(block.paragraph.text[0], italic=True)
+
+
+class CsvDocumentTest(unittest.TestCase):
+    """Unit tests for the CsvParser class."""
+
+    def test_BasicDataCheck(self):
+        data = """first,last\none,two"""
+
+        parser = CsvParser(header_row=True)
+        parser.parse(data)
+
+        self.assertIn("first", parser.schema)
+        self.assertIsInstance(parser.schema["first"], schema.Title)
+
+        self.assertIn("last", parser.schema)
+        self.assertIsInstance(parser.schema["last"], schema.RichText)
+
+        self.assertEqual(len(parser.content), 1)
+
+        entry = parser.content[0]
+
+        self.assertIn("first", entry)
+        self.assertIsInstance(entry["first"], types.Title)
+        self.assertEqual(entry["first"].Value, "one")
+
+        self.assertIn("last", entry)
+        self.assertIsInstance(entry["last"], types.RichText)
+        self.assertEqual(entry["last"].Value, "two")
