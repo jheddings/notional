@@ -146,6 +146,8 @@ class AppendChildren(object):
 
         nested.children.append(block)
 
+        self.has_children = True
+
 
 class Paragraph(TextBlock, AppendChildren, type="paragraph"):
     """A paragraph block in Notion."""
