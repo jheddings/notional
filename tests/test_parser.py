@@ -130,6 +130,46 @@ class HtmlDocumentTest(unittest.TestCase):
             expected_text="    ...that is the question",
         )
 
+    def test_BasicBulletedList(self):
+        html = "<ul><li>Eenie</li><li>Meenie</li></ul"
+
+        parser = HtmlParser()
+        parser.parse(html)
+
+        self.assertEqual(len(parser.content), 2)
+
+        li = parser.content[0]
+        self.assertIsInstance(li, blocks.BulletedListItem)
+        self.assertEqual(li.PlainText, "Eenie")
+
+        li = parser.content[1]
+        self.assertIsInstance(li, blocks.BulletedListItem)
+        self.assertEqual(li.PlainText, "Meenie")
+
+    def test_MalformedNestedList(self):
+        html = """<ul>
+            <li>Outer A</li>
+            <li>Outer B</li>
+            <ul>
+                <li>Inner A</li>
+            </ul>
+            <li>Outer C</li>
+        </ul>"""
+
+        parser = HtmlParser()
+        parser.parse(html)
+
+        self.assertEqual(len(parser.content), 3)
+
+        for block in parser.content:
+            self.assertIsInstance(block, blocks.BulletedListItem)
+
+        li = parser.content[1]
+        self.assertTrue(li.has_children)
+
+        for block in parser.content[1].__nested_data__.children:
+            self.assertIsInstance(block, blocks.BulletedListItem)
+
     def test_ImplicitText(self):
         html = "<body><div>Open Text</div></body>"
 

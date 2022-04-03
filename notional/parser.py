@@ -374,10 +374,7 @@ class HtmlParser(DocumentParser):
         self._process_contents(elem, parent=parent)
 
     def _render_ol(self, elem, parent):
-        for li in elem.findall("li"):
-            block = blocks.NumberedListItem()
-            self._render(li, parent=block)
-            parent.append(block)
+        self._process_list(elem, parent, blocks.NumberedListItem)
 
     def _render_p(self, elem, parent):
         para = blocks.Paragraph()
@@ -448,10 +445,7 @@ class HtmlParser(DocumentParser):
         self._current_text_style.underline = False
 
     def _render_ul(self, elem, parent):
-        for li in elem.findall("li"):
-            block = blocks.BulletedListItem()
-            self._render(li, parent=block)
-            parent.append(block)
+        self._process_list(elem, parent, blocks.BulletedListItem)
 
     def _render_var(self, elem, parent):
         self._render_code(elem, parent=parent)
@@ -504,6 +498,17 @@ class HtmlParser(DocumentParser):
 
         if isinstance(parent, blocks.TextBlock):
             strip_text_block(parent)
+
+    def _process_list(self, elem, parent, kind):
+        list_parent = parent
+
+        for child in elem:
+            if child.tag == "li":
+                list_parent = kind()
+                self._render(child, parent=list_parent)
+                parent.append(list_parent)
+            else:
+                self._render(child, list_parent)
 
     def _process_img_data(self, elem):
         import base64
