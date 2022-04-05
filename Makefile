@@ -6,6 +6,8 @@ SRCDIR ?= $(BASEDIR)/$(APPNAME)
 DISTDIR ?= $(BASEDIR)/dist
 VENVDIR ?= $(BASEDIR)/.venv
 
+WITH_VENV = source "$(VENVDIR)/bin/activate" &&
+
 SOURCES = "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests" "$(BASEDIR)/setup.py"
 
 ################################################################################
@@ -16,8 +18,8 @@ all: build test
 ################################################################################
 .PHONY: build
 
-build: venv-configured preflight test
-	python3 setup.py sdist bdist_wheel
+build: preflight test
+	$(WITH_VENV) python3 setup.py sdist bdist_wheel
 
 ################################################################################
 .PHONY: publish
@@ -28,14 +30,14 @@ publish: build
 ################################################################################
 .PHONY: preflight
 
-preflight: venv-configured test
-	pre-commit run --all-files
+preflight: test
+	$(WITH_VENV) pre-commit run --all-files
 
 ################################################################################
 .PHONY: test
 
-test: venv-configured
-	python3 -m unittest discover -v -s "$(BASEDIR)/tests"
+test:
+	$(WITH_VENV) python3 -m unittest discover -v -s "$(BASEDIR)/tests"
 
 ################################################################################
 .PHONY: stats
@@ -56,15 +58,7 @@ venv: requirements/core.txt requirements/dev.txt
 .PHONY: devenv
 
 devenv: venv
-	pre-commit install
-
-################################################################################
-.PHONY: venv-configured
-
-venv-configured:
-ifneq ($(VIRTUAL_ENV), $(VENVDIR))
-	$(error Must use venv !!)
-endif
+	$(WITH_VENV) pre-commit install
 
 ################################################################################
 .PHONY: upgrade-venv
@@ -89,5 +83,6 @@ clean:
 
 # TODO deactivate first
 clobber: clean
-	rm -Rf "$(BASEDIR)/dist"
-	rm -Rf "$(BASEDIR)/.venv"
+	pre-commit uninstall
+	rm -Rf "$(DISTDIR)"
+	rm -Rf "$(VENVDIR)"
