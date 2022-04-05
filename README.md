@@ -6,14 +6,15 @@
 
 A high level interface and object model for the Notion SDK.  This is loosely modeled
 after concepts found in [SQLAlchemy](http://www.sqlalchemy.org) and
-[MongoEngine](http://mongoengine.org).
+[MongoEngine](http://mongoengine.org).  This module is built on the excellent
+[notion-sdk-py](https://github.com/ramnes/notion-sdk-py) library, providing higher-
+level access to the API.
 
 > :warning: **Work In Progress**: The interfaces in this module are still in development
-and are likely to change frequently.  Furthermore, documentation is pretty sparse so use
-at your own risk!
+and are likely to change.  Furthermore, documentation is pretty sparse so use at your
+own risk!
 
-That being said, if you do use this library, please drop a message!  I'd love to see your
-use case and how you are incorporating this into your project.
+That being said, if you do use this library, please drop me a message!
 
 ## Installation ##
 
@@ -24,7 +25,7 @@ Install the most recent release using PyPi:
 pip install notional
 ```
 
-Or install the most recent code from the GitHub repo (this is unstable!):
+Or install the most recent code from the GitHub repo (this may be unstable!):
 
 ```shell
 pip install git+https://github.com/jheddings/notional.git
@@ -33,7 +34,7 @@ pip install git+https://github.com/jheddings/notional.git
 *Note:* it is recommended to use a virtual environment (`venv`) for installing libraries
 to prevent conflicting dependency versions.
 
-## Usage ###
+## Usage ##
 
 Connect to the API using an integration token or an OAuth access token:
 
@@ -45,7 +46,14 @@ notion = notional.connect(auth=AUTH_TOKEN)
 # do some things
 ```
 
-## Iterators ###
+### Token Security ###
+
+It is generally a best practice to read the auth token from an environment variable or
+a secrets file.  To prevent accidental exposure, it is NOT recommended to save the token
+in source.  For more information, read about Notion authorization 
+[here](https://developers.notion.com/docs/authorization).
+
+## Iterators ##
 
 The iterators provide convenient access to the Notion endpoints.  Rather than looking for
 each page of data, the iterators take care of this and expose a standard Python iterator:
@@ -75,7 +83,7 @@ for data in tasks:
 Note that the parameters to the iterator follow the standard API parameters for the
 given endpoint.
 
-## Query Builder ###
+## Query Builder ##
 
 Notional provides a query builder for interating with the Notion API.  Query targets can
 be either a specific database ID or a custom ORM type.
@@ -142,12 +150,61 @@ for task in notion.databases.query(Task).execute():
 See the [examples](https://github.com/jheddings/notional/tree/main/examples) for more
 information.
 
-### Token Security ###
+## Parsers ##
 
-It is generally a best practice to read the auth token from an environment variable or
-a secrets file.  To prevent accidental exposure, it is NOT recommended to save the token
-in source.  For more information, read about Notion authorization 
-[here](https://developers.notion.com/docs/authorization).
+Notional includes several parsers for importing exernal content.  They will accept
+either string (data) or file-like objects to provide the input content.
+
+### HTML Parser ###
+
+The HTML parser read an HTML document into Notion API objects.  From there, the caller
+may create a page in Notion using the rendered content.
+
+```python
+from notional.parser import HtmlParser
+
+parser = HtmlParser(base="https://www.example.com/")
+
+with open(filename, "r") as fp:
+    parser.parse(fp)
+
+doc = notion.pages.create(
+    parent=parent_page,
+    title=parser.title,
+    children=parser.content,
+)
+```
+
+*Note:* while the parser aims to be general purpose, there may be conditions where it
+cannot interpret the HTML document.  Please submit an issue if you find an example of
+valid HTML that is not properly converted.
+
+### CSV Parser ###
+
+The CSV parser will read comma-separate value content and generate the appropriate 
+database along with content.  In order to populate the database, the contents must
+be created as individual pages.
+
+```python
+from notional.parser import CsvParser
+
+parser = CsvParser(header_row=True)
+
+with open(filename, "r") as fp:
+    parser.parse(fp)
+
+doc = notion.databases.create(
+    parent=parent_page,
+    title=parser.title,
+    schema=parser.schema,
+)
+
+for props in parser.content:
+    page = notion.pages.create(
+        parent=db,
+        properties=props,
+    )
+```
 
 ## Contributing ##
 

@@ -71,7 +71,7 @@ class TextBlock(Block):
         return nested.text
 
     def concat(self, *text):
-        """Concatenate the given text to this block."""
+        """Concatenate text (either `RichTextObject` or `str` items) to this block."""
 
         if text is None:
             raise AttributeError("text cannot be None")
