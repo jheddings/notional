@@ -29,9 +29,7 @@ publish: build
 .PHONY: preflight
 
 preflight: venv-configured test
-	isort --profile black $(SOURCES)
-	black $(SOURCES)
-	flake8 --ignore=E266,E402,E501,E203 $(SOURCES)
+	pre-commit run --all-files
 
 ################################################################################
 .PHONY: test
@@ -53,6 +51,12 @@ venv: requirements/core.txt requirements/dev.txt
 	"$(BASEDIR)/.venv/bin/pip3" install --upgrade pip
 	"$(BASEDIR)/.venv/bin/pip3" install -r requirements/core.txt
 	"$(BASEDIR)/.venv/bin/pip3" install -r requirements/dev.txt
+
+################################################################################
+.PHONY: devenv
+
+devenv: venv
+	pre-commit install
 
 ################################################################################
 .PHONY: venv-configured
