@@ -14,5 +14,4 @@ repos:
     rev: 4.0.1
     hooks:
       - id: flake8
-        args: 
-        - --ignore=E266,E402,E501,E203
+        args: [ "--ignore=E266,E402,E501,E203" ]

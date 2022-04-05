@@ -1,4 +1,4 @@
-name: Code Quality
+name: Static Code Quality
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  check:
+  pre_commit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
