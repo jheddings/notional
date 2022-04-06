@@ -35,7 +35,7 @@ def condense_text(text):
 
     text = re.sub(r"\s+", " ", text, flags=re.MULTILINE)
 
-    return text or None
+    return text
 
 
 def normalize_text(text):
@@ -81,22 +81,24 @@ def strip_text_block(block):
         rtext.plain_text = strip_text
 
 
-def is_clear_text(elem):
+def elem_has_text(elem, with_children=True):
 
     # first, check the direct text of the element...
-    if elem.text is not None:
-        if not elem.text.isspace():
-            return False
+    if elem.text is not None and not elem.text.isspace():
+        return True
 
     # now, we need to check the tail of each child...
     for child in elem:
+        if with_children and elem_has_text(child):
+            return True
+
         if child.tail is None:
             continue
 
         if not child.tail.isspace():
-            return False
+            return True
 
-    return True
+    return False
 
 
 class DocumentParser(ABC):
@@ -412,10 +414,13 @@ class HtmlParser(DocumentParser):
         self._process_contents(elem, parent)
 
     def _render_td(self, elem, parent):
-        if elem.text is None:
-            self._process_text(" ", parent)
-        else:
+        if not isinstance(parent, blocks.TableRow):
+            raise TypeError("Invalid parent for <td>")
+
+        if elem_has_text(elem):
             self._process_contents(elem, parent=parent)
+        else:
+            self._append_text("", parent)
 
     def _render_tfoot(self, elem, parent):
         self._process_contents(elem, parent=parent)
@@ -424,6 +429,9 @@ class HtmlParser(DocumentParser):
         self._render_td(elem, parent=parent)
 
     def _render_thead(self, elem, parent):
+        if not isinstance(parent, blocks.Table):
+            raise TypeError("Invalid parent for <thead>")
+
         parent.table.has_column_header = True
         self._process_contents(elem, parent=parent)
 
@@ -431,9 +439,13 @@ class HtmlParser(DocumentParser):
         self.title = gather_text(elem)
 
     def _render_tr(self, elem, parent):
+        if not isinstance(parent, blocks.Table):
+            raise TypeError("Invalid parent for <tr>")
+
         row = blocks.TableRow()
         for td in elem.findall("td"):
             self._render(td, parent=row)
+
         parent.append(row)
 
     def _render_tt(self, elem, parent):
@@ -450,7 +462,7 @@ class HtmlParser(DocumentParser):
     def _render_var(self, elem, parent):
         self._render_code(elem, parent=parent)
 
-    def _process_text(self, text, parent):
+    def _append_text(self, text, parent):
         if not isinstance(parent, blocks.Code):
             text = condense_text(text)
 
@@ -469,7 +481,7 @@ class HtmlParser(DocumentParser):
         log.debug("processing contents :: %s [%s]", elem, parent)
 
         # empty elements don't need text processing...
-        if is_clear_text(elem):
+        if not elem_has_text(elem, with_children=False):
             has_text = False
 
         # TextBlock's can hold text directly...
@@ -488,13 +500,13 @@ class HtmlParser(DocumentParser):
             parent = new_parent
 
         if has_text:
-            self._process_text(elem.text, parent)
+            self._append_text(elem.text, parent)
 
         for child in elem:
             self._render(child, parent)
 
             if has_text:
-                self._process_text(child.tail, parent)
+                self._append_text(child.tail, parent)
 
         if isinstance(parent, blocks.TextBlock):
             strip_text_block(parent)

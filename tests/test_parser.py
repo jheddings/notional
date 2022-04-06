@@ -4,6 +4,7 @@ import unittest
 
 from notional import blocks, schema, types
 from notional.parser import CsvParser, HtmlParser
+from notional.text import plain_text
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.FATAL)
@@ -28,6 +29,37 @@ class HtmlDocumentTest(unittest.TestCase):
             self.assertEqual(block.PlainText, expected_text)
 
         return block
+
+    def check_table_data(self, html, expected):
+        parser = HtmlParser()
+        parser.parse(html)
+
+        self.assertEqual(len(parser.content), 1)
+
+        table = parser.content[0]
+
+        self.assertIsInstance(table, blocks.Table)
+
+        nested_table = table.table
+        self.assertEqual(len(nested_table.children), len(expected))
+
+        for idx in range(len(nested_table.children)):
+            parser_row = table.table.children[idx]
+            expected_row = expected[idx]
+
+            self.assertIsInstance(parser_row, blocks.TableRow)
+
+            nested_row = parser_row.table_row
+            self.assertEqual(len(nested_row.cells), len(expected_row))
+
+            for jdx in range(len(nested_row.cells)):
+                parser_cell = nested_row.cells[jdx]
+                expected_cell = expected_row[jdx]
+
+                parser_text = plain_text(*parser_cell)
+                expected_text = str(expected_cell)
+
+                self.assertEqual(parser_text, expected_text)
 
     def check_style(self, text, **expected_style):
         current_style = text.annotations
@@ -204,6 +236,24 @@ class HtmlDocumentTest(unittest.TestCase):
 
         self.assertEqual(len(block.paragraph.text), 1)
         self.check_style(block.paragraph.text[0], italic=True)
+
+    def test_BasicTableData(self):
+        self.check_table_data(
+            html="<table><tr><td>Datum</td></tr></table>",
+            expected=[["Datum"]],
+        )
+
+    def test_EmptyTableCell(self):
+        self.check_table_data(
+            html="<table><tr><td></td></tr></table>",
+            expected=[[""]],
+        )
+
+    def test_TableCellWithDiv(self):
+        self.check_table_data(
+            html="<table><tr><td><div>hidden DATA</div></td></tr></table>",
+            expected=[["hidden DATA"]],
+        )
 
 
 class CsvDocumentTest(unittest.TestCase):
