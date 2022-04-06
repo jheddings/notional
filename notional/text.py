@@ -28,6 +28,22 @@ def chunky(text, length=MAX_TEXT_OBJECT_SIZE):
     return (text[idx : idx + length] for idx in range(0, len(text), length))
 
 
+def shorten(text, length=-1, trail="..."):
+    if text is None:
+        return None
+
+    # repr() includes open and close quotes...
+    literal = repr(text)[1:-1]
+
+    if length > 0 and len(literal) > length:
+        literal = literal[:length]
+
+        if trail is not None:
+            literal += trail
+
+    return literal
+
+
 class Color(str, Enum):
     """Basic color values."""
 
