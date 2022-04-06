@@ -40,20 +40,20 @@ class HtmlDocumentTest(unittest.TestCase):
 
         self.assertIsInstance(table, blocks.Table)
 
-        nested_table = table.table
-        self.assertEqual(len(nested_table.children), len(expected))
+        rows = table("children")
+        self.assertEqual(len(rows), len(expected))
 
-        for idx in range(len(nested_table.children)):
-            parser_row = table.table.children[idx]
+        for idx in range(len(rows)):
+            parser_row = rows[idx]
             expected_row = expected[idx]
 
             self.assertIsInstance(parser_row, blocks.TableRow)
 
-            nested_row = parser_row.table_row
-            self.assertEqual(len(nested_row.cells), len(expected_row))
+            cells = parser_row("cells")
+            self.assertEqual(len(cells), len(expected_row))
 
-            for jdx in range(len(nested_row.cells)):
-                parser_cell = nested_row.cells[jdx]
+            for jdx in range(len(cells)):
+                parser_cell = cells[jdx]
                 expected_cell = expected_row[jdx]
 
                 parser_text = plain_text(*parser_cell)
@@ -199,7 +199,7 @@ class HtmlDocumentTest(unittest.TestCase):
         li = parser.content[1]
         self.assertTrue(li.has_children)
 
-        for block in parser.content[1].__nested_data__.children:
+        for block in parser.content[1].__children__:
             self.assertIsInstance(block, blocks.BulletedListItem)
 
     def test_ImplicitText(self):
@@ -224,8 +224,10 @@ class HtmlDocumentTest(unittest.TestCase):
             expected_text="Strong Text",
         )
 
-        self.assertEqual(len(block.paragraph.text), 1)
-        self.check_style(block.paragraph.text[0], bold=True)
+        text = block("text")
+
+        self.assertEqual(len(text), 1)
+        self.check_style(text[0], bold=True)
 
     def test_SimpleEmphasisText(self):
         block = self.check_single_block(
@@ -234,8 +236,10 @@ class HtmlDocumentTest(unittest.TestCase):
             expected_text="Emphasis Text",
         )
 
-        self.assertEqual(len(block.paragraph.text), 1)
-        self.check_style(block.paragraph.text[0], italic=True)
+        text = block("text")
+
+        self.assertEqual(len(text), 1)
+        self.check_style(text[0], italic=True)
 
     def test_BasicTableData(self):
         self.check_table_data(

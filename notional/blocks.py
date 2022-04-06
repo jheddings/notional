@@ -26,23 +26,10 @@ log = logging.getLogger(__name__)
 
 
 class Block(Record, TypedObject, object="block"):
-    """A standard block object in Notion."""
+    """A standard block object in Notion.
 
-    # Blocks are Records with a type and (typically) nested data...
-
-    @property
-    def __nested_data__(self):
-        type = getattr(self, "type", None)
-
-        if type is None:
-            raise AttributeError("type not found")
-
-        nested = getattr(self, type)
-
-        if nested is None:
-            raise AttributeError("missing nested data")
-
-        return nested
+    Calling the block will expose the nested data in the object.
+    """
 
 
 class UnsupportedBlock(Block, type="unsupported"):
@@ -60,15 +47,10 @@ class TextBlock(Block):
     # text blocks have a nested object with 'type' name and a 'text' child
 
     @property
-    def __nested_text__(self):
+    def __text__(self):
         """Provide short-hand access to the nested text content in this block."""
 
-        nested = self.__nested_data__
-
-        if not hasattr(nested, "text"):
-            raise AttributeError("nested data does not contain text")
-
-        return nested.text
+        return self("text")
 
     def concat(self, *text):
         """Concatenate text (either `RichTextObject` or `str` items) to this block."""
@@ -76,7 +58,7 @@ class TextBlock(Block):
         if text is None:
             raise AttributeError("text cannot be None")
 
-        nested = self.__nested_data__
+        nested = self()
 
         if not hasattr(nested, "text"):
             raise AttributeError("nested data does not contain text")
@@ -110,13 +92,21 @@ class TextBlock(Block):
 
     @property
     def PlainText(self):
-        # content is stored in the nested data, named by the object type
-        content = getattr(self, self.__class__.type)
-        return plain_text(*content.text)
+        """Return the contents of this Block as plain text."""
+
+        content = self.__text__
+
+        return None if content is None else plain_text(*content)
 
 
-class AppendChildren(object):
+class WithChildrenMixin(object):
     """Mixin for blocks that support children blocks."""
+
+    @property
+    def __children__(self):
+        """Provide short-hand access to the children in this block."""
+
+        return self("children")
 
     def __iadd__(self, block):
         self.append(block)
@@ -128,18 +118,7 @@ class AppendChildren(object):
         if block is None:
             raise AttributeError("block cannot be None")
 
-        type = getattr(self, "type", None)
-
-        if type is None:
-            raise AttributeError("type not found")
-
-        nested = getattr(self, type)
-
-        if nested is None:
-            raise AttributeError("missing nested data")
-
-        if not hasattr(nested, "children"):
-            raise AttributeError("nested data does not contain children")
+        nested = self()
 
         if nested.children is None:
             nested.children = list()
@@ -149,7 +128,7 @@ class AppendChildren(object):
         self.has_children = True
 
 
-class Paragraph(TextBlock, AppendChildren, type="paragraph"):
+class Paragraph(TextBlock, WithChildrenMixin, type="paragraph"):
     """A paragraph block in Notion."""
 
     class NestedData(NestedObject):
@@ -218,7 +197,7 @@ class Heading3(TextBlock, type="heading_3"):
         return ""
 
 
-class Quote(TextBlock, AppendChildren, type="quote"):
+class Quote(TextBlock, WithChildrenMixin, type="quote"):
     """A quote block in Notion."""
 
     class NestedData(NestedObject):
@@ -258,7 +237,7 @@ class Code(TextBlock, type="code"):
         return ""
 
 
-class Callout(TextBlock, AppendChildren, type="callout"):
+class Callout(TextBlock, WithChildrenMixin, type="callout"):
     """A callout block in Notion."""
 
     class NestedData(NestedObject):
@@ -270,7 +249,7 @@ class Callout(TextBlock, AppendChildren, type="callout"):
     callout: NestedData = NestedData()
 
 
-class BulletedListItem(TextBlock, AppendChildren, type="bulleted_list_item"):
+class BulletedListItem(TextBlock, WithChildrenMixin, type="bulleted_list_item"):
     """A bulleted list item in Notion."""
 
     class NestedData(NestedObject):
@@ -288,7 +267,7 @@ class BulletedListItem(TextBlock, AppendChildren, type="bulleted_list_item"):
         return ""
 
 
-class NumberedListItem(TextBlock, AppendChildren, type="numbered_list_item"):
+class NumberedListItem(TextBlock, WithChildrenMixin, type="numbered_list_item"):
     """A numbered list item in Notion."""
 
     class NestedData(NestedObject):
@@ -306,7 +285,7 @@ class NumberedListItem(TextBlock, AppendChildren, type="numbered_list_item"):
         return ""
 
 
-class ToDo(TextBlock, AppendChildren, type="to_do"):
+class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
     """A todo list item in Notion."""
 
     class NestedData(NestedObject):
@@ -328,7 +307,7 @@ class ToDo(TextBlock, AppendChildren, type="to_do"):
         return ""
 
 
-class Toggle(TextBlock, AppendChildren, type="toggle"):
+class Toggle(TextBlock, WithChildrenMixin, type="toggle"):
     """A toggle list item in Notion."""
 
     class NestedData(NestedObject):
@@ -533,7 +512,7 @@ class TableRow(Block, type="table_row"):
         return len(self.table_row.cells) if self.table_row.cells else 0
 
 
-class Table(Block, AppendChildren, type="table"):
+class Table(Block, WithChildrenMixin, type="table"):
     """A table block in Notion."""
 
     class NestedData(NestedObject):
@@ -573,7 +552,7 @@ class LinkToPage(Block, type="link_to_page"):
     link_to_page: ParentRef
 
 
-class SyncedBlock(Block, AppendChildren, type="synced_block"):
+class SyncedBlock(Block, WithChildrenMixin, type="synced_block"):
     """A synced_block block in Notion - either original or synced."""
 
     class NestedData(NestedObject):
@@ -587,7 +566,7 @@ class SyncedBlock(Block, AppendChildren, type="synced_block"):
         return self.synced_block.synced_from is None
 
 
-class Template(Block, AppendChildren, type="template"):
+class Template(Block, WithChildrenMixin, type="template"):
     """A template block in Notion."""
 
     class NestedData(NestedObject):

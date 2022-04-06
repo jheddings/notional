@@ -157,10 +157,20 @@ class NestedObjectTest(unittest.TestCase):
 
         self.assertEqual(complex.nested.value, "bar")
 
-    def test_GetSetItem(self):
-        """Check usage of get/set items in TypedObject'."""
+    def test_InvalidNestedFieldCall(self):
         complex = ComplexDataObject(id="complex")
-        self.assertIsNone(complex["value"])
 
-        complex["value"] = "bar"
+        with self.assertRaises(AttributeError):
+            complex("does_not_exist")
+
+    def test_GetSetNestedData(self):
+        """Verify we can call a block for nested data'."""
+        complex = ComplexDataObject(id="complex")
+
+        self.assertIsNone(complex("value"))
+
+        nested = complex()
+        nested.value = "bar"
+
+        self.assertIsNone(complex.nested.key)
         self.assertEqual(complex.nested.value, "bar")

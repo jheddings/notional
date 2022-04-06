@@ -5,8 +5,6 @@ and Notion Web Clipper.  Perhaps that capability will be exposed to the API in t
 future, which would effectively render these parsers unnecessary.
 """
 
-# FIXME improve extra spacing around text elements
-
 # TODO add more options for callers to customize output
 # TODO look for options to handle text styled using CSS
 # TODO consider how to handle <form> content
@@ -21,7 +19,7 @@ from os.path import basename
 import html5lib
 
 from . import blocks, schema, types
-from .text import Annotations, TextObject
+from .text import Annotations, TextObject, truncate
 
 log = logging.getLogger(__name__)
 
@@ -61,7 +59,7 @@ def strip_text_block(block):
     if isinstance(block, blocks.Code):
         return
 
-    all_text = block.__nested_text__
+    all_text = block.__text__
 
     if all_text is None or len(all_text) == 0:
         return
@@ -228,7 +226,7 @@ class HtmlParser(DocumentParser):
         self._render(doc)
 
     def _render(self, elem, parent=None):
-        log.debug("rendering element - %s :: [%s]", elem.tag, parent)
+        log.debug("rendering element - %s :: %s", elem.tag, type(parent))
 
         if parent is None:
             parent = self.content
@@ -238,7 +236,7 @@ class HtmlParser(DocumentParser):
             pfunc = getattr(self, f"_render_{elem.tag}")
             pfunc(elem, parent)
 
-        log.debug("block complete; %d content block(s)", len(self.content))
+        log.debug("block complete; %d total block(s)", len(self.content))
 
     def _render_a(self, elem, parent):
         self._current_href = elem.get("href")
@@ -463,6 +461,8 @@ class HtmlParser(DocumentParser):
         self._render_code(elem, parent=parent)
 
     def _append_text(self, text, parent):
+        log.debug("appending text :: %s => '%s'", parent.type, truncate(text, 10))
+
         if not isinstance(parent, blocks.Code):
             text = condense_text(text)
 
@@ -478,7 +478,7 @@ class HtmlParser(DocumentParser):
             parent.append(obj)
 
     def _process_contents(self, elem, parent):
-        log.debug("processing contents :: %s [%s]", elem, parent)
+        log.debug("processing contents :: %s %s", elem.tag, type(parent))
 
         # empty elements don't need text processing...
         if not elem_has_text(elem, with_children=False):

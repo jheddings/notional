@@ -28,7 +28,7 @@ def chunky(text, length=MAX_TEXT_OBJECT_SIZE):
     return (text[idx : idx + length] for idx in range(0, len(text), length))
 
 
-def shorten(text, length=-1, trail="..."):
+def truncate(text, length=-1, trail="..."):
     if text is None:
         return None
 

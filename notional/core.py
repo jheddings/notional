@@ -119,6 +119,8 @@ class TypedObject(DataObject):
     Many objects in the Notion API follow a generic->specific pattern with a 'type'
     parameter followed by additional data.  These objects must specify a `type`
     attribute to ensure that the correct object is created.
+
+    Calling the object provides direct access to the data stored in `{type}`.
     """
 
     type: str
@@ -161,13 +163,24 @@ class TypedObject(DataObject):
 
         cls._subtypes_[sub_type] = cls
 
-    def __getitem__(self, name):
-        nested = getattr(self, self.type)
-        return getattr(nested, name)
+    def __call__(self, field=None):
+        """Returns nested data from this Block.
 
-    def __setitem__(self, name, value):
-        nested = getattr(self, self.type)
-        setattr(nested, name, value)
+        If a field is provided, the contents of that field in the NestedData will be
+        returned.  Otherwise, the full contents of the NestedData will be returned.
+        """
+
+        type = getattr(self, "type", None)
+
+        if type is None:
+            raise AttributeError("type not specified")
+
+        nested = getattr(self, type)
+
+        if field is not None:
+            nested = getattr(nested, field)
+
+        return nested
 
     @classmethod
     def __get_validators__(cls):
@@ -226,9 +239,3 @@ class NestedObject(DataObject):
     Currently, this is a convenience class for clarity - it does not provide additional
     functionality at this time.
     """
-
-    # XXX can we somehow help provide pass-through access from the outer class?
-
-    # some ideas...
-    #   use __call__ of the outer class to access inner metadata object
-    #   use __getitem__ of the outer class to access inner metadata properties
