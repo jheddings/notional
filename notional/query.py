@@ -22,13 +22,13 @@ def get_target_id(target):
     if isinstance(target, str):
         return target
 
-    elif isinstance(target, UUID):
+    if isinstance(target, UUID):
         return target.hex
 
-    elif isinstance(target, Record):
+    if isinstance(target, Record):
         return target.id.hex
 
-    elif isclass(target) and issubclass(target, ConnectedPageBase):
+    if isclass(target) and issubclass(target, ConnectedPageBase):
         if target._orm_database_id_ is None:
             raise ValueError("ConnectedPage has no database")
 
@@ -166,8 +166,8 @@ class PropertyFilter(QueryFilter):
 class TimestampKind(str, Enum):
     """Possible timestamp types."""
 
-    created_time = "created_time"
-    last_edited_time = "last_edited_time"
+    CREATED_TIME = "created_time"
+    LAST_EDITED_TIME = "last_edited_time"
 
 
 class TimestampFilter(QueryFilter):
@@ -177,9 +177,10 @@ class TimestampFilter(QueryFilter):
 
     @classmethod
     def create(cls, kind, constraint):
-        if kind == TimestampKind.created_time:
+        if kind == TimestampKind.CREATED_TIME:
             return CreatedTimeFilter.create(constraint)
-        elif kind == TimestampKind.last_edited_time:
+
+        if kind == TimestampKind.LAST_EDITED_TIME:
             return LastEditedTimeFilter.create(constraint)
 
         raise ValueError("Unsupported kind for timestamp")
@@ -188,7 +189,7 @@ class TimestampFilter(QueryFilter):
 class CreatedTimeFilter(TimestampFilter):
     """Represents a created_time filter in Notion."""
 
-    timestamp: TimestampKind = TimestampKind.created_time
+    timestamp: TimestampKind = TimestampKind.CREATED_TIME
     created_time: DateConstraint
 
     @classmethod
@@ -199,7 +200,7 @@ class CreatedTimeFilter(TimestampFilter):
 class LastEditedTimeFilter(TimestampFilter):
     """Represents a last_edited_time filter in Notion."""
 
-    timestamp: TimestampKind = TimestampKind.last_edited_time
+    timestamp: TimestampKind = TimestampKind.LAST_EDITED_TIME
     last_edited_time: DateConstraint
 
     @classmethod
@@ -220,8 +221,8 @@ class CompoundFilter(QueryFilter):
 class SortDirection(str, Enum):
     """Sort direction options."""
 
-    ascending = "ascending"
-    descending = "descending"
+    ASCENDING = "ascending"
+    DESCENDING = "descending"
 
 
 class PropertySort(DataObject):
@@ -247,7 +248,7 @@ class Query(DataObject):
         return value
 
 
-class QueryBuilder(object):
+class QueryBuilder:
     """A query builder for the Notion API.
 
     :param endpoint: the session endpoint used to execute the query
@@ -358,7 +359,7 @@ class QueryBuilder(object):
         return None
 
 
-class ResultSet(object):
+class ResultSet:
     """A result for a specific query."""
 
     def __init__(self, exec, cls=None):

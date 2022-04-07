@@ -13,8 +13,8 @@ log = logging.getLogger(__name__)
 class UserType(str, Enum):
     """Available user types."""
 
-    person = "person"
-    bot = "bot"
+    PERSON = "person"
+    BOT = "bot"
 
 
 class User(DataObject):
@@ -34,7 +34,8 @@ class User(DataObject):
         if "type" in obj:
             if obj["type"] == "person":
                 return Person(**obj)
-            elif obj["type"] == "bot":
+
+            if obj["type"] == "bot":
                 return Bot(**obj)
 
         return cls(obj)

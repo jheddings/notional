@@ -31,7 +31,7 @@ notion = notional.connect(auth=auth_token)
 ## query for all values sorted by Title
 
 query = notion.databases.query(dbid).sort(
-    property="Title", direction=SortDirection.ascending
+    property="Title", direction=SortDirection.ASCENDING
 )
 
 print("== All Query Results ==")

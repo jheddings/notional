@@ -70,7 +70,7 @@ class TextBlock(Block):
             if obj is None:
                 continue
 
-            elif isinstance(obj, RichTextObject):
+            if isinstance(obj, RichTextObject):
                 nested.text.append(obj)
 
             elif isinstance(obj, str):
@@ -99,7 +99,7 @@ class TextBlock(Block):
         return None if content is None else plain_text(*content)
 
 
-class WithChildrenMixin(object):
+class WithChildrenMixin:
     """Mixin for blocks that support children blocks."""
 
     @property
@@ -121,7 +121,7 @@ class WithChildrenMixin(object):
         nested = self()
 
         if nested.children is None:
-            nested.children = list()
+            nested.children = []
 
         nested.children.append(block)
 
@@ -301,8 +301,8 @@ class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
         if self.to_do and self.to_do.text:
             if self.to_do.checked:
                 return f"- [x] {markdown(*self.to_do.text)}"
-            else:
-                return f"- [ ] {markdown(*self.to_do.text)}"
+
+            return f"- [ ] {markdown(*self.to_do.text)}"
 
         return ""
 
@@ -495,7 +495,7 @@ class TableRow(Block, type="table_row"):
 
     def append(self, text):
         if self.table_row.cells is None:
-            self.table_row.cells = list()
+            self.table_row.cells = []
 
         if isinstance(text, list):
             self.table_row.cells.append(list)
@@ -526,20 +526,20 @@ class Table(Block, WithChildrenMixin, type="table"):
 
     table: NestedData = NestedData()
 
-    def append(self, row):
+    def append(self, block: TableRow):
         # when creating a new table via the API, we must provide at least one row
         # XXX need to review whether this is applicable during update...  may need
         # to raise an error if the block has already been created on the server
 
-        if not isinstance(row, TableRow):
+        if not isinstance(block, TableRow):
             raise ValueError("Only TableRow may be appended to Table blocks.")
 
         if self.Width == 0:
-            self.table.table_width = row.Width
-        elif self.Width != row.Width:
+            self.table.table_width = block.Width
+        elif self.Width != block.Width:
             raise ValueError("Number of cells in row must match table")
 
-        self.table.children.append(row)
+        self.table.children.append(block)
 
     @property
     def Width(self):

@@ -23,7 +23,7 @@ auth_token = os.getenv("NOTION_AUTH_TOKEN")
 notion = notional.connect(auth=auth_token)
 
 query = notion.search(text).sort(
-    timestamp=TimestampKind.last_edited_time, direction=SortDirection.ascending
+    timestamp=TimestampKind.LAST_EDITED_TIME, direction=SortDirection.ASCENDING
 )
 
 data = query.first()

@@ -69,10 +69,10 @@ class BlocksEndpoint(Endpoint):
                         block.refresh(**result)
 
                 else:
-                    log.warn("Unable to refresh results; size mismatch")
+                    log.warning("Unable to refresh results; size mismatch")
 
             else:
-                log.warn("Unable to refresh results; not provided")
+                log.warning("Unable to refresh results; not provided")
 
             return parent
 
@@ -276,7 +276,7 @@ class PagesEndpoint(Endpoint):
 
         # the API requires a properties object, even if empty
         if properties is None:
-            properties = dict()
+            properties = {}
 
         if title is not None:
             properties["title"] = Title.from_value(title)
@@ -372,7 +372,7 @@ class SearchEndpoint(Endpoint):
     def __call__(self, text=None):
         """Performs a search with the optional text."""
 
-        params = dict()
+        params = {}
 
         if text is not None:
             params["query"] = text
@@ -399,7 +399,7 @@ class UsersEndpoint(Endpoint):
     def retrieve(self, user_id):
         """Returns the User with the given ID."""
 
-        log.info("Retrieving user :: ", user_id)
+        log.info("Retrieving user :: %s", user_id)
 
         data = self().retrieve(user_id)
 

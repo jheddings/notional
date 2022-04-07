@@ -153,7 +153,7 @@ class EndpointIterator(ResultSetIterator):
     def __init__(self, endpoint, **params):
         super().__init__()
         self.endpoint = endpoint
-        self.params = params or dict()
+        self.params = params or {}
         self.log = log.getChild("EndpointIterator")
 
     def __setitem__(self, name, value):

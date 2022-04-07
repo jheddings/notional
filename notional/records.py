@@ -35,10 +35,10 @@ class ParentRef(TypedObject):
         if isinstance(record, ParentRef):
             return record
 
-        elif isinstance(record, Page):
+        if isinstance(record, Page):
             return PageRef(page_id=record.id)
 
-        elif isinstance(record, Database):
+        if isinstance(record, Database):
             return DatabaseRef(database_id=record.id)
 
         raise ValueError("Unrecognized 'parent' attribute")

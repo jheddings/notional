@@ -17,7 +17,7 @@ try:
     import git
 
     basedir = os.path.dirname(os.path.abspath(__file__)) + "/.."
-    log.debug(f"version basedir: {basedir}")
+    log.debug("version basedir: %s", basedir)
 
     repo = git.Repo(basedir, search_parent_directories=True)
     head = repo.head.commit
@@ -33,4 +33,4 @@ try:
 except ModuleNotFoundError:
     pass
 
-log.info(f"notional-{__version__}")
+log.info("notional-%s", __version__)

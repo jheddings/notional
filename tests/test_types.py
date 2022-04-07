@@ -336,7 +336,7 @@ class RollupPropertyTest(unittest.TestCase):
 
         self.assertEqual(rollup.rollup.type, "number")
         self.assertEqual(rollup.rollup.number, 41)
-        self.assertEqual(rollup.rollup.function, schema.Function.sum)
+        self.assertEqual(rollup.rollup.function, schema.Function.SUM)
 
     def test_ParseRollupDate(self):
 
@@ -356,7 +356,7 @@ class RollupPropertyTest(unittest.TestCase):
         self.assertEqual(rollup.rollup.type, "date")
         self.assertEqual(rollup.rollup.date.start, date(2022, 10, 23))
         self.assertIsNone(rollup.rollup.date.end)
-        self.assertEqual(rollup.rollup.function, schema.Function.latest_date)
+        self.assertEqual(rollup.rollup.function, schema.Function.LATEST_DATE)
 
     def test_ParseRollupArray(self):
 
@@ -377,7 +377,7 @@ class RollupPropertyTest(unittest.TestCase):
         self.assertEqual(rollup.type, "rollup")
 
         self.assertEqual(rollup.rollup.type, "array")
-        self.assertEqual(rollup.rollup.function, schema.Function.show_original)
+        self.assertEqual(rollup.rollup.function, schema.Function.SHOW_ORIGINAL)
         self.assertEqual(rollup.rollup.type, "array")
 
         for prop in rollup.rollup.array:

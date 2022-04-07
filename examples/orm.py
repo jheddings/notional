@@ -50,7 +50,7 @@ class Task(CustomPage):
 # display all tasks...  also, set a tag if it is not present
 
 query = notion.databases.query(Task).sort(
-    property="Title", direction=SortDirection.ascending
+    property="Title", direction=SortDirection.ASCENDING
 )
 
 for task in query.execute():

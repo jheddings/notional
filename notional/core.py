@@ -20,22 +20,22 @@ def make_api_safe(data):
 
     # https://github.com/samuelcolvin/pydantic/issues/1409#issuecomment-877175194
 
-    if isinstance(data, date) or isinstance(data, datetime):
+    if isinstance(data, (date, datetime)):
         return data.isoformat()
 
-    elif isinstance(data, UUID):
+    if isinstance(data, UUID):
         return str(data)
 
-    elif isinstance(data, Enum):
+    if isinstance(data, Enum):
         return data.value
 
-    elif isinstance(data, dict):
+    if isinstance(data, dict):
         return {name: make_api_safe(value) for name, value in data.items()}
 
-    elif isinstance(data, list):
+    if isinstance(data, list):
         return [make_api_safe(value) for value in data]
 
-    elif isinstance(data, tuple):
+    if isinstance(data, tuple):
         return [make_api_safe(value) for value in data]
 
     return data
@@ -154,7 +154,7 @@ class TypedObject(DataObject):
         # descendants of that class will have the new map via inheritance
 
         if TypedObject in cls.__bases__ and not hasattr(cls, "_subtypes_"):
-            cls._subtypes_ = dict()
+            cls._subtypes_ = {}
 
         if sub_type in cls._subtypes_:
             raise ValueError(f"Duplicate subtype for class - {sub_type} :: {cls}")

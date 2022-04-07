@@ -151,7 +151,7 @@ class EquationObject(RichTextObject, type="equation"):
         return self.equation.expression
 
 
-class NativeTypeMixin(object):
+class NativeTypeMixin:
     """Mixin class for properties that can be represented as native Python types."""
 
     def __str__(self):
@@ -480,10 +480,10 @@ class MultiSelect(PropertyValue, type="multi_select"):
     def from_value(cls, value):
         """Initialize a new MultiSelect from the given value."""
 
-        if type(value) is list:
+        if isinstance(value, list):
             return cls.from_values(*value)
-        else:
-            return cls.from_values(value)
+
+        return cls.from_values(value)
 
     @classmethod
     def from_values(cls, *values):
@@ -525,7 +525,8 @@ class People(PropertyValue, type="people"):
         for user in self.people:
             if user == other:
                 return True
-            elif user.name == other:
+
+            if user.name == other:
                 return True
 
         return False
@@ -566,7 +567,8 @@ class Files(PropertyValue, type="files"):
         for ref in self.files:
             if ref == other:
                 return True
-            elif ref.name == other:
+
+            if ref.name == other:
                 return True
 
         return False
@@ -589,11 +591,11 @@ class Files(PropertyValue, type="files"):
         return self
 
     def append(self, ref):
-        log.debug(f"append file - {ref}")
+        log.debug("append file - %s", ref)
         self.files.append(ref)
 
     def remove(self, ref):
-        log.debug(f"remove file - {ref}")
+        log.debug("remove file - %s", ref)
         self.files.remove(ref)
 
 

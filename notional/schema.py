@@ -10,26 +10,26 @@ from .core import DataObject, NestedObject, TypedObject
 class Function(str, Enum):
     """Standard aggregation functions."""
 
-    count_all = "count_all"
-    count_values = "count_values"
-    count_unique_values = "count_unique_values"
-    count_empty = "count_empty"
-    count_not_empty = "count_not_empty"
+    COUNT_ALL = "count_all"
+    COUNT_VALUES = "count_values"
+    COUNT_UNIQUE_VALUES = "count_unique_values"
+    COUNT_EMPTY = "count_empty"
+    COUNT_NOT_EMPTY = "count_not_empty"
 
-    percent_empty = "percent_empty"
-    percent_not_empty = "percent_not_empty"
+    PERCENT_EMPTY = "percent_empty"
+    PERCENT_NOT_EMPTY = "percent_not_empty"
 
-    average = "average"
-    min = "min"
-    max = "max"
-    median = "median"
-    range = "range"
-    sum = "sum"
+    AVERAGE = "average"
+    MIN = "min"
+    MAX = "max"
+    MEDIAN = "median"
+    RANGE = "range"
+    SUM = "sum"
 
-    earliest_date = "earliest_date"
-    latest_date = "latest_date"
+    EARLIEST_DATE = "earliest_date"
+    LATEST_DATE = "latest_date"
 
-    show_original = "show_original"
+    SHOW_ORIGINAL = "show_original"
 
 
 class PropertyObject(TypedObject):

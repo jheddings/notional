@@ -89,11 +89,11 @@ def elem_has_text(elem, with_children=True):
 class DocumentParser(ABC):
 
     title: str
-    content: list()
+    content: list
 
     def __init__(self):
         self.title = None
-        self.content = list()
+        self.content = []
 
     @abstractmethod
     def parse(self, data):
@@ -104,7 +104,7 @@ class DocumentParser(ABC):
 class CsvParser(DocumentParser):
     """A standard CSV parser."""
 
-    schema: dict()
+    schema: dict
 
     def __init__(self, header_row=True, title_column=0):
         super().__init__()
@@ -112,9 +112,9 @@ class CsvParser(DocumentParser):
         self._has_header = header_row
         self._title_index = title_column
 
-        self.schema = dict()
+        self.schema = {}
 
-        self._field_names = list()
+        self._field_names = []
 
     def parse(self, data):
         super().parse(data)
@@ -173,7 +173,7 @@ class CsvParser(DocumentParser):
         if len(fields) != len(self._field_names):
             raise ValueError("Invalid CSV: incorrect number of fields in data")
 
-        record = dict()
+        record = {}
 
         column = 0
 
@@ -193,14 +193,14 @@ class CsvParser(DocumentParser):
 class HtmlParser(DocumentParser):
     """An HTML parser that leverages the WHATWG HTML spec."""
 
-    meta: dict()
+    meta: dict
 
     def __init__(self, base=None):
         super().__init__()
 
         self._base_url = base
 
-        self.meta = dict()
+        self.meta = {}
 
         self._current_href = None
         self._current_text_style = Annotations()

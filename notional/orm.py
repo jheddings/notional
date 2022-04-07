@@ -9,7 +9,7 @@ from .types import NativeTypeMixin, RichText
 log = logging.getLogger(__name__)
 
 
-class ConnectedPageBase(object):
+class ConnectedPageBase:
     """Base class for "live" pages via the Notion API.
 
     All changes are committed in real time.
@@ -17,7 +17,7 @@ class ConnectedPageBase(object):
 
     def __init__(self, **data):
         self.page = Page(**data) if data else None
-        self._pending_props = dict()
+        self._pending_props = {}
 
     @property
     def id(self):
@@ -64,7 +64,7 @@ class ConnectedPageBase(object):
         immediately.
         """
 
-        log.debug(f"creating new {cls} :: {cls._orm_database_id_}")
+        log.debug("creating new %s :: %s", cls, cls._orm_database_id_)
 
         parent = DatabaseRef(database_id=cls._orm_database_id_)
 
@@ -102,17 +102,17 @@ def Property(name, cls=RichText, default=None):
         if not isinstance(self, ConnectedPageBase):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
-        log.debug(f"getter {cls} [{name}]")
+        log.debug("getter %s [%s]", cls, name)
 
         try:
             prop = self.page[name]
 
         except AttributeError:
-            log.debug(f"property '{name}' does not exist in Page; returning default")
+            log.debug("property '%s' does not exist in Page; returning default", name)
             return default
 
         if not isinstance(prop, cls):
-            raise TypeError(f"Type mismatch: expected '{cls}' but found '{type(prop)}'")
+            raise TypeError("Type mismatch")
 
         # convert native objects to expected types
         if isinstance(prop, NativeTypeMixin):
@@ -127,7 +127,7 @@ def Property(name, cls=RichText, default=None):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
         # TODO only set the value if it has changed from the existing
-        log.debug(f"setter {cls} [{name}] => {value} {type(value)}")
+        log.debug("setter %s [%s] => %s %s", cls, name, value, type(value))
 
         # convert native objects to expected types
         if isinstance(value, cls):
@@ -182,7 +182,7 @@ def connected_page(session=None, cls=ConnectedPageBase):
             # if the local session is None, we will use _orm_bind_session_
             cls.bind(session or cls._orm_late_bind_)
 
-            log.debug(f"registered connected page :: {cls} => {database}")
+            log.debug("registered connected page :: %s => %s", cls, database)
 
         @classmethod
         def bind(cls, to_session):
