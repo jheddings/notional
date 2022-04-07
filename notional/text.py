@@ -44,6 +44,46 @@ def truncate(text, length=-1, trail="..."):
     return literal
 
 
+def lstrip(*rtf):
+    """Given a list of TextObject's, remove leading whitespace from each element."""
+
+    if rtf is None or len(rtf) < 1:
+        return
+
+    for obj in rtf:
+        if not isinstance(obj, TextObject):
+            raise AttributeError("invalid object in rtf")
+
+        if obj.text and obj.text.content:
+            strip_text = obj.text.content.lstrip()
+            obj.text.content = strip_text
+            obj.plain_text = strip_text
+
+
+def rstrip(*rtf):
+    """Given a list of TextObject's, remove trailing whitespace from each element."""
+
+    if rtf is None or len(rtf) < 1:
+        return
+
+    for obj in rtf:
+        if not isinstance(obj, TextObject):
+            raise AttributeError("invalid object in rtf")
+
+        if obj.text and obj.text.content:
+            strip_text = obj.text.content.rstrip()
+            obj.text.content = strip_text
+            obj.plain_text = strip_text
+
+
+def strip(*rtf):
+    """Given a list of TextObject's, remove leading and trailing whitespace from each
+    element."""
+
+    lstrip(*rtf)
+    rstrip(*rtf)
+
+
 class Color(str, Enum):
     """Basic color values."""
 

@@ -19,7 +19,7 @@ from os.path import basename
 import html5lib
 
 from . import blocks, schema, types
-from .text import Annotations, TextObject, truncate
+from .text import Annotations, TextObject, lstrip, rstrip, truncate
 
 log = logging.getLogger(__name__)
 
@@ -59,24 +59,11 @@ def strip_text_block(block):
     if isinstance(block, blocks.Code):
         return
 
-    all_text = block.__text__
+    block_text = block.__text__
 
-    if all_text is None or len(all_text) == 0:
-        return
-
-    ltext = all_text[0]
-
-    if isinstance(ltext, TextObject) and ltext.text and ltext.text.content:
-        strip_text = ltext.text.content.lstrip()
-        ltext.text.content = strip_text
-        ltext.plain_text = strip_text
-
-    rtext = all_text[-1]
-
-    if isinstance(rtext, TextObject) and rtext.text and rtext.text.content:
-        strip_text = rtext.text.content.rstrip()
-        rtext.text.content = strip_text
-        rtext.plain_text = strip_text
+    if block_text is not None and len(block_text) > 0:
+        lstrip(block_text[0])
+        rstrip(block_text[-1])
 
 
 def elem_has_text(elem, with_children=True):
