@@ -83,6 +83,6 @@ clean:
 
 # TODO deactivate first
 clobber: clean
-	pre-commit uninstall
+	$(WITH_VENV) pre-commit uninstall
 	rm -Rf "$(DISTDIR)"
 	rm -Rf "$(VENVDIR)"
