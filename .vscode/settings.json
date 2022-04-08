@@ -12,5 +12,4 @@
     ],
 
     "python.linting.enabled": true,
-    "python.linting.flake8Enabled": true,
 }
