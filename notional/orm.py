@@ -134,7 +134,7 @@ def Property(name, cls=RichText, default=None):
             prop = value
 
         elif hasattr(cls, "from_value"):
-            from_value = getattr(cls, "from_value")
+            from_value = cls.from_value
             prop = from_value(value)
 
         else:
@@ -174,7 +174,7 @@ def connected_page(session=None, cls=ConnectedPageBase):
                 cls._orm_database_id_ = database
 
             elif hasattr(cls, "__database__"):
-                cls._orm_database_id_ = getattr(cls, "__database__")
+                cls._orm_database_id_ = cls.__database__
 
             else:
                 raise ValueError("Missing 'database' for ConnectedPage: {cls}")

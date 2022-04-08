@@ -22,7 +22,7 @@ def mock_endpoint(item_count, page_size):
         user_data = kwargs.get("user_data", None)
         pagenum = math.floor(start / page_size) + 1
 
-        page = list()
+        page = []
 
         for x in range(start, start + page_size):
             if x >= item_count:

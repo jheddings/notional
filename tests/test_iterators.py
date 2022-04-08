@@ -70,7 +70,7 @@ class EndpointIteratorTest(unittest.TestCase):
 
         n_items = 0
 
-        for item in iter:
+        for _ in iter:
             n_items += 1
 
         self.assertEqual(n_items, 0)

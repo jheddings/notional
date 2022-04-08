@@ -45,7 +45,7 @@ class QueryBuilderTest(unittest.TestCase):
             )
         )
 
-        for obj in qb.execute():
+        for _ in qb.execute():
             # self.assertGreater(obj.index, 25)
             # self.assertLessEqual(obj.index, 75)
             pass

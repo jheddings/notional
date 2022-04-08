@@ -53,7 +53,7 @@ class DataObject(BaseModel):
                 self.__class__,
                 predicate=lambda x: isinstance(x, property) and x.fset is not None,
             )
-            for setter_name, func in setters:
+            for setter_name, _ in setters:
                 if setter_name == name:
                     object.__setattr__(self, name, value)
                     break
@@ -136,7 +136,7 @@ class TypedObject(DataObject):
             sub_type = type
 
         elif hasattr(cls, "__type__"):
-            sub_type = getattr(cls, "__type__")
+            sub_type = cls.__type__
 
         else:
             sub_type = cls.__name__

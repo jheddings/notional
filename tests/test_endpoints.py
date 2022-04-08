@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.FATAL)
 class EndpointTest(object):
     """Base class for live tests (manage connectivity to Notion)."""
 
-    cleanup_pages = list()
+    cleanup_pages = []
 
     def setUp(self):
         auth_token = os.getenv("NOTION_AUTH_TOKEN", None)
@@ -55,7 +55,7 @@ class BlockEndpointTests(EndpointTest, unittest.TestCase):
 
         num_blocks = 0
 
-        for block in self.notion.blocks.children.list(parent=page):
+        for _ in self.notion.blocks.children.list(parent=page):
             # TODO self.assertEqual(block, blocks[num_blocks])
             num_blocks += 1
 

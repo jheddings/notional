@@ -64,7 +64,7 @@ class TextBlock(Block):
             raise AttributeError("nested data does not contain text")
 
         if nested.text is None:
-            nested.text = list()
+            nested.text = []
 
         for obj in text:
             if obj is None:
