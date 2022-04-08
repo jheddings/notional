@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.FATAL)
 class Heading1BlockTest(unittest.TestCase):
     """Unit tests for the Heading1 API objects."""
 
-    def test_FromText(self):
+    def test_from_text(self):
         head = blocks.Heading1.from_text("Welcome!")
         self.assertEqual(head.PlainText, "Welcome!")
         self.assertEqual(head.Markdown, "# Welcome! #")
@@ -19,11 +19,11 @@ class Heading1BlockTest(unittest.TestCase):
 class ParagraphBlockTest(unittest.TestCase):
     """Unit tests for the Paragraph API objects."""
 
-    def test_FromText(self):
+    def test_from_text(self):
         para = blocks.Paragraph.from_text("Lorem ipsum dolor sit amet")
         self.assertEqual(para.PlainText, "Lorem ipsum dolor sit amet")
 
-    def test_FromDict(self):
+    def test_from_dict(self):
 
         test_data = {
             "type": "paragraph",
@@ -64,7 +64,7 @@ class ParagraphBlockTest(unittest.TestCase):
 class QuoteBlockTest(unittest.TestCase):
     """Unit tests for the QuoteParagraph API objects."""
 
-    def test_FromText(self):
+    def test_from_text(self):
         quote = blocks.Quote.from_text("Now is the time for all good men...")
         self.assertEqual(quote.PlainText, "Now is the time for all good men...")
         self.assertEqual(quote.Markdown, "> Now is the time for all good men...")
@@ -73,7 +73,7 @@ class QuoteBlockTest(unittest.TestCase):
 class BookmarkBlockTest(unittest.TestCase):
     """Unit tests for the Bookmark API objects."""
 
-    def test_FromURL(self):
+    def test_from_url(self):
         bookmark = blocks.Bookmark.from_url("http://www.google.com")
         self.assertEqual(bookmark.URL, "http://www.google.com")
 
@@ -81,6 +81,6 @@ class BookmarkBlockTest(unittest.TestCase):
 class EmbedBlockTest(unittest.TestCase):
     """Unit tests for the Embed API objects."""
 
-    def test_FromURL(self):
+    def test_from_url(self):
         embed = blocks.Embed.from_url("http://www.google.com")
         self.assertEqual(embed.URL, "http://www.google.com")

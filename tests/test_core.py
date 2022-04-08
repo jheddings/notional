@@ -90,7 +90,7 @@ class ComplexDataObject(TypedObject, type="nested"):
 class DataObjectTests(unittest.TestCase):
     """Unit tests for the DataObject API objects."""
 
-    def test_ParseBasicObject(self):
+    def test_parse_basic_object(self):
         """Basic DataObject parsing."""
 
         person = Person.parse_obj(ALICE)
@@ -101,7 +101,7 @@ class DataObjectTests(unittest.TestCase):
 class NamedObjectTests(unittest.TestCase):
     """Unit tests for named API objects."""
 
-    def test_ParseNamedObject(self):
+    def test_parse_named_object(self):
         stan = Person.parse_obj(STAN)
         self.assertEqual(stan.object, "person")
 
@@ -112,7 +112,7 @@ class NamedObjectTests(unittest.TestCase):
 class TypedObjectTests(unittest.TestCase):
     """Unit tests for typed API objects."""
 
-    def test_ParseTypedDataObject(self):
+    def test_parse_typed_data_object(self):
         """TypedObject parsing."""
 
         tiger = Animal.parse_obj(TIGER)
@@ -143,27 +143,27 @@ class TypedObjectTests(unittest.TestCase):
         for pet in bob.pets:
             self.assertIn(pet, [fluffy, tiger])
 
-    def test_SetDefaultTypeForNewObjects(self):
+    def test_set_default_type_for_new_objects(self):
         """Verify that "type" is set by default on new TypedObject's."""
         bruce = Dog(name="bruce", age=3, breed="collie")
         self.assertEqual(bruce.type, "dog")
 
 
 class NestedObjectTest(unittest.TestCase):
-    def test_StandardNestedObject(self):
+    def test_staandard_nested_object(self):
         """Check usage of get/set items in TypedObject'."""
         nested = ComplexDataObject.NestedData(key="foo", value="bar")
         complex = ComplexDataObject(id="complex", nested=nested)
 
         self.assertEqual(complex.nested.value, "bar")
 
-    def test_InvalidNestedFieldCall(self):
+    def test_invalid_nested_field_call(self):
         complex = ComplexDataObject(id="complex")
 
         with self.assertRaises(AttributeError):
             complex("does_not_exist")
 
-    def test_GetSetNestedData(self):
+    def test_get_nested_data(self):
         """Verify we can call a block for nested data'."""
         complex = ComplexDataObject(id="complex")
 

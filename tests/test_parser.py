@@ -69,7 +69,7 @@ class HtmlDocumentTest(unittest.TestCase):
             expected_value = expected_style[attrib]
             self.assertEqual(current_value, expected_value)
 
-    def test_Dormouse(self):
+    def test_dormouse(self):
         parser = HtmlParser()
 
         filename = os.path.join(BASEDIR, "dormouse.html")
@@ -82,7 +82,7 @@ class HtmlDocumentTest(unittest.TestCase):
         self.assertIsNotNone(parser.content)
         self.assertGreater(len(parser.content), 0)
 
-    def test_BasicTitle(self):
+    def test_basic_title(self):
         html = "<html><head><title>Hello World</title></head></html>"
 
         parser = HtmlParser()
@@ -91,7 +91,7 @@ class HtmlDocumentTest(unittest.TestCase):
         self.assertEqual(parser.title, "Hello World")
         self.assertEqual(len(parser.content), 0)
 
-    def test_BasicComment(self):
+    def test_basic_comment(self):
         html = "<!-- Hide this text -->"
 
         parser = HtmlParser()
@@ -99,70 +99,70 @@ class HtmlDocumentTest(unittest.TestCase):
 
         self.assertEqual(len(parser.content), 0)
 
-    def test_BasicDivider(self):
+    def test_divider(self):
         self.check_single_block(
             html="<body><hr></body>",
             expected_type=blocks.Divider,
             expected_text=None,
         )
 
-    def test_BasicHeading1(self):
+    def test_heading_1(self):
         self.check_single_block(
             html="<h1>Heading One</h1>",
             expected_type=blocks.Heading1,
             expected_text="Heading One",
         )
 
-    def test_BasicHeading2(self):
+    def test_heading_2(self):
         self.check_single_block(
             html="<h2>Heading Two</h2>",
             expected_type=blocks.Heading2,
             expected_text="Heading Two",
         )
 
-    def test_BasicHeading3(self):
+    def test_heading_3(self):
         self.check_single_block(
             html="<h3>Heading Three</h3>",
             expected_type=blocks.Heading3,
             expected_text="Heading Three",
         )
 
-    def test_BasicParagraph(self):
+    def test_basic_paragraph(self):
         self.check_single_block(
             html="<p>Lorem ipsum dolor sit amet, ...</p>",
             expected_type=blocks.Paragraph,
             expected_text="Lorem ipsum dolor sit amet, ...",
         )
 
-    def test_ExtraWhitespace(self):
+    def test_extra_whitespace(self):
         self.check_single_block(
             html="<p> ...\tconsectetur   adipiscing\nelit.  </p>",
             expected_type=blocks.Paragraph,
             expected_text="... consectetur adipiscing elit.",
         )
 
-    def test_NakedText(self):
+    def test_naked_text(self):
         self.check_single_block(
             html="Look ma, no tags!",
             expected_type=blocks.Paragraph,
             expected_text="Look ma, no tags!",
         )
 
-    def test_BasicQuote(self):
+    def test_basic_quote(self):
         self.check_single_block(
             html="<blockquote>To be, or not to be...</blockquote>",
             expected_type=blocks.Quote,
             expected_text="To be, or not to be...",
         )
 
-    def test_BasicPre(self):
+    def test_basic_pre(self):
         self.check_single_block(
             html="<pre>    ...that is the question</pre>",
             expected_type=blocks.Code,
             expected_text="    ...that is the question",
         )
 
-    def test_BasicBulletedList(self):
+    def test_bulleted_list(self):
         html = "<ul><li>Eenie</li><li>Meenie</li></ul"
 
         parser = HtmlParser()
@@ -178,7 +178,7 @@ class HtmlDocumentTest(unittest.TestCase):
         self.assertIsInstance(li, blocks.BulletedListItem)
         self.assertEqual(li.PlainText, "Meenie")
 
-    def test_MalformedNestedList(self):
+    def test_incorrect_nested_list(self):
         html = """<ul>
             <li>Outer A</li>
             <li>Outer B</li>
@@ -202,7 +202,7 @@ class HtmlDocumentTest(unittest.TestCase):
         for block in parser.content[1].__children__:
             self.assertIsInstance(block, blocks.BulletedListItem)
 
-    def test_ImplicitText(self):
+    def test_implicit_text(self):
         html = "<body><div>Open Text</div></body>"
 
         parser = HtmlParser()
@@ -217,7 +217,7 @@ class HtmlDocumentTest(unittest.TestCase):
 
         self.assertTrue(found_text)
 
-    def test_SimpleStrongText(self):
+    def test_strong_text(self):
         block = self.check_single_block(
             html="<b>Strong Text</b>",
             expected_type=blocks.Paragraph,
@@ -229,7 +229,7 @@ class HtmlDocumentTest(unittest.TestCase):
         self.assertEqual(len(text), 1)
         self.check_style(text[0], bold=True)
 
-    def test_SimpleEmphasisText(self):
+    def test_emphasis_text(self):
         block = self.check_single_block(
             html="<i>Emphasis Text</i>",
             expected_type=blocks.Paragraph,
@@ -241,19 +241,19 @@ class HtmlDocumentTest(unittest.TestCase):
         self.assertEqual(len(text), 1)
         self.check_style(text[0], italic=True)
 
-    def test_BasicTableData(self):
+    def test_table_data(self):
         self.check_table_data(
             html="<table><tr><td>Datum</td></tr></table>",
             expected=[["Datum"]],
         )
 
-    def test_EmptyTableCell(self):
+    def test_empty_table_cells(self):
         self.check_table_data(
             html="<table><tr><td></td></tr></table>",
             expected=[[""]],
         )
 
-    def test_TableCellWithDiv(self):
+    def test_table_cell_with_div(self):
         self.check_table_data(
             html="<table><tr><td><div>hidden DATA</div></td></tr></table>",
             expected=[["hidden DATA"]],
@@ -263,7 +263,7 @@ class HtmlDocumentTest(unittest.TestCase):
 class CsvDocumentTest(unittest.TestCase):
     """Unit tests for the CsvParser class."""
 
-    def test_BasicDataCheck(self):
+    def test_basic_data_check(self):
         data = """first,last\none,two"""
 
         parser = CsvParser(header_row=True)

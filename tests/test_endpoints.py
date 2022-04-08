@@ -58,13 +58,13 @@ class BlockEndpointTests(EndpointTest, unittest.TestCase):
 
         self.assertEqual(num_blocks, len(blocks))
 
-    def test_CreateEmptyBlock(self):
+    def test_create_empty_block(self):
         para = blocks.Paragraph()
         page = self.create_temp_page(title="test_CreateEmptyBlock", children=[para])
 
         self.confirm_blocks(page, para)
 
-    def test_CreateBasicTextBlock(self):
+    def test_create_basic_text_block(self):
         """Create a basic block and verify content."""
 
         page = self.create_temp_page(title="test_CreateBasicTextBlock")
@@ -78,7 +78,7 @@ class BlockEndpointTests(EndpointTest, unittest.TestCase):
 class PageEndpointTests(EndpointTest, unittest.TestCase):
     """Test live pages through the Notion API."""
 
-    def test_BlankPage(self):
+    def test_blank_page(self):
         """Create an empty page in Notion."""
 
         page = self.create_temp_page()
@@ -90,7 +90,7 @@ class PageEndpointTests(EndpointTest, unittest.TestCase):
         diff = datetime.now(timezone.utc) - new_page.created_time
         self.assertLessEqual(diff.total_seconds(), 60)
 
-    def test_PageParent(self):
+    def test_page_parent(self):
         """Verify page parent references."""
 
         page = self.create_temp_page()
@@ -101,7 +101,7 @@ class PageEndpointTests(EndpointTest, unittest.TestCase):
 class SearchEndpointTests(EndpointTest, unittest.TestCase):
     """Test searching through the Notion API."""
 
-    def test_SimpleSearch(self):
+    def test_simple_search(self):
         """Make sure search returns some results."""
 
         search = self.notion.search()

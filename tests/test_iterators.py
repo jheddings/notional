@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.FATAL)
 class EndpointIteratorTest(unittest.TestCase):
     """Unit tests for the EndpointIterator."""
 
-    def test_BasicUsage(self):
+    def test_basic_usage(self):
         """Simple test for basic functionality."""
 
         mock = mock_endpoint(1042, 100)
@@ -30,7 +30,7 @@ class EndpointIteratorTest(unittest.TestCase):
 
         self.assertEqual(n_items, 1042)
 
-    def test_ExactlyOnePage(self):
+    def test_exactly_one_page(self):
         """Test the iterator for exactly one page of results."""
 
         mock = mock_endpoint(100, 100)
@@ -46,7 +46,7 @@ class EndpointIteratorTest(unittest.TestCase):
 
         self.assertEqual(n_items, 100)
 
-    def test_OneResult(self):
+    def test_one_result(self):
         """Make sure the iterator works for exactly one result."""
 
         mock = mock_endpoint(1, 100)
@@ -62,7 +62,7 @@ class EndpointIteratorTest(unittest.TestCase):
 
         self.assertEqual(n_items, 1)
 
-    def test_EmptyResult(self):
+    def test_empty_result(self):
         """Make sure the iterator works with empty results."""
 
         mock = mock_endpoint(0, 100)

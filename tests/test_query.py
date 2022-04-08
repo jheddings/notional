@@ -5,6 +5,10 @@ from mocks import MockDataObject, mock_endpoint
 
 from notional import query
 
+# NOTE these tests help to debug issues in the query builder, however they do not
+# perform an actual query.  the intent of these objects is to represent the API
+# definition of the query, as opposed to run actual filter, sort, etc operations
+
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.FATAL)
 
@@ -12,12 +16,12 @@ logging.basicConfig(level=logging.FATAL)
 class QueryBuilderTest(unittest.TestCase):
     """Unit tests for the Query Builder class."""
 
-    def test_EmptyQuery(self):
+    def test_empty_query(self):
         qb = query.QueryBuilder(None)
         empty = query.Query()
         self.assertEqual(qb.query, empty)
 
-    def test_BasicNumberConstraint(self):
+    def test_basic_number_constraint(self):
         mock = mock_endpoint(1000, 100)
 
         qb = (
@@ -28,7 +32,7 @@ class QueryBuilderTest(unittest.TestCase):
 
         qb.first()
 
-    def test_NumberRangeConstraint(self):
+    def test_number_range_constraint(self):
         mock = mock_endpoint(1000, 23)
 
         qb = (

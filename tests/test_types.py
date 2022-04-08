@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.FATAL)
 class TitlePropertyTest(unittest.TestCase):
     """Verify Title property values."""
 
-    def test_ParseData(self):
+    def test_parse_data(self):
 
         test_data = {
             "id": "title",
@@ -42,7 +42,7 @@ class TitlePropertyTest(unittest.TestCase):
         self.assertEqual(title.id, "title")
         self.assertEqual(title.Value, "Buy milk")
 
-    def test_FromValue(self):
+    def test_from_value(self):
         title = types.Title.from_value("Get more milk")
         self.assertEqual(title.Value, "Get more milk")
 
@@ -50,7 +50,7 @@ class TitlePropertyTest(unittest.TestCase):
 class NumberPropertyTest(unittest.TestCase):
     """Verify Number property values."""
 
-    def test_ParseData(self):
+    def test_parse_data(self):
         test_data = {"id": "XQOP", "type": "number", "number": 42}
 
         num = types.Number.parse_obj(test_data)
@@ -58,15 +58,15 @@ class NumberPropertyTest(unittest.TestCase):
         self.assertEqual(num.type, "number")
         self.assertEqual(num.number, 42)
 
-    def test_FromFloatValue(self):
+    def test_from_float_value(self):
         num = types.Number.from_value(2.718281828)
         self.assertEqual(num.Value, 2.718281828)
 
-    def test_FromStringValue(self):
+    def test_from_string_value(self):
         num = types.Number.from_value("100.00")
         self.assertEqual(num.Value, 100)
 
-    def test_FromBadString(self):
+    def test_from_bad_string(self):
         with self.assertRaises(ValidationError):
             types.Number.from_value("twelve")
 
@@ -74,7 +74,7 @@ class NumberPropertyTest(unittest.TestCase):
 class CheckboxPropertyTest(unittest.TestCase):
     """Verify Checkbox property values."""
 
-    def test_ParseData(self):
+    def test_parse_data(self):
         test_data = {"id": "ax{O", "type": "checkbox", "checkbox": False}
 
         check = types.Checkbox.parse_obj(test_data)
@@ -82,15 +82,15 @@ class CheckboxPropertyTest(unittest.TestCase):
         self.assertEqual(check.type, "checkbox")
         self.assertFalse(check.checkbox)
 
-    def test_FromBooleanValue(self):
+    def test_from_boolean_value(self):
         check = types.Checkbox.from_value(True)
         self.assertTrue(check.Value)
 
-    def test_FromStringValue(self):
+    def test_from_string_value(self):
         check = types.Checkbox.from_value("no")
         self.assertFalse(check.Value)
 
-    def test_FromBadString(self):
+    def test_from_bad_string(self):
         with self.assertRaises(ValidationError):
             types.Checkbox.from_value("foo")
 
@@ -98,7 +98,7 @@ class CheckboxPropertyTest(unittest.TestCase):
 class DatePropertyTest(unittest.TestCase):
     """Verify complex Date property values."""
 
-    def test_ParseSingleDate(self):
+    def test_parse_single_date(self):
 
         test_data = {
             "id": "[wke",
@@ -116,7 +116,7 @@ class DatePropertyTest(unittest.TestCase):
             if date(2020, 8, 4) in single:
                 pass
 
-    def test_ParseDateWithTime(self):
+    def test_parse_date_with_time(self):
 
         test_data = {
             "id": "_mGp",
@@ -132,7 +132,7 @@ class DatePropertyTest(unittest.TestCase):
         )
         self.assertFalse(tstamp.IsRange)
 
-    def test_ParseDateRange(self):
+    def test_parse_date_range(self):
         test_data = {
             "id": "<|;g",
             "type": "date",
@@ -155,7 +155,7 @@ class DatePropertyTest(unittest.TestCase):
 class SelectOnePropertyTest(unittest.TestCase):
     """Verify SelectOne property values."""
 
-    def test_ParseData(self):
+    def test_parse_data(self):
 
         test_data = {
             "id": "c::a",
@@ -173,7 +173,7 @@ class SelectOnePropertyTest(unittest.TestCase):
         self.assertEqual(priority, "High")
         self.assertEqual(priority.Value, "High")
 
-    def test_FromValue(self):
+    def test_from_value(self):
         priority = types.SelectOne.from_value("URGENT")
         self.assertEqual(priority, "URGENT")
 
@@ -181,7 +181,7 @@ class SelectOnePropertyTest(unittest.TestCase):
 class MultiSelectPropertyTest(unittest.TestCase):
     """Verify MultiSelect property values."""
 
-    def test_ParseData(self):
+    def test_parse_data(self):
 
         test_data = {
             "id": "W:kr",
@@ -206,7 +206,7 @@ class MultiSelectPropertyTest(unittest.TestCase):
         tags -= "TEMPORARY"
         self.assertNotIn("TEMPORARY", tags)
 
-    def test_FromValueArray(self):
+    def test_from_value_array(self):
         tags = types.MultiSelect.from_values("foo", None, "bar")
         self.assertListEqual(tags.Values, ["foo", "bar"])
         self.assertNotIn(None, tags)
@@ -215,7 +215,7 @@ class MultiSelectPropertyTest(unittest.TestCase):
 class EmailPropertyTest(unittest.TestCase):
     """Verify Email property values."""
 
-    def test_ParseData(self):
+    def test_parse_data(self):
         test_data = {"id": "QU|p", "type": "email", "email": "alice@example.com"}
 
         contact = types.Email.parse_obj(test_data)
@@ -227,7 +227,7 @@ class EmailPropertyTest(unittest.TestCase):
 class PhoneNumberPropertyTest(unittest.TestCase):
     """Verify PhoneNumber property values."""
 
-    def test_ParseData(self):
+    def test_parse_data(self):
 
         test_data = {
             "id": "tLo^",
@@ -244,7 +244,7 @@ class PhoneNumberPropertyTest(unittest.TestCase):
 class URLPropertyTest(unittest.TestCase):
     """Verify URL property values."""
 
-    def test_ParseData(self):
+    def test_parse_data(self):
 
         test_data = {
             "id": "rNKf",
@@ -261,7 +261,7 @@ class URLPropertyTest(unittest.TestCase):
 class FormulaPropertyTest(unittest.TestCase):
     """Verify Formula property values."""
 
-    def test_ParseStringFormula(self):
+    def test_parse_string_formula(self):
 
         test_data = {
             "id": "s|>T",
@@ -274,7 +274,7 @@ class FormulaPropertyTest(unittest.TestCase):
         self.assertEqual(title.type, "formula")
         self.assertEqual(title.Result, "Buy milk [Alice]")
 
-    def test_ParseIntFormula(self):
+    def test_parse_int_formula(self):
 
         test_data = {
             "id": "?Y=S",
@@ -287,7 +287,7 @@ class FormulaPropertyTest(unittest.TestCase):
         self.assertEqual(year.type, "formula")
         self.assertEqual(year.Result, 2020)
 
-    def test_ParseDateFormula(self):
+    def test_parse_date_formula(self):
 
         test_data = {
             "id": "ab@]",
@@ -305,7 +305,7 @@ class FormulaPropertyTest(unittest.TestCase):
 class RelationPropertyTest(unittest.TestCase):
     """Verify Rollup property values."""
 
-    def test_ParseRelation(self):
+    def test_parse_relation(self):
 
         test_data = {
             "id": ">m;y",
@@ -323,7 +323,7 @@ class RelationPropertyTest(unittest.TestCase):
 class RollupPropertyTest(unittest.TestCase):
     """Verify Rollup property values."""
 
-    def test_ParseRollupNumber(self):
+    def test_parse_rollup_number(self):
 
         test_data = {
             "id": "Ob:b",
@@ -338,7 +338,7 @@ class RollupPropertyTest(unittest.TestCase):
         self.assertEqual(rollup.rollup.number, 41)
         self.assertEqual(rollup.rollup.function, schema.Function.SUM)
 
-    def test_ParseRollupDate(self):
+    def test_parse_rollup_date(self):
 
         test_data = {
             "id": "Mu?O",
@@ -358,7 +358,7 @@ class RollupPropertyTest(unittest.TestCase):
         self.assertIsNone(rollup.rollup.date.end)
         self.assertEqual(rollup.rollup.function, schema.Function.LATEST_DATE)
 
-    def test_ParseRollupArray(self):
+    def test_parse_rollup_array(self):
 
         test_data = {
             "id": "bXNJ",
@@ -390,7 +390,7 @@ class RollupPropertyTest(unittest.TestCase):
 class PeoplePropertyTest(unittest.TestCase):
     """Verify People property values."""
 
-    def test_ParseData(self):
+    def test_parse_data(self):
 
         test_data = {
             "id": "nQ<Y",
@@ -419,7 +419,7 @@ class PeoplePropertyTest(unittest.TestCase):
 class FilesPropertyTest(unittest.TestCase):
     """Verify Files property values."""
 
-    def test_ParseData(self):
+    def test_parse_data(self):
 
         test_data = {
             "id": "NNT{",
@@ -442,7 +442,9 @@ class FilesPropertyTest(unittest.TestCase):
 
 
 class CreatedPropertyTest(unittest.TestCase):
-    def test_CreatedTime(self):
+    """Verify CreatedTime and CreatedBy properties."""
+
+    def test_created_time(self):
         """Verify CreatedTime property values."""
 
         test_data = {
@@ -459,7 +461,7 @@ class CreatedPropertyTest(unittest.TestCase):
             datetime(1999, 12, 31, 23, 59, 59, 999000, timezone.utc),
         )
 
-    def test_CreatedBy(self):
+    def test_created_by(self):
         """Verify CreatedBy property values."""
 
         test_data = {
@@ -483,7 +485,7 @@ class CreatedPropertyTest(unittest.TestCase):
 
 
 class LastEditedPropertyValueTest(unittest.TestCase):
-    def test_LastEditedTime(self):
+    def test_last_edited_time(self):
         """Verify LastEditedTime property values."""
 
         test_data = {
@@ -500,7 +502,7 @@ class LastEditedPropertyValueTest(unittest.TestCase):
             datetime(2000, 1, 1, 0, 0, 0, 0, timezone.utc),
         )
 
-    def test_LastEditedBy(self):
+    def test_last_edited_by(self):
         """Verify LastEditedBy property values."""
 
         test_data = {
@@ -524,7 +526,7 @@ class LastEditedPropertyValueTest(unittest.TestCase):
 
 
 class MentionUserTest(unittest.TestCase):
-    def test_ParseObject(self):
+    def test_parse_object(self):
         test_data = {
             "type": "mention",
             "plain_text": "@Alice",
@@ -552,7 +554,7 @@ class MentionUserTest(unittest.TestCase):
 
 
 class MentionDateTest(unittest.TestCase):
-    def test_ParseObject(self):
+    def test_parse_object(self):
         test_data = {
             "type": "mention",
             "plain_text": "FUTURE",
@@ -570,7 +572,7 @@ class MentionDateTest(unittest.TestCase):
 
 
 class MentionPageTest(unittest.TestCase):
-    def test_ParseObject(self):
+    def test_parse_object(self):
         test_data = {
             "type": "mention",
             "plain_text": "Awesome Sauce",
@@ -591,7 +593,7 @@ class MentionPageTest(unittest.TestCase):
 
 
 class MentionDatabaseTest(unittest.TestCase):
-    def test_ParseObject(self):
+    def test_parse_object(self):
         test_data = {
             "type": "mention",
             "plain_text": "Superfreak",
@@ -614,7 +616,7 @@ class MentionDatabaseTest(unittest.TestCase):
 class EquationPropertyTest(unittest.TestCase):
     """Verify Equation rich text objects."""
 
-    def test_ParseData(self):
+    def test_parse_data(self):
         test_data = {
             "type": "equation",
             "plain_text": "1 + 1 = 3",
@@ -630,12 +632,12 @@ class EquationPropertyTest(unittest.TestCase):
 class RichTextPropertyTest(unittest.TestCase):
     """Verify RichText property values."""
 
-    def test_ParseData(self):
+    def test_parse_data(self):
         rtf = types.RichText.parse_obj(self.test_data)
         self.assertEqual(rtf.type, "rich_text")
         self.assertEqual(rtf.Value, "Our milk is very old.")
 
-    def test_FromValue(self):
+    def test_from_value(self):
         rtf = types.RichText.from_value("We have new milk.")
         self.assertEqual(rtf.Value, "We have new milk.")
 

@@ -31,14 +31,14 @@ BOB = """{
 class UserTest(unittest.TestCase):
     """Unit tests for the User API objects."""
 
-    def test_ParseAlice(self):
+    def test_parse_alice(self):
         """Create a standard user from API data."""
         user = User.parse_raw(ALICE)
 
         self.assertEqual(type(user), Person)
         self.assertEqual(user.name, "Alice")
 
-    def test_ParseBob(self):
+    def test_parse_bob(self):
         """Create a bot user from API data."""
         user = User.parse_raw(BOB)
 
