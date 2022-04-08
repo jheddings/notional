@@ -28,8 +28,6 @@ class QueryBuilderTest(unittest.TestCase):
 
         qb.first()
 
-        # self.assertEqual(obj.index, 42)
-
     def test_NumberRangeConstraint(self):
         mock = mock_endpoint(1000, 23)
 
@@ -45,7 +43,4 @@ class QueryBuilderTest(unittest.TestCase):
             )
         )
 
-        for _ in qb.execute():
-            # self.assertGreater(obj.index, 25)
-            # self.assertLessEqual(obj.index, 75)
-            pass
+        qb.first()

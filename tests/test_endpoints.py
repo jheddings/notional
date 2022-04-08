@@ -29,9 +29,6 @@ class EndpointTest(object):
         self.notion = notional.connect(auth=auth_token)
         self.parent = records.PageRef(page_id=parent_id)
 
-        # FIXME why does this fail???
-        # self.parent = self.notion.pages.retrieve(page_id=parent_id)
-
     def tearDown(self):
         for page in self.cleanup_pages:
             self.notion.pages.delete(page)

@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from notional.user import User
+from notional.user import Bot, Person, User
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.FATAL)
@@ -35,13 +35,13 @@ class UserTest(unittest.TestCase):
         """Create a standard user from API data."""
         user = User.parse_raw(ALICE)
 
-        # self.assertEqual(type(user), Person)
+        self.assertEqual(type(user), Person)
         self.assertEqual(user.name, "Alice")
 
     def test_ParseBob(self):
         """Create a bot user from API data."""
         user = User.parse_raw(BOB)
 
-        # self.assertEqual(type(user), Bot)
+        self.assertEqual(type(user), Bot)
         self.assertEqual(user.name, "Bob")
         self.assertIsNone(user.avatar_url)

@@ -93,9 +93,6 @@ class DataObject(BaseModel):
         # we need to convert "special" types to string forms to help the JSON encoder.
         # there are efforts underway in pydantic to make this easier, but for now...
 
-        # XXX this method has promise, but converts the entire value to a single string
-        # return {name: json.dumps(value, default=str) for name, value in data.items()}
-
         return make_api_safe(data)
 
 

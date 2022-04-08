@@ -100,5 +100,5 @@ entry = notion.pages.create(
     },
 )
 
-# TODO when available, delete the database
-# notion.databases.delete(db)
+# finally, cleanup our sample database...
+notion.databases.delete(db)

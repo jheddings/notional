@@ -37,4 +37,4 @@ for name, prop in page.properties.items():
 page["Complete"] = types.Checkbox.from_value(True)
 
 # FIXME this feature is broken - https://github.com/jheddings/notional/issues/9
-# notion.pages.update(page)
+# notion.pages.update(page)  # noqa: E800
