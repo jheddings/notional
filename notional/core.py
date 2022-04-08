@@ -48,7 +48,7 @@ class DataObject(BaseModel):
     def __setattr__(self, name, value):
         try:
             super().__setattr__(name, value)
-        except ValueError as e:
+        except ValueError as err:
             setters = inspect.getmembers(
                 self.__class__,
                 predicate=lambda x: isinstance(x, property) and x.fset is not None,
@@ -58,7 +58,7 @@ class DataObject(BaseModel):
                     object.__setattr__(self, name, value)
                     break
             else:
-                raise e
+                raise err
 
     @classmethod
     def _modify_field_(cls, name, default=None):

@@ -178,6 +178,6 @@ class BlockFormatTest(unittest.TestCase):
     def test_Code(self):
         code = "import sys\nprint('hello world')\nsys.exit(0)"
         block = blocks.Code.from_text(code)
-        block.code.language = text.CodingLanguage.python
+        block.code.language = text.CodingLanguage.PYTHON
 
         self.assertEqual(block.Markdown, f"```python\n{code}\n```")

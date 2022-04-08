@@ -134,7 +134,7 @@ class Paragraph(TextBlock, WithChildrenMixin, type="paragraph"):
     class NestedData(NestedObject):
         text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
-        color: FullColor = FullColor.default
+        color: FullColor = FullColor.DEFAULT
 
     paragraph: NestedData = NestedData()
 
@@ -151,7 +151,7 @@ class Heading1(TextBlock, type="heading_1"):
 
     class NestedData(NestedObject):
         text: List[RichTextObject] = []
-        color: FullColor = FullColor.default
+        color: FullColor = FullColor.DEFAULT
 
     heading_1: NestedData = NestedData()
 
@@ -168,7 +168,7 @@ class Heading2(TextBlock, type="heading_2"):
 
     class NestedData(NestedObject):
         text: List[RichTextObject] = []
-        color: FullColor = FullColor.default
+        color: FullColor = FullColor.DEFAULT
 
     heading_2: NestedData = NestedData()
 
@@ -185,7 +185,7 @@ class Heading3(TextBlock, type="heading_3"):
 
     class NestedData(NestedObject):
         text: List[RichTextObject] = []
-        color: FullColor = FullColor.default
+        color: FullColor = FullColor.DEFAULT
 
     heading_3: NestedData = NestedData()
 
@@ -203,7 +203,7 @@ class Quote(TextBlock, WithChildrenMixin, type="quote"):
     class NestedData(NestedObject):
         text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
-        color: FullColor = FullColor.default
+        color: FullColor = FullColor.DEFAULT
 
     quote: NestedData = NestedData()
 
@@ -221,7 +221,7 @@ class Code(TextBlock, type="code"):
     class NestedData(NestedObject):
         text: List[RichTextObject] = []
         caption: List[RichTextObject] = []
-        language: CodingLanguage = CodingLanguage.plain_text
+        language: CodingLanguage = CodingLanguage.PLAIN_TEXT
 
     code: NestedData = NestedData()
 
@@ -244,7 +244,7 @@ class Callout(TextBlock, WithChildrenMixin, type="callout"):
         text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         icon: Optional[Union[FileObject, EmojiObject]] = None
-        color: FullColor = FullColor.default
+        color: FullColor = FullColor.DEFAULT
 
     callout: NestedData = NestedData()
 
@@ -255,7 +255,7 @@ class BulletedListItem(TextBlock, WithChildrenMixin, type="bulleted_list_item"):
     class NestedData(NestedObject):
         text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
-        color: FullColor = FullColor.default
+        color: FullColor = FullColor.DEFAULT
 
     bulleted_list_item: NestedData = NestedData()
 
@@ -273,7 +273,7 @@ class NumberedListItem(TextBlock, WithChildrenMixin, type="numbered_list_item"):
     class NestedData(NestedObject):
         text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
-        color: FullColor = FullColor.default
+        color: FullColor = FullColor.DEFAULT
 
     numbered_list_item: NestedData = NestedData()
 
@@ -292,7 +292,7 @@ class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
         text: List[RichTextObject] = []
         checked: bool = False
         children: Optional[List[Block]] = None
-        color: FullColor = FullColor.default
+        color: FullColor = FullColor.DEFAULT
 
     to_do: NestedData = NestedData()
 
@@ -313,7 +313,7 @@ class Toggle(TextBlock, WithChildrenMixin, type="toggle"):
     class NestedData(NestedObject):
         text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
-        color: FullColor = FullColor.default
+        color: FullColor = FullColor.DEFAULT
 
     toggle: NestedData = NestedData()
 
@@ -335,7 +335,7 @@ class TableOfContents(Block, type="table_of_contents"):
     """A table_of_contents block in Notion."""
 
     class NestedData(NestedObject):
-        color: FullColor = FullColor.default
+        color: FullColor = FullColor.DEFAULT
 
     table_of_contents: NestedData = NestedData()
 

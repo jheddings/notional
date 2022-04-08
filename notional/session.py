@@ -173,7 +173,7 @@ class DatabasesEndpoint(Endpoint):
     def list(self):
         """Returns an iterator for all Database objects in the integration scope."""
 
-        # XXX DEPRECATED ###
+        # DEPRECATED ENDPOINT ###
 
         log.info("Listing known databases...")
 

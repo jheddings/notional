@@ -31,9 +31,7 @@ def condense_text(text):
     if text is None:
         return None
 
-    text = re.sub(r"\s+", " ", text, flags=re.MULTILINE)
-
-    return text
+    return re.sub(r"\s+", " ", text, flags=re.MULTILINE)
 
 
 def normalize_text(text):
@@ -126,12 +124,12 @@ class CsvParser(DocumentParser):
 
         self._process(reader)
 
-    def _process(self, csv):
+    def _process(self, reader):
 
         # build the schema based on the first row
 
         try:
-            header = next(csv)
+            header = next(reader)
         except StopIteration:
             raise ValueError("Invalid CSV: empty data")
 
@@ -145,7 +143,7 @@ class CsvParser(DocumentParser):
 
         # process remaining entries
 
-        for entry in csv:
+        for entry in reader:
             self._build_record(*entry)
 
     def _build_schema(self, *fields):
@@ -374,7 +372,7 @@ class HtmlParser(DocumentParser):
         parent.append(block)
 
     def _render_s(self, elem, parent):
-        self._render_del(self, elem, parent)
+        self._render_del(elem, parent)
 
     def _render_samp(self, elem, parent):
         self._render_code(elem, parent)
