@@ -25,7 +25,7 @@ build: preflight test
 .PHONY: publish
 
 publish: build
-	twine upload --repository notional $(DISTDIR)/*
+	$(WITH_VENV) twine upload --repository notional $(DISTDIR)/*
 
 ################################################################################
 .PHONY: preflight
