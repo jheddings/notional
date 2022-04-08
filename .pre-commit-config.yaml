@@ -12,9 +12,14 @@ repos:
       - id: black
 
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.17.0
+    rev: v1.26.3
     hooks:
       - id: yamllint
+
+  # - repo: https://github.com/markdownlint/markdownlint
+  #   rev: v0.11.0
+  #   hooks:
+  #     - id: markdownlint
 
   - repo: https://github.com/pycqa/flake8
     rev: "4.0.1"
