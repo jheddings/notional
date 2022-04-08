@@ -4,6 +4,8 @@ __pycache__/
 
 .venv
 
+.vscode/launch.json
+
 local.env
 
 build
