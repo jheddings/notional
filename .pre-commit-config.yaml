@@ -1,15 +1,21 @@
+---
 repos:
   - repo: https://github.com/pycqa/isort
     rev: "5.10.1"
     hooks:
-      - id: isort 
-        args: [ --profile, black ]
+      - id: isort
+        args: [--profile, black]
 
   - repo: https://github.com/psf/black
     rev: "22.3.0"
     hooks:
       - id: black
-  
+
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.17.0
+    hooks:
+      - id: yamllint
+
   - repo: https://github.com/pycqa/flake8
     rev: "4.0.1"
     hooks:
@@ -18,13 +24,13 @@ repos:
           - flake8-alfred
           - flake8-breakpoint
           - flake8-bugbear
-          #- flake8-builtins
+          # - flake8-builtins
           - flake8-comprehensions
-          #- flake8-docstrings
+          # - flake8-docstrings
           - flake8-eradicate
-          #- flake8-print
+          # - flake8-print
           - flake8-logging-format
-          #- flake8-return
-          #- flake8-requirements
-          #- flake8-todo
-          #- pep8-naming
+          # - flake8-return
+          # - flake8-requirements
+          # - flake8-todo
+          # - pep8-naming
