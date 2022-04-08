@@ -1,3 +1,5 @@
+"""Unit tests for Notional types."""
+
 import logging
 import unittest
 from datetime import date, datetime, timezone
@@ -15,6 +17,7 @@ class TitlePropertyTest(unittest.TestCase):
     """Verify Title property values."""
 
     def test_parse_data(self):
+        """Create a Title object from API data."""
 
         test_data = {
             "id": "title",
@@ -43,6 +46,7 @@ class TitlePropertyTest(unittest.TestCase):
         self.assertEqual(title.Value, "Buy milk")
 
     def test_from_value(self):
+        """Create a Title object from a literal string."""
         title = types.Title.from_value("Get more milk")
         self.assertEqual(title.Value, "Get more milk")
 
@@ -51,6 +55,8 @@ class NumberPropertyTest(unittest.TestCase):
     """Verify Number property values."""
 
     def test_parse_data(self):
+        """Create a Number object from API data."""
+
         test_data = {"id": "XQOP", "type": "number", "number": 42}
 
         num = types.Number.parse_obj(test_data)
@@ -59,14 +65,17 @@ class NumberPropertyTest(unittest.TestCase):
         self.assertEqual(num.number, 42)
 
     def test_from_float_value(self):
+        """Create a Number object from a literal float."""
         num = types.Number.from_value(2.718281828)
         self.assertEqual(num.Value, 2.718281828)
 
     def test_from_string_value(self):
+        """Create a Number object from a literal string."""
         num = types.Number.from_value("100.00")
         self.assertEqual(num.Value, 100)
 
     def test_from_bad_string(self):
+        """Check exceptions for strings with invalid values."""
         with self.assertRaises(ValidationError):
             types.Number.from_value("twelve")
 
@@ -75,6 +84,8 @@ class CheckboxPropertyTest(unittest.TestCase):
     """Verify Checkbox property values."""
 
     def test_parse_data(self):
+        """Create a Checkbox object from API data."""
+
         test_data = {"id": "ax{O", "type": "checkbox", "checkbox": False}
 
         check = types.Checkbox.parse_obj(test_data)
@@ -83,14 +94,17 @@ class CheckboxPropertyTest(unittest.TestCase):
         self.assertFalse(check.checkbox)
 
     def test_from_boolean_value(self):
+        """Create a Checkbox object from a boolean."""
         check = types.Checkbox.from_value(True)
         self.assertTrue(check.Value)
 
     def test_from_string_value(self):
+        """Create a Checkbox object from a string."""
         check = types.Checkbox.from_value("no")
         self.assertFalse(check.Value)
 
     def test_from_bad_string(self):
+        """Check exceptions for strings with invalid values."""
         with self.assertRaises(ValidationError):
             types.Checkbox.from_value("foo")
 
@@ -99,6 +113,7 @@ class DatePropertyTest(unittest.TestCase):
     """Verify complex Date property values."""
 
     def test_parse_single_date(self):
+        """Create a simple Date object from API data."""
 
         test_data = {
             "id": "[wke",
@@ -117,6 +132,7 @@ class DatePropertyTest(unittest.TestCase):
                 pass
 
     def test_parse_date_with_time(self):
+        """Create a Date object with time from API data."""
 
         test_data = {
             "id": "_mGp",
@@ -133,6 +149,8 @@ class DatePropertyTest(unittest.TestCase):
         self.assertFalse(tstamp.IsRange)
 
     def test_parse_date_range(self):
+        """Create a Date range object from API data."""
+
         test_data = {
             "id": "<|;g",
             "type": "date",
@@ -156,6 +174,7 @@ class SelectOnePropertyTest(unittest.TestCase):
     """Verify SelectOne property values."""
 
     def test_parse_data(self):
+        """Create a SelectOne object from API data."""
 
         test_data = {
             "id": "c::a",
@@ -173,7 +192,8 @@ class SelectOnePropertyTest(unittest.TestCase):
         self.assertEqual(priority, "High")
         self.assertEqual(priority.Value, "High")
 
-    def test_from_value(self):
+    def test_from_string(self):
+        """Create a SelectOne object from a literal string."""
         priority = types.SelectOne.from_value("URGENT")
         self.assertEqual(priority, "URGENT")
 
@@ -182,6 +202,7 @@ class MultiSelectPropertyTest(unittest.TestCase):
     """Verify MultiSelect property values."""
 
     def test_parse_data(self):
+        """Create a MultiSelect object from API data."""
 
         test_data = {
             "id": "W:kr",
@@ -206,7 +227,8 @@ class MultiSelectPropertyTest(unittest.TestCase):
         tags -= "TEMPORARY"
         self.assertNotIn("TEMPORARY", tags)
 
-    def test_from_value_array(self):
+    def test_from_string_list(self):
+        """Create a MultiSelect object from a list of strings."""
         tags = types.MultiSelect.from_values("foo", None, "bar")
         self.assertListEqual(tags.Values, ["foo", "bar"])
         self.assertNotIn(None, tags)
@@ -216,6 +238,8 @@ class EmailPropertyTest(unittest.TestCase):
     """Verify Email property values."""
 
     def test_parse_data(self):
+        """Create an Email object from API data."""
+
         test_data = {"id": "QU|p", "type": "email", "email": "alice@example.com"}
 
         contact = types.Email.parse_obj(test_data)
@@ -228,6 +252,7 @@ class PhoneNumberPropertyTest(unittest.TestCase):
     """Verify PhoneNumber property values."""
 
     def test_parse_data(self):
+        """Create a PhoneNumber object from API data."""
 
         test_data = {
             "id": "tLo^",
@@ -245,6 +270,7 @@ class URLPropertyTest(unittest.TestCase):
     """Verify URL property values."""
 
     def test_parse_data(self):
+        """Create a URL object from API data."""
 
         test_data = {
             "id": "rNKf",
@@ -262,6 +288,7 @@ class FormulaPropertyTest(unittest.TestCase):
     """Verify Formula property values."""
 
     def test_parse_string_formula(self):
+        """Create a Formula string object from API data."""
 
         test_data = {
             "id": "s|>T",
@@ -274,7 +301,8 @@ class FormulaPropertyTest(unittest.TestCase):
         self.assertEqual(title.type, "formula")
         self.assertEqual(title.Result, "Buy milk [Alice]")
 
-    def test_parse_int_formula(self):
+    def test_parse_number_formula(self):
+        """Create a Formula number object from API data."""
 
         test_data = {
             "id": "?Y=S",
@@ -288,6 +316,7 @@ class FormulaPropertyTest(unittest.TestCase):
         self.assertEqual(year.Result, 2020)
 
     def test_parse_date_formula(self):
+        """Create a Formula date object from API data."""
 
         test_data = {
             "id": "ab@]",
@@ -303,9 +332,10 @@ class FormulaPropertyTest(unittest.TestCase):
 
 
 class RelationPropertyTest(unittest.TestCase):
-    """Verify Rollup property values."""
+    """Verify Relation property values."""
 
     def test_parse_relation(self):
+        """Create a Relation object from API data."""
 
         test_data = {
             "id": ">m;y",
@@ -324,6 +354,7 @@ class RollupPropertyTest(unittest.TestCase):
     """Verify Rollup property values."""
 
     def test_parse_rollup_number(self):
+        """Create a Rollup number object from API data."""
 
         test_data = {
             "id": "Ob:b",
@@ -339,6 +370,7 @@ class RollupPropertyTest(unittest.TestCase):
         self.assertEqual(rollup.rollup.function, schema.Function.SUM)
 
     def test_parse_rollup_date(self):
+        """Create a Rollup date object from API data."""
 
         test_data = {
             "id": "Mu?O",
@@ -359,6 +391,7 @@ class RollupPropertyTest(unittest.TestCase):
         self.assertEqual(rollup.rollup.function, schema.Function.LATEST_DATE)
 
     def test_parse_rollup_array(self):
+        """Create a Rollup array object from API data."""
 
         test_data = {
             "id": "bXNJ",
@@ -391,6 +424,7 @@ class PeoplePropertyTest(unittest.TestCase):
     """Verify People property values."""
 
     def test_parse_data(self):
+        """Create a People object from API data."""
 
         test_data = {
             "id": "nQ<Y",
@@ -420,6 +454,7 @@ class FilesPropertyTest(unittest.TestCase):
     """Verify Files property values."""
 
     def test_parse_data(self):
+        """Create a Files object from API data."""
 
         test_data = {
             "id": "NNT{",
@@ -445,7 +480,7 @@ class CreatedPropertyTest(unittest.TestCase):
     """Verify CreatedTime and CreatedBy properties."""
 
     def test_created_time(self):
-        """Verify CreatedTime property values."""
+        """Create a CreatedTime object from API data."""
 
         test_data = {
             "id": "v}{N",
@@ -462,7 +497,7 @@ class CreatedPropertyTest(unittest.TestCase):
         )
 
     def test_created_by(self):
-        """Verify CreatedBy property values."""
+        """Create a CreatedBy object from API data."""
 
         test_data = {
             "id": "@yUe",
@@ -485,6 +520,8 @@ class CreatedPropertyTest(unittest.TestCase):
 
 
 class LastEditedPropertyValueTest(unittest.TestCase):
+    """Verify LastEditedTime and LastEditedBy objects."""
+
     def test_last_edited_time(self):
         """Verify LastEditedTime property values."""
 
@@ -526,7 +563,11 @@ class LastEditedPropertyValueTest(unittest.TestCase):
 
 
 class MentionUserTest(unittest.TestCase):
+    """Verify Mention user objects."""
+
     def test_parse_object(self):
+        """Create a Mention user object from API data."""
+
         test_data = {
             "type": "mention",
             "plain_text": "@Alice",
@@ -554,7 +595,11 @@ class MentionUserTest(unittest.TestCase):
 
 
 class MentionDateTest(unittest.TestCase):
+    """Verify Mention date objects."""
+
     def test_parse_object(self):
+        """Create a Mention date object from API data."""
+
         test_data = {
             "type": "mention",
             "plain_text": "FUTURE",
@@ -572,7 +617,11 @@ class MentionDateTest(unittest.TestCase):
 
 
 class MentionPageTest(unittest.TestCase):
+    """Verify Mention page objects."""
+
     def test_parse_object(self):
+        """Create a Mention page object from API data."""
+
         test_data = {
             "type": "mention",
             "plain_text": "Awesome Sauce",
@@ -582,18 +631,26 @@ class MentionPageTest(unittest.TestCase):
             },
         }
 
-        at = types.MentionObject.parse_obj(test_data)
+        mention = types.MentionObject.parse_obj(test_data)
 
-        self.assertEqual(at.type, "mention")
-        self.assertEqual(at.mention.type, "page")
+        self.assertEqual(mention.type, "mention")
 
-        data = at.mention.page
+        nested = mention()
+
+        self.assertIsInstance(nested, types.MentionPage)
+        self.assertEqual(nested.type, "page")
+
+        data = mention("page")
 
         self.assertEqual(data.id, UUID("c0703d87-e3c5-4492-9654-a7d97c1262a2"))
 
 
 class MentionDatabaseTest(unittest.TestCase):
+    """Verify Mention database objects."""
+
     def test_parse_object(self):
+        """Create a Mention database object from API data."""
+
         test_data = {
             "type": "mention",
             "plain_text": "Superfreak",
@@ -603,12 +660,16 @@ class MentionDatabaseTest(unittest.TestCase):
             },
         }
 
-        at = types.MentionObject.parse_obj(test_data)
+        mention = types.MentionObject.parse_obj(test_data)
 
-        self.assertEqual(at.type, "mention")
-        self.assertEqual(at.mention.type, "database")
+        self.assertEqual(mention.type, "mention")
 
-        data = at.mention.database
+        nested = mention()
+
+        self.assertIsInstance(nested, types.MentionDatabase)
+        self.assertEqual(nested.type, "database")
+
+        data = mention("database")
 
         self.assertEqual(data.id, UUID("57202d16-08c9-43db-a112-a0f25443dc48"))
 
@@ -617,6 +678,8 @@ class EquationPropertyTest(unittest.TestCase):
     """Verify Equation rich text objects."""
 
     def test_parse_data(self):
+        """Create an Equation object from API data."""
+
         test_data = {
             "type": "equation",
             "plain_text": "1 + 1 = 3",
@@ -633,11 +696,13 @@ class RichTextPropertyTest(unittest.TestCase):
     """Verify RichText property values."""
 
     def test_parse_data(self):
+        """Create RichText from API data."""
         rtf = types.RichText.parse_obj(self.test_data)
         self.assertEqual(rtf.type, "rich_text")
         self.assertEqual(rtf.Value, "Our milk is very old.")
 
     def test_from_value(self):
+        """Create RichText from a literal value."""
         rtf = types.RichText.from_value("We have new milk.")
         self.assertEqual(rtf.Value, "We have new milk.")
 

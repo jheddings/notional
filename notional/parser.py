@@ -28,6 +28,8 @@ img_data_re = re.compile("^data:image/([^;]+);([^,]+),(.+)$")
 
 
 def condense_text(text):
+    """Collapse contiguous whitespace from the given text."""
+
     if text is None:
         return None
 
@@ -35,6 +37,8 @@ def condense_text(text):
 
 
 def normalize_text(text):
+    """Remove extra whitespace from the given text."""
+
     if text is None:
         return None
 
@@ -44,6 +48,7 @@ def normalize_text(text):
 
 
 def gather_text(elem):
+    """Return all text from the element and children."""
     text = "".join(elem.itertext())
     return normalize_text(text)
 
@@ -65,6 +70,11 @@ def strip_text_block(block):
 
 
 def elem_has_text(elem, with_children=True):
+    """Determine if the element has any visible text.
+
+    :param elem: the element to examine
+    :param with_children: whether to include children nodes in the search
+    """
 
     # first, check the direct text of the element...
     if elem.text is not None and not elem.text.isspace():
@@ -85,26 +95,63 @@ def elem_has_text(elem, with_children=True):
 
 
 class DocumentParser(ABC):
+    """Base class for document parsers."""
 
     title: str
     content: list
 
     def __init__(self):
+        """Initlize the document parser."""
         self.title = None
         self.content = []
 
     @abstractmethod
     def parse(self, data):
+        """Parse the given data.
+
+        This method will attempt to determine a default name for the document from the
+        data source.
+
+        Subclasses should call this method when implemting `parse()` locally.
+        """
+
         if hasattr(data, "name"):
             self.title = basename(data.name)
 
 
 class CsvParser(DocumentParser):
-    """A standard CSV parser."""
+    """A standard CSV parser.
+
+    Contents of this parser are available as a list of page properties according to the
+    determined schema.  Specifically, this content follows the format:
+
+        ```
+        [
+            {
+                column_1_name: entry_1_column_1_data,
+                column_2_name: entry_1_column_2_data,
+                column_3_name: entry_1_column_3_data,
+                ...
+            },
+            {
+                column_1_name: entry_2_column_1_data,
+                column_2_name: entry_2_column_2_data,
+                column_3_name: entry_2_column_3_data,
+                ...
+            },
+            ...
+        ]
+        ```
+    """
 
     schema: dict
 
     def __init__(self, header_row=True, title_column=0):
+        """Initialize a new `CsvParser`.
+
+        :param header_row: indicates that data will have a header row (for the schema)
+        :param title_column: set the column in data to use for page titles
+        """
         super().__init__()
 
         self._has_header = header_row
@@ -115,6 +162,13 @@ class CsvParser(DocumentParser):
         self._field_names = []
 
     def parse(self, data):
+        """Parse the given CSV data.
+
+        Upon return, the following properties will be available in the parser:
+            `schema`: a computed schema for the supplied data
+            `title`: the name of the CSV file being parsed (if available)
+            `content`: a list of page properties with the tabular data
+        """
         super().parse(data)
 
         if isinstance(data, str):
@@ -194,6 +248,10 @@ class HtmlParser(DocumentParser):
     meta: dict
 
     def __init__(self, base=None):
+        """Initialize an empty `HtmlParser`.
+
+        :param base: the base URL for resolving relative paths
+        """
         super().__init__()
 
         self._base_url = base
@@ -204,6 +262,13 @@ class HtmlParser(DocumentParser):
         self._current_text_style = Annotations()
 
     def parse(self, data):
+        """Parse the given HTML data.
+
+        Upon return, the following properties will be available in the parser:
+            `title`: contents of the `<title>` element if found
+            `content`: a list of blocks containing rendered content from the HTML data
+            `meta`: a dictionary of any `<meta>` tags that were found
+        """
         super().parse(data)
 
         doc = html5lib.parse(data, namespaceHTMLElements=False)
@@ -211,6 +276,14 @@ class HtmlParser(DocumentParser):
         self._render(doc)
 
     def _render(self, elem, parent=None):
+        """Render the given element as a child of `parent`.
+
+        This method will look for an appropriate `render_*` method to handle the given
+        tag name.  If there is not an available method, the element will be ignored.
+
+        :param elem: the ElementTree object to render
+        :param parent: the parent block for the rendered content or `None`
+        """
         log.debug("rendering element - %s :: %s", elem.tag, type(parent))
 
         if parent is None:
@@ -446,6 +519,12 @@ class HtmlParser(DocumentParser):
         self._render_code(elem, parent=parent)
 
     def _append_text(self, text, parent):
+        """Append text to the given parent using current style and link information.
+
+        If the parent does not support text children, the text will be ignored.
+
+        When appropriate, whitespace in the text will be removed.
+        """
         log.debug("appending text :: %s => '%s'", parent.type, truncate(text, 10))
 
         if not isinstance(parent, blocks.Code):
@@ -463,6 +542,10 @@ class HtmlParser(DocumentParser):
             parent.append(obj)
 
     def _process_contents(self, elem, parent):
+        """Process the contents of the given element as children of `parent`.
+
+        This will process all children of the element, including text and nodes.
+        """
         log.debug("processing contents :: %s %s", elem.tag, type(parent))
 
         # empty elements don't need text processing...
@@ -497,6 +580,12 @@ class HtmlParser(DocumentParser):
             strip_text_block(parent)
 
     def _process_list(self, elem, parent, kind):
+        """Process contents of the given element as a list.
+
+        :param elem: the element to process
+        :param parent: the parent for list items and nested lists
+        :param kind: a class used to render `<li>` tags
+        """
         list_parent = parent
 
         for child in elem:

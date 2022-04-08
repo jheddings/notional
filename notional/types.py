@@ -5,6 +5,7 @@ used in the Notion API as well as higher-level methods.
 """
 
 import logging
+from abc import ABC, abstractmethod
 from datetime import date, datetime
 from typing import List, Optional, Union
 from uuid import UUID
@@ -42,31 +43,31 @@ class FileObject(TypedObject):
 
     def __str__(self):
         """Return a string representation of this object."""
-
         return self.name or "__unknown__"
 
 
 class HostedFile(FileObject, type="file"):
     """A Notion file object."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         url: str
         expiry_time: Optional[datetime] = None
 
-    file: Optional[NestedData] = None
+    file: Optional[_NestedData] = None
 
 
 class ExternalFile(FileObject, type="external"):
     """An external file object."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         url: str
 
-    external: Optional[NestedData] = None
+    external: Optional[_NestedData] = None
 
     @classmethod
     def from_url(cls, url):
-        data = cls.NestedData(url=url)
+        """Create a new `ExternalFile` from the given URL."""
+        data = cls._NestedData(url=url)
         return cls(external=data)
 
 
@@ -86,44 +87,58 @@ class DateRange(DataObject):
 
 
 class MentionData(TypedObject):
-    pass
+    """Base class for typed `Mention` data objects."""
 
 
 class MentionUser(MentionData, type="user"):
+    """Nested user data for `Mention` properties."""
+
     user: User
 
 
 class MentionPage(MentionData, type="page"):
+    """Nested page data for `Mention` properties."""
 
     page: PageReference
 
 
 class MentionDatabase(MentionData, type="database"):
+    """Nested database information for `Mention` properties."""
 
     database: PageReference
 
 
 class MentionDate(MentionData, type="date"):
+    """Nested date data for `Mention` properties."""
+
     date: DateRange
 
 
 class MentionLink(MentionData, type="link_preview"):
+    """Nested url data for `Mention` properties."""
+
     url: str
 
 
 class MentionTemplateData(TypedObject):
-    pass
+    """Nested template data for `Mention` properties."""
 
 
 class MentionTemplateDate(MentionTemplateData, type="template_mention_date"):
+    """Nested date template data for `Mention` properties."""
+
     template_mention_date: str
 
 
 class MentionTemplateUser(MentionTemplateData, type="template_mention_user"):
+    """Nested user template data for `Mention` properties."""
+
     template_mention_user: str
 
 
 class MentionTemplate(MentionData, type="template_mention"):
+    """Nested template data for `Mention` properties."""
+
     template_mention: MentionTemplateData
 
 
@@ -133,14 +148,13 @@ class MentionObject(RichTextObject, type="mention"):
     mention: MentionData
 
 
-class Expression(NestedObject):
-    expression: str
-
-
 class EquationObject(RichTextObject, type="equation"):
     """Notion equation element."""
 
-    equation: Expression
+    class _NestedData(NestedObject):
+        expression: str
+
+    equation: _NestedData
 
     def __str__(self):
         """Return a string representation of this object."""
@@ -225,6 +239,7 @@ class Title(NativeTypeMixin, PropertyValue, type="title"):
 
     @classmethod
     def from_value(cls, *strings):
+        """Create a new `Title` property from the given strings."""
 
         text = []
 
@@ -257,6 +272,7 @@ class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
 
     @classmethod
     def from_value(cls, *strings):
+        """Create a new `RichText` property from the given strings."""
 
         text = []
 
@@ -311,7 +327,7 @@ class Date(PropertyValue, type="date"):
     date: Optional[DateRange] = None
 
     def __contains__(self, other):
-        """Determines if the given date is in the range (inclusive) of this Date.
+        """Determine if the given date is in the range (inclusive) of this Date.
 
         Raises ValueError if the Date object is not a range - e.g. has no end date.
         """
@@ -322,11 +338,12 @@ class Date(PropertyValue, type="date"):
         return self.Start <= other <= self.End
 
     def __str__(self):
+        """Return a string representation of this property."""
         return "" if self.date is None else str(self.date)
 
     @property
     def IsRange(self):
-        """Indicates if this object represents a date range (versus a single date)."""
+        """Determine if this object represents a date range (versus a single date)."""
 
         if self.date is None:
             return False
@@ -335,10 +352,12 @@ class Date(PropertyValue, type="date"):
 
     @property
     def Start(self):
+        """Return the start date of this property."""
         return None if self.date is None else self.date.start
 
     @property
     def End(self):
+        """Return the end date of this property."""
         return None if self.date is None else self.date.end
 
     @classmethod
@@ -361,8 +380,7 @@ class SelectValue(DataObject):
     color: Optional[Color] = None
 
     def __str__(self):
-        """Return a string representation of this object."""
-
+        """Return a string representation of this property."""
         return self.name
 
 
@@ -372,14 +390,13 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
     select: Optional[SelectValue] = None
 
     def __str__(self):
-        """Return a string representation of this object."""
-
+        """Return a string representation of this property."""
         return self.Value or ""
 
     def __eq__(self, other):
         """Determine if this property is equal to the given object.
 
-        To avoid confusion, this method only compares Select options by name, not ID.
+        To avoid confusion, this method compares Select options by name.
         """
 
         if self.select is None:
@@ -389,6 +406,8 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
 
     @property
     def Value(self):
+        """Return the value of this property as a string."""
+
         if self.select is None:
             return None
 
@@ -396,6 +415,10 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
 
     @classmethod
     def from_value(cls, value):
+        """Create a `SelectOne` property from the given value.
+
+        :param value: a string to use for this property
+        """
 
         if value is None:
             return cls(select={})
@@ -409,11 +432,11 @@ class MultiSelect(PropertyValue, type="multi_select"):
     multi_select: List[SelectValue] = []
 
     def __str__(self):
-        """Return a string representation of this object."""
+        """Return a string representation of this property."""
         return ", ".join(self.Values)
 
     def __len__(self):
-        """Counts the number of selected values."""
+        """Count the number of selected values."""
         return len(self.multi_select)
 
     def __iadd__(self, other):
@@ -433,7 +456,7 @@ class MultiSelect(PropertyValue, type="multi_select"):
         return self.remove(other)
 
     def __contains__(self, name):
-        """Determines if the given name is in this MultiSelect.
+        """Determine if the given name is in this MultiSelect.
 
         To avoid confusion, only names are considered for comparison, not ID's.
         """
@@ -445,6 +468,7 @@ class MultiSelect(PropertyValue, type="multi_select"):
         return False
 
     def __iter__(self):
+        """Return an iterator over the values in this `MultiSelect`."""
         return self.Values
 
     def append(self, *values):
@@ -461,7 +485,7 @@ class MultiSelect(PropertyValue, type="multi_select"):
         return self
 
     def remove(self, *values):
-        """Removed selected values from this MultiSelect."""
+        """Remove selected values from this MultiSelect."""
 
         self.multi_select = [opt for opt in self.multi_select if opt.name not in values]
 
@@ -487,7 +511,7 @@ class MultiSelect(PropertyValue, type="multi_select"):
 
     @classmethod
     def from_values(cls, *values):
-        """This method accepts a list of values, converting them into SelectOption's.
+        """Create a Select block from a list of values.
 
         All values in the list will be automatically converted to strings.
         """
@@ -509,7 +533,7 @@ class People(PropertyValue, type="people"):
     people: List[User] = []
 
     def __iter__(self):
-        """Iterates over the User's in this property."""
+        """Iterate over the User's in this property."""
 
         if self.people is None:
             return None
@@ -517,7 +541,7 @@ class People(PropertyValue, type="people"):
         return iter(self.people)
 
     def __contains__(self, other):
-        """Determines if the given User or name is in this People.
+        """Determine if the given User or name is in this People.
 
         To avoid confusion, only names are considered for comparison (not ID's).
         """
@@ -532,6 +556,7 @@ class People(PropertyValue, type="people"):
         return False
 
     def __str__(self):
+        """Return a string representation of this property."""
         return ", ".join([str(user) for user in self.people])
 
 
@@ -559,7 +584,7 @@ class Files(PropertyValue, type="files"):
     files: List[FileObject] = []
 
     def __contains__(self, other):
-        """Determines if the given FileObject or name is in the property."""
+        """Determine if the given FileObject or name is in the property."""
 
         if self.files is None:
             return False
@@ -574,29 +599,42 @@ class Files(PropertyValue, type="files"):
         return False
 
     def __str__(self):
+        """Return a string representation of this property."""
         return "; ".join([str(file) for file in self.files])
 
-    def __iadd__(self, ref):
-        if ref in self:
-            raise ValueError(f"Item exists: {ref}")
+    def __iadd__(self, obj):
+        """Append the given `FileObject` in place."""
 
-        self.append(ref)
+        if obj in self:
+            raise ValueError(f"Item exists: {obj}")
+
+        self.append(obj)
         return self
 
-    def __isub__(self, ref):
-        if ref not in self:
-            raise ValueError(f"No such item: {ref}")
+    def __isub__(self, obj):
+        """Remove the given `FileObject` in place."""
 
-        self.remove(ref)
+        if obj not in self:
+            raise ValueError(f"No such item: {obj}")
+
+        self.remove(obj)
         return self
 
-    def append(self, ref):
-        log.debug("append file - %s", ref)
-        self.files.append(ref)
+    def append(self, obj):
+        """Append the given file reference to this property.
 
-    def remove(self, ref):
-        log.debug("remove file - %s", ref)
-        self.files.remove(ref)
+        :param ref: the `FileObject` to be added
+        """
+        log.debug("append file - %s", obj)
+        self.files.append(obj)
+
+    def remove(self, obj):
+        """Remove the given file reference from this property.
+
+        :param ref: the `FileObject` to be removed
+        """
+        log.debug("remove file - %s", obj)
+        self.files.remove(obj)
 
 
 class FormulaResult(TypedObject):
@@ -606,12 +644,12 @@ class FormulaResult(TypedObject):
     """
 
     def __str__(self):
+        """Return the formula result as a string."""
         return self.Result or ""
 
     @property
     def Result(self):
         """Return the result of this FormulaResult."""
-
         raise NotImplementedError("Result unavailable")
 
 
@@ -623,7 +661,6 @@ class StringFormula(FormulaResult, type="string"):
     @property
     def Result(self):
         """Return the result of this StringFormula."""
-
         return self.string
 
 
@@ -635,7 +672,6 @@ class NumberFormula(FormulaResult, type="number"):
     @property
     def Result(self):
         """Return the result of this NumberFormula."""
-
         return self.number
 
 
@@ -647,7 +683,6 @@ class DateFormula(FormulaResult, type="date"):
     @property
     def Result(self):
         """Return the result of this DateFormula."""
-
         return self.date
 
 
@@ -657,6 +692,7 @@ class Formula(PropertyValue, type="formula"):
     formula: Optional[FormulaResult] = None
 
     def __str__(self):
+        """Return the result of this formula as a string."""
         return str(self.Result or "")
 
     @property
@@ -674,11 +710,21 @@ class Relation(PropertyValue, type="relation"):
 
     relation: List[PageReference] = []
 
+    @classmethod
+    def pages(cls, *pages):
+        """Return a `Relation` property with the specified pages."""
+        return cls(relation=pages)
 
-class RollupObject(TypedObject):
+
+class RollupObject(TypedObject, ABC):
     """A Notion rollup property value."""
 
     function: Optional[Function] = None
+
+    @property
+    @abstractmethod
+    def Value(self):
+        """Return the native representation of this Rollup object."""
 
 
 class RollupNumber(RollupObject, type="number"):
@@ -686,11 +732,21 @@ class RollupNumber(RollupObject, type="number"):
 
     number: Optional[Union[float, int]] = None
 
+    @property
+    def Value(self):
+        """Return the native representation of this Rollup object."""
+        return self.number
+
 
 class RollupDate(RollupObject, type="date"):
     """A Notion rollup date property value."""
 
     date: Optional[DateRange] = None
+
+    @property
+    def Value(self):
+        """Return the native representation of this Rollup object."""
+        return self.date
 
 
 class RollupArray(RollupObject, type="array"):
@@ -698,11 +754,28 @@ class RollupArray(RollupObject, type="array"):
 
     array: List[PropertyValue]
 
+    @property
+    def Value(self):
+        """Return the native representation of this Rollup object."""
+        return self.array
+
 
 class Rollup(PropertyValue, type="rollup"):
     """A Notion rollup property value."""
 
     rollup: Optional[RollupObject] = None
+
+    def __str__(self):
+        """Return a string representation of this Rollup property."""
+
+        if self.rollup is None:
+            return ""
+
+        value = self.rollup.Value
+        if value is None:
+            return ""
+
+        str(self.rollup.Value)
 
 
 class CreatedTime(NativeTypeMixin, PropertyValue, type="created_time"):
@@ -717,6 +790,7 @@ class CreatedBy(PropertyValue, type="created_by"):
     created_by: User
 
     def __str__(self):
+        """Return the contents of this property as a string."""
         return str(self.created_by)
 
 
@@ -732,4 +806,5 @@ class LastEditedBy(PropertyValue, type="last_edited_by"):
     last_edited_by: User
 
     def __str__(self):
+        """Return the contents of this property as a string."""
         return str(self.last_edited_by)

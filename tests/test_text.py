@@ -1,3 +1,5 @@
+"""Unit tests for text types in Notional."""
+
 import logging
 import unittest
 
@@ -10,11 +12,14 @@ logging.basicConfig(level=logging.FATAL)
 class PlainTextTest(unittest.TestCase):
     """Unit tests for working with plain text."""
 
-    def test_empty_tex(self):
+    def test_empty_text(self):
+        """Verify formatting for empty text."""
         rtf = text.TextObject.from_value(None)
         self.assertIsNone(rtf)
 
     def test_zero_length_text(self):
+        """Verify formatting for zero-length text."""
+
         rtf = [
             text.TextObject.from_value(None),
             text.TextObject.from_value(""),
@@ -24,6 +29,8 @@ class PlainTextTest(unittest.TestCase):
         self.assertEqual(plain, "")
 
     def test_plain_text(self):
+        """Verify formatting for plain text."""
+
         rtf = [
             text.TextObject.from_value("hello world"),
         ]
@@ -36,6 +43,8 @@ class LinkedTextTest(unittest.TestCase):
     """Unit tests for working with links."""
 
     def test_basic_links(self):
+        """Verify formatting for basic links."""
+
         rtf = [
             text.TextObject.from_value("Search Me", href="https://www.google.com/"),
         ]
@@ -51,6 +60,8 @@ class StyledTextTest(unittest.TestCase):
     """Unit tests for working with annotated text."""
 
     def test_bold_text(self):
+        """Verify formatting for bold words."""
+
         rtf = [
             text.TextObject.from_value("be BOLD", bold=True),
         ]
@@ -62,6 +73,8 @@ class StyledTextTest(unittest.TestCase):
         self.assertEqual(md, "*be BOLD*")
 
     def test_emphasis_text(self):
+        """Verify formatting for italic words."""
+
         rtf = [
             text.TextObject.from_value("this "),
             text.TextObject.from_value("should", italic=True),
@@ -75,6 +88,8 @@ class StyledTextTest(unittest.TestCase):
         self.assertEqual(md, "this **should** work")
 
     def test_bold_italic_text(self):
+        """Verify formatting for bold & italic words."""
+
         rtf = [
             text.TextObject.from_value("this is "),
             text.TextObject.from_value("really", bold=True, italic=True),
@@ -89,6 +104,8 @@ class StyledTextTest(unittest.TestCase):
         self.assertEqual(md, "this is ***really*** *important*")
 
     def test_underline_text(self):
+        """Verify formatting for underline words."""
+
         rtf = [
             text.TextObject.from_value("underline", underline=True),
             text.TextObject.from_value(" is not standard markdown"),
@@ -101,6 +118,8 @@ class StyledTextTest(unittest.TestCase):
         self.assertEqual(md, "_underline_ is not standard markdown")
 
     def test_strikethrough(self):
+        """Verify formatting for strikethrough text."""
+
         rtf = [
             text.TextObject.from_value("canceled", strikethrough=True),
         ]
@@ -112,6 +131,8 @@ class StyledTextTest(unittest.TestCase):
         self.assertEqual(md, "~canceled~")
 
     def test_code_word(self):
+        """Verify formatting for code words."""
+
         rtf = [
             text.TextObject.from_value("look at this "),
             text.TextObject.from_value("keyword", code=True),
@@ -128,36 +149,42 @@ class BlockFormatTest(unittest.TestCase):
     """Verify markdown for block objects."""
 
     def test_heading_1(self):
+        """Verify formatting for Heading1 blocks."""
         block = blocks.Heading1.from_text("Introduction")
 
         self.assertEqual(block.PlainText, "Introduction")
         self.assertEqual(block.Markdown, "# Introduction #")
 
     def test_heading_2(self):
+        """Verify formatting for Heading2 blocks."""
         block = blocks.Heading2.from_text("More Context")
 
         self.assertEqual(block.PlainText, "More Context")
         self.assertEqual(block.Markdown, "## More Context ##")
 
     def test_heading_3(self):
+        """Verify formatting for Heading3 blocks."""
         block = blocks.Heading3.from_text("Minor Point")
 
         self.assertEqual(block.PlainText, "Minor Point")
         self.assertEqual(block.Markdown, "### Minor Point ###")
 
     def test_bulleted_list_item(self):
+        """Verify formatting for BulletedListItem blocks."""
         block = blocks.BulletedListItem.from_text("point number one")
 
         self.assertEqual(block.PlainText, "point number one")
         self.assertEqual(block.Markdown, "- point number one")
 
     def test_numbered_list_item(self):
+        """Verify formatting for NumberedListItem blocks."""
         block = blocks.NumberedListItem.from_text("first priority")
 
         self.assertEqual(block.PlainText, "first priority")
         self.assertEqual(block.Markdown, "1. first priority")
 
     def test_todo_block(self):
+        """Verify formatting for ToDo blocks."""
         block = blocks.ToDo.from_text("COMPLETED")
         block.to_do.checked = True
 
@@ -171,11 +198,13 @@ class BlockFormatTest(unittest.TestCase):
         self.assertEqual(block.Markdown, "- [ ] INCOMPLETE")
 
     def test_bookmark(self):
+        """Verify formatting for Bookmark blocks."""
         block = blocks.Bookmark.from_url("https://example.com/")
 
         self.assertEqual(block.Markdown, "<https://example.com/>")
 
     def test_code_block(self):
+        """Verify formatting for Code blocks."""
         code = "import sys\nprint('hello world')\nsys.exit(0)"
         block = blocks.Code.from_text(code)
         block.code.language = text.CodingLanguage.PYTHON

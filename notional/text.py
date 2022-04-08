@@ -29,6 +29,8 @@ def chunky(text, length=MAX_TEXT_OBJECT_SIZE):
 
 
 def truncate(text, length=-1, trail="..."):
+    """Truncate the given text, using a supplied tail as a placeholder."""
+
     if text is None:
         return None
 
@@ -45,7 +47,7 @@ def truncate(text, length=-1, trail="..."):
 
 
 def lstrip(*rtf):
-    """Given a list of TextObject's, remove leading whitespace from each element."""
+    """Remove leading whitespace from each `TextObject` in the list."""
 
     if rtf is None or len(rtf) < 1:
         return
@@ -61,7 +63,7 @@ def lstrip(*rtf):
 
 
 def rstrip(*rtf):
-    """Given a list of TextObject's, remove trailing whitespace from each element."""
+    """Remove trailing whitespace from each `TextObject` in the list."""
 
     if rtf is None or len(rtf) < 1:
         return
@@ -77,9 +79,16 @@ def rstrip(*rtf):
 
 
 def strip(*rtf):
-    """Given a list of TextObject's, remove leading and trailing whitespace from each
-    element."""
+    """Remove leading and trailing whitespace from each `TextObject` in the list.
 
+    This is functionally equivalent to:
+        ```python
+        lstrip(*rtf)
+        rstrip(*rtf)
+        ```
+
+    :param rtf: a list of `TextObject`'s
+    """
     lstrip(*rtf)
     rstrip(*rtf)
 
@@ -143,6 +152,13 @@ class Annotations(DataObject):
 
     @property
     def is_plain(self):
+        """Determine if any flags are set in this `Annotations` object.
+
+        If all flags match their defaults, this is considered a "plain" style.
+        """
+
+        # XXX a better approach here would be to just compate all fields to defaults
+
         if self.bold:
             return False
         if self.italic:
@@ -193,11 +209,11 @@ class RichTextObject(TypedObject):
 class TextObject(RichTextObject, type="text"):
     """Notion text element."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         content: str = None
         link: Optional[LinkObject] = None
 
-    text: NestedData = NestedData()
+    text: _NestedData = _NestedData()
 
     @classmethod
     def from_value(cls, content=None, href=None, **annotate):
@@ -210,7 +226,7 @@ class TextObject(RichTextObject, type="text"):
 
         style = Annotations(**annotate) if annotate else None
         link = LinkObject(url=href) if href else None
-        data = cls.NestedData(content=str(content), link=link)
+        data = cls._NestedData(content=str(content), link=link)
 
         return cls(plain_text=str(content), text=data, href=href, annotations=style)
 

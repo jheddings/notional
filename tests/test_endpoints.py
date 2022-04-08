@@ -1,3 +1,15 @@
+"""Unit tests for Notion API endpoints.
+
+These are considered "live" tests, as they will interact directly with the Notion API.
+
+Running these tests requires setting specific environment variables.  If these
+variables are not defined, the tests will be skipped.
+
+Required environment variables:
+  - `NOTION_AUTH_TOKEN`: the integration token used for testing.
+  - `NOTION_TEST_AREA`: a page ID that can be used for testing
+"""
+
 import logging
 import os
 import unittest
@@ -16,6 +28,8 @@ class EndpointTest(object):
     cleanup_pages = []
 
     def setUp(self):
+        """Configure resources needed by these tests."""
+
         auth_token = os.getenv("NOTION_AUTH_TOKEN", None)
 
         if auth_token is None:
@@ -30,12 +44,18 @@ class EndpointTest(object):
         self.parent = records.PageRef(page_id=parent_id)
 
     def tearDown(self):
+        """Teardown resources created by these tests."""
         for page in self.cleanup_pages:
             self.notion.pages.delete(page)
 
         self.cleanup_pages.clear()
 
     def create_temp_page(self, title=None, children=None):
+        """Create a temporary page on the server.
+
+        This page will be deleted during teardown of the test.
+        """
+
         page = self.notion.pages.create(
             parent=self.parent, title=title, children=children
         )
@@ -49,16 +69,18 @@ class BlockEndpointTests(EndpointTest, unittest.TestCase):
     """Test live blocks through the Notion API."""
 
     def confirm_blocks(self, page, *blocks):
+        """Confirm the expected blocks in a given page."""
 
         num_blocks = 0
 
-        for _ in self.notion.blocks.children.list(parent=page):
-            # TODO self.assertEqual(block, blocks[num_blocks])
+        for block in self.notion.blocks.children.list(parent=page):
+            self.assertEqual(block, blocks[num_blocks])
             num_blocks += 1
 
         self.assertEqual(num_blocks, len(blocks))
 
     def test_create_empty_block(self):
+        """Create an empty block and confirm its contents."""
         para = blocks.Paragraph()
         page = self.create_temp_page(title="test_CreateEmptyBlock", children=[para])
 

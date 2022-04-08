@@ -32,6 +32,47 @@ class Function(str, Enum):
     SHOW_ORIGINAL = "show_original"
 
 
+class NumberFormat(str, Enum):
+    """Available number formats in Notion."""
+
+    NUMBER = "number"
+    NUMBER_WITH_COMMAS = "number_with_commas"
+    PERCENT = "percent"
+    DOLLAR = "dollar"
+    CANADIAN_DOLLAR = "canadian_dollar"
+    EURO = "euro"
+    POUND = "pound"
+    YEN = "yen"
+    RUBLE = "ruble"
+    RUPEE = "rupee"
+    WON = "won"
+    YUAN = "yuan"
+    REAL = "real"
+    LIRA = "lira"
+    RUPIAH = "rupiah"
+    FRANC = "franc"
+    HONG_KONG_DOLLAR = "hong_kong_dollar"
+    NEW_ZEALAND_DOLLAR = "new_zealand_dollar"
+    KRONA = "krona"
+    NORWEGIAN_KRONE = "norwegian_krone"
+    MEXICAN_PESO = "mexican_peso"
+    RAND = "rand"
+    NEW_TAIWAN_DOLLAR = "new_taiwan_dollar"
+    DANISH_KRONE = "danish_krone"
+    ZLOTY = "zloty"
+    BAHT = "baht"
+    FORINT = "forint"
+    KORUNA = "koruna"
+    SHEKEL = "shekel"
+    CHILEAN_PESO = "chilean_peso"
+    PHILIPPINE_PESO = "philippine_peso"
+    DIRHAM = "dirham"
+    COLOMBIAN_PESO = "colombian_peso"
+    RIYAL = "riyal"
+    RINGGIT = "ringgit"
+    LEU = "leu"
+
+
 class PropertyObject(TypedObject):
     """Base class for Notion property objects."""
 
@@ -54,14 +95,15 @@ class RichText(PropertyObject, type="rich_text"):
 class Number(PropertyObject, type="number"):
     """Defines the number configuration for a database property."""
 
-    class NestedData(NestedObject):
-        format: str = "number"
+    class _NestedData(NestedObject):
+        format: NumberFormat = NumberFormat.NUMBER
 
-    number: NestedData = {}
+    number: _NestedData = {}
 
     @classmethod
     def format(cls, format):
-        return cls(number=cls.NestedData(format=format))
+        """Create a `Number` object with the expected format."""
+        return cls(number=cls._NestedData(format=format))
 
 
 class SelectOption(DataObject):
@@ -75,23 +117,24 @@ class SelectOption(DataObject):
 class Select(PropertyObject, type="select"):
     """Defines the select configuration for a database property."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         options: List[SelectOption] = []
 
-    select: NestedData = None
+    select: _NestedData = None
 
     @classmethod
     def options(cls, *options):
-        return cls(select=cls.NestedData(options=options))
+        """Create a `Select` object from the list of `SelectOption`'s."""
+        return cls(select=cls._NestedData(options=options))
 
 
 class MultiSelect(PropertyObject, type="multi_select"):
     """Defines the multi-select configuration for a database property."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         options: List[SelectOption] = []
 
-    multi_select: NestedData = None
+    multi_select: _NestedData = None
 
 
 class Date(PropertyObject, type="date"):
@@ -139,34 +182,39 @@ class PhoneNumber(PropertyObject, type="phone_number"):
 class Formula(PropertyObject, type="formula"):
     """Defines the formula configuration for a database property."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         expression: str
 
-    formula: NestedData = None
+    formula: _NestedData = None
 
 
 class Relation(PropertyObject, type="relation"):
     """Defines the relation configuration for a database property."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         database_id: UUID
-        synced_property_name: str = None
-        synced_property_id: str = None
 
-    relation: NestedData = None
+    relation: _NestedData = None
+
+    @classmethod
+    def database(cls, database_id):
+        """Create a `Relation` property using the target database ID."""
+        return cls(relation=cls._NestedData(database_id=database_id))
 
 
 class Rollup(PropertyObject, type="rollup"):
     """Defines the rollup configuration for a database property."""
 
-    class NestedData(NestedObject):
-        relation_property_name: str
-        relation_property_id: str
-        rollup_property_name: str
-        rollup_property_id: str
+    class _NestedData(NestedObject):
         function: Function
 
-    rollup: NestedData
+        relation_property_name: Optional[str] = None
+        relation_property_id: Optional[str] = None
+
+        rollup_property_name: Optional[str] = None
+        rollup_property_id: Optional[str] = None
+
+    rollup: _NestedData
 
 
 class CreatedTime(PropertyObject, type="created_time"):

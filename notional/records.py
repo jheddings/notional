@@ -1,8 +1,5 @@
 """Wrapper for Notion API data types.
 
-We handle databases and pages somewhat differently than other blocks since they
-represent top-level containers for other blocks.
-
 These objects provide both access to the primitive data structure returned by the API
 as well as higher-level access methods.  In general, attributes in lower case represent
 the primitive data structure, where capitalized attributes provide higher-level access.
@@ -90,6 +87,7 @@ class Database(Record, object="database"):
 
     @property
     def Title(self):
+        """Return the title of this database as plain text."""
         if self.title is None or len(self.title) == 0:
             return None
 
@@ -108,7 +106,7 @@ class Page(Record, object="page"):
     def __getitem__(self, name):
         """Indexer for the given property name.
 
-        :param name: the name of the property to get
+        :param name: the name of the property to get from the internal properties
         """
 
         log.debug("get property :: {%s} [%s]", self.id, name)
@@ -126,8 +124,12 @@ class Page(Record, object="page"):
     def __setitem__(self, name, value):
         """Set the object data for the given property.
 
-        :param name: the name of the property to set
+        If `value` is `None`, the property data will be deleted from the page.  This
+        does not affect the schema of the page, only the contents of the property.
+
+        :param name: the name of the property to set in the internal properties
         :param prop: the PropertyValue for the named property
+        :param value: the new value for the given property
         """
 
         log.debug("set property :: {%s} [%s] => %s", self.id, name, value)
@@ -143,6 +145,12 @@ class Page(Record, object="page"):
 
     @property
     def Title(self):
+        """Return the title of this page as a string.
+
+        The title of a page is stored in its properties.  This method will examine the
+        page properties, looking for the appropriate `title` entry and return as a
+        string.
+        """
         if self.properties is None or len(self.properties) == 0:
             return None
 

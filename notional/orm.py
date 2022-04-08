@@ -1,6 +1,7 @@
 """Utilities for working with Notion as an ORM."""
 
 import logging
+from abc import ABC
 
 from .iterator import EndpointIterator
 from .records import DatabaseRef, Page
@@ -9,20 +10,20 @@ from .types import NativeTypeMixin, RichText
 log = logging.getLogger(__name__)
 
 
-class ConnectedPageBase:
+class ConnectedPageBase(ABC):
     """Base class for "live" pages via the Notion API.
 
     All changes are committed in real time.
     """
 
     def __init__(self, **data):
+        """Construct a page from the given data dictionary."""
         self.page = Page(**data) if data else None
         self._pending_props = {}
 
     @property
     def id(self):
         """Return the ID of this page (if available)."""
-
         return None if self.page is None else self.page.id
 
     @property
@@ -56,7 +57,7 @@ class ConnectedPageBase:
 
     @classmethod
     def create(cls, **properties):
-        """Creates a new instance of the ConnectedPage type.
+        """Create a new instance of the ConnectedPage type.
 
         Any properties that support native type assignment may be set
 
@@ -81,6 +82,10 @@ class ConnectedPageBase:
 
     @classmethod
     def parse_obj(cls, data):
+        """Invoke the class constructor using the structured data.
+
+        Similar to `BaseModel.parse_obj(data)`.
+        """
         return cls(**data)
 
 
@@ -152,19 +157,35 @@ def Property(name, cls=RichText, default=None):
 
 
 def connected_page(session=None, cls=ConnectedPageBase):
-    """Returns a base class for "connected" pages through the Notion API."""
+    """Return a base class for "connected" pages through the Notion API.
+
+    Subclasses may then inherit from the returned class to define custom ORM types.
+
+    :param session: an active Notional session where the database is hosted
+    """
 
     if not issubclass(cls, ConnectedPageBase):
         raise ValueError("cls must subclass ConnectedPageBase")
 
     class _ConnectedPage(cls):
+        """Base class for all connected pages, which serve as the basis for ORM types.
+
+        In particular, this class holds the connection information for an active
+        Notional session.  This session is used by `ConnectedPageBase` to perform API
+        actions.
+        """
+
         _orm_database_ = None
         _orm_database_id_ = None
         _orm_session_ = None
         _orm_late_bind_ = None
 
         def __init_subclass__(cls, database=None, **kwargs):
-            """Attach the ConnectedPage to the given database ID."""
+            """Attach the ConnectedPage to the given database ID.
+
+            Alternatively, a class may specify the database ID with an internal
+            `__database__` attribute.
+            """
             super().__init_subclass__(**kwargs)
 
             if cls._orm_database_id_ is not None:

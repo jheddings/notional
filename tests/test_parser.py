@@ -1,3 +1,5 @@
+"""Unit tests for the Notional parsers."""
+
 import logging
 import os
 import unittest
@@ -16,6 +18,8 @@ class HtmlDocumentTest(unittest.TestCase):
     """Unit tests for the HtmlParser class."""
 
     def check_single_block(self, html, expected_type, expected_text):
+        """Verify the given HTML is parsed into expected block."""
+
         parser = HtmlParser()
         parser.parse(html)
 
@@ -31,6 +35,18 @@ class HtmlDocumentTest(unittest.TestCase):
         return block
 
     def check_table_data(self, html, expected):
+        """Verify the given HTML is parsed into expected table data.
+
+        The `expected` data must conform to the following strucure:
+            [
+                [row_1_cell_1, row_1_cell_2, row_1_cell_3, ...],
+                [row_1_cell_2, row_2_cell_2, row_2_cell_3, ...],
+                ...
+            ]
+
+        Each cell will be compared to the parsed HTML results and confirmed.
+        """
+
         parser = HtmlParser()
         parser.parse(html)
 
@@ -62,6 +78,19 @@ class HtmlDocumentTest(unittest.TestCase):
                 self.assertEqual(parser_text, expected_text)
 
     def check_style(self, text, **expected_style):
+        """Check the given text block for the specified annotations.
+
+        Example: `check_style(text, bold=True)` will ensure that the bold flag is
+        set to `True` in the `text` object annotations.
+
+        Similarly, `check_style(text, underline=False)` will ensure that the underline
+        flag is set to `False`.
+
+        Multiple flags may be specified.  For example:
+            `check_style(text, bold=True, italic=True)`
+        will verify the status of both the `bold` and `italic` flags.
+        """
+
         current_style = text.annotations
 
         for attrib in expected_style:
@@ -70,6 +99,8 @@ class HtmlDocumentTest(unittest.TestCase):
             self.assertEqual(current_value, expected_value)
 
     def test_dormouse(self):
+        """Confirm parsing of the `dormouse.html` test file."""
+
         parser = HtmlParser()
 
         filename = os.path.join(BASEDIR, "dormouse.html")
@@ -83,6 +114,8 @@ class HtmlDocumentTest(unittest.TestCase):
         self.assertGreater(len(parser.content), 0)
 
     def test_basic_title(self):
+        """Confirm proper handling of `<title>` tags."""
+
         html = "<html><head><title>Hello World</title></head></html>"
 
         parser = HtmlParser()
@@ -92,6 +125,8 @@ class HtmlDocumentTest(unittest.TestCase):
         self.assertEqual(len(parser.content), 0)
 
     def test_basic_comment(self):
+        """Confirm proper handling of comment tags."""
+
         html = "<!-- Hide this text -->"
 
         parser = HtmlParser()
@@ -100,6 +135,8 @@ class HtmlDocumentTest(unittest.TestCase):
         self.assertEqual(len(parser.content), 0)
 
     def test_divider(self):
+        """Confirm support for `<br>` tags."""
+
         self.check_single_block(
             html="<body><hr></body>",
             expected_type=blocks.Divider,
@@ -107,6 +144,8 @@ class HtmlDocumentTest(unittest.TestCase):
         )
 
     def test_heading_1(self):
+        """Confirm support for `<h1>` tags."""
+
         self.check_single_block(
             html="<h1>Heading One</h1>",
             expected_type=blocks.Heading1,
@@ -114,6 +153,8 @@ class HtmlDocumentTest(unittest.TestCase):
         )
 
     def test_heading_2(self):
+        """Confirm support for `<h2>` tags."""
+
         self.check_single_block(
             html="<h2>Heading Two</h2>",
             expected_type=blocks.Heading2,
@@ -121,6 +162,8 @@ class HtmlDocumentTest(unittest.TestCase):
         )
 
     def test_heading_3(self):
+        """Confirm support for `<h3>` tags."""
+
         self.check_single_block(
             html="<h3>Heading Three</h3>",
             expected_type=blocks.Heading3,
@@ -128,6 +171,8 @@ class HtmlDocumentTest(unittest.TestCase):
         )
 
     def test_basic_paragraph(self):
+        """Confirm support for `<p>` tags."""
+
         self.check_single_block(
             html="<p>Lorem ipsum dolor sit amet, ...</p>",
             expected_type=blocks.Paragraph,
@@ -135,6 +180,8 @@ class HtmlDocumentTest(unittest.TestCase):
         )
 
     def test_extra_whitespace(self):
+        """Confirm handling of "ignorable" whitespace within an element."""
+
         self.check_single_block(
             html="<p> ...\tconsectetur   adipiscing\nelit.  </p>",
             expected_type=blocks.Paragraph,
@@ -142,6 +189,8 @@ class HtmlDocumentTest(unittest.TestCase):
         )
 
     def test_naked_text(self):
+        """Confirm support for plain text elements."""
+
         self.check_single_block(
             html="Look ma, no tags!",
             expected_type=blocks.Paragraph,
@@ -149,6 +198,8 @@ class HtmlDocumentTest(unittest.TestCase):
         )
 
     def test_basic_quote(self):
+        """Confirm support for `<blockquote>` elements."""
+
         self.check_single_block(
             html="<blockquote>To be, or not to be...</blockquote>",
             expected_type=blocks.Quote,
@@ -156,6 +207,8 @@ class HtmlDocumentTest(unittest.TestCase):
         )
 
     def test_basic_pre(self):
+        """Confirm support for `<pre>` elements."""
+
         self.check_single_block(
             html="<pre>    ...that is the question</pre>",
             expected_type=blocks.Code,
@@ -163,6 +216,8 @@ class HtmlDocumentTest(unittest.TestCase):
         )
 
     def test_bulleted_list(self):
+        """Confirm support for bulleted lists."""
+
         html = "<ul><li>Eenie</li><li>Meenie</li></ul"
 
         parser = HtmlParser()
@@ -179,6 +234,8 @@ class HtmlDocumentTest(unittest.TestCase):
         self.assertEqual(li.PlainText, "Meenie")
 
     def test_incorrect_nested_list(self):
+        """Confirm support for improperly nested lists."""
+
         html = """<ul>
             <li>Outer A</li>
             <li>Outer B</li>
@@ -203,6 +260,8 @@ class HtmlDocumentTest(unittest.TestCase):
             self.assertIsInstance(block, blocks.BulletedListItem)
 
     def test_implicit_text(self):
+        """Confirm support for text outside of phrasing elements."""
+
         html = "<body><div>Open Text</div></body>"
 
         parser = HtmlParser()
@@ -218,6 +277,8 @@ class HtmlDocumentTest(unittest.TestCase):
         self.assertTrue(found_text)
 
     def test_strong_text(self):
+        """Confirm support for strong/bold text."""
+
         block = self.check_single_block(
             html="<b>Strong Text</b>",
             expected_type=blocks.Paragraph,
@@ -230,6 +291,8 @@ class HtmlDocumentTest(unittest.TestCase):
         self.check_style(text[0], bold=True)
 
     def test_emphasis_text(self):
+        """Confirm support for emphasized/italic text."""
+
         block = self.check_single_block(
             html="<i>Emphasis Text</i>",
             expected_type=blocks.Paragraph,
@@ -242,18 +305,24 @@ class HtmlDocumentTest(unittest.TestCase):
         self.check_style(text[0], italic=True)
 
     def test_table_data(self):
+        """Confirm support for basic table data."""
+
         self.check_table_data(
             html="<table><tr><td>Datum</td></tr></table>",
             expected=[["Datum"]],
         )
 
     def test_empty_table_cells(self):
+        """Confirm support for empty table cells."""
+
         self.check_table_data(
             html="<table><tr><td></td></tr></table>",
             expected=[[""]],
         )
 
     def test_table_cell_with_div(self):
+        """Confirm support for table cells with `<div>` elements."""
+
         self.check_table_data(
             html="<table><tr><td><div>hidden DATA</div></td></tr></table>",
             expected=[["hidden DATA"]],
@@ -264,6 +333,8 @@ class CsvDocumentTest(unittest.TestCase):
     """Unit tests for the CsvParser class."""
 
     def test_basic_data_check(self):
+        """Confirm basic CSV data pasring."""
+
         data = """first,last\none,two"""
 
         parser = CsvParser(header_row=True)

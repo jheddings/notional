@@ -7,6 +7,7 @@ used in the Notion API as well as higher-level methods.
 """
 
 import logging
+from abc import ABC
 from typing import List, Optional, Union
 
 from .core import NestedObject, TypedObject
@@ -35,13 +36,13 @@ class Block(Record, TypedObject, object="block"):
 class UnsupportedBlock(Block, type="unsupported"):
     """A placeholder for unsupported blocks in the API."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         pass
 
-    unsupported: Optional[NestedData] = None
+    unsupported: Optional[_NestedData] = None
 
 
-class TextBlock(Block):
+class TextBlock(Block, ABC):
     """A standard text block object in Notion."""
 
     # text blocks have a nested object with 'type' name and a 'text' child
@@ -82,6 +83,12 @@ class TextBlock(Block):
 
     @classmethod
     def from_text(cls, *text):
+        """Create a `TextBlock` from the given text data.
+
+        In practice, this is called using a concrete subclass of `TextBlock`, such as
+        `Paragraph.from_text()` or similar.
+        """
+
         if text is None:
             return None
 
@@ -109,16 +116,20 @@ class WithChildrenMixin:
         return self("children")
 
     def __iadd__(self, block):
+        """Append the given block to the children of this parent in place."""
         self.append(block)
         return self
 
     def append(self, block):
-        """Append the given block to the children of this block."""
+        """Append the given block to the children of this parent."""
 
         if block is None:
             raise AttributeError("block cannot be None")
 
         nested = self()
+
+        if not hasattr(nested, "children"):
+            raise TypeError("nested data does not contain children")
 
         if nested.children is None:
             nested.children = []
@@ -131,15 +142,17 @@ class WithChildrenMixin:
 class Paragraph(TextBlock, WithChildrenMixin, type="paragraph"):
     """A paragraph block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    paragraph: NestedData = NestedData()
+    paragraph: _NestedData = _NestedData()
 
     @property
     def Markdown(self):
+        """Return the contents of this block as markdown text."""
+
         if self.paragraph and self.paragraph.text:
             return markdown(*self.paragraph.text)
 
@@ -149,14 +162,16 @@ class Paragraph(TextBlock, WithChildrenMixin, type="paragraph"):
 class Heading1(TextBlock, type="heading_1"):
     """A heading_1 block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
-    heading_1: NestedData = NestedData()
+    heading_1: _NestedData = _NestedData()
 
     @property
     def Markdown(self):
+        """Return the contents of this block as markdown text."""
+
         if self.heading_1 and self.heading_1.text:
             return f"# {markdown(*self.heading_1.text)} #"
 
@@ -166,14 +181,16 @@ class Heading1(TextBlock, type="heading_1"):
 class Heading2(TextBlock, type="heading_2"):
     """A heading_2 block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
-    heading_2: NestedData = NestedData()
+    heading_2: _NestedData = _NestedData()
 
     @property
     def Markdown(self):
+        """Return the contents of this block as markdown text."""
+
         if self.heading_2 and self.heading_2.text:
             return f"## {markdown(*self.heading_2.text)} ##"
 
@@ -183,14 +200,16 @@ class Heading2(TextBlock, type="heading_2"):
 class Heading3(TextBlock, type="heading_3"):
     """A heading_3 block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
-    heading_3: NestedData = NestedData()
+    heading_3: _NestedData = _NestedData()
 
     @property
     def Markdown(self):
+        """Return the contents of this block as markdown text."""
+
         if self.heading_3 and self.heading_3.text:
             return f"### {markdown(*self.heading_3.text)} ###"
 
@@ -200,15 +219,17 @@ class Heading3(TextBlock, type="heading_3"):
 class Quote(TextBlock, WithChildrenMixin, type="quote"):
     """A quote block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    quote: NestedData = NestedData()
+    quote: _NestedData = _NestedData()
 
     @property
     def Markdown(self):
+        """Return the contents of this block as markdown text."""
+
         if self.quote and self.quote.text:
             return "> " + markdown(*self.quote.text)
 
@@ -218,15 +239,17 @@ class Quote(TextBlock, WithChildrenMixin, type="quote"):
 class Code(TextBlock, type="code"):
     """A code block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         text: List[RichTextObject] = []
         caption: List[RichTextObject] = []
         language: CodingLanguage = CodingLanguage.PLAIN_TEXT
 
-    code: NestedData = NestedData()
+    code: _NestedData = _NestedData()
 
     @property
     def Markdown(self):
+        """Return the contents of this block as markdown text."""
+
         lang = self.code.language if self.code and self.code.language else ""
 
         # FIXME this is not the standard way to represent code blocks in markdown...
@@ -240,27 +263,29 @@ class Code(TextBlock, type="code"):
 class Callout(TextBlock, WithChildrenMixin, type="callout"):
     """A callout block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         icon: Optional[Union[FileObject, EmojiObject]] = None
         color: FullColor = FullColor.DEFAULT
 
-    callout: NestedData = NestedData()
+    callout: _NestedData = _NestedData()
 
 
 class BulletedListItem(TextBlock, WithChildrenMixin, type="bulleted_list_item"):
     """A bulleted list item in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    bulleted_list_item: NestedData = NestedData()
+    bulleted_list_item: _NestedData = _NestedData()
 
     @property
     def Markdown(self):
+        """Return the contents of this block as markdown text."""
+
         if self.bulleted_list_item and self.bulleted_list_item.text:
             return f"- {markdown(*self.bulleted_list_item.text)}"
 
@@ -270,15 +295,17 @@ class BulletedListItem(TextBlock, WithChildrenMixin, type="bulleted_list_item"):
 class NumberedListItem(TextBlock, WithChildrenMixin, type="numbered_list_item"):
     """A numbered list item in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    numbered_list_item: NestedData = NestedData()
+    numbered_list_item: _NestedData = _NestedData()
 
     @property
     def Markdown(self):
+        """Return the contents of this block as markdown text."""
+
         if self.numbered_list_item and self.numbered_list_item.text:
             return f"1. {markdown(*self.numbered_list_item.text)}"
 
@@ -288,16 +315,18 @@ class NumberedListItem(TextBlock, WithChildrenMixin, type="numbered_list_item"):
 class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
     """A todo list item in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         text: List[RichTextObject] = []
         checked: bool = False
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    to_do: NestedData = NestedData()
+    to_do: _NestedData = _NestedData()
 
     @property
     def Markdown(self):
+        """Return the contents of this block as markdown text."""
+
         if self.to_do and self.to_do.text:
             if self.to_do.checked:
                 return f"- [x] {markdown(*self.to_do.text)}"
@@ -310,85 +339,93 @@ class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
 class Toggle(TextBlock, WithChildrenMixin, type="toggle"):
     """A toggle list item in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    toggle: NestedData = NestedData()
+    toggle: _NestedData = _NestedData()
 
 
 class Divider(Block, type="divider"):
     """A divider block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         pass
 
-    divider: NestedData = NestedData()
+    divider: _NestedData = _NestedData()
 
     @property
     def Markdown(self):
+        """Return the contents of this block as markdown text."""
         return "---"
 
 
 class TableOfContents(Block, type="table_of_contents"):
     """A table_of_contents block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         color: FullColor = FullColor.DEFAULT
 
-    table_of_contents: NestedData = NestedData()
+    table_of_contents: _NestedData = _NestedData()
 
 
 class Breadcrumb(Block, type="breadcrumb"):
     """A breadcrumb block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         pass
 
-    breadcrumb: NestedData = NestedData()
+    breadcrumb: _NestedData = _NestedData()
 
 
 class Embed(Block, type="embed"):
     """An embed block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         url: str = None
 
-    embed: NestedData = NestedData()
+    embed: _NestedData = _NestedData()
 
     @property
     def URL(self):
+        """Return the URL contained in this `Embed` block."""
         return self.embed.url
 
     @property
     def Markdown(self):
-        if self.embed and self.emdeb.url:
+        """Return the contents of this block as markdown text."""
+
+        if self.embed and self.embed.url:
             return f"<{self.embed.url}>"
 
         return ""
 
     @classmethod
     def from_url(cls, url):
-        nested = cls.NestedData(url=url)
+        """Create a new `Embed` block from the given URL."""
+        nested = cls._NestedData(url=url)
         return Embed(embed=nested)
 
 
 class Bookmark(Block, type="bookmark"):
     """A bookmark block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         url: str = None
         caption: Optional[List[RichTextObject]] = None
 
-    bookmark: NestedData = NestedData()
+    bookmark: _NestedData = _NestedData()
 
     @property
     def URL(self):
+        """Return the URL contained in this `Bookmark` block."""
         return self.bookmark.url
 
     @property
     def Markdown(self):
+        """Return the contents of this block as markdown text."""
+
         if self.bookmark and self.bookmark.url:
             return f"<{self.bookmark.url}>"
 
@@ -396,24 +433,28 @@ class Bookmark(Block, type="bookmark"):
 
     @classmethod
     def from_url(cls, url):
-        nested = cls.NestedData(url=url)
+        """Create a new `Bookmark` block from the given URL."""
+        nested = cls._NestedData(url=url)
         return Bookmark(bookmark=nested)
 
 
 class LinkPreview(Block, type="link_preview"):
     """A link_preview block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         url: str = None
 
-    link_preview: NestedData = NestedData()
+    link_preview: _NestedData = _NestedData()
 
     @property
     def URL(self):
+        """Return the URL contained in this `LinkPreview` block."""
         return self.link_preview.url
 
     @property
     def Markdown(self):
+        """Return the contents of this block as markdown text."""
+
         if self.link_preview and self.link_preview.url:
             return f"<{self.link_preview.url}>"
 
@@ -421,7 +462,8 @@ class LinkPreview(Block, type="link_preview"):
 
     @classmethod
     def from_url(cls, url):
-        nested = cls.NestedData(url=url)
+        """Create a new `LinkPreview` block from the given URL."""
+        nested = cls._NestedData(url=url)
         return LinkPreview(link_preview=nested)
 
 
@@ -452,48 +494,54 @@ class PDF(Block, type="pdf"):
 class ChildPage(Block, type="child_page"):
     """A child page block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         title: str = None
 
-    child_page: NestedData = NestedData()
+    child_page: _NestedData = _NestedData()
 
 
 class ChildDatabase(Block, type="child_database"):
     """A child database block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         title: str = None
 
-    child_database: NestedData = NestedData()
+    child_database: _NestedData = _NestedData()
 
 
 class ColumnList(Block, type="column_list"):
     """A column list block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         pass
 
-    column_list: NestedData = NestedData()
+    column_list: _NestedData = _NestedData()
 
 
 class Column(Block, type="column"):
     """A column block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         pass
 
-    column: NestedData = NestedData()
+    column: _NestedData = _NestedData()
 
 
 class TableRow(Block, type="table_row"):
     """A table_row block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         cells: List[List[RichTextObject]] = None
 
-    table_row: NestedData = NestedData()
+    table_row: _NestedData = _NestedData()
 
     def append(self, text):
+        """Append the given text as a new cell in this `TableRow`.
+
+        `text` may be a string, `RichTextObject` or a list of `RichTextObject`'s.
+
+        :param text: the text content to append
+        """
         if self.table_row.cells is None:
             self.table_row.cells = []
 
@@ -509,13 +557,14 @@ class TableRow(Block, type="table_row"):
 
     @property
     def Width(self):
+        """Return the width (number of cells) in this `TableRow`."""
         return len(self.table_row.cells) if self.table_row.cells else 0
 
 
 class Table(Block, WithChildrenMixin, type="table"):
     """A table block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         table_width: int = 0
         has_column_header: bool = False
         has_row_header: bool = False
@@ -524,10 +573,18 @@ class Table(Block, WithChildrenMixin, type="table"):
         # https://developers.notion.com/reference/block#table-blocks
         children: Optional[List[TableRow]] = []
 
-    table: NestedData = NestedData()
+    table: _NestedData = _NestedData()
 
     def append(self, block: TableRow):
-        # when creating a new table via the API, we must provide at least one row
+        """Append the given row to this table.
+
+        This method is only applicable when creating a new `Table` block.  In order to
+        add rows to an existing `Table`, use the `blocks.children.append()` endpoint.
+
+        When adding a row, this method will rase an exception if the width does not
+        match the expected number of cells for existing rows in the block.
+        """
+
         # XXX need to review whether this is applicable during update...  may need
         # to raise an error if the block has already been created on the server
 
@@ -543,6 +600,7 @@ class Table(Block, WithChildrenMixin, type="table"):
 
     @property
     def Width(self):
+        """Return the current width of this table."""
         return self.table.table_width
 
 
@@ -555,22 +613,26 @@ class LinkToPage(Block, type="link_to_page"):
 class SyncedBlock(Block, WithChildrenMixin, type="synced_block"):
     """A synced_block block in Notion - either original or synced."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         synced_from: Optional[BlockRef] = None
         children: Optional[List[Block]] = None
 
-    synced_block: NestedData = NestedData()
+    synced_block: _NestedData = _NestedData()
 
     @property
     def IsOriginal(self):
+        """Determine if this block represents the original content.
+
+        If this method returns `False`, the block represents the sync'ed block.
+        """
         return self.synced_block.synced_from is None
 
 
 class Template(Block, WithChildrenMixin, type="template"):
     """A template block in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         rich_text: Optional[List[RichTextObject]] = None
         children: Optional[List[Block]] = None
 
-    template: NestedData = NestedData()
+    template: _NestedData = _NestedData()

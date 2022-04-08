@@ -18,13 +18,12 @@ from .user import User
 
 log = logging.getLogger(__name__)
 
-# TODO add support for limits and filters in list() methods...
-
 
 class SessionError(Exception):
     """Raised when there are issues with the Notion session."""
 
     def __init__(self, message):
+        """Initialize the `SessionError` with a supplied message.."""
         super().__init__(message)
 
 
@@ -32,6 +31,7 @@ class Endpoint(object):
     """Notional wrapper for the API endpoints."""
 
     def __init__(self, session):
+        """Initialize the `Endpoint` for the supplied session."""
         self.session = session
 
 
@@ -42,11 +42,12 @@ class BlocksEndpoint(Endpoint):
         """Notional interface to the API 'blocks/children' endpoint."""
 
         def __call__(self):
+            """Return the underlying endpoint in the Notion SDK."""
             return self.session.client.blocks.children
 
         # https://developers.notion.com/reference/patch-block-children
         def append(self, parent, *blocks):
-            """Adds the given blocks as children of the specified parent.
+            """Add the given blocks as children of the specified parent.
 
             The blocks info will be refreshed based on returned data.
             """
@@ -78,7 +79,7 @@ class BlocksEndpoint(Endpoint):
 
         # https://developers.notion.com/reference/get-block-children
         def list(self, parent):
-            """Returns all Blocks contained by the specified parent."""
+            """Return all Blocks contained by the specified parent."""
 
             blocks = EndpointIterator(endpoint=self().list, block_id=parent.id)
 
@@ -87,11 +88,13 @@ class BlocksEndpoint(Endpoint):
             return ResultSet(exec=blocks, cls=Block)
 
     def __init__(self, *args, **kwargs):
+        """Initialize the `blocks` endpoint for the Notion API."""
         super().__init__(*args, **kwargs)
 
         self.children = BlocksEndpoint.ChildrenEndpoint(*args, **kwargs)
 
     def __call__(self):
+        """Return the underlying endpoint in the Notion SDK."""
         return self.session.client.blocks
 
     # https://developers.notion.com/reference/delete-a-block
@@ -115,7 +118,7 @@ class BlocksEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/retrieve-a-block
     def retrieve(self, block_id):
-        """Returns the Block with the given ID."""
+        """Return the Block with the given ID."""
 
         log.info("Retrieving block :: %s", block_id)
 
@@ -141,11 +144,12 @@ class DatabasesEndpoint(Endpoint):
     """Notional interface to the API 'databases' endpoint."""
 
     def __call__(self):
+        """Return the underlying endpoint in the Notion SDK."""
         return self.session.client.databases
 
     # https://developers.notion.com/reference/create-a-database
     def create(self, parent, schema, title=None):
-        """Adds a database to the given Page parent."""
+        """Add a database to the given Page parent."""
 
         parent = ParentRef.from_record(parent)
 
@@ -171,7 +175,7 @@ class DatabasesEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/get-databases
     def list(self):
-        """Returns an iterator for all Database objects in the integration scope."""
+        """Return an iterator for all Database objects in the integration scope."""
 
         # DEPRECATED ENDPOINT ###
 
@@ -182,7 +186,7 @@ class DatabasesEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/retrieve-a-database
     def retrieve(self, database_id):
-        """Returns the Database with the given ID."""
+        """Return the Database with the given ID."""
 
         log.info("Retrieving database :: %s", database_id)
 
@@ -192,7 +196,7 @@ class DatabasesEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/update-a-database
     def update(self, database, title=None, **schema):
-        """Updates the Database object on the server.
+        """Update the Database object on the server.
 
         The database info will be refreshed to the latest version from the server.
         """
@@ -238,7 +242,7 @@ class DatabasesEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/post-database-query
     def query(self, target):
-        """Initialized a new Query object with the target data class.
+        """Initialize a new Query object with the target data class.
 
         :param target: either a string with the database ID or an ORM class
         """
@@ -262,11 +266,12 @@ class PagesEndpoint(Endpoint):
     """Notional interface to the API 'pages' endpoint."""
 
     def __call__(self):
+        """Return the underlying endpoint in the Notion SDK."""
         return self.session.client.pages
 
     # https://developers.notion.com/reference/post-page
     def create(self, parent, title=None, properties=None, children=None):
-        """Adds a page to the given parent (Page or Database)."""
+        """Add a page to the given parent (Page or Database)."""
 
         if parent is None:
             raise ValueError("'parent' must be provided")
@@ -304,7 +309,7 @@ class PagesEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/retrieve-a-page
     def retrieve(self, page_id):
-        """Returns the Page with the given ID."""
+        """Return the Page with the given ID."""
 
         log.info("Retrieving page :: %s", page_id)
 
@@ -314,7 +319,7 @@ class PagesEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/patch-page
     def update(self, page, **properties):
-        """Updates the Page object properties on the server.
+        """Update the Page object properties on the server.
 
         If `properties` are provided, only those values will be updated.  If
         `properties` is empty, all page properties will be updated.
@@ -370,7 +375,13 @@ class SearchEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/post-search
     def __call__(self, text=None):
-        """Performs a search with the optional text."""
+        """Perform a search with the optional text.
+
+        If specified, the call will perform a search with the given text.
+
+        :return: a `QueryBuilder` with the requested search
+        :rtype: query.QueryBuilder
+        """
 
         params = {}
 
@@ -384,6 +395,7 @@ class UsersEndpoint(Endpoint):
     """Notional interface to the API 'users' endpoint."""
 
     def __call__(self):
+        """Return the underlying endpoint in the Notion SDK."""
         return self.session.client.users
 
     # https://developers.notion.com/reference/get-users
@@ -397,7 +409,7 @@ class UsersEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/get-user
     def retrieve(self, user_id):
-        """Returns the User with the given ID."""
+        """Return the User with the given ID."""
 
         log.info("Retrieving user :: %s", user_id)
 
@@ -407,7 +419,7 @@ class UsersEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/get-self
     def me(self):
-        """Returns the current bot User."""
+        """Return the current bot User."""
 
         log.info("Retrieving current integration bot")
 
@@ -420,6 +432,13 @@ class Session(object):
     """An active session with the Notion SDK."""
 
     def __init__(self, **kwargs):
+        """Initialize the `Session` object and the endpoints.
+
+        `kwargs` will be passed direction to the Notion SDK Client.  For more details,
+        see the (full docs)[https://ramnes.github.io/notion-sdk-py/reference/client/].
+
+        :param auth: bearer token for authentication
+        """
         self.client = notion_client.Client(**kwargs)
 
         self.blocks = BlocksEndpoint(self)

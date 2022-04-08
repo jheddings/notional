@@ -44,8 +44,13 @@ def make_api_safe(data):
 class DataObject(BaseModel):
     """The base for all API objects."""
 
-    # See https://github.com/samuelcolvin/pydantic/issues/1577
     def __setattr__(self, name, value):
+        """Set the attribute of this object to a given value.
+
+        The implementation of `BaseModel.__setattr__` does not allow for properties.
+
+        See https://github.com/samuelcolvin/pydantic/issues/1577
+        """
         try:
             super().__setattr__(name, value)
         except ValueError as err:
@@ -62,6 +67,14 @@ class DataObject(BaseModel):
 
     @classmethod
     def _modify_field_(cls, name, default=None):
+        """Modify the `BaseModel` field information for a specific class instance.
+
+        This is necessary in particular for sublcasses that change the default values
+        of a model when defined.  Notable examples are `TypedObject` and `NamedObject`.
+
+        :param name: the named attribute in the class
+        :param default: the new default for the named field
+        """
         setattr(cls, name, default)
 
         cls.__fields__[name].default = default
@@ -104,6 +117,7 @@ class NamedObject(DataObject):
     object: str
 
     def __init_subclass__(cls, object=None, **kwargs):
+        """Update `DataObject` defaults for the named object."""
         super().__init_subclass__(**kwargs)
 
         if object is not None:
@@ -161,7 +175,7 @@ class TypedObject(DataObject):
         cls._subtypes_[sub_type] = cls
 
     def __call__(self, field=None):
-        """Returns nested data from this Block.
+        """Return nested data from this Block.
 
         If a field is provided, the contents of that field in the NestedData will be
         returned.  Otherwise, the full contents of the NestedData will be returned.
@@ -181,10 +195,15 @@ class TypedObject(DataObject):
 
     @classmethod
     def __get_validators__(cls):
+        """Provide `BaseModel` with the means to convert `TypedObject`'s."""
         yield cls._convert_to_real_type_
 
     @classmethod
     def parse_obj(cls, obj):
+        """Parse the structured object data into an instance of `TypedObject`.
+
+        This method overrides `BaseModel.parse_obj()`.
+        """
         return cls._convert_to_real_type_(obj)
 
     @classmethod

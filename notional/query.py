@@ -19,6 +19,8 @@ log = logging.getLogger(__name__)
 
 
 def get_target_id(target):
+    """Examine the given target and returns the appropriate ID as a string."""
+
     if isinstance(target, str):
         return target
 
@@ -177,6 +179,8 @@ class TimestampFilter(QueryFilter):
 
     @classmethod
     def create(cls, kind, constraint):
+        """Create a new `TimeStampFilter` using the given constraint."""
+
         if kind == TimestampKind.CREATED_TIME:
             return CreatedTimeFilter.create(constraint)
 
@@ -194,6 +198,7 @@ class CreatedTimeFilter(TimestampFilter):
 
     @classmethod
     def create(cls, constraint):
+        """Create a new `CreatedTimeFilter` using the given constraint."""
         return CreatedTimeFilter(created_time=constraint)
 
 
@@ -205,6 +210,7 @@ class LastEditedTimeFilter(TimestampFilter):
 
     @classmethod
     def create(cls, constraint):
+        """Create a new `LastEditedTimeFilter` using the given constraint."""
         return LastEditedTimeFilter(last_edited_time=constraint)
 
 
@@ -212,6 +218,8 @@ class CompoundFilter(QueryFilter):
     """Represents a compound filter in Notion."""
 
     class Config:
+        """Pydantic configuration class to support keyword fields."""
+
         allow_population_by_field_name = True
 
     and_: Optional[List[QueryFilter]] = Field(None, alias="and")
@@ -243,6 +251,8 @@ class Query(DataObject):
 
     @validator("page_size")
     def valid_page_size(cls, value):
+        """Validate that the given page size meets the Notion API requirements."""
+
         assert value > 0, "size must be greater than zero"
         assert value <= 100, "size must be less than or equal to 100"
         return value
@@ -257,6 +267,8 @@ class QueryBuilder:
     """
 
     def __init__(self, endpoint, cls=None, **params):
+        """Initialize a new `QueryBuilder` for the given endpoint."""
+
         self.endpoint = endpoint
         self.params = params
         self.cls = cls
@@ -363,13 +375,17 @@ class ResultSet:
     """A result for a specific query."""
 
     def __init__(self, exec, cls=None):
+        """Initialize a new `ResultSet`."""
         self.source = exec
         self.cls = cls
 
     def __iter__(self):
+        """Return an iterator for this `ResultSet`."""
         return self
 
     def __next__(self):
+        """Return the next item from this `ResultSet`."""
+
         item = next(self.source)
 
         if self.cls is not None:

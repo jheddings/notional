@@ -1,3 +1,5 @@
+"""Module definition for Notional."""
+
 import os
 
 from setuptools import find_packages, setup
@@ -7,12 +9,14 @@ from setuptools import find_packages, setup
 
 
 def read_file(rel_path: str) -> str:
+    """Read the full contents of the given path, relative to this file."""
     here = os.path.abspath(os.path.dirname(__file__))
     with open(os.path.join(here, rel_path)) as fp:
         return fp.read()
 
 
 def get_version(rel_path: str) -> str:
+    """Return the __version__ value from the given file."""
     for line in read_file(rel_path).splitlines():
         if line.startswith("__version__"):
             delim = '"' if '"' in line else "'"

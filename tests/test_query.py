@@ -1,3 +1,5 @@
+"""Unit tests for Notional query objects."""
+
 import logging
 import unittest
 
@@ -17,11 +19,13 @@ class QueryBuilderTest(unittest.TestCase):
     """Unit tests for the Query Builder class."""
 
     def test_empty_query(self):
+        """Create an empty query."""
         qb = query.QueryBuilder(None)
         empty = query.Query()
         self.assertEqual(qb.query, empty)
 
     def test_basic_number_constraint(self):
+        """Filter a query based on a number value."""
         mock = mock_endpoint(1000, 100)
 
         qb = (
@@ -33,6 +37,7 @@ class QueryBuilderTest(unittest.TestCase):
         qb.first()
 
     def test_number_range_constraint(self):
+        """Filter a query based on a number range."""
         mock = mock_endpoint(1000, 23)
 
         qb = (

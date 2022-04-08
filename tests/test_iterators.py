@@ -1,3 +1,5 @@
+"""Unit tests for Notional iterators."""
+
 import logging
 import unittest
 

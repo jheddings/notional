@@ -42,7 +42,7 @@ status = [
 
 props = {
     "Name": schema.Title(),
-    "Estimate": schema.Number.format("dollar"),
+    "Estimate": schema.Number.format(schema.NumberFormat.DOLLAR),
     "Approved": schema.Checkbox(),
     "Points": schema.Number(),
     "Due Date": schema.Date(),

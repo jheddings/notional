@@ -1,4 +1,4 @@
-"""Wrapper for Notion User objects."""
+"""Wrapper for Notion user objects."""
 
 import logging
 from enum import Enum
@@ -20,6 +20,8 @@ class UserType(str, Enum):
 class User(DataObject):
     """Represents a User in Notion."""
 
+    # XXX why isn't this a TypedObject ?
+
     id: UUID
     object: str = "user"
     type: Optional[UserType] = None
@@ -28,6 +30,8 @@ class User(DataObject):
 
     @classmethod
     def parse_obj(cls, obj):
+        """Attempt to parse the given object data into the correct `User` type."""
+
         if obj is None:
             return None
 
@@ -44,22 +48,24 @@ class User(DataObject):
 class Person(User):
     """Represents a Person in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         email: str
 
-    person: NestedData = None
+    person: _NestedData = None
 
     def __str__(self):
+        """Return a string representation of this `Person`."""
         return f"[@{self.name}]"
 
 
 class Bot(User):
     """Represents a Bot in Notion."""
 
-    class NestedData(NestedObject):
+    class _NestedData(NestedObject):
         pass
 
-    bot: NestedData = None
+    bot: _NestedData = None
 
     def __str__(self):
+        """Return a string representation of this `Bot`."""
         return f"[%{self.name}]"

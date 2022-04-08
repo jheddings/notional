@@ -1,8 +1,14 @@
 # notional #
 
-<a href="https://pypi.org/project/notional"><img src="https://img.shields.io/pypi/v/notional.svg" alt="PyPI"></a>
-<a href="LICENSE"><img src="https://img.shields.io/github/license/jheddings/notional" alt="License"></a>
-<a href="https://github.com/ambv/black"><img src="https://img.shields.io/badge/code%20style-black-black" alt="Code style"></a>
+<a href="https://pypi.org/project/notional">
+    <img src="https://img.shields.io/pypi/v/notional.svg" alt="PyPI">
+</a>
+<a href="LICENSE">
+    <img src="https://img.shields.io/github/license/jheddings/notional" alt="License">
+</a>
+<a href="https://github.com/ambv/black">
+    <img src="https://img.shields.io/badge/code%20style-black-black" alt="Code style">
+</a>
 
 A high level interface and object model for the Notion SDK.  This is loosely modeled
 after concepts found in [SQLAlchemy](http://www.sqlalchemy.org) and

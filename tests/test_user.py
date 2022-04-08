@@ -1,3 +1,5 @@
+"""Unit tests for the Notional user objects."""
+
 import logging
 import unittest
 

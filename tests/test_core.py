@@ -1,3 +1,5 @@
+"""Unit tests for Notional core objects."""
+
 import logging
 import unittest
 from enum import Enum
@@ -29,47 +31,54 @@ STAN = {"name": "Stanley"}
 
 
 class Actor(NamedObject):
+    """A structured Actor class for testing."""
 
     name: str
 
 
 class Animal(TypedObject):
+    """A structured Animal class for testing."""
 
     age: int
     color: str = None
 
 
 class Pet(Animal):
+    """A structured Pet class for testing."""
 
     name: str
 
 
 class Cat(Pet, type="cat"):
+    """A structured Cat class for testing."""
 
     hairless: bool = False
 
 
 class Dog(Pet, type="dog"):
+    """A structured Dog class for testing."""
 
     breed: str
 
 
 class Eagle(Animal, type="eagle"):
+    """A structured Eagle class for testing."""
 
     species: str
 
 
 class Person(Actor, object="person"):
+    """A structured Person class for testing."""
 
     pets: List[Pet] = None
 
 
 class Robot(Actor, object="robot"):
-
-    pass
+    """A structured Robot class for testing."""
 
 
 class CustomTypes(str, Enum):
+    """Defines custom types for testing."""
 
     TYPE_ONE = "one"
     TYPE_TWO = "two"
@@ -77,12 +86,14 @@ class CustomTypes(str, Enum):
 
 
 class ComplexDataObject(TypedObject, type="nested"):
-    class NestedData(NestedObject):
+    """A complex object (with nested data) used for testing only."""
+
+    class _NestedData(NestedObject):
         key: str = None
         value: str = None
 
     id: str
-    nested: NestedData = NestedData()
+    nested: _NestedData = _NestedData()
     simple: List[Person] = []
     custom: CustomTypes = None
 
@@ -91,8 +102,7 @@ class DataObjectTests(unittest.TestCase):
     """Unit tests for the DataObject API objects."""
 
     def test_parse_basic_object(self):
-        """Basic DataObject parsing."""
-
+        """Parse DataObject's from structured data to simulate the Notion API."""
         person = Person.parse_obj(ALICE)
         self.assertEqual(person.name, "Alice the Person")
         self.assertIsNone(person.pets)
@@ -102,6 +112,7 @@ class NamedObjectTests(unittest.TestCase):
     """Unit tests for named API objects."""
 
     def test_parse_named_object(self):
+        """Parse NamedObject's from structured data to simulate the Notion API."""
         stan = Person.parse_obj(STAN)
         self.assertEqual(stan.object, "person")
 
@@ -113,8 +124,7 @@ class TypedObjectTests(unittest.TestCase):
     """Unit tests for typed API objects."""
 
     def test_parse_typed_data_object(self):
-        """TypedObject parsing."""
-
+        """Parse TypedObject's from structured data to simulate the Notion API."""
         tiger = Animal.parse_obj(TIGER)
         self.assertEqual(type(tiger), Cat)
         self.assertEqual(tiger.type, "cat")
@@ -144,27 +154,32 @@ class TypedObjectTests(unittest.TestCase):
             self.assertIn(pet, [fluffy, tiger])
 
     def test_set_default_type_for_new_objects(self):
-        """Verify that "type" is set by default on new TypedObject's."""
+        """Verify that "type" is set when creating new TypedObject's."""
         bruce = Dog(name="bruce", age=3, breed="collie")
         self.assertEqual(bruce.type, "dog")
 
 
 class NestedObjectTest(unittest.TestCase):
-    def test_staandard_nested_object(self):
-        """Check usage of get/set items in TypedObject'."""
-        nested = ComplexDataObject.NestedData(key="foo", value="bar")
+    """Test nested objects in complex data classes."""
+
+    def test_standard_nested_object(self):
+        """Create a nested object and check fields for proper values."""
+        nested = ComplexDataObject._NestedData(key="foo", value="bar")
         complex = ComplexDataObject(id="complex", nested=nested)
 
+        self.assertEqual(complex.id, "complex")
+        self.assertEqual(complex.nested.key, "foo")
         self.assertEqual(complex.nested.value, "bar")
 
     def test_invalid_nested_field_call(self):
+        """Check for errors when we call for an invalid nested field."""
         complex = ComplexDataObject(id="complex")
 
         with self.assertRaises(AttributeError):
             complex("does_not_exist")
 
     def test_get_nested_data(self):
-        """Verify we can call a block for nested data'."""
+        """Call a block to return the nested data."""
         complex = ComplexDataObject(id="complex")
 
         self.assertIsNone(complex("value"))
