@@ -71,7 +71,7 @@ entry = notion.pages.create(
 
 # we can also construct complex values manually...
 
-content = types.TextObject.NestedData(content="Small Project")
+content = types.TextObject._NestedData(content="Small Project")
 text = types.TextObject(plain_text=content.content, text=content)
 name = types.Title(title=[text])
 
