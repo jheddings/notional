@@ -1,14 +1,8 @@
 # notional #
 
-<a href="https://pypi.org/project/notional">
-    <img src="https://img.shields.io/pypi/v/notional.svg" alt="PyPI">
-</a>
-<a href="LICENSE">
-    <img src="https://img.shields.io/github/license/jheddings/notional" alt="License">
-</a>
-<a href="https://github.com/ambv/black">
-    <img src="https://img.shields.io/badge/code%20style-black-black" alt="Code style">
-</a>
+[![PyPI](https://img.shields.io/pypi/v/notional.svg)](https://pypi.org/project/notional)
+[![LICENSE](https://img.shields.io/github/license/jheddings/notional)](LICENSE)
+[![Code Style](https://img.shields.io/badge/code%20style-black-black)](https://github.com/ambv/black)
 
 A high level interface and object model for the Notion SDK.  This is loosely modeled
 after concepts found in [SQLAlchemy](http://www.sqlalchemy.org) and
@@ -47,7 +41,7 @@ import notional
 
 notion = notional.connect(auth=AUTH_TOKEN)
 
-# do some things
+# ¡¡ fun & profit !!
 ```
 
 ## Contributing ##
@@ -60,7 +54,7 @@ Any pull requests or other submissions are welcome.  As most open source project
 is a side project.  Large submissions will take time to review for acceptance, so breaking
 them into smaller pieces is always preferred.  Thanks in advance!
 
-Please read the full [contribution guide](https://github.com/jheddings/notional/blob/main/.github/CONTRIBUTING.md).
+Please read the full [contribution guide](.github/CONTRIBUTING.md).
 
 ### Known Issues ###
 

@@ -1,2 +1,10 @@
----
 theme: jekyll-theme-slate
+
+title: Notional
+
+github_button_location_top_navbar: true
+github_button_location_below_title: false
+github_button_location_page_bottom: false
+
+breadcrumb_display: true
+breadcrumb_home_display: true
