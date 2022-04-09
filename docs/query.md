@@ -9,7 +9,6 @@ Filters can be added for either timestamps or properties using the query builder
 operate using a set of constraints, depending on the object being filtered.  Constraints
 may be appended to the query builder using keywords or by creating them directly:
 
-
 ```python
 notion = notional.connect(auth=auth_token)
 

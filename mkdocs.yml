@@ -1,0 +1,31 @@
+site_name: Notional
+site_url: https://jheddings.github.io/notional
+site_author: Jason Heddings
+
+repo_name: notional
+repo_url: https://github.com/jheddings/notional
+edit_uri: edit/master/docs
+docs_dir: docs
+
+nav:
+  - Home: index.md
+  - Getting Started: quick.md
+  -
+    ? User Guide
+    :
+      - Iterators: iterators.md
+      - ORM: orm.md
+      - Parsers: parser.md
+      - Querying: query.md
+  -
+    ? About
+    :
+      -
+        ? Release Notes
+        : https://github.com/jheddings/notional/releases
+      -
+        ? Contributing
+        : https://github.com/jheddings/notional/blob/main/.github/CONTRIBUTING.md
+      -
+        ? License
+        : https://github.com/jheddings/notional/blob/main/LICENSE

@@ -1,3 +1,4 @@
+---
 repos:
   - repo: https://github.com/pycqa/isort
     rev: "5.10.1"
@@ -15,15 +16,10 @@ repos:
     hooks:
       - id: yamllint
 
-  # - repo: https://github.com/markdownlint/markdownlint
-  #   rev: "v0.11.0"
-  #   hooks:
-  #     - id: markdownlint
-
-  # - repo: https://github.com/pycqa/pydocstyle
-  #   rev: "6.1.1"
-  #   hooks:
-  #     - id: pydocstyle
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: "v0.4.0"
+    hooks:
+      - id: markdownlint-cli2
 
   - repo: https://github.com/pycqa/flake8
     rev: "4.0.1"

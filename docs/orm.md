@@ -1,4 +1,4 @@
-# ORM #
+# Object-Relational Mapping #
 
 This library has support for defining custom data types that wrap Notion pages.
 Typically, these pages are entries in a database (collection) with a consistent schema.

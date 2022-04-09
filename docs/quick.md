@@ -4,19 +4,18 @@ This guide should help you get up and running quickly with Notional!
 
 ## Authorization ##
 
-Obtain an authentication token from Notion.
+Obtain an [authentication token](https://developers.notion.com/docs/authorization) from
+Notion.
 
 ### Token Security ###
 
 It is generally a best practice to read the auth token from an environment variable or
 a secrets file.  To prevent accidental exposure, it is NOT recommended to save the token
-in source.  For more information, read about Notion authorization 
-[here](https://developers.notion.com/docs/authorization).
-
+in source.
 
 ## Installation ##
 
-Install the most recent release using PyPi:
+Install the most recent release using PyPI:
 
 ```shell
 pip install notional
@@ -34,5 +33,5 @@ import notional
 
 notion = notional.connect(auth=AUTH_TOKEN)
 
-# do some things
+# ¡¡ fun & profit !!
 ```

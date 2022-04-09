@@ -16,13 +16,12 @@ own risk!
 
 That being said, if you do use this library, please drop me a message!
 
-If you want to get up and running quickly, check out the [Quick Start](docs/quick.md),
-or view the [Full Documentation](https://jheddings.github.io/notional/).
+If you want to get up and running quickly, check out the [Quick Start](docs/quick.md)
+guide, or view the [Full Documentation](https://jheddings.github.io/notional/).
 
 ## Installation ##
 
 Install the most recent release using PyPi:
-
 
 ```shell
 pip install notional

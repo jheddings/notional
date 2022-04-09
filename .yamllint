@@ -1,3 +1,4 @@
+---
 yaml-files:
   - '*.yaml'
   - '*.yml'
@@ -21,7 +22,9 @@ rules:
   indentation: enable
   key-duplicates: enable
   key-ordering: disable
-  line-length: enable
+  line-length:
+    max: 88
+    level: warning
   new-line-at-end-of-file: enable
   new-lines: enable
   octal-values: disable
