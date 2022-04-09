@@ -1,37 +1,26 @@
-## Welcome to GitHub Pages
+# notional #
 
-You can use the [editor on GitHub](https://github.com/jheddings/notional/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
+<a href="https://pypi.org/project/notional">
+    <img src="https://img.shields.io/pypi/v/notional.svg" alt="PyPI">
+</a>
+<a href="LICENSE">
+    <img src="https://img.shields.io/github/license/jheddings/notional" alt="License">
+</a>
+<a href="https://github.com/ambv/black">
+    <img src="https://img.shields.io/badge/code%20style-black-black" alt="Code style">
+</a>
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+A high level interface and object model for the Notion SDK.  This is loosely modeled
+after concepts found in [SQLAlchemy](http://www.sqlalchemy.org) and
+[MongoEngine](http://mongoengine.org).  This module is built on the excellent
+[notion-sdk-py](https://github.com/ramnes/notion-sdk-py) library, providing higher-
+level access to the API.
 
-### Markdown
+If you want to get up and running quickly, check out the [Quick Start](quick.md).
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Contents ##
 
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/jheddings/notional/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+* [Iterators](iterators.md)
+* [Object Relationship Model](orm.md)
+* [Parsers](parser.md)
+* [Querying](query.md)
