@@ -5,7 +5,7 @@ import os
 
 log = logging.getLogger(__name__)
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 # if we are running in a local copy, append the repo information
 # XXX do we want to do something more advanced when using `make publish` ?
