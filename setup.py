@@ -31,6 +31,10 @@ requirements = [
     "html5lib>=1.1",
 ]
 
+project_urls = {
+    "Documentation": "https://jheddings.github.io/notional/",
+}
+
 setup(
     name="notional",
     version=get_version("notional/version.py"),
@@ -40,10 +44,11 @@ setup(
     long_description=read_file("README.md"),
     long_description_content_type="text/markdown",
     url="https://github.com/jheddings/notional/",
+    project_urls=project_urls,
     packages=find_packages(),
     install_requires=requirements,
     classifiers=[
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
