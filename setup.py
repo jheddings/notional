@@ -4,7 +4,7 @@ import os
 
 from setuptools import find_packages, setup
 
-# used from pip's setup.py:
+# used helpers from pip's setup.py:
 # https://github.com/pypa/pip/blob/main/setup.py
 
 

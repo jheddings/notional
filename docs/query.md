@@ -1,7 +1,7 @@
 # Query Builder #
 
-Notional provides a query builder for interating with the Notion API.  Query targets can
-be either a specific database ID or a custom ORM type.
+Notional provides a query builder for interacting with the Notion API.  Query targets
+can be either a specific database ID or a custom ORM type.
 
 ## Filters ##
 
@@ -21,10 +21,11 @@ query = (
 )
 
 data = query.first()
+
 # process query result
 ```
 
-### Sorting ###
+## Sorting ##
 
 Sorts can be added to the query using the `sort()` method:
 
@@ -40,4 +41,4 @@ for data in query.execute():
 ```
 
 For more information about querying,
-[read the official documentation](https://developers.notion.com/reference/post-database-query).
+[read the official API documentation](https://developers.notion.com/reference/post-database-query).
