@@ -1,4 +1,4 @@
-name: docs
+name: Publish Site Docs
 
 on:
   push:
