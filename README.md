@@ -39,14 +39,6 @@ notion = notional.connect(auth=AUTH_TOKEN)
 # ¡¡ fun & profit !!
 ```
 
-## Developer Guides ##
-
-* [Getting Started](docs/start.md)
-* [Querying the API](docs/query.md)
-* [Content Iterators](docs/iterators.md)
-* [Document Parsing](docs/parser.md)
-* [Type Mapping](docs/orm.md)
-
 ## Getting Help ##
 
 If you are stuck, the best place to start is the
