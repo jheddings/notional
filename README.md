@@ -43,7 +43,7 @@ notion = notional.connect(auth=AUTH_TOKEN)
 
 If you are stuck, the best place to start is the
 [Discussion](https://github.com/jheddings/notional/discussions) area.  Use this also as
-a resource for asking questoins or providing general suggestions.
+a resource for asking questions or providing general suggestions.
 
 ### Known Issues ###
 

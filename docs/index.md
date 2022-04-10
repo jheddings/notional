@@ -11,7 +11,7 @@ library, providing higher-level access to the API.
 
 To get up and running quickly, check out the [Quick Start](start.md) guide.
 
-## Developer Guide ##
+## Developer Guides ##
 
 * [Querying the API](query.md)
 * [Content Iterators](iterators.md)
