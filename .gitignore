@@ -12,5 +12,6 @@ build
 dist
 lib
 tmp
+site
 
 *.egg-info/

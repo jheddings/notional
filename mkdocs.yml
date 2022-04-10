@@ -7,16 +7,38 @@ repo_url: https://github.com/jheddings/notional
 edit_uri: edit/master/docs
 docs_dir: docs
 
+theme:
+  name: material
+
+plugins:
+  - search
+  - mkdocstrings
+
 nav:
   - Home: index.md
-  - Getting Started: quick.md
   -
     ? User Guide
     :
+      - Getting Started: start.md
       - Iterators: iterators.md
-      - ORM: orm.md
-      - Parsers: parser.md
       - Querying: query.md
+      - Custom Types: orm.md
+      - Parsers: parser.md
+  -
+    ? Reference
+    :
+      - Overview: reference/index.md
+      - Blocks: reference/blocks.md
+      - Core: reference/core.md
+      - ORM: reference/orm.md
+      - Parser: reference/parser.md
+      - Query: reference/query.md
+      - Records: reference/records.md
+      - Schema: reference/schema.md
+      - Session: reference/session.md
+      - Text: reference/text.md
+      - Types: reference/types.md
+      - User: reference/user.md
   -
     ? About
     :
@@ -25,7 +47,19 @@ nav:
         : https://github.com/jheddings/notional/releases
       -
         ? Contributing
-        : https://github.com/jheddings/notional/blob/main/.github/CONTRIBUTING.md
+        : contributing.md
       -
         ? License
-        : https://github.com/jheddings/notional/blob/main/LICENSE
+        : license.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      check_paths: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/jheddings/notional

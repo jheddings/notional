@@ -6,18 +6,15 @@
 
 A high level interface and object model for the Notion SDK.  This is loosely modeled
 after concepts found in [SQLAlchemy](http://www.sqlalchemy.org) and
-[MongoEngine](http://mongoengine.org).  This module is built on the excellent
-[notion-sdk-py](https://github.com/ramnes/notion-sdk-py) library, providing higher-
-level access to the API.
+[MongoEngine](http://mongoengine.org).  Built on the excellent
+[notion-sdk-py](https://github.com/ramnes/notion-sdk-py) library, this module provides
+higher-level access to the API.
 
 > :warning: **Work In Progress**: The interfaces in this module are still in development
 and are likely to change.  Furthermore, documentation is pretty sparse so use at your
 own risk!
 
 That being said, if you do use this library, please drop me a message!
-
-If you want to get up and running quickly, check out the [Quick Start](docs/quick.md)
-guide, or view the [Full Documentation](https://jheddings.github.io/notional/).
 
 ## Installation ##
 
@@ -42,6 +39,28 @@ notion = notional.connect(auth=AUTH_TOKEN)
 # ¡¡ fun & profit !!
 ```
 
+## Developer Guides ##
+
+* [Getting Started](docs/start.md)
+* [Querying the API](docs/query.md)
+* [Content Iterators](docs/iterators.md)
+* [Document Parsing](docs/parser.md)
+* [Type Mapping](docs/orm.md)
+
+## Getting Help ##
+
+If you are stuck, the best place to start is the
+[Discussion](https://github.com/jheddings/notional/discussions) area.  Use this also as
+a resource for asking questoins or providing general suggestions.
+
+### Known Issues ###
+
+See [Issues](https://github.com/jheddings/notional/issues) on github.
+
+### Feature Requests ###
+
+See [Issues](https://github.com/jheddings/notional/issues) on github.
+
 ## Contributing ##
 
 I built this module so that I could interact with Notion in a way that made sense to
@@ -52,12 +71,4 @@ Any pull requests or other submissions are welcome.  As most open source project
 is a side project.  Large submissions will take time to review for acceptance, so breaking
 them into smaller pieces is always preferred.  Thanks in advance!
 
-Please read the full [contribution guide](.github/CONTRIBUTING.md).
-
-### Known Issues ###
-
-See [Issues](https://github.com/jheddings/notional/issues) on github.
-
-### Feature Requests ###
-
-See [Issues](https://github.com/jheddings/notional/issues) on github.
+To get started, please read the full [contribution guide](.github/CONTRIBUTING.md).

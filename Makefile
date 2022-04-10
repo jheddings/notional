@@ -4,6 +4,7 @@ BASEDIR ?= $(PWD)
 APPNAME ?= notional
 SRCDIR ?= $(BASEDIR)/$(APPNAME)
 DISTDIR ?= $(BASEDIR)/dist
+DOCSDIR ?= $(BASEDIR)/docs
 VENVDIR ?= $(BASEDIR)/.venv
 
 WITH_VENV = source "$(VENVDIR)/bin/activate" &&
@@ -20,6 +21,13 @@ all: build test
 
 build: preflight test
 	$(WITH_VENV) python3 setup.py sdist bdist_wheel
+
+################################################################################
+.PHONY: docs
+
+docs:
+	$(WITH_VENV) pip3 install -r "$(BASEDIR)/requirements/docs.txt"
+	$(WITH_VENV) mkdocs build
 
 ################################################################################
 .PHONY: publish
@@ -81,8 +89,8 @@ clean:
 ################################################################################
 .PHONY: clobber
 
-# TODO deactivate first
 clobber: clean
 	$(WITH_VENV) pre-commit uninstall
 	rm -Rf "$(DISTDIR)"
 	rm -Rf "$(VENVDIR)"
+	rm -Rf "$(BASEDIR)/site"
