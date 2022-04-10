@@ -1,0 +1,27 @@
+---
+name: Run Example Scripts
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit_test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements/core.txt
+          python3 -m pip install .
+
+      - run: python3 examples/page.py ${{ secrets.NOTION_TEST_PAGE_ID }}
+        env:
+          NOTION_AUTH_TOKEN: ${{ secrets.NOTION_AUTH_TOKEN }}
