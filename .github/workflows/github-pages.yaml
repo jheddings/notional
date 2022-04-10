@@ -11,5 +11,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
-      - run: pip install -r requirements.dev.txt
-      - run: mkdocs gh-deploy
+      - run: pip install -r requirements/docs.txt
+      - run: mkdocs gh-deploy --force
