@@ -17,16 +17,17 @@ import unittest
 from datetime import datetime, timezone
 
 import notional
-from notional import blocks, records, user
+from notional import blocks, records, session, types, user
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.FATAL)
 
 
-class EndpointTest(object):
-    """Base class for live tests (manage connectivity to Notion)."""
+class EndpointTestMixin:
+    """Unit tests that require a connected session."""
 
-    cleanup_pages = []
+    notion: session.Session
+    parent: records.ParentRef
 
     def setUp(self):
         """Configure resources needed by these tests."""
@@ -44,13 +45,15 @@ class EndpointTest(object):
         self.notion = notional.connect(auth=auth_token)
         self.parent = records.PageRef(page_id=parent_id)
 
+        self._temp_pages = []
+
     def tearDown(self):
         """Teardown resources created by these tests."""
 
-        for page in self.cleanup_pages:
+        for page in self._temp_pages:
             self.notion.pages.delete(page)
 
-        self.cleanup_pages.clear()
+        self._temp_pages.clear()
 
     def create_temp_page(self, title=None, children=None):
         """Create a temporary page on the server.
@@ -66,7 +69,7 @@ class EndpointTest(object):
             parent=self.parent, title=title, children=children
         )
 
-        self.cleanup_pages.append(page)
+        self._temp_pages.append(page)
 
         return page
 
@@ -102,7 +105,15 @@ class EndpointTest(object):
         return None
 
 
-class BlocksEndpointTests(EndpointTest, unittest.TestCase):
+class SessionTests(EndpointTestMixin, unittest.TestCase):
+    """Unit tests for the Session object."""
+
+    def test_ping(self):
+        """Verify the session responds to a ping."""
+        self.assertTrue(self.notion.ping())
+
+
+class BlocksEndpointTests(EndpointTestMixin, unittest.TestCase):
     """Test live blocks through the Notion API.
 
     These tests use an assortment of blocks to help increase coverage.  In most cases,
@@ -184,12 +195,11 @@ class BlocksEndpointTests(EndpointTest, unittest.TestCase):
         self.assertEqual(block, todo)
 
 
-class PageEndpointTests(EndpointTest, unittest.TestCase):
+class PageEndpointTests(EndpointTestMixin, unittest.TestCase):
     """Test live pages through the Notion API."""
 
     def test_blank_page(self):
         """Create an empty page in Notion."""
-
         page = self.create_temp_page()
         new_page = self.notion.pages.retrieve(page_id=page.id)
 
@@ -201,7 +211,6 @@ class PageEndpointTests(EndpointTest, unittest.TestCase):
 
     def test_page_parent(self):
         """Verify page parent references."""
-
         page = self.create_temp_page()
 
         self.assertEqual(self.parent, page.parent)
@@ -216,8 +225,50 @@ class PageEndpointTests(EndpointTest, unittest.TestCase):
         for _ in self.iterate_blocks(self.parent, include_children=True):
             pass
 
+    def test_restore_page(self):
+        """Create / delete / restore a page; then delete it when we are finished.
 
-class SearchEndpointTests(EndpointTest, unittest.TestCase):
+        This method will pull a fresh copy of the page each time to ensure that the
+        metadata is updated properly.
+        """
+
+        page = self.create_temp_page()
+        self.assertFalse(page.archived)
+
+        self.notion.pages.delete(page)
+        deleted = self.notion.pages.retrieve(page.id)
+        self.assertTrue(deleted.archived)
+
+        self.notion.pages.restore(page)
+        restored = self.notion.pages.retrieve(page.id)
+        self.assertFalse(restored.archived)
+
+    def test_page_icon(self):
+        """Set a page icon and confirm."""
+        page = self.create_temp_page()
+        self.assertIsNone(page.icon)
+
+        snowman = types.EmojiObject(emoji="☃️")
+        self.notion.pages.set(page, icon=snowman)
+
+        festive = self.notion.pages.retrieve(page.id)
+        self.assertEqual(festive.icon, snowman)
+
+    def test_page_cover(self):
+        """Set a page cover and confirm."""
+        page = self.create_temp_page()
+        self.assertIsNone(page.cover)
+
+        loved = types.ExternalFile.from_url(
+            "https://raw.githubusercontent.com/jheddings/notional/main/tests/data/loved.jpg"
+        )
+        self.notion.pages.set(page, cover=loved)
+
+        covered = self.notion.pages.retrieve(page.id)
+        self.assertEqual(covered.cover, loved)
+
+
+class SearchEndpointTests(EndpointTestMixin, unittest.TestCase):
     """Test searching through the Notion API."""
 
     def test_simple_search(self):
@@ -235,7 +286,7 @@ class SearchEndpointTests(EndpointTest, unittest.TestCase):
         self.assertGreater(num_results, 0)
 
 
-class UserEndpointTests(EndpointTest, unittest.TestCase):
+class UserEndpointTests(EndpointTestMixin, unittest.TestCase):
     """Test user interaction with the Notion API."""
 
     def test_user_list(self):
