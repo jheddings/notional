@@ -46,6 +46,7 @@ class EndpointTest(object):
 
     def tearDown(self):
         """Teardown resources created by these tests."""
+
         for page in self.cleanup_pages:
             self.notion.pages.delete(page)
 
@@ -91,9 +92,22 @@ class EndpointTest(object):
                 for child in self.iterate_blocks(block):
                     yield child
 
+    def find_block_on_page(self, page, block_id):
+        """Find a block on the given page using its ID."""
 
-class BlockEndpointTests(EndpointTest, unittest.TestCase):
-    """Test live blocks through the Notion API."""
+        for child in self.iterate_blocks(page):
+            if child.id == block_id:
+                return child
+
+        return None
+
+
+class BlocksEndpointTests(EndpointTest, unittest.TestCase):
+    """Test live blocks through the Notion API.
+
+    These tests use an assortment of blocks to help increase coverage.  In most cases,
+    the block type itself does not matter to accomplish the intent of the test.
+    """
 
     def test_create_empty_block(self):
         """Create an empty block and confirm its contents."""
@@ -102,14 +116,72 @@ class BlockEndpointTests(EndpointTest, unittest.TestCase):
 
         self.confirm_blocks(page, para)
 
-    def test_create_basic_text_block(self):
+    def test_create_block(self):
         """Create a basic block and verify content."""
         page = self.create_temp_page()
 
         para = blocks.Paragraph.from_text("Hello World")
         self.notion.blocks.children.append(page, para)
 
-        self.confirm_blocks(page, para)
+        found_block = self.find_block_on_page(page, para.id)
+        self.assertIsNotNone(found_block)
+
+    def test_delete_block(self):
+        """Create a block, then delete it and make sure it is gone."""
+        page = self.create_temp_page()
+
+        block = blocks.Code.from_text("test_delete_block")
+        self.notion.blocks.children.append(page, block)
+
+        self.notion.blocks.delete(block)
+
+        found_block = self.find_block_on_page(page, block.id)
+        self.assertIsNone(found_block)
+
+    def test_restore_block(self):
+        """Delete a block, then restore it and make sure it comes back."""
+        page = self.create_temp_page()
+
+        block = blocks.Callout.from_text("Reppearing blocks!")
+        self.notion.blocks.children.append(page, block)
+
+        self.notion.blocks.delete(block)
+        self.notion.blocks.restore(block)
+
+        found_block = self.find_block_on_page(page, block.id)
+        self.assertIsNotNone(found_block)
+        self.assertIsInstance(found_block, blocks.Callout)
+
+    def test_retrieve_block(self):
+        """Retrieve a specific block using its ID."""
+        parent_id = self.parent.page_id
+        block = self.notion.blocks.retrieve(parent_id)
+
+        self.assertIsNotNone(block)
+        self.assertEqual(parent_id, block.id)
+
+        page = self.create_temp_page()
+
+        block = blocks.Divider()
+        self.notion.blocks.children.append(page, block)
+        div = self.notion.blocks.retrieve(block.id)
+
+        self.assertEqual(block, div)
+
+    def test_update_block(self):
+        """Update a block after it has been created."""
+        page = self.create_temp_page()
+
+        block = blocks.ToDo.from_text("Important Task")
+        self.notion.blocks.children.append(page, block)
+
+        block.to_do.checked = True
+        self.notion.blocks.update(block)
+
+        todo = self.notion.blocks.retrieve(block.id)
+
+        self.assertTrue(todo.IsChecked)
+        self.assertEqual(block, todo)
 
 
 class PageEndpointTests(EndpointTest, unittest.TestCase):
