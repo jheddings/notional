@@ -103,7 +103,7 @@ class HtmlDocumentTest(unittest.TestCase):
 
         parser = HtmlParser()
 
-        filename = os.path.join(BASEDIR, "dormouse.html")
+        filename = os.path.join(BASEDIR, "data", "dormouse.html")
         with open(filename, "r") as fp:
             html = fp.read()
 
