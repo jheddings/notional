@@ -1,5 +1,5 @@
 ---
-name: Python Test Coverage
+name: Run Unit Tests
 
 on:
   push:
