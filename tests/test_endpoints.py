@@ -17,7 +17,7 @@ import unittest
 from datetime import datetime, timezone
 
 import notional
-from notional import blocks, records
+from notional import blocks, records, user
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.FATAL)
@@ -233,3 +233,25 @@ class SearchEndpointTests(EndpointTest, unittest.TestCase):
 
         # sanity check to make sure some results came back
         self.assertGreater(num_results, 0)
+
+
+class UserEndpointTests(EndpointTest, unittest.TestCase):
+    """Test user interaction with the Notion API."""
+
+    def test_user_list(self):
+        """Confirm that we can list some users."""
+        num_users = 0
+
+        for orig in self.notion.users.list():
+            dup = self.notion.users.retrieve(orig.id)
+            self.assertEqual(orig, dup)
+            num_users += 1
+
+        self.assertGreater(num_users, 0)
+
+    def test_me_bot(self):
+        """Verify that the current user looks valid."""
+        me = self.notion.users.me()
+
+        self.assertIsNotNone(me)
+        self.assertIsInstance(me, user.Bot)
