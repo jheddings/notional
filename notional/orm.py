@@ -189,7 +189,7 @@ def connected_page(session=None, cls=ConnectedPageBase):
             super().__init_subclass__(**kwargs)
 
             if cls._orm_database_id_ is not None:
-                raise TypeError("Object {cls} registered to: {database}")
+                raise TypeError(f"Object {cls} registered to: {database}")
 
             if database:
                 cls._orm_database_id_ = database
@@ -198,7 +198,7 @@ def connected_page(session=None, cls=ConnectedPageBase):
                 cls._orm_database_id_ = cls.__database__
 
             else:
-                raise ValueError("Missing 'database' for ConnectedPage: {cls}")
+                raise ValueError(f"Missing 'database' for ConnectedPage: {cls}")
 
             # if the local session is None, we will use _orm_bind_session_
             cls.bind(session or cls._orm_late_bind_)
