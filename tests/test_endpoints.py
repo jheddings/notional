@@ -55,6 +55,9 @@ class EndpointTestMixin:
 
         self._temp_blocks.clear()
 
+        if self.notion.IsActive:
+            self.notion.close()
+
     def mktitle(self, title):
         """Make a test-friendly title from the given text."""
 
@@ -138,6 +141,14 @@ class EndpointTestMixin:
 
 class SessionTests(EndpointTestMixin, unittest.TestCase):
     """Unit tests for the Session object."""
+
+    def test_active(self):
+        """Verify the session reports as active."""
+        self.assertTrue(self.notion.IsActive)
+
+        self.notion.close()
+
+        self.assertFalse(self.notion.IsActive)
 
     def test_ping(self):
         """Verify the session responds to a ping."""

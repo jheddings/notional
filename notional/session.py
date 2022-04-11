@@ -157,8 +157,8 @@ class DatabasesEndpoint(Endpoint):
         request = {}
 
         if parent is not None:
-            pref = ParentRef.from_record(parent)
-            request["parent"] = pref.to_api()
+            ref = ParentRef.from_record(parent)
+            request["parent"] = ref.to_api()
 
         if isinstance(title, TextObject):
             request["title"] = [title.to_api()]
@@ -448,11 +448,32 @@ class Session(object):
 
         log.info("Initialized Notion SDK client")
 
+    @property
+    def IsActive(self):
+        """Determine if the current session is active.
+
+        The session is considered "active" if it has not been closed.  This does not
+        determine if the session can connect to the Notion API.
+        """
+        return self.client is not None
+
+    def close(self):
+        """Close the session and release resources."""
+
+        if self.client is None:
+            raise SessionError("Session is not active.")
+
+        self.client.close()
+        self.client = None
+
     def ping(self):
         """Confirm that the session is active and able to connect to Notion.
 
         Raises SessionError if there is a problem, otherwise returns True.
         """
+
+        if self.IsActive is False:
+            return False
 
         error = None
 
