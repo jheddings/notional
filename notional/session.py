@@ -148,27 +148,42 @@ class DatabasesEndpoint(Endpoint):
         """Return the underlying endpoint in the Notion SDK."""
         return self.session.client.databases
 
+    def _build_request(self, parent=None, schema=None, title=None):
+        """Build a request payload from the given items.
+
+        *NOTE* this method does not anticipate what the request will be used for and as
+        such does not validate the inputs for any particular requests.
+        """
+        request = {}
+
+        if parent is not None:
+            pref = ParentRef.from_record(parent)
+            request["parent"] = pref.to_api()
+
+        if isinstance(title, TextObject):
+            request["title"] = [title.to_api()]
+        elif isinstance(title, list):
+            request["title"] = [prop.to_api() for prop in title]
+        elif isinstance(title, str):
+            prop = TextObject.from_value(title)
+            request["title"] = [prop.to_api()]
+        elif title is not None:
+            raise ValueError("Unrecognized data in 'title'")
+
+        if schema is not None:
+            request["properties"] = {
+                name: value.to_api() for name, value in schema.items()
+            }
+
+        return request
+
     # https://developers.notion.com/reference/create-a-database
     def create(self, parent, schema, title=None):
         """Add a database to the given Page parent."""
 
-        parent = ParentRef.from_record(parent)
-
         log.info("Creating database %s - %s", parent, title)
 
-        request = {
-            "parent": parent.to_api(),
-            "properties": {name: value.to_api() for name, value in schema.items()},
-        }
-
-        if isinstance(title, str):
-            title = TextObject.from_value(title)
-
-        if isinstance(title, TextObject):
-            request["title"] = [title.to_api()]
-
-        elif title is not None:
-            raise ValueError("Unrecognized data in 'title'")
+        request = self._build_request(parent, schema, title)
 
         data = self().create(**request)
 
@@ -196,50 +211,33 @@ class DatabasesEndpoint(Endpoint):
         return Database.parse_obj(data)
 
     # https://developers.notion.com/reference/update-a-database
-    def update(self, database, title=None, **schema):
+    def update(self, database, title=None, schema=None):
         """Update the Database object on the server.
 
         The database info will be refreshed to the latest version from the server.
         """
 
-        log.info("Updating database info :: ", database.id)
+        dbid = get_target_id(database)
 
-        request = {}
+        log.info("Updating database info :: ", dbid)
 
-        if title:
-            prop = Title.from_value(title)
-
-            if prop:
-                request["title"] = title.to_api()
-            else:
-                raise ValueError("Invalid title")
-
-        if schema:
-            request["properties"] = {
-                name: value.to_api() for name, value in schema.items()
-            }
+        request = self._build_request(schema=schema, title=title)
 
         if request:
-            data = self().update(database.id.hex, **request)
+            data = self().update(dbid, **request)
             database = database.refresh(**data)
 
         return database
 
     def delete(self, database):
         """Delete (archive) the specified Database."""
-
         log.info("Deleting database :: %s", database.id)
-
         return self.session.blocks.delete(database)
 
     def restore(self, database):
         """Restore (unarchive) the specified Database."""
-
         log.info("Restoring database :: %s", database.id)
-
-        data = self().update(database.id.hex, archived=False)
-
-        return database.refresh(**data)
+        return self.session.blocks.restore(database)
 
     # https://developers.notion.com/reference/post-database-query
     def query(self, target):
