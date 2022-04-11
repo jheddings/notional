@@ -60,20 +60,13 @@ venv: requirements/core.txt requirements/dev.txt
 	python3 -m venv --prompt "$(APPNAME)" "$(VENVDIR)"
 	"$(BASEDIR)/.venv/bin/pip3" install --upgrade pip
 	"$(BASEDIR)/.venv/bin/pip3" install -r requirements/core.txt
-	"$(BASEDIR)/.venv/bin/pip3" install -r requirements/dev.txt
 
 ################################################################################
 .PHONY: devenv
 
 devenv: venv
+	$(WITH_VENV) pip3 install -r requirements/dev.txt
 	$(WITH_VENV) pre-commit install
-
-################################################################################
-.PHONY: upgrade-venv
-
-upgrade-venv:
-	cat "$(BASEDIR)/requirements/core.txt" "$(BASEDIR)/requirements/dev.txt" \
-		| cut -f1 -d= | xargs pip3 install --upgrade
 
 ################################################################################
 .PHONY: clean
