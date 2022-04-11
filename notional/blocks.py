@@ -325,8 +325,11 @@ class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
 
     @property
     def IsChecked(self):
-        """Determine if this ToDo is marked as checked or not."""
-        return self("checked")
+        """Determine if this ToDo is marked as checked or not.
+
+        If the block is empty (e.g. no nested data), this method returns `None`.
+        """
+        return self.to_do.checked if self.to_do else None
 
     @property
     def Markdown(self):
