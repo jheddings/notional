@@ -324,6 +324,11 @@ class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
     to_do: _NestedData = _NestedData()
 
     @property
+    def IsChecked(self):
+        """Determine if this ToDo is marked as checked or not."""
+        return self("checked")
+
+    @property
     def Markdown(self):
         """Return the contents of this block as markdown text."""
 
