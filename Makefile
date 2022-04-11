@@ -39,7 +39,7 @@ publish: build
 .PHONY: preflight
 
 preflight: test
-	$(WITH_VENV) pre-commit run --all-files
+	$(WITH_VENV) pre-commit run --all-files --verbose
 
 ################################################################################
 .PHONY: test
