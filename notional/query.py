@@ -13,7 +13,7 @@ from .blocks import Block
 from .core import DataObject
 from .iterator import EndpointIterator
 from .orm import ConnectedPageBase
-from .records import Database, Page, Record
+from .records import Database, Page, ParentRef, Record
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +29,9 @@ def get_target_id(target):
 
     if isinstance(target, Record):
         return target.id.hex
+
+    if isinstance(target, ParentRef):
+        return target().hex
 
     if isclass(target) and issubclass(target, ConnectedPageBase):
         if target._orm_database_id_ is None:

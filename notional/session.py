@@ -81,9 +81,11 @@ class BlocksEndpoint(Endpoint):
         def list(self, parent):
             """Return all Blocks contained by the specified parent."""
 
-            blocks = EndpointIterator(endpoint=self().list, block_id=parent.id)
+            parent_id = get_target_id(parent)
 
-            log.info("Listing blocks for %s...", parent.id)
+            blocks = EndpointIterator(endpoint=self().list, block_id=parent_id)
+
+            log.info("Listing blocks for %s...", parent_id)
 
             return ResultSet(exec=blocks, cls=Block)
 
