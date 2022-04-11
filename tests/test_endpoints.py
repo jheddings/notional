@@ -10,6 +10,7 @@ Required environment variables:
   - `NOTION_TEST_AREA`: a page ID that can be used for testing
 """
 
+import inspect
 import logging
 import os
 import unittest
@@ -56,6 +57,10 @@ class EndpointTest(object):
         This page will be deleted during teardown of the test.
         """
 
+        if title is None:
+            stack = inspect.stack()
+            title = stack[1].function
+
         page = self.notion.pages.create(
             parent=self.parent, title=title, children=children
         )
@@ -64,32 +69,42 @@ class EndpointTest(object):
 
         return page
 
-
-class BlockEndpointTests(EndpointTest, unittest.TestCase):
-    """Test live blocks through the Notion API."""
-
     def confirm_blocks(self, page, *blocks):
         """Confirm the expected blocks in a given page."""
 
         num_blocks = 0
 
-        for block in self.notion.blocks.children.list(parent=page):
-            self.assertEqual(block, blocks[num_blocks])
+        for block in self.iterate_blocks(page):
+            expected = blocks[num_blocks]
+            self.assertEqual(type(block), type(expected))
             num_blocks += 1
 
         self.assertEqual(num_blocks, len(blocks))
 
+    def iterate_blocks(self, page, include_children=False):
+        """Iterate over all blocks on a page, including children if specified."""
+
+        for block in self.notion.blocks.children.list(parent=page):
+            yield block
+
+            if block.has_children and include_children:
+                for child in self.iterate_blocks(block):
+                    yield child
+
+
+class BlockEndpointTests(EndpointTest, unittest.TestCase):
+    """Test live blocks through the Notion API."""
+
     def test_create_empty_block(self):
         """Create an empty block and confirm its contents."""
         para = blocks.Paragraph()
-        page = self.create_temp_page(title="test_CreateEmptyBlock", children=[para])
+        page = self.create_temp_page(children=[para])
 
         self.confirm_blocks(page, para)
 
     def test_create_basic_text_block(self):
         """Create a basic block and verify content."""
-
-        page = self.create_temp_page(title="test_CreateBasicTextBlock")
+        page = self.create_temp_page()
 
         para = blocks.Paragraph.from_text("Hello World")
         self.notion.blocks.children.append(page, para)
@@ -107,7 +122,7 @@ class PageEndpointTests(EndpointTest, unittest.TestCase):
         new_page = self.notion.pages.retrieve(page_id=page.id)
 
         self.assertEqual(page.id, new_page.id)
-        self.assertIsNone(new_page.Title)
+        self.confirm_blocks(page)
 
         diff = datetime.now(timezone.utc) - new_page.created_time
         self.assertLessEqual(diff.total_seconds(), 60)
@@ -118,6 +133,16 @@ class PageEndpointTests(EndpointTest, unittest.TestCase):
         page = self.create_temp_page()
 
         self.assertEqual(self.parent, page.parent)
+
+    def test_iterate_page_blocks(self):
+        """Iterate over all blocks on the test page and its descendants.
+
+        This is mostly to ensure we do not encounter errors when mapping blocks.  To
+        make this effective, the test page should include many different block types.
+        """
+
+        for _ in self.iterate_blocks(self.parent, include_children=True):
+            pass
 
 
 class SearchEndpointTests(EndpointTest, unittest.TestCase):
