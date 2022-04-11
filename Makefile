@@ -45,7 +45,15 @@ preflight: test
 .PHONY: test
 
 test:
-	$(WITH_VENV) python3 -m unittest discover -v -s "$(BASEDIR)/tests"
+	$(WITH_VENV) coverage run "--source=$(SRCDIR)" \
+		-m unittest discover -v -s "$(BASEDIR)/tests"
+	$(WITH_VENV) coverage report
+
+################################################################################
+.PHONY: coverage
+
+coverage: test
+	$(WITH_VENV) coverage html
 
 ################################################################################
 .PHONY: stats
@@ -87,3 +95,4 @@ clobber: clean
 	rm -Rf "$(DISTDIR)"
 	rm -Rf "$(VENVDIR)"
 	rm -Rf "$(BASEDIR)/site"
+	rm -Rf "$(BASEDIR)/htmlcov"
