@@ -1,4 +1,4 @@
-"""Unit tests for Notional iterators."""
+"""Unit tests for the Notional iterators."""
 
 import logging
 import unittest
