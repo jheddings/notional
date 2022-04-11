@@ -17,7 +17,7 @@ import unittest
 from datetime import datetime, timezone
 
 import notional
-from notional import blocks, records, session, types, user
+from notional import blocks, records, schema, session, types, user
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.FATAL)
@@ -45,15 +45,32 @@ class EndpointTestMixin:
         self.notion = notional.connect(auth=auth_token)
         self.parent = records.PageRef(page_id=parent_id)
 
-        self._temp_pages = []
+        self._temp_blocks = []
 
     def tearDown(self):
         """Teardown resources created by these tests."""
 
-        for page in self._temp_pages:
-            self.notion.pages.delete(page)
+        for block in self._temp_blocks:
+            self.notion.blocks.delete(block)
 
-        self._temp_pages.clear()
+        self._temp_blocks.clear()
+
+    def mktitle(self, title):
+        """Make a test-friendly title from the given text."""
+
+        text = ""
+
+        # TODO find name of containing test class
+
+        for frame in inspect.stack():
+            if frame.function.startswith("test_"):
+                text = frame.function
+                break
+
+        if title is not None:
+            text += " :: " + title
+
+        return text
 
     def create_temp_page(self, title=None, children=None):
         """Create a temporary page on the server.
@@ -61,17 +78,31 @@ class EndpointTestMixin:
         This page will be deleted during teardown of the test.
         """
 
-        if title is None:
-            stack = inspect.stack()
-            title = stack[1].function
+        title = self.mktitle(title)
 
         page = self.notion.pages.create(
             parent=self.parent, title=title, children=children
         )
 
-        self._temp_pages.append(page)
+        self._temp_blocks.append(page)
 
         return page
+
+    def create_temp_db(self, title=None, schema=None):
+        """Create a temporary database on the server.
+
+        This database will be deleted during teardown of the test.
+        """
+
+        title = self.mktitle(title)
+
+        db = self.notion.databases.create(
+            parent=self.parent, title=title, schema=schema
+        )
+
+        self._temp_blocks.append(db)
+
+        return db
 
     def confirm_blocks(self, page, *blocks):
         """Confirm the expected blocks in a given page."""
@@ -113,7 +144,7 @@ class SessionTests(EndpointTestMixin, unittest.TestCase):
         self.assertTrue(self.notion.ping())
 
 
-class BlocksEndpointTests(EndpointTestMixin, unittest.TestCase):
+class BlockEndpointTests(EndpointTestMixin, unittest.TestCase):
     """Test live blocks through the Notion API.
 
     These tests use an assortment of blocks to help increase coverage.  In most cases,
@@ -266,6 +297,48 @@ class PageEndpointTests(EndpointTestMixin, unittest.TestCase):
 
         covered = self.notion.pages.retrieve(page.id)
         self.assertEqual(covered.cover, loved)
+
+
+class DatabaseEndpointTests(EndpointTestMixin, unittest.TestCase):
+    """Unit tests for database access using the Notion API."""
+
+    def test_create_update_schema(self):
+        """Create a simple database and update the schema."""
+        props = {"Name": schema.Title()}
+
+        db = self.create_temp_db(
+            title="Basic Database",
+            schema=props,
+        )
+
+        new_db = self.notion.databases.retrieve(db.id)
+        self.assertEqual(len(new_db.properties), 1)
+
+        props["Index"] = schema.Number()
+
+        self.notion.databases.update(
+            new_db,
+            title="Improved Database",
+            schema=props,
+        )
+
+        improved_db = self.notion.databases.retrieve(db.id)
+        self.assertEqual(improved_db.Title, "Improved Database")
+
+    def test_restore_database(self):
+        """Delete a database, then restore it."""
+        db = self.create_temp_db(
+            title="Basic Database",
+            schema={"Name": schema.Title()},
+        )
+
+        self.notion.databases.delete(db)
+        deleted = self.notion.databases.retrieve(db.id)
+        self.assertTrue(deleted.archived)
+
+        self.notion.databases.restore(deleted)
+        restored = self.notion.databases.retrieve(db.id)
+        self.assertFalse(restored.archived)
 
 
 class SearchEndpointTests(EndpointTestMixin, unittest.TestCase):
