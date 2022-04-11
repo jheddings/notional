@@ -9,10 +9,9 @@ Notional is loosely modeled after concepts found in
 This module is built on the [notion-sdk-py](https://github.com/ramnes/notion-sdk-py)
 library, providing higher-level access to the API.
 
-To get up and running quickly, check out the [Quick Start](start.md) guide.
-
 ## Developer Guides ##
 
+* [Getting Started](start.md)
 * [Querying the API](query.md)
 * [Content Iterators](iterators.md)
 * [Document Parsing](parser.md)
@@ -31,3 +30,7 @@ See [Issues](https://github.com/jheddings/notional/issues) on github.
 ### Feature Requests ###
 
 See [Issues](https://github.com/jheddings/notional/issues) on github.
+
+## Contributing ##
+
+Read the [contributing guide](contributing.md).
