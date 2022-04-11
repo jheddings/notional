@@ -52,14 +52,13 @@ class BlocksEndpoint(Endpoint):
             The blocks info will be refreshed based on returned data.
             """
 
-            if parent is None or parent.id is None:
-                raise ValueError("Missing parent for append")
+            parent_id = get_target_id(parent)
 
             children = [block.to_api() for block in blocks if block is not None]
 
-            log.info("Appending %d blocks to %s ...", len(children), parent.id)
+            log.info("Appending %d blocks to %s ...", len(children), parent_id)
 
-            data = self().append(block_id=parent.id.hex, children=children)
+            data = self().append(block_id=parent_id, children=children)
 
             if "results" in data:
 
