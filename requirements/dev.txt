@@ -4,4 +4,3 @@ pre-commit==2.18.1
 wheel==0.37.1
 twine==4.0.0
 gitpython==3.1.27
-coverage==6.3.2

@@ -45,8 +45,8 @@ preflight: test
 .PHONY: test
 
 test:
-	$(WITH_VENV) coverage run "--source=$(SRCDIR)" \
-		-m unittest discover -v -s "$(BASEDIR)/tests"
+	$(WITH_VENV) coverage run "--source=$(SRCDIR)" -m \
+		pytest --verbose "$(BASEDIR)/tests"
 	$(WITH_VENV) coverage report
 
 ################################################################################
@@ -74,6 +74,7 @@ venv: requirements/core.txt requirements/dev.txt
 
 devenv: venv
 	$(WITH_VENV) pip3 install -r requirements/dev.txt
+	$(WITH_VENV) pip3 install -r requirements/test.txt
 	$(WITH_VENV) pre-commit install
 
 ################################################################################
@@ -84,6 +85,8 @@ clean:
 	rm -f "$(SRCDIR)/examples/*.pyc"
 	rm -Rf "$(SRCDIR)/__pycache__"
 	rm -Rf "$(BASEDIR)/tests/__pycache__"
+	rm -Rf "$(BASEDIR)/.coverage"
+	rm -Rf "$(BASEDIR)/.pytest_cache"
 	rm -Rf "$(BASEDIR)/build"
 	rm -Rf "$(BASEDIR)/notional.egg-info"
 

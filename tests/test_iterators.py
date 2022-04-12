@@ -3,9 +3,9 @@
 import logging
 import unittest
 
-from mocks import mock_endpoint
-
 from notional.iterator import EndpointIterator
+
+from .mocks import mock_endpoint
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.FATAL)

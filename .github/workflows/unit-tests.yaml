@@ -31,11 +31,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python3 -m pip install -r requirements/core.txt
+          python3 -m pip install -r requirements/test.txt
 
       - name: Run unit tests
         run: |
-          python3 -m unittest discover -v -s tests
+          pytest tests
         env:
           NOTION_AUTH_TOKEN: ${{ secrets.NOTION_AUTH_TOKEN }}
           NOTION_TEST_AREA: ${{ secrets.NOTION_TEST_AREA }}
