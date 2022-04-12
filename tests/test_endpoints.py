@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 
 import notional
 from notional import blocks, records, schema, session, types, user
+from notional.orm import Property, connected_page
 
 # keep logging output to a minumim for testing
 logging.basicConfig(level=logging.FATAL)
@@ -318,7 +319,6 @@ class DatabaseEndpointTests(EndpointTestMixin, unittest.TestCase):
         props = {"Name": schema.Title()}
 
         db = self.create_temp_db(
-            title="Basic Database",
             schema=props,
         )
 
@@ -339,8 +339,9 @@ class DatabaseEndpointTests(EndpointTestMixin, unittest.TestCase):
     def test_restore_database(self):
         """Delete a database, then restore it."""
         db = self.create_temp_db(
-            title="Basic Database",
-            schema={"Name": schema.Title()},
+            schema={
+                "Name": schema.Title(),
+            },
         )
 
         self.notion.databases.delete(db)
@@ -390,3 +391,82 @@ class UserEndpointTests(EndpointTestMixin, unittest.TestCase):
 
         self.assertIsNotNone(me)
         self.assertIsInstance(me, user.Bot)
+
+
+class CustomModelTests(EndpointTestMixin, unittest.TestCase):
+    """Test custom objects through the Notion API."""
+
+    def test_simple_model(self):
+        """Create a simple custom object and verify connectivity."""
+        db = self.create_temp_db(
+            schema={
+                "Name": schema.Title(),
+            },
+        )
+
+        CustomPage = connected_page(session=self.notion)
+
+        class _BasicObject(CustomPage):
+            __database__ = db.id
+
+            Name = Property("Name", types.Title)
+
+        first = _BasicObject.create(Name="First")
+        self.assertEqual(first.Name, "First")
+
+        obj = self.notion.pages.retrieve(first.id)
+        self.assertEqual(first.Name, obj.Title)
+
+    def test_changing_basic_properties(self):
+        """Create a simple custom object and change its data."""
+        db = self.create_temp_db(
+            schema={
+                "Name": schema.Title(),
+            },
+        )
+
+        CustomPage = connected_page(session=self.notion)
+
+        class _BasicObject(CustomPage):
+            __database__ = db.id
+
+            Name = Property("Name", types.Title)
+
+        first = _BasicObject.create(Name="First")
+
+        obj = self.notion.pages.retrieve(first.id)
+        self.assertEqual(first.Name, obj.Title)
+
+        first.Name = "Second"
+
+        self.assertEqual(first.Name, "Second")
+        self.assertNotEqual(first.Name, obj.Title)
+
+        obj = self.notion.pages.retrieve(first.id)
+        self.assertEqual(first.Name, obj.Title)
+
+    def test_simple_model_with_children(self):
+        """Verify appending child blocks to custom types."""
+        db = self.create_temp_db(
+            schema={
+                "Name": schema.Title(),
+            },
+        )
+
+        CustomPage = connected_page(session=self.notion)
+
+        class _StandardObject(CustomPage):
+            __database__ = db.id
+
+            Name = Property("Name", types.Title)
+
+        first = _StandardObject.create(Name="First")
+        first += blocks.Heading1.from_text("New Business")
+
+        num_children = 0
+
+        for child in first.children:
+            self.assertEqual(child.PlainText, "New Business")
+            num_children += 1
+
+        self.assertEqual(num_children, 1)

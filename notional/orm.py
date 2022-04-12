@@ -3,7 +3,6 @@
 import logging
 from abc import ABC
 
-from .iterator import EndpointIterator
 from .records import DatabaseRef, Page
 from .types import NativeTypeMixin, RichText
 
@@ -24,15 +23,16 @@ class ConnectedPageBase(ABC):
     @property
     def id(self):
         """Return the ID of this page (if available)."""
-        return None if self.page is None else self.page.id
+        return self.page.id if self.page else None
 
     @property
     def children(self):
         """Return an iterator for all child blocks of this Page."""
 
-        return EndpointIterator(
-            endpoint=self._orm_session_.blocks.children().list, block_id=self.id
-        )
+        if self.page is None:
+            return []
+
+        return self._orm_session_.blocks.children.list(parent=self.page)
 
     def __iadd__(self, block):
         """Append the given block to this page.
@@ -52,6 +52,12 @@ class ConnectedPageBase(ABC):
         immediately.
         """
 
+        if self.page is None:
+            raise ValueError("Cannote append blocks; missing page")
+
+        if self._orm_session_ is None:
+            raise ValueError("Cannote append blocks; invalid session")
+
         log.debug("appending %d blocks to page :: %s", len(blocks), self.page.id)
         self._orm_session_.blocks.children.append(self.page, *blocks)
 
@@ -64,6 +70,9 @@ class ConnectedPageBase(ABC):
         This operation takes place on the Notion server, causing the page to update
         immediately.
         """
+
+        if cls._orm_session_ is None:
+            raise ValueError("Cannote create Page; invalid session")
 
         log.debug("creating new %s :: %s", cls, cls._orm_database_id_)
 
@@ -102,8 +111,6 @@ def Property(name, cls=RichText, default=None):
     def getter(self):
         """Return the current value of the property as a python object."""
 
-        # TODO return None if the property is empty (regardless of type)...
-
         if not isinstance(self, ConnectedPageBase):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
@@ -111,9 +118,7 @@ def Property(name, cls=RichText, default=None):
 
         try:
             prop = self.page[name]
-
         except AttributeError:
-            log.debug("property '%s' does not exist in Page; returning default", name)
             return default
 
         if not isinstance(prop, cls):
@@ -131,7 +136,6 @@ def Property(name, cls=RichText, default=None):
         if not isinstance(self, ConnectedPageBase):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
-        # TODO only set the value if it has changed from the existing
         log.debug("setter %s [%s] => %s %s", cls, name, value, type(value))
 
         # convert native objects to expected types
@@ -150,8 +154,6 @@ def Property(name, cls=RichText, default=None):
 
         # update the property live on the server
         self._orm_session_.pages.update(self.page, **{name: prop})
-
-        # TODO consider reloading things like last_edited_time and formulas
 
     return property(getter, setter)
 

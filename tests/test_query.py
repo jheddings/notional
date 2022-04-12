@@ -15,14 +15,14 @@ from notional import query
 logging.basicConfig(level=logging.FATAL)
 
 
-class QueryBuilderTest(unittest.TestCase):
+class QueryBuilderTests(unittest.TestCase):
     """Unit tests for the Query Builder class."""
 
     def test_empty_query(self):
         """Create an empty query."""
         qb = query.QueryBuilder(None)
-        empty = query.Query()
-        self.assertEqual(qb.query, empty)
+        with self.assertRaises(ValueError):
+            qb.first()
 
     def test_basic_number_constraint(self):
         """Filter a query based on a number value."""
@@ -53,3 +53,15 @@ class QueryBuilderTest(unittest.TestCase):
         )
 
         qb.first()
+
+    def test_invalid_filter(self):
+        """Make sure that bad filters give an error."""
+
+        with self.assertRaises(ValueError):
+            query.QueryBuilder(None).filter(bad_filter_name="INVALID")
+
+    def test_invalid_sort(self):
+        """Make sure that bad sort give an error."""
+
+        with self.assertRaises(ValueError):
+            query.QueryBuilder(None).sort(sort=False)
