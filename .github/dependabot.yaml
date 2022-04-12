@@ -2,7 +2,13 @@
 version: 2
 
 updates:
+
   - package-ecosystem: "pip"
-    directory: "/"
+    directory: "/requirements"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows"
     schedule:
       interval: "weekly"
