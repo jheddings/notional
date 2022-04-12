@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-"""This script demonstrates relatinoships between databases in Notion.
+"""This script demonstrates relationships between databases in Notion.
 
 The script accepts a single command line option, which is a page ID.  It will then
-create two databases using related fiels.
+create two databases using related fields.
 
 The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 """
