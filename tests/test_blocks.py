@@ -1,19 +1,8 @@
 """Unit tests for Notional blocks."""
 
+import pytest
+
 from notional import blocks
-
-
-def test_h1_from_text():
-    """Create a Heading1 block from text."""
-    head = blocks.Heading1.from_text("Welcome!")
-    assert head.PlainText == "Welcome!"
-    assert head.Markdown == "# Welcome! #"
-
-
-def test_para_from_text():
-    """Create a Paragraph block from text."""
-    para = blocks.Paragraph.from_text("Lorem ipsum dolor sit amet")
-    assert para.PlainText == "Lorem ipsum dolor sit amet"
 
 
 def test_para_from_dict():
@@ -56,20 +45,53 @@ def test_para_from_dict():
     assert not para.has_children
 
 
-def test_quote_from_text():
-    """Create a Quote block from text."""
-    quote = blocks.Quote.from_text("Now is the time for all good men...")
-    assert quote.PlainText == "Now is the time for all good men..."
-    assert quote.Markdown == "> Now is the time for all good men..."
-
-
 def test_bookmark_from_url():
     """Create a Bookmark block from a URL."""
-    bookmark = blocks.Bookmark.from_url("http://www.google.com")
-    assert bookmark.URL == "http://www.google.com"
+    bookmark = blocks.Bookmark.from_url("http://example.com")
+
+    assert bookmark.URL == "http://example.com"
+    assert bookmark.Markdown == "<http://example.com>"
 
 
 def test_embed_from_url():
     """Create an Embed block from a URL."""
-    embed = blocks.Embed.from_url("http://www.google.com")
-    assert embed.URL == "http://www.google.com"
+    embed = blocks.Embed.from_url("https://www.bing.com/")
+
+    assert embed.URL == "https://www.bing.com/"
+    assert embed.Markdown == "<https://www.bing.com/>"
+
+
+def test_append_without_children_support():
+    """Confirm that the mixin handles missing children in subclasses."""
+
+    class _NoChildren(blocks.WithChildrenMixin):
+        pass
+
+    block = _NoChildren()
+    para = blocks.Paragraph()
+
+    with pytest.raises(TypeError):
+        block.append(para)
+
+
+def test_append_none():
+    """Ensure we raise an appropriate error when appending None to a block."""
+    para = blocks.Paragraph()
+
+    with pytest.raises(ValueError):
+        para.append(None)
+
+    with pytest.raises(ValueError):
+        para += None
+
+
+def test_concat_none():
+    """Ensure we raise an appropriate error when concatenating None to a text block."""
+
+    para = blocks.Paragraph()
+
+    para.concat()
+    assert para.PlainText == ""
+
+    para.concat(None)
+    assert para.PlainText == ""

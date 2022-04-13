@@ -8,7 +8,7 @@ used in the Notion API as well as higher-level methods.
 
 import logging
 from abc import ABC
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from .core import NestedObject, TypedObject
 from .records import BlockRef, ParentRef, Record
@@ -55,9 +55,6 @@ class TextBlock(Block, ABC):
 
     def concat(self, *text):
         """Concatenate text (either `RichTextObject` or `str` items) to this block."""
-
-        if text is None:
-            raise AttributeError("text cannot be None")
 
         nested = self()
 
@@ -124,7 +121,7 @@ class WithChildrenMixin:
         """Append the given block to the children of this parent."""
 
         if block is None:
-            raise AttributeError("block cannot be None")
+            raise ValueError("block cannot be None")
 
         nested = self()
 
@@ -358,10 +355,7 @@ class Toggle(TextBlock, WithChildrenMixin, type="toggle"):
 class Divider(Block, type="divider"):
     """A divider block in Notion."""
 
-    class _NestedData(NestedObject):
-        pass
-
-    divider: _NestedData = _NestedData()
+    divider: Any = {}
 
     @property
     def Markdown(self):

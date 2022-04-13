@@ -20,7 +20,7 @@ def plain_text(*rtf):
 
 def markdown(*rtf):
     """Return text as markdown from the list of RichText objects."""
-    return "".join(str(text) for text in rtf)
+    return "".join(str(text) for text in rtf if text)
 
 
 def chunky(text, length=MAX_TEXT_OBJECT_SIZE):
