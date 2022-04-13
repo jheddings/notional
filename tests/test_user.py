@@ -1,13 +1,6 @@
 """Unit tests for the Notional user objects."""
 
-import logging
-import unittest
-
 from notional.user import Bot, Person, User
-
-# keep logging output to a minumim for testing
-logging.basicConfig(level=logging.FATAL)
-
 
 ALICE = """{
   "type": "person",
@@ -30,20 +23,18 @@ BOB = """{
 }"""
 
 
-class UserTest(unittest.TestCase):
-    """Unit tests for the User API objects."""
+def test_parse_alice():
+    """Create a standard user from API data."""
+    user = User.parse_raw(ALICE)
 
-    def test_parse_alice(self):
-        """Create a standard user from API data."""
-        user = User.parse_raw(ALICE)
+    assert type(user) == Person
+    assert user.name == "Alice"
 
-        self.assertEqual(type(user), Person)
-        self.assertEqual(user.name, "Alice")
 
-    def test_parse_bob(self):
-        """Create a bot user from API data."""
-        user = User.parse_raw(BOB)
+def test_parse_bob():
+    """Create a bot user from API data."""
+    user = User.parse_raw(BOB)
 
-        self.assertEqual(type(user), Bot)
-        self.assertEqual(user.name, "Bob")
-        self.assertIsNone(user.avatar_url)
+    assert type(user) == Bot
+    assert user.name == "Bob"
+    assert user.avatar_url is None

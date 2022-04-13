@@ -10,463 +10,320 @@ Required environment variables:
   - `NOTION_TEST_AREA`: a page ID that can be used for testing
 """
 
-import inspect
-import logging
-import os
-import unittest
-from datetime import datetime, timezone
+from notional import blocks, records, schema, types, user
 
-import notional
-from notional import blocks, records, schema, session, types, user
-from notional.orm import Property, connected_page
-
-# keep logging output to a minumim for testing
-logging.basicConfig(level=logging.FATAL)
+from .utils import mktitle
 
 
-class EndpointTestMixin:
-    """Unit tests that require a connected session."""
+def iterate_blocks(notion, parent, include_children=False):
+    """Iterate over all blocks on a page, including children if specified."""
+    for block in notion.blocks.children.list(parent=parent):
+        yield block
 
-    notion: session.Session
-    parent: records.ParentRef
-
-    def setUp(self):
-        """Configure resources needed by these tests."""
-
-        auth_token = os.getenv("NOTION_AUTH_TOKEN", None)
-
-        if auth_token is None:
-            raise unittest.SkipTest("missing NOTION_AUTH_TOKEN")
-
-        parent_id = os.getenv("NOTION_TEST_AREA", None)
-
-        if parent_id is None:
-            raise unittest.SkipTest("missing NOTION_TEST_AREA")
-
-        self.notion = notional.connect(auth=auth_token)
-        self.parent = records.PageRef(page_id=parent_id)
-
-        self._temp_blocks = []
-
-    def tearDown(self):
-        """Teardown resources created by these tests."""
-
-        for block in self._temp_blocks:
-            self.notion.blocks.delete(block)
-
-        self._temp_blocks.clear()
-
-        if self.notion.IsActive:
-            self.notion.close()
-
-    def mktitle(self, title):
-        """Make a test-friendly title from the given text."""
-
-        text = ""
-
-        # TODO find name of containing test class
-
-        for frame in inspect.stack():
-            if frame.function.startswith("test_"):
-                text = frame.function
-                break
-
-        if title is not None:
-            text += " :: " + title
-
-        return text
-
-    def create_temp_page(self, title=None, children=None):
-        """Create a temporary page on the server.
-
-        This page will be deleted during teardown of the test.
-        """
-
-        title = self.mktitle(title)
-
-        page = self.notion.pages.create(
-            parent=self.parent, title=title, children=children
-        )
-
-        self._temp_blocks.append(page)
-
-        return page
-
-    def create_temp_db(self, title=None, schema=None):
-        """Create a temporary database on the server.
-
-        This database will be deleted during teardown of the test.
-        """
-
-        title = self.mktitle(title)
-
-        db = self.notion.databases.create(
-            parent=self.parent, title=title, schema=schema
-        )
-
-        self._temp_blocks.append(db)
-
-        return db
-
-    def confirm_blocks(self, page, *blocks):
-        """Confirm the expected blocks in a given page."""
-
-        num_blocks = 0
-
-        for block in self.iterate_blocks(page):
-            expected = blocks[num_blocks]
-            self.assertEqual(type(block), type(expected))
-            num_blocks += 1
-
-        self.assertEqual(num_blocks, len(blocks))
-
-    def iterate_blocks(self, page, include_children=False):
-        """Iterate over all blocks on a page, including children if specified."""
-
-        for block in self.notion.blocks.children.list(parent=page):
-            yield block
-
-            if block.has_children and include_children:
-                for child in self.iterate_blocks(block):
-                    yield child
-
-    def find_block_on_page(self, page, block_id):
-        """Find a block on the given page using its ID."""
-
-        for child in self.iterate_blocks(page):
-            if child.id == block_id:
-                return child
-
-        return None
+        if block.has_children and include_children:
+            for child in iterate_blocks(notion, block, include_children=True):
+                yield child
 
 
-class SessionTests(EndpointTestMixin, unittest.TestCase):
-    """Unit tests for the Session object."""
+def find_block_on_page(notion, parent, block_id):
+    """Find a block on the given page using its ID."""
 
-    def test_active(self):
-        """Verify the session reports as active."""
-        self.assertTrue(self.notion.IsActive)
+    for child in iterate_blocks(notion, parent):
+        if child.id == block_id:
+            return child
 
-        self.notion.close()
-
-        self.assertFalse(self.notion.IsActive)
-
-    def test_ping(self):
-        """Verify the session responds to a ping."""
-        self.assertTrue(self.notion.ping())
+    return None
 
 
-class BlockEndpointTests(EndpointTestMixin, unittest.TestCase):
-    """Test live blocks through the Notion API.
+def confirm_blocks(notion, parent, *blocks):
+    """Confirm the expected blocks in a given page."""
 
-    These tests use an assortment of blocks to help increase coverage.  In most cases,
-    the block type itself does not matter to accomplish the intent of the test.
+    num_blocks = 0
+
+    for block in iterate_blocks(notion, parent):
+        expected = blocks[num_blocks]
+        assert type(block) == type(expected)
+        num_blocks += 1
+
+    assert num_blocks == len(blocks)
+
+
+def test_active_session(notion):
+    """Verify the session reports as active."""
+    assert notion.IsActive
+
+    notion.close()
+    assert not notion.IsActive
+
+
+def test_ping_session(notion):
+    """Verify the active session responds to a ping."""
+    assert notion.ping()
+
+
+def test_user_list(notion):
+    """Confirm that we can list some users."""
+    num_users = 0
+
+    for orig in notion.users.list():
+        dup = notion.users.retrieve(orig.id)
+        assert orig == dup
+        num_users += 1
+
+    assert num_users > 0
+
+
+def test_me_bot(notion):
+    """Verify that the current user looks valid."""
+    me = notion.users.me()
+
+    assert me is not None
+    assert isinstance(me, user.Bot)
+
+
+def test_simple_search(notion):
+    """Make sure search returns some results."""
+
+    search = notion.search()
+
+    num_results = 0
+
+    for result in search.execute():
+        assert isinstance(result, records.Record)
+        num_results += 1
+
+    # sanity check to make sure some results came back
+    assert num_results > 0
+
+
+def test_create_block(notion, test_area):
+    """Create a single block and confirm its contents."""
+    block = blocks.Divider()
+
+    notion.blocks.children.append(test_area, block)
+    assert block.id is not None
+    assert block.archived is False
+
+    new_block = notion.blocks.retrieve(block.id)
+    assert new_block == block
+
+    notion.blocks.delete(new_block)
+
+
+def test_delete_block(notion, test_area):
+    """Create a block, then delete it and make sure it is gone."""
+    block = blocks.Code.from_text("test_delete_block")
+
+    notion.blocks.children.append(test_area, block)
+    notion.blocks.delete(block)
+
+    deleted = notion.blocks.retrieve(block.id)
+    assert deleted.archived is True
+
+
+def test_restore_block(notion, test_area):
+    """Delete a block, then restore it and make sure it comes back."""
+    block = blocks.Callout.from_text("Reppearing blocks!")
+
+    notion.blocks.children.append(test_area, block)
+    notion.blocks.delete(block)
+    notion.blocks.restore(block)
+
+    restored = notion.blocks.retrieve(block.id)
+
+    assert restored.archived is False
+    assert restored == block
+
+    notion.blocks.delete(restored)
+
+
+def test_update_block(notion, test_area):
+    """Update a block after it has been created."""
+    block = blocks.ToDo.from_text("Important Task")
+
+    notion.blocks.children.append(test_area, block)
+
+    block.to_do.checked = True
+    notion.blocks.update(block)
+
+    todo = notion.blocks.retrieve(block.id)
+
+    assert todo.IsChecked
+    assert block == todo
+
+    notion.blocks.delete(block)
+
+
+def test_iterate_page_blocks(notion, test_area):
+    """Iterate over all blocks on the test page and its descendants.
+
+    This is mostly to ensure we do not encounter errors when mapping blocks.  To
+    make this effective, the test page should include many different block types.
     """
 
-    def test_create_empty_block(self):
-        """Create an empty block and confirm its contents."""
-        para = blocks.Paragraph()
-        page = self.create_temp_page(children=[para])
+    for _ in iterate_blocks(notion, test_area):
+        pass
 
-        self.confirm_blocks(page, para)
 
-    def test_create_block(self):
-        """Create a basic block and verify content."""
-        page = self.create_temp_page()
+def test_create_empty_page(notion, blank_page):
+    """Create an empty page and confirm its contents."""
 
-        para = blocks.Paragraph.from_text("Hello World")
-        self.notion.blocks.children.append(page, para)
+    new_page = notion.pages.retrieve(blank_page.id)
+    assert blank_page == new_page
 
-        found_block = self.find_block_on_page(page, para.id)
-        self.assertIsNotNone(found_block)
+    num_children = 0
 
-    def test_delete_block(self):
-        """Create a block, then delete it and make sure it is gone."""
-        page = self.create_temp_page()
+    for _ in notion.blocks.children.list(new_page):
+        num_children += 1
 
-        block = blocks.Code.from_text("test_delete_block")
-        self.notion.blocks.children.append(page, block)
+    assert num_children == 0, f"found {num_children} unexpected item(s) in result set"
 
-        self.notion.blocks.delete(block)
 
-        found_block = self.find_block_on_page(page, block.id)
-        self.assertIsNone(found_block)
+def test_create_simple_page(notion, test_area):
+    """Make sure we can create a page with children."""
 
-    def test_restore_block(self):
-        """Delete a block, then restore it and make sure it comes back."""
-        page = self.create_temp_page()
+    children = [
+        blocks.Heading1.from_text("Welcome to the Matrix"),
+        blocks.Divider(),
+        blocks.Paragraph.from_text("There is no spoon..."),
+    ]
 
-        block = blocks.Callout.from_text("Reppearing blocks!")
-        self.notion.blocks.children.append(page, block)
+    page = notion.pages.create(
+        parent=test_area,
+        title=mktitle(),
+        children=children,
+    )
 
-        self.notion.blocks.delete(block)
-        self.notion.blocks.restore(block)
+    confirm_blocks(notion, page, *children)
 
-        found_block = self.find_block_on_page(page, block.id)
-        self.assertIsNotNone(found_block)
-        self.assertIsInstance(found_block, blocks.Callout)
+    notion.pages.delete(page)
 
-    def test_retrieve_block(self):
-        """Retrieve a specific block using its ID."""
-        parent_id = self.parent.page_id
-        block = self.notion.blocks.retrieve(parent_id)
 
-        self.assertIsNotNone(block)
-        self.assertEqual(parent_id, block.id)
+def test_restore_page(notion, blank_page):
+    """Create / delete / restore a page.
 
-        page = self.create_temp_page()
+    This method will pull a fresh copy of the page each time to ensure that the
+    metadata is updated properly.
+    """
 
-        block = blocks.Divider()
-        self.notion.blocks.children.append(page, block)
-        div = self.notion.blocks.retrieve(block.id)
+    assert not blank_page.archived
 
-        self.assertEqual(block, div)
+    notion.pages.delete(blank_page)
+    deleted = notion.pages.retrieve(blank_page.id)
+    assert deleted.archived
 
-    def test_update_block(self):
-        """Update a block after it has been created."""
-        page = self.create_temp_page()
+    notion.pages.restore(deleted)
+    restored = notion.pages.retrieve(blank_page.id)
+    assert not restored.archived
 
-        block = blocks.ToDo.from_text("Important Task")
-        self.notion.blocks.children.append(page, block)
 
-        block.to_do.checked = True
-        self.notion.blocks.update(block)
+def test_page_icon(notion, blank_page):
+    """Set a page icon and confirm."""
+    assert blank_page.icon is None
 
-        todo = self.notion.blocks.retrieve(block.id)
+    snowman = types.EmojiObject(emoji="☃️")
+    notion.pages.set(blank_page, icon=snowman)
 
-        self.assertTrue(todo.IsChecked)
-        self.assertEqual(block, todo)
+    winter = notion.pages.retrieve(blank_page.id)
+    assert winter.icon == snowman
 
 
-class PageEndpointTests(EndpointTestMixin, unittest.TestCase):
-    """Test live pages through the Notion API."""
+def test_page_cover(notion, blank_page):
+    """Set a page cover and confirm."""
+    assert blank_page.cover is None
 
-    def test_blank_page(self):
-        """Create an empty page in Notion."""
-        page = self.create_temp_page()
-        new_page = self.notion.pages.retrieve(page_id=page.id)
+    loved = types.ExternalFile.from_url(
+        "https://raw.githubusercontent.com/jheddings/notional/main/tests/data/loved.jpg"
+    )
+    notion.pages.set(blank_page, cover=loved)
 
-        self.assertEqual(page.id, new_page.id)
-        self.confirm_blocks(page)
+    covered = notion.pages.retrieve(blank_page.id)
+    assert covered.cover == loved
 
-        diff = datetime.now(timezone.utc) - new_page.created_time
-        self.assertLessEqual(diff.total_seconds(), 60)
 
-    def test_page_parent(self):
-        """Verify page parent references."""
-        page = self.create_temp_page()
+def test_create_database(notion, blank_db):
+    """Create a database and confirm its contents."""
 
-        self.assertEqual(self.parent, page.parent)
+    # make sure the schema has exactly 1 entry
+    assert len(blank_db.properties) == 1
 
-    def test_iterate_page_blocks(self):
-        """Iterate over all blocks on the test page and its descendants.
+    new_db = notion.databases.retrieve(blank_db.id)
+    assert blank_db == new_db
 
-        This is mostly to ensure we do not encounter errors when mapping blocks.  To
-        make this effective, the test page should include many different block types.
-        """
+    num_children = 0
 
-        for _ in self.iterate_blocks(self.parent, include_children=True):
-            pass
+    for _ in notion.blocks.children.list(new_db):
+        num_children += 1
 
-    def test_restore_page(self):
-        """Create / delete / restore a page; then delete it when we are finished.
+    assert num_children == 0, f"found {num_children} unexpected item(s) in result set"
 
-        This method will pull a fresh copy of the page each time to ensure that the
-        metadata is updated properly.
-        """
 
-        page = self.create_temp_page()
-        self.assertFalse(page.archived)
+def test_restore_database(notion, blank_db):
+    """Delete a database, then restore it."""
+    notion.databases.delete(blank_db)
+    deleted = notion.databases.retrieve(blank_db.id)
+    assert deleted.archived
 
-        self.notion.pages.delete(page)
-        deleted = self.notion.pages.retrieve(page.id)
-        self.assertTrue(deleted.archived)
+    notion.databases.restore(deleted)
+    restored = notion.databases.retrieve(blank_db.id)
+    assert not restored.archived
 
-        self.notion.pages.restore(page)
-        restored = self.notion.pages.retrieve(page.id)
-        self.assertFalse(restored.archived)
 
-    def test_page_icon(self):
-        """Set a page icon and confirm."""
-        page = self.create_temp_page()
-        self.assertIsNone(page.icon)
+def test_update_schema(notion, blank_db):
+    """Create a simple database and update the schema."""
 
-        snowman = types.EmojiObject(emoji="☃️")
-        self.notion.pages.set(page, icon=snowman)
+    props = {
+        "Name": schema.Title(),
+        "Index": schema.Number(),
+        "Notes": schema.RichText(),
+        "Complete": schema.Checkbox(),
+        "Due Date": schema.Date(),
+        "Tags": schema.MultiSelect(),
+    }
 
-        festive = self.notion.pages.retrieve(page.id)
-        self.assertEqual(festive.icon, snowman)
+    notion.databases.update(
+        blank_db,
+        title="Improved Database",
+        schema=props,
+    )
 
-    def test_page_cover(self):
-        """Set a page cover and confirm."""
-        page = self.create_temp_page()
-        self.assertIsNone(page.cover)
+    improved_db = notion.databases.retrieve(blank_db.id)
 
-        loved = types.ExternalFile.from_url(
-            "https://raw.githubusercontent.com/jheddings/notional/main/tests/data/loved.jpg"
-        )
-        self.notion.pages.set(page, cover=loved)
+    assert improved_db.Title == "Improved Database"
+    assert len(improved_db.properties) == len(props)
 
-        covered = self.notion.pages.retrieve(page.id)
-        self.assertEqual(covered.cover, loved)
 
+def test_simple_model(notion, simple_model):
+    """Create a simple object and verify connectivity."""
 
-class DatabaseEndpointTests(EndpointTestMixin, unittest.TestCase):
-    """Unit tests for database access using the Notion API."""
+    only = simple_model.create(Name="One&Only")
+    assert only.Name == "One&Only"
 
-    def test_create_update_schema(self):
-        """Create a simple database and update the schema."""
-        props = {"Name": schema.Title()}
+    obj = notion.pages.retrieve(only.id)
+    assert only.Name == obj.Title
 
-        db = self.create_temp_db(
-            schema=props,
-        )
 
-        new_db = self.notion.databases.retrieve(db.id)
-        self.assertEqual(len(new_db.properties), 1)
+def test_change_model_title(notion, simple_model):
+    """Create a simple custom object and change its data."""
+    first = simple_model.create(Name="First")
 
-        props["Index"] = schema.Number()
+    first.Name = "Second"
+    assert first.Name == "Second"
 
-        self.notion.databases.update(
-            new_db,
-            title="Improved Database",
-            schema=props,
-        )
+    # in our model, `Name` is the title property...
+    obj = notion.pages.retrieve(first.id)
+    assert first.Name == obj.Title
 
-        improved_db = self.notion.databases.retrieve(db.id)
-        self.assertEqual(improved_db.Title, "Improved Database")
 
-    def test_restore_database(self):
-        """Delete a database, then restore it."""
-        db = self.create_temp_db(
-            schema={
-                "Name": schema.Title(),
-            },
-        )
+def test_simple_model_with_children(simple_model):
+    """Verify appending child blocks to custom types."""
+    first = simple_model.create(Name="First")
+    first += blocks.Heading1.from_text("New Business")
 
-        self.notion.databases.delete(db)
-        deleted = self.notion.databases.retrieve(db.id)
-        self.assertTrue(deleted.archived)
+    num_children = 0
 
-        self.notion.databases.restore(deleted)
-        restored = self.notion.databases.retrieve(db.id)
-        self.assertFalse(restored.archived)
+    for child in first.children:
+        assert child.PlainText == "New Business"
+        num_children += 1
 
-
-class SearchEndpointTests(EndpointTestMixin, unittest.TestCase):
-    """Test searching through the Notion API."""
-
-    def test_simple_search(self):
-        """Make sure search returns some results."""
-
-        search = self.notion.search()
-
-        num_results = 0
-
-        for result in search.execute():
-            self.assertIsInstance(result, records.Record)
-            num_results += 1
-
-        # sanity check to make sure some results came back
-        self.assertGreater(num_results, 0)
-
-
-class UserEndpointTests(EndpointTestMixin, unittest.TestCase):
-    """Test user interaction with the Notion API."""
-
-    def test_user_list(self):
-        """Confirm that we can list some users."""
-        num_users = 0
-
-        for orig in self.notion.users.list():
-            dup = self.notion.users.retrieve(orig.id)
-            self.assertEqual(orig, dup)
-            num_users += 1
-
-        self.assertGreater(num_users, 0)
-
-    def test_me_bot(self):
-        """Verify that the current user looks valid."""
-        me = self.notion.users.me()
-
-        self.assertIsNotNone(me)
-        self.assertIsInstance(me, user.Bot)
-
-
-class CustomModelTests(EndpointTestMixin, unittest.TestCase):
-    """Test custom objects through the Notion API."""
-
-    def test_simple_model(self):
-        """Create a simple custom object and verify connectivity."""
-        db = self.create_temp_db(
-            schema={
-                "Name": schema.Title(),
-            },
-        )
-
-        CustomPage = connected_page(session=self.notion)
-
-        class _BasicObject(CustomPage):
-            __database__ = db.id
-
-            Name = Property("Name", types.Title)
-
-        first = _BasicObject.create(Name="First")
-        self.assertEqual(first.Name, "First")
-
-        obj = self.notion.pages.retrieve(first.id)
-        self.assertEqual(first.Name, obj.Title)
-
-    def test_changing_basic_properties(self):
-        """Create a simple custom object and change its data."""
-        db = self.create_temp_db(
-            schema={
-                "Name": schema.Title(),
-            },
-        )
-
-        CustomPage = connected_page(session=self.notion)
-
-        class _BasicObject(CustomPage):
-            __database__ = db.id
-
-            Name = Property("Name", types.Title)
-
-        first = _BasicObject.create(Name="First")
-
-        obj = self.notion.pages.retrieve(first.id)
-        self.assertEqual(first.Name, obj.Title)
-
-        first.Name = "Second"
-
-        self.assertEqual(first.Name, "Second")
-        self.assertNotEqual(first.Name, obj.Title)
-
-        obj = self.notion.pages.retrieve(first.id)
-        self.assertEqual(first.Name, obj.Title)
-
-    def test_simple_model_with_children(self):
-        """Verify appending child blocks to custom types."""
-        db = self.create_temp_db(
-            schema={
-                "Name": schema.Title(),
-            },
-        )
-
-        CustomPage = connected_page(session=self.notion)
-
-        class _StandardObject(CustomPage):
-            __database__ = db.id
-
-            Name = Property("Name", types.Title)
-
-        first = _StandardObject.create(Name="First")
-        first += blocks.Heading1.from_text("New Business")
-
-        num_children = 0
-
-        for child in first.children:
-            self.assertEqual(child.PlainText, "New Business")
-            num_children += 1
-
-        self.assertEqual(num_children, 1)
+    assert num_children == 1

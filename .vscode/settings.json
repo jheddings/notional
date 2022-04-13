@@ -4,6 +4,7 @@
 
     "python.testing.pytestEnabled": true,
     "python.testing.pytestArgs": [
+        "--tb=short",
         "${workspaceFolder}/tests",
     ],
 

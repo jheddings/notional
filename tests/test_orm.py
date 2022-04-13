@@ -1,89 +1,84 @@
 """Unit tests for the Notional ORM classes."""
 
-import logging
-import unittest
 from uuid import uuid4
+
+import pytest
 
 from notional import blocks, types
 from notional.orm import ConnectedPageBase, Property, connected_page
 
-# keep logging output to a minumim for testing
-logging.basicConfig(level=logging.FATAL)
+
+def test_property_type():
+    """Confirm that `Property()` returns a `property`."""
+
+    prop = Property("Special", types.Title)
+    assert isinstance(prop, property)
 
 
-class PropertyTests(unittest.TestCase):
-    """Unit tests for working with Property objects."""
+def test_invalid_base_class():
+    """Verify that we cannot create connected pages from invalid classes."""
 
-    def test_property_type(self):
-        """Confirm that `Property()` returns a `property`."""
+    class _MySpecialPage:
+        __database__ = "mock_db"
 
-        prop = Property("Special", types.Title)
-        self.assertIsInstance(prop, property)
+    with pytest.raises(ValueError):
+        connected_page(cls=_MySpecialPage)
 
 
-class ConnectedPageTests(unittest.TestCase):
-    """Unit tests for ConnectedPage objects."""
+def test_session_is_none():
+    """Verify we raise expected errors when the session is None."""
+    CustomPage = connected_page()
 
-    def test_invalid_base_class(self):
-        """Verify that we cannot create connected pages from invalid classes."""
+    class _EmptyPage(CustomPage):
+        __database__ = "mock_db"
 
-        class _MySpecialPage:
-            __database__ = "mock_db"
+    with pytest.raises(ValueError):
+        _EmptyPage.create()
 
-        with self.assertRaises(ValueError):
-            connected_page(cls=_MySpecialPage)
 
-    def test_session_is_none(self):
-        """Verify we raise expected errors when the session is None."""
-        CustomPage = connected_page()
+def test_empty_page():
+    """Verify expected behavior with an empty page."""
+    CustomPage = connected_page()
 
-        class _EmptyPage(CustomPage):
-            __database__ = "mock_db"
+    class _EmptyPage(CustomPage):
+        __database__ = "mock_db"
 
-        with self.assertRaises(ValueError):
-            _EmptyPage.create()
+    empty = _EmptyPage()
 
-    def test_empty_page(self):
-        """Verify expected behavior with an empty page."""
-        CustomPage = connected_page()
+    assert isinstance(empty, ConnectedPageBase)
+    assert empty.id is None
 
-        class _EmptyPage(CustomPage):
-            __database__ = "mock_db"
+    num_children = 0
 
-        empty = _EmptyPage()
+    for _ in empty.children:
+        num_children += 1
 
-        self.assertIsInstance(empty, ConnectedPageBase)
-        self.assertIsNone(empty.id)
+    assert num_children == 0, f"found {num_children} unexpected child(ren) on page"
 
-        num_children = 0
+    with pytest.raises(ValueError):
+        empty += blocks.Divider()
 
-        for _ in empty.children:
-            num_children += 1
 
-        self.assertEqual(num_children, 0)
+def test_nested_page_id():
+    """Make sure the page ID comes through."""
+    CustomPage = connected_page()
 
-        with self.assertRaises(ValueError):
-            empty += blocks.Divider()
+    class _CustomType(CustomPage):
+        __database__ = "mock_db"
 
-    def test_nested_page_id(self):
-        """Make sure the page ID comes through."""
-        CustomPage = connected_page()
+    page_id = uuid4()
 
-        class _CustomType(CustomPage):
-            __database__ = "mock_db"
+    data = {"id": page_id.hex}
 
-        page_id = uuid4()
+    page = _CustomType.parse_obj(data)
+    assert page.id == page_id
 
-        data = {"id": page_id.hex}
 
-        page = _CustomType.parse_obj(data)
-        self.assertEqual(page.id, page_id)
+def test_basic_object():
+    """Define a basic object using ORM properties."""
+    CustomPage = connected_page()
 
-    def test_basic_object(self):
-        """Define a basic object using ORM properties."""
-        CustomPage = connected_page()
+    class _CustomType(CustomPage):
+        __database__ = "mock_db"
 
-        class _CustomType(CustomPage):
-            __database__ = "mock_db"
-
-            Name = Property("Name", types.Title)
+        Name = Property("Name", types.Title)

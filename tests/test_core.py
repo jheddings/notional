@@ -1,9 +1,10 @@
 """Unit tests for Notional core objects."""
 
 import logging
-import unittest
 from enum import Enum
 from typing import List
+
+import pytest
 
 from notional.core import NamedObject, NestedObject, TypedObject
 
@@ -98,94 +99,86 @@ class ComplexDataObject(TypedObject, type="nested"):
     custom: CustomTypes = None
 
 
-class DataObjectTests(unittest.TestCase):
-    """Unit tests for the DataObject API objects."""
-
-    def test_parse_basic_object(self):
-        """Parse DataObject's from structured data to simulate the Notion API."""
-        person = Person.parse_obj(ALICE)
-        self.assertEqual(person.name, "Alice the Person")
-        self.assertIsNone(person.pets)
+def test_parse_basic_object():
+    """Parse DataObject's from structured data to simulate the Notion API."""
+    person = Person.parse_obj(ALICE)
+    assert person.name == "Alice the Person"
+    assert person.pets is None
 
 
-class NamedObjectTests(unittest.TestCase):
-    """Unit tests for named API objects."""
+def test_parse_named_object():
+    """Parse NamedObject's from structured data to simulate the Notion API."""
+    stan = Person.parse_obj(STAN)
+    assert stan.object == "person"
 
-    def test_parse_named_object(self):
-        """Parse NamedObject's from structured data to simulate the Notion API."""
-        stan = Person.parse_obj(STAN)
-        self.assertEqual(stan.object, "person")
-
-        stan = Robot.parse_obj(STAN)
-        self.assertEqual(stan.object, "robot")
+    stan = Robot.parse_obj(STAN)
+    assert stan.object == "robot"
 
 
-class TypedObjectTests(unittest.TestCase):
-    """Unit tests for typed API objects."""
+def test_parse_typed_data_object():
+    """Parse TypedObject's from structured data to simulate the Notion API."""
 
-    def test_parse_typed_data_object(self):
-        """Parse TypedObject's from structured data to simulate the Notion API."""
-        tiger = Animal.parse_obj(TIGER)
-        self.assertEqual(type(tiger), Cat)
-        self.assertEqual(tiger.type, "cat")
-        self.assertEqual(tiger.name, "Tiger the Cat")
-        self.assertFalse(tiger.hairless)
+    tiger = Animal.parse_obj(TIGER)
+    assert type(tiger) == Cat
+    assert tiger.type == "cat"
+    assert tiger.name == "Tiger the Cat"
+    assert not tiger.hairless
 
-        fluffy = Animal.parse_obj(FLUFFY)
-        self.assertEqual(type(fluffy), Dog)
-        self.assertEqual(fluffy.type, "dog")
-        self.assertEqual(fluffy.name, "Fluffy the Dog")
-        self.assertEqual(fluffy.breed, "rottweiler")
+    fluffy = Animal.parse_obj(FLUFFY)
+    assert type(fluffy) == Dog
+    assert fluffy.type == "dog"
+    assert fluffy.name == "Fluffy the Dog"
+    assert fluffy.breed == "rottweiler"
 
-        ace = Animal.parse_obj(ACE)
-        self.assertEqual(type(ace), Eagle)
-        self.assertEqual(ace.type, "eagle")
-        self.assertEqual(ace.age, 245)
-        self.assertEqual(ace.species, "bald")
+    ace = Animal.parse_obj(ACE)
+    assert type(ace) == Eagle
+    assert ace.type == "eagle"
+    assert ace.age == 245
+    assert ace.species == "bald"
 
-        # silly test just to make sure...
-        self.assertNotEqual(tiger, fluffy)
+    # silly test just to make sure...
+    assert tiger != fluffy
 
-        bob = Person.parse_obj(BOB)
-        self.assertEqual(bob.name, "Bob the Person")
+    bob = Person.parse_obj(BOB)
+    assert bob.name == "Bob the Person"
 
-        # make sure the Animals were deserialized correctly...
-        for pet in bob.pets:
-            self.assertIn(pet, [fluffy, tiger])
-
-    def test_set_default_type_for_new_objects(self):
-        """Verify that "type" is set when creating new TypedObject's."""
-        bruce = Dog(name="bruce", age=3, breed="collie")
-        self.assertEqual(bruce.type, "dog")
+    # make sure the Animals were deserialized correctly...
+    for pet in bob.pets:
+        assert pet in [fluffy, tiger]
 
 
-class NestedObjectTest(unittest.TestCase):
-    """Test nested objects in complex data classes."""
+def test_set_default_type_for_new_objects():
+    """Verify that "type" is set when creating new TypedObject's."""
+    bruce = Dog(name="bruce", age=3, breed="collie")
+    assert bruce.type == "dog"
 
-    def test_standard_nested_object(self):
-        """Create a nested object and check fields for proper values."""
-        nested = ComplexDataObject._NestedData(key="foo", value="bar")
-        complex = ComplexDataObject(id="complex", nested=nested)
 
-        self.assertEqual(complex.id, "complex")
-        self.assertEqual(complex.nested.key, "foo")
-        self.assertEqual(complex.nested.value, "bar")
+def test_standard_nested_object():
+    """Create a nested object and check fields for proper values."""
+    nested = ComplexDataObject._NestedData(key="foo", value="bar")
+    complex = ComplexDataObject(id="complex", nested=nested)
 
-    def test_invalid_nested_field_call(self):
-        """Check for errors when we call for an invalid nested field."""
-        complex = ComplexDataObject(id="complex")
+    assert complex.id == "complex"
+    assert complex.nested.key == "foo"
+    assert complex.nested.value == "bar"
 
-        with self.assertRaises(AttributeError):
-            complex("does_not_exist")
 
-    def test_get_nested_data(self):
-        """Call a block to return the nested data."""
-        complex = ComplexDataObject(id="complex")
+def test_invalid_nested_field_call():
+    """Check for errors when we call for an invalid nested field."""
+    complex = ComplexDataObject(id="complex")
 
-        self.assertIsNone(complex("value"))
+    with pytest.raises(AttributeError):
+        complex("does_not_exist")
 
-        nested = complex()
-        nested.value = "bar"
 
-        self.assertIsNone(complex.nested.key)
-        self.assertEqual(complex.nested.value, "bar")
+def test_get_nested_data():
+    """Call a block to return the nested data."""
+    complex = ComplexDataObject(id="complex")
+
+    assert complex("value") is None
+
+    nested = complex()
+    nested.value = "bar"
+
+    assert complex.nested.key is None
+    assert complex.nested.value == "bar"
