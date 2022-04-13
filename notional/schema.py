@@ -5,6 +5,7 @@ from typing import Any, List, Optional
 from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject
+from .text import Color
 
 
 class Function(str, Enum):
@@ -98,7 +99,7 @@ class Number(PropertyObject, type="number"):
     class _NestedData(NestedObject):
         format: NumberFormat = NumberFormat.NUMBER
 
-    number: _NestedData = {}
+    number: _NestedData = _NestedData()
 
     @classmethod
     def format(cls, format):
@@ -111,7 +112,7 @@ class SelectOption(DataObject):
 
     name: str
     id: str = None
-    color: str = None
+    color: str = Color.DEFAULT
 
 
 class Select(PropertyObject, type="select"):
@@ -120,7 +121,7 @@ class Select(PropertyObject, type="select"):
     class _NestedData(NestedObject):
         options: List[SelectOption] = []
 
-    select: _NestedData = None
+    select: _NestedData = _NestedData()
 
     @classmethod
     def options(cls, *options):
@@ -134,7 +135,7 @@ class MultiSelect(PropertyObject, type="multi_select"):
     class _NestedData(NestedObject):
         options: List[SelectOption] = []
 
-    multi_select: _NestedData = None
+    multi_select: _NestedData = _NestedData()
 
 
 class Date(PropertyObject, type="date"):
@@ -183,18 +184,18 @@ class Formula(PropertyObject, type="formula"):
     """Defines the formula configuration for a database property."""
 
     class _NestedData(NestedObject):
-        expression: str
+        expression: str = None
 
-    formula: _NestedData = None
+    formula: _NestedData = _NestedData()
 
 
 class Relation(PropertyObject, type="relation"):
     """Defines the relation configuration for a database property."""
 
     class _NestedData(NestedObject):
-        database_id: UUID
+        database_id: UUID = None
 
-    relation: _NestedData = None
+    relation: _NestedData = _NestedData()
 
     @classmethod
     def database(cls, database_id):
@@ -206,7 +207,7 @@ class Rollup(PropertyObject, type="rollup"):
     """Defines the rollup configuration for a database property."""
 
     class _NestedData(NestedObject):
-        function: Function
+        function: Function = Function.COUNT_ALL
 
         relation_property_name: Optional[str] = None
         relation_property_id: Optional[str] = None
@@ -214,7 +215,7 @@ class Rollup(PropertyObject, type="rollup"):
         rollup_property_name: Optional[str] = None
         rollup_property_id: Optional[str] = None
 
-    rollup: _NestedData
+    rollup: _NestedData = _NestedData()
 
 
 class CreatedTime(PropertyObject, type="created_time"):
