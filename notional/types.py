@@ -53,7 +53,7 @@ class HostedFile(FileObject, type="file"):
         url: str
         expiry_time: Optional[datetime] = None
 
-    file: Optional[_NestedData] = None
+    file: _NestedData
 
 
 class ExternalFile(FileObject, type="external"):
@@ -62,7 +62,7 @@ class ExternalFile(FileObject, type="external"):
     class _NestedData(NestedObject):
         url: str
 
-    external: Optional[_NestedData] = None
+    external: _NestedData
 
     @classmethod
     def from_url(cls, url):
