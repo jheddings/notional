@@ -221,7 +221,7 @@ def test_page_icon(notion, blank_page):
     """Set a page icon and confirm."""
     assert blank_page.icon is None
 
-    snowman = types.EmojiObject(emoji="☃️")
+    snowman = types.EmojiObject["☃️"]
     notion.pages.set(blank_page, icon=snowman)
 
     winter = notion.pages.retrieve(blank_page.id)

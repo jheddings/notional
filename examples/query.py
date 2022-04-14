@@ -12,7 +12,7 @@ import logging
 import os
 import sys
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 import notional
 from notional.query import (

@@ -32,50 +32,34 @@ CustomPage = connected_page(session=notion)
 
 parts_schema = {
     "Name": schema.Title(),
-    "Cost": schema.Number.format(schema.NumberFormat.DOLLAR),
+    "Cost": schema.Number[schema.NumberFormat.DOLLAR],
     "Supplier": schema.RichText(),
     "Inventory": schema.Number(),
 }
 
-parts_db = notion.databases.create(parent=page, title="Parts", schema=parts_schema)
-
-x_throstle = notion.pages.create(
-    parent=parts_db,
-    properties={
-        "Name": types.Title.from_value("X Throstle"),
-        "Cost": types.Number.from_value(25),
-        "Inventory": types.Number.from_value(30),
-        "Supplier": types.RichText.from_value("Spacely Sprockets"),
-    },
+parts_db = notion.databases.create(
+    parent=page,
+    title="Parts",
+    schema=parts_schema,
 )
 
-depthgrater = notion.pages.create(
-    parent=parts_db,
-    properties={
-        "Name": types.Title.from_value("Depthgrater"),
-        "Cost": types.Number.from_value(1000),
-        "Inventory": types.Number.from_value(5),
-        "Supplier": types.RichText.from_value("Knowhere"),
-    },
-)
 
-quasipaddle = notion.pages.create(
-    parent=parts_db,
-    properties={
-        "Name": types.Title.from_value("Quasipaddle"),
-        "Cost": types.Number.from_value(42),
-        "Inventory": types.Number.from_value(37),
-        "Supplier": types.RichText.from_value("PRIVATE"),
-    },
-)
+class Part(CustomPage):
+    """Defines a custom `Part` type in Notion."""
+
+    __database__ = parts_db.id
+
+    Name = orm.Property("Name", types.Title)
+    Cost = orm.Property("Cost", types.Number)
+    Inventory = orm.Property("Inventory", types.Number)
+    Supplier = orm.Property("Supplier", types.RichText)
+
 
 # create our product database...
 
-# XXX this could be cleaner with helper methods for Rollup
-
 product_schema = {
     "Name": schema.Title(),
-    "Parts": schema.Relation.database(parts_db.id),
+    "Parts": schema.Relation[parts_db.id],
     "COGS": schema.Rollup(
         rollup=schema.Rollup._NestedData(
             relation_property_name="Parts",
@@ -92,28 +76,6 @@ product_db = notion.databases.create(
     schema=product_schema,
 )
 
-rocket = notion.pages.create(
-    parent=product_db,
-    properties={
-        "Name": types.Title.from_value("Rocket Ship"),
-        "Parts": types.Relation.pages(x_throstle, quasipaddle),
-        "Quantity": types.Number.from_value(1),
-    },
-)
-
-# we can also define these using ORM, which requires an existing database...
-
-
-class Part(CustomPage):
-    """Defines a custom `Part` type in Notion."""
-
-    __database__ = parts_db.id
-
-    Name = orm.Property("Name", types.Title)
-    Cost = orm.Property("Cost", types.Number)
-    Inventory = orm.Property("Inventory", types.Number)
-    Supplier = orm.Property("Supplier", types.RichText)
-
 
 class Product(CustomPage):
     """Defines a custom `Product` type in Notion."""
@@ -126,10 +88,41 @@ class Product(CustomPage):
     Quantity = orm.Property("Quantity", types.Number)
 
 
+# add parts to the database...
+
+x_throstle = Part.create(
+    Name="X Throstle",
+    Cost=25,
+    Inventory=30,
+    Supplier="Spacely Sprockets",
+)
+
+depthgrater = Part.create(
+    Name="Depthgrater",
+    Cost=1000,
+    Inventory=5,
+    Supplier="Knowhere",
+)
+
+quasipaddle = Part.create(
+    Name="Quasipaddle",
+    Cost=42,
+    Inventory=37,
+    Supplier="PRIVATE",
+)
+
+# now, build some products for the catalog...
+
 capsule = Product.create(
-    Name="Hello World",
-    Parts=types.Relation.pages(x_throstle, depthgrater),
+    Name="Evacuation Capsule",
+    Parts=types.Relation[[x_throstle, quasipaddle]],
     Quantity=3,
+)
+
+rocket = Product.create(
+    Name="Rocket Ship",
+    Parts=types.Relation[[x_throstle, depthgrater]],
+    Quantity=1,
 )
 
 print(f"Capsule COGS: {capsule.COGS}")
