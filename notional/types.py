@@ -65,10 +65,9 @@ class ExternalFile(FileObject, type="external"):
     external: _NestedData
 
     @classmethod
-    def from_url(cls, url):
+    def __compose__(cls, url):
         """Create a new `ExternalFile` from the given URL."""
-        data = cls._NestedData(url=url)
-        return cls(external=data)
+        return cls(external=cls._NestedData(url=url))
 
 
 class DateRange(DataObject):
@@ -188,6 +187,16 @@ class NativeTypeMixin:
 
         return self.Value != other
 
+    @classmethod
+    def __compose__(cls, value):
+        """Build the property value from the native Python value."""
+
+        # use type-name field to instantiate the class when possible
+        if hasattr(cls, "type"):
+            return cls(**{cls.type: value})
+
+        raise NotImplementedError()
+
     @property
     def Value(self):
         """Get the current value of this property as a native Python type."""
@@ -198,16 +207,6 @@ class NativeTypeMixin:
         # (this is assigned by TypedObject during subclass creation)
         if hasattr(cls, "type") and hasattr(self, cls.type):
             return getattr(self, cls.type)
-
-        raise NotImplementedError()
-
-    @classmethod
-    def from_value(cls, value):
-        """Build the property value from the native Python value."""
-
-        # use type-name field to instantiate the class when possible
-        if hasattr(cls, "type"):
-            return cls(**{cls.type: value})
 
         raise NotImplementedError()
 
@@ -228,6 +227,11 @@ class Title(NativeTypeMixin, PropertyValue, type="title"):
 
         return len(self.title)
 
+    @classmethod
+    def __compose__(cls, text):
+        """Create a new `Title` property from the given text."""
+        return cls(title=[TextObject[text]])
+
     @property
     def Value(self):
         """Return the plain text from this Title."""
@@ -236,20 +240,6 @@ class Title(NativeTypeMixin, PropertyValue, type="title"):
             return None
 
         return plain_text(*self.title)
-
-    @classmethod
-    def from_value(cls, *strings):
-        """Create a new `Title` property from the given strings."""
-
-        text = []
-
-        for string in strings:
-            if string is None:
-                continue
-
-            text.append(TextObject.from_value(string))
-
-        return cls(title=text)
 
 
 class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
@@ -261,6 +251,11 @@ class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
         """Return the number of object in the RichText object."""
         return len(self.rich_text)
 
+    @classmethod
+    def __compose__(cls, text):
+        """Create a new `RichText` property from the given strings."""
+        return cls(rich_text=[TextObject[text]])
+
     @property
     def Value(self):
         """Return the plain text from this RichText."""
@@ -269,20 +264,6 @@ class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
             return None
 
         return plain_text(*self.rich_text)
-
-    @classmethod
-    def from_value(cls, *strings):
-        """Create a new `RichText` property from the given strings."""
-
-        text = []
-
-        for string in strings:
-            if string is None:
-                continue
-
-            text.append(TextObject.from_value(string))
-
-        return cls(rich_text=text)
 
 
 class Number(NativeTypeMixin, PropertyValue, type="number"):
@@ -341,6 +322,11 @@ class Date(PropertyValue, type="date"):
         """Return a string representation of this property."""
         return "" if self.date is None else str(self.date)
 
+    @classmethod
+    def __compose__(cls, start, end=None):
+        """Create a new Date from the native values."""
+        return cls(date=DateRange(start=start, end=end))
+
     @property
     def IsRange(self):
         """Determine if this object represents a date range (versus a single date)."""
@@ -359,17 +345,6 @@ class Date(PropertyValue, type="date"):
     def End(self):
         """Return the end date of this property."""
         return None if self.date is None else self.date.end
-
-    @classmethod
-    def from_value(cls, value):
-        """Create a new Date from the native value."""
-
-        if value is None:
-            inner = DateRange(start=None)
-        else:
-            inner = DateRange(start=value)
-
-        return cls(date=inner)
 
 
 class SelectValue(DataObject):
@@ -404,17 +379,8 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
 
         return other == self.select.name
 
-    @property
-    def Value(self):
-        """Return the value of this property as a string."""
-
-        if self.select is None:
-            return None
-
-        return str(self.select)
-
     @classmethod
-    def from_value(cls, value):
+    def __compose__(cls, value):
         """Create a `SelectOne` property from the given value.
 
         :param value: a string to use for this property
@@ -424,6 +390,15 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
             return cls(select={})
 
         return cls(select=SelectValue(name=value))
+
+    @property
+    def Value(self):
+        """Return the value of this property as a string."""
+
+        if self.select is None:
+            return None
+
+        return str(self.select)
 
 
 class MultiSelect(PropertyValue, type="multi_select"):
@@ -471,6 +446,15 @@ class MultiSelect(PropertyValue, type="multi_select"):
         """Return an iterator over the values in this `MultiSelect`."""
         return self.Values
 
+    @classmethod
+    def __compose__(cls, value):
+        """Initialize a new MultiSelect from the given value."""
+
+        if isinstance(value, list):
+            return cls._compose_from_list(*value)
+
+        return cls._compose_from_list(value)
+
     def append(self, *values):
         """Add selected values to this MultiSelect."""
 
@@ -501,16 +485,7 @@ class MultiSelect(PropertyValue, type="multi_select"):
         return [str(val) for val in self.multi_select if val.name is not None]
 
     @classmethod
-    def from_value(cls, value):
-        """Initialize a new MultiSelect from the given value."""
-
-        if isinstance(value, list):
-            return cls.from_values(*value)
-
-        return cls.from_values(value)
-
-    @classmethod
-    def from_values(cls, *values):
+    def _compose_from_list(cls, *values):
         """Create a Select block from a list of values.
 
         All values in the list will be automatically converted to strings.

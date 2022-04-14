@@ -233,9 +233,9 @@ class CsvParser(DocumentParser):
             value = fields[column]
 
             if column == self._title_index:
-                record[col] = types.Title.from_value(value)
+                record[col] = types.Title[value]
             else:
-                record[col] = types.RichText.from_value(value)
+                record[col] = types.RichText[value]
 
             column += 1
 
@@ -394,7 +394,7 @@ class HtmlParser(DocumentParser):
     def _render_iframe(self, elem, parent):
         src = elem.get("src")
         if src is not None:
-            block = blocks.Embed.from_url(src)
+            block = blocks.Embed[src]
             parent.append(block)
 
     def _render_img(self, elem, parent):
@@ -404,7 +404,7 @@ class HtmlParser(DocumentParser):
         # TODO support embedded images (data:image) as HostedFile...
 
         if src is not None:
-            file = types.ExternalFile.from_url(src)
+            file = types.ExternalFile[src]
             img = blocks.Image(image=file)
 
             parent.append(img)
@@ -530,9 +530,7 @@ class HtmlParser(DocumentParser):
         if not isinstance(parent, blocks.Code):
             text = condense_text(text)
 
-        style = self._current_text_style.dict()
-        href = self._current_href
-        obj = TextObject.from_value(text, href=href, **style)
+        obj = TextObject[text, self._current_href, self._current_text_style]
 
         if isinstance(parent, blocks.TextBlock):
             if obj is not None:
