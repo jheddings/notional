@@ -23,11 +23,31 @@ class PageReference(DataObject):
 
     id: UUID
 
+    @classmethod
+    def __compose__(cls, page):
+        """Return the correct page reference based on the object type."""
+
+        if isinstance(page, PageReference):
+            return page
+
+        if isinstance(page, UUID):
+            return PageReference(id=page)
+
+        if hasattr(page, "id"):
+            return PageReference(id=page.id)
+
+        raise ValueError("Unrecognized 'page' attribute")
+
 
 class EmojiObject(TypedObject, type="emoji"):
     """A Notion emoji object."""
 
     emoji: str
+
+    @classmethod
+    def __compose__(cls, emoji):
+        """Compose an EmojiObject from the given emjoi string."""
+        return EmojiObject(emoji=emoji)
 
 
 class FileObject(TypedObject):
@@ -420,7 +440,9 @@ class MultiSelect(PropertyValue, type="multi_select"):
         if other in self:
             raise ValueError(f"Duplicate item: {other}")
 
-        return self.append(other)
+        self.append(other)
+
+        return self
 
     def __isub__(self, other):
         """Remove the given value from this MultiSelect."""
@@ -428,7 +450,9 @@ class MultiSelect(PropertyValue, type="multi_select"):
         if other not in self:
             raise ValueError(f"No such item: {other}")
 
-        return self.remove(other)
+        self.remove(other)
+
+        return self
 
     def __contains__(self, name):
         """Determine if the given name is in this MultiSelect.
@@ -466,14 +490,10 @@ class MultiSelect(PropertyValue, type="multi_select"):
                 opt = SelectValue(name=value)
                 self.multi_select.append(opt)
 
-        return self
-
     def remove(self, *values):
         """Remove selected values from this MultiSelect."""
 
         self.multi_select = [opt for opt in self.multi_select if opt.name not in values]
-
-        return self
 
     @property
     def Values(self):
@@ -686,9 +706,43 @@ class Relation(PropertyValue, type="relation"):
     relation: List[PageReference] = []
 
     @classmethod
-    def pages(cls, *pages):
+    def __compose__(cls, pages):
         """Return a `Relation` property with the specified pages."""
-        return cls(relation=pages)
+
+        if isinstance(pages, list):
+            refs = [PageReference[page] for page in pages]
+        else:
+            refs = [PageReference[pages]]
+
+        return cls(relation=refs)
+
+    def __contains__(self, page):
+        """Determine if the given page is in this Relation."""
+        return PageReference[page] in self.relation
+
+    def __iadd__(self, page):
+        """Add the given page to this Relation in place."""
+
+        ref = PageReference[page]
+
+        if ref in self.relation:
+            raise ValueError(f"Duplicate item: {ref.id}")
+
+        self.relation.append(ref)
+
+        return self
+
+    def __isub__(self, page):
+        """Remove the given page from this Relation in place."""
+
+        ref = PageReference[page]
+
+        if ref in self.relation:
+            raise ValueError(f"No such item: {ref.id}")
+
+        self.relation.remove(ref)
+
+        return self
 
 
 class RollupObject(TypedObject, ABC):
