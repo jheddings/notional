@@ -65,9 +65,9 @@ class ExternalFile(FileObject, type="external"):
     external: _NestedData
 
     @classmethod
-    def __compose__(cls, url):
+    def __compose__(cls, url, name=None):
         """Create a new `ExternalFile` from the given URL."""
-        return cls(external=cls._NestedData(url=url))
+        return cls(name=name, external=cls._NestedData(url=url))
 
 
 class DateRange(DataObject):
@@ -750,7 +750,7 @@ class Rollup(PropertyValue, type="rollup"):
         if value is None:
             return ""
 
-        str(self.rollup.Value)
+        return str(value)
 
 
 class CreatedTime(NativeTypeMixin, PropertyValue, type="created_time"):
