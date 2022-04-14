@@ -5,7 +5,7 @@ from abc import ABC
 
 from .records import DatabaseRef, Page
 from .schema import PropertyObject, RichText
-from .types import NativeTypeMixin, PropertyValue
+from .types import PropertyValue
 
 log = logging.getLogger(__name__)
 
@@ -71,8 +71,8 @@ class ConnectedPageBase(ABC):
         This operation takes place on the Notion server, creating the page immediately.
 
         :param properties: the properties to initialize for this object as a `dict()`
-                           with format `name: value` where `name` is the attribute in
-                           the custom type and `value` is a supported type for composing
+          with format `name: value` where `name` is the attribute in the custom type
+          and `value` is a supported type for composing
         """
 
         if cls._orm_session_ is None:
@@ -101,77 +101,122 @@ class ConnectedPageBase(ABC):
         return cls(**data)
 
 
-def Property(name, data_type=None, default=None):  # noqa: C901
+class _ConnectedPropertyWrapper:
+    """Contains the information and methods needed for a connected property."""
+
+    def __init__(self, name, schema, default):
+        self.name = name
+        self.schema = schema
+        self.default = default
+
+        if name is None or len(name) == 0:
+            raise AttributeError("Must provide a valid property name")
+
+        if schema is None:
+            raise AttributeError("Invalid schema; cannot be None")
+
+        self.data_type = type(schema)
+
+        if not hasattr(self.data_type, "type") or self.data_type.type is None:
+            raise AttributeError("Invalid schema; undefined type")
+
+        self.type_name = self.data_type.type
+
+        # this is kind of an ugly way to grab the value type from the schema type...
+        # mostly b/c we are using internal knowledge of TypedObject.__typemap__
+        if self.type_name not in PropertyValue.__typemap__:
+            raise TypeError(f"Invalid schema; missing value type '{self.type_name}'")
+
+        self.value_type = PropertyValue.__typemap__[self.type_name]
+
+    def bind(self, obj):
+        """Binds this property to the given object."""
+
+        if not isinstance(obj, ConnectedPageBase):
+            raise TypeError("Properties must be used in a ConnectedPage object")
+
+        # XXX should we do any additional error checking on the object?
+
+        self.page = obj.page
+        self.session = obj._orm_session_
+
+    def getter(self):
+        """Return the current value of the property as a python object."""
+        log.debug("fget :: %s [%s]", self.type_name, self.name)
+
+        try:
+            prop = self.page[self.name]
+        except AttributeError:
+            prop = self.default
+
+        if not isinstance(prop, self.value_type):
+            raise TypeError("Type mismatch")
+
+        # convert native objects to expected types
+        if hasattr(prop, "Value"):
+            return prop.Value
+
+        return prop
+
+    def setter(self, value):
+        """Set the property to the given value."""
+        log.debug("fset :: %s [%s] => %s", self.type_name, self.name, type(value))
+
+        if isinstance(value, self.value_type):
+            prop = value
+
+        elif hasattr(self.value_type, "__compose__"):
+            prop = self.value_type.__compose__(value)
+
+        else:
+            raise TypeError(f"Unsupported value type for '{self.type_name}'")
+
+        # update the property on the server (which will refresh the local data)
+        self.session.pages.update(self.page, **{self.name: prop})
+
+    def delete(self):
+        """Delete the value assotiated with this property."""
+        self.session.pages.update(self.page, **{self.name: None})
+
+
+def Property(name, schema=None, default=None):
     """Define a property for a Notion Page object.
 
     :param name: the Notion table property name
-    :param cls: the data type for the property (default = RichText)
+    :param data_type: the schema that defines this property (default = RichText)
     :param default: a default value when creating new objects
     """
 
     log.debug("creating new Property: %s", name)
 
-    if data_type is None:
-        data_type = RichText()
+    if schema is None:
+        schema = RichText()
 
-    elif not isinstance(data_type, PropertyObject):
+    elif not isinstance(schema, PropertyObject):
         raise AttributeError("Invalid data_type; not a PropertyObject")
 
-    type_name = data_type.type
-
-    # this is kind of an ugly way to grab the value type from the schema type...
-    # mostly b/c we are using internal knowledge of TypedObject.__typemap__
-    if type_name not in PropertyValue.__typemap__:
-        raise TypeError(f"Cannot find a related property value for {data_type}")
-
-    value_type = PropertyValue.__typemap__[type_name]
+    cprop = _ConnectedPropertyWrapper(
+        name=name,
+        schema=schema,
+        default=default,
+    )
 
     def fget(self):
         """Return the current value of the property as a python object."""
-
-        if not isinstance(self, ConnectedPageBase):
-            raise TypeError("Properties must be used in a ConnectedPage object")
-
-        log.debug("getter %s [%s]", type_name, name)
-
-        try:
-            prop = self.page[name]
-        except AttributeError:
-            return default
-
-        if not isinstance(prop, value_type):
-            raise TypeError("Type mismatch")
-
-        # convert native objects to expected types
-        if isinstance(prop, NativeTypeMixin):
-            return prop.Value
-
-        return prop
+        cprop.bind(self)
+        return cprop.getter()
 
     def fset(self, value):
         """Set the property to the given value."""
+        cprop.bind(self)
+        cprop.setter(value)
 
-        if not isinstance(self, ConnectedPageBase):
-            raise TypeError("Properties must be used in a ConnectedPage object")
+    def fdel(self, value):
+        """Delete the value for this property."""
+        cprop.bind(self)
+        cprop.delete(value)
 
-        log.debug("setter %s [%s] => %s %s", type_name, name, value, type(value))
-
-        if isinstance(value, value_type):
-            prop = value
-
-        elif hasattr(value_type, "__compose__"):
-            prop = value_type.__compose__(value)
-
-        else:
-            raise ValueError(f"Value does not match expected type: {value_type}")
-
-        # update the local property
-        self.page[name] = prop
-
-        # update the property live on the server
-        self._orm_session_.pages.update(self.page, **{name: prop})
-
-    return property(fget, fset)
+    return property(fget, fset, fdel)
 
 
 def connected_page(session=None, database=None, schema=None, cls=ConnectedPageBase):
@@ -180,10 +225,12 @@ def connected_page(session=None, database=None, schema=None, cls=ConnectedPageBa
     Subclasses may then inherit from the returned class to define custom ORM types.
 
     :param session: an active Notional session where the database is hosted
+
     :param database: if provided, the returned class will use the ID and schema of
-                     this object to initialize the connected page
+      this object to initialize the connected page
+
     :param schema: if provided, the returned class will contain properties according
-                   to the schema provided
+      to the schema provided
     """
 
     if not issubclass(cls, ConnectedPageBase):
