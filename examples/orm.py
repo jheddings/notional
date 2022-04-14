@@ -22,7 +22,7 @@ from datetime import date, timedelta
 logging.basicConfig(level=logging.INFO)
 
 import notional
-from notional import blocks, types
+from notional import blocks, schema, types
 from notional.orm import Property, connected_page
 from notional.query import SortDirection
 
@@ -36,14 +36,14 @@ class Task(CustomPage):
 
     __database__ = sys.argv[1]
 
-    Title = Property("Title", types.Title)
-    Priority = Property("Priority", types.SelectOne)
-    Tags = Property("Tags", types.MultiSelect)
-    Complete = Property("Complete", types.Checkbox)
-    DueDate = Property("Due Date", types.Date)
-    Attachments = Property("Attachments", types.Files)
-    Reference = Property("Reference", types.Number)
-    LastUpdate = Property("Last Update", types.LastEditedTime)
+    Title = Property("Title", schema.Title())
+    Priority = Property("Priority", schema.Select())
+    Tags = Property("Tags", schema.MultiSelect())
+    Complete = Property("Complete", schema.Checkbox())
+    DueDate = Property("Due Date", schema.Date())
+    Attachments = Property("Attachments", schema.Files())
+    Reference = Property("Reference", schema.Number())
+    LastUpdate = Property("Last Update", schema.LastEditedTime())
     Status = Property("Status")
 
 

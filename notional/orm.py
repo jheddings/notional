@@ -4,7 +4,8 @@ import logging
 from abc import ABC
 
 from .records import DatabaseRef, Page
-from .types import NativeTypeMixin, RichText
+from .schema import PropertyObject, RichText
+from .types import NativeTypeMixin, PropertyValue
 
 log = logging.getLogger(__name__)
 
@@ -100,7 +101,7 @@ class ConnectedPageBase(ABC):
         return cls(**data)
 
 
-def Property(name, cls=RichText, default=None):
+def Property(name, data_type=None, default=None):  # noqa: C901
     """Define a property for a Notion Page object.
 
     :param name: the Notion table property name
@@ -110,20 +111,35 @@ def Property(name, cls=RichText, default=None):
 
     log.debug("creating new Property: %s", name)
 
+    if data_type is None:
+        data_type = RichText()
+
+    elif not isinstance(data_type, PropertyObject):
+        raise AttributeError("Invalid data_type; not a PropertyObject")
+
+    type_name = data_type.type
+
+    # this is kind of an ugly way to grab the value type from the schema type...
+    # mostly b/c we are using internal knowledge of TypedObject.__typemap__
+    if type_name not in PropertyValue.__typemap__:
+        raise TypeError(f"Cannot find a related property value for {data_type}")
+
+    value_type = PropertyValue.__typemap__[type_name]
+
     def fget(self):
         """Return the current value of the property as a python object."""
 
         if not isinstance(self, ConnectedPageBase):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
-        log.debug("getter %s [%s]", cls, name)
+        log.debug("getter %s [%s]", type_name, name)
 
         try:
             prop = self.page[name]
         except AttributeError:
             return default
 
-        if not isinstance(prop, cls):
+        if not isinstance(prop, value_type):
             raise TypeError("Type mismatch")
 
         # convert native objects to expected types
@@ -138,16 +154,16 @@ def Property(name, cls=RichText, default=None):
         if not isinstance(self, ConnectedPageBase):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
-        log.debug("setter %s [%s] => %s %s", cls, name, value, type(value))
+        log.debug("setter %s [%s] => %s %s", type_name, name, value, type(value))
 
-        if isinstance(value, cls):
+        if isinstance(value, value_type):
             prop = value
 
-        elif hasattr(cls, "__compose__"):
-            prop = cls.__compose__(value)
+        elif hasattr(value_type, "__compose__"):
+            prop = value_type.__compose__(value)
 
         else:
-            raise ValueError(f"Value does not match expected type: {cls}")
+            raise ValueError(f"Value does not match expected type: {value_type}")
 
         # update the local property
         self.page[name] = prop
@@ -158,12 +174,16 @@ def Property(name, cls=RichText, default=None):
     return property(fget, fset)
 
 
-def connected_page(session=None, cls=ConnectedPageBase):
+def connected_page(session=None, database=None, schema=None, cls=ConnectedPageBase):
     """Return a base class for "connected" pages through the Notion API.
 
     Subclasses may then inherit from the returned class to define custom ORM types.
 
     :param session: an active Notional session where the database is hosted
+    :param database: if provided, the returned class will use the ID and schema of
+                     this object to initialize the connected page
+    :param schema: if provided, the returned class will contain properties according
+                   to the schema provided
     """
 
     if not issubclass(cls, ConnectedPageBase):

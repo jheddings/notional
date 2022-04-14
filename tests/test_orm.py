@@ -4,15 +4,28 @@ from uuid import uuid4
 
 import pytest
 
-from notional import blocks, types
+from notional import blocks, schema, types
 from notional.orm import ConnectedPageBase, Property, connected_page
 
 
 def test_property_type():
     """Confirm that `Property()` returns a `property`."""
 
-    prop = Property("Special", types.Title)
+    prop = Property("Special", schema.Title())
     assert isinstance(prop, property)
+
+
+def test_invalid_property_types():
+    """Fail when using incorrect Property definitions."""
+
+    with pytest.raises(AttributeError):
+        Property("BAD_TYPE", schema.Title)
+
+    with pytest.raises(AttributeError):
+        Property("BAD_TYPE", types.Title())
+
+    with pytest.raises(AttributeError):
+        Property("BAD_TYPE", "ImaType")
 
 
 def test_invalid_base_class():
@@ -81,4 +94,4 @@ def test_basic_object():
     class _CustomType(CustomPage):
         __database__ = "mock_db"
 
-        Name = Property("Name", types.Title)
+        Name = Property("Name", schema.Title())
