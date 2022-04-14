@@ -53,6 +53,22 @@ class TextBlock(Block, ABC):
 
         return self("text")
 
+    @classmethod
+    def __compose__(cls, text):
+        """Compose a `TextBlock` from the given text.
+
+        In practice, this is called using a concrete subclass of `TextBlock`, such as
+        `Paragraph.from_text()` or similar.
+        """
+
+        if text is None:
+            return None
+
+        obj = cls()
+        obj.concat(text)
+
+        return obj
+
     def concat(self, *text):
         """Concatenate text (either `RichTextObject` or `str` items) to this block."""
 
@@ -68,31 +84,37 @@ class TextBlock(Block, ABC):
             if obj is None:
                 continue
 
-            if isinstance(obj, RichTextObject):
-                nested.text.append(obj)
+            self._append_object(obj)
 
-            elif isinstance(obj, str):
-                for chunk in chunky(obj):
-                    nested.text.append(TextObject.from_value(chunk))
+    def _append_object(self, obj):
+        """Append the given object to the internal text of this TextObject."""
 
-            else:
-                raise ValueError("unsupported text object")
+        if isinstance(obj, RichTextObject):
+            self._append_rtf(obj)
 
-    @classmethod
-    def from_text(cls, *text):
-        """Create a `TextBlock` from the given text data.
+        elif isinstance(obj, str):
+            self._append_text(obj)
 
-        In practice, this is called using a concrete subclass of `TextBlock`, such as
-        `Paragraph.from_text()` or similar.
+        else:
+            raise ValueError("unsupported text object")
+
+    def _append_rtf(self, rtf):
+        """Append the given RichTextObject to this TextObject."""
+        nested = self()
+        nested.text.append(rtf)
+
+    def _append_text(self, text):
+        """Append the given text to this TextObject.
+
+        This text will be split into chunks in accordance with the Notion API.
         """
+        nested = self()
 
-        if text is None:
-            return None
+        # break up the text and compose new TextObject's from the pieces
 
-        obj = cls()
-        obj.concat(*text)
-
-        return obj
+        for chunk in chunky(text):
+            obj = TextObject[chunk]
+            nested.text.append(obj)
 
     @property
     def PlainText(self):
@@ -243,6 +265,16 @@ class Code(TextBlock, type="code"):
 
     code: _NestedData = _NestedData()
 
+    @classmethod
+    def __compose__(cls, text, lang=CodingLanguage.PLAIN_TEXT):
+        """Compose a `Code` block from the given text and language."""
+        return Code(
+            code=Code._NestedData(
+                text=[TextObject[text]],
+                language=lang,
+            )
+        )
+
     @property
     def Markdown(self):
         """Return the contents of this block as markdown text."""
@@ -320,6 +352,16 @@ class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
 
     to_do: _NestedData = _NestedData()
 
+    @classmethod
+    def __compose__(cls, text, checked=False):
+        """Compose a ToDo block from the given text and checked state."""
+        return ToDo(
+            to_do=ToDo._NestedData(
+                text=[TextObject[text]],
+                checked=checked,
+            )
+        )
+
     @property
     def IsChecked(self):
         """Determine if this ToDo is marked as checked or not.
@@ -389,6 +431,11 @@ class Embed(Block, type="embed"):
 
     embed: _NestedData = _NestedData()
 
+    @classmethod
+    def __compose__(cls, url):
+        """Create a new `Embed` block from the given URL."""
+        return Embed(embed=Embed._NestedData(url=url))
+
     @property
     def URL(self):
         """Return the URL contained in this `Embed` block."""
@@ -403,12 +450,6 @@ class Embed(Block, type="embed"):
 
         return ""
 
-    @classmethod
-    def from_url(cls, url):
-        """Create a new `Embed` block from the given URL."""
-        nested = cls._NestedData(url=url)
-        return Embed(embed=nested)
-
 
 class Bookmark(Block, type="bookmark"):
     """A bookmark block in Notion."""
@@ -418,6 +459,11 @@ class Bookmark(Block, type="bookmark"):
         caption: Optional[List[RichTextObject]] = None
 
     bookmark: _NestedData = _NestedData()
+
+    @classmethod
+    def __compose__(cls, url):
+        """Compoase a new `Bookmark` block from a specific URL."""
+        return Bookmark(bookmark=Bookmark._NestedData(url=url))
 
     @property
     def URL(self):
@@ -433,12 +479,6 @@ class Bookmark(Block, type="bookmark"):
 
         return ""
 
-    @classmethod
-    def from_url(cls, url):
-        """Create a new `Bookmark` block from the given URL."""
-        nested = cls._NestedData(url=url)
-        return Bookmark(bookmark=nested)
-
 
 class LinkPreview(Block, type="link_preview"):
     """A link_preview block in Notion."""
@@ -447,6 +487,11 @@ class LinkPreview(Block, type="link_preview"):
         url: str = None
 
     link_preview: _NestedData = _NestedData()
+
+    @classmethod
+    def __compose__(cls, url):
+        """Create a new `LinkPreview` block from the given URL."""
+        return LinkPreview(link_preview=LinkPreview._NestedData(url=url))
 
     @property
     def URL(self):
@@ -461,12 +506,6 @@ class LinkPreview(Block, type="link_preview"):
             return f"<{self.link_preview.url}>"
 
         return ""
-
-    @classmethod
-    def from_url(cls, url):
-        """Create a new `LinkPreview` block from the given URL."""
-        nested = cls._NestedData(url=url)
-        return LinkPreview(link_preview=nested)
 
 
 class File(Block, type="file"):

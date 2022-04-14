@@ -26,7 +26,7 @@ class ParentRef(TypedObject):
     # these should all by TypedObject's with the appropriate fields
 
     @classmethod
-    def from_record(cls, record):
+    def __compose__(cls, record):
         """Return the correct parent ID based on the object type."""
 
         if isinstance(record, ParentRef):

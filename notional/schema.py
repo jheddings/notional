@@ -102,7 +102,7 @@ class Number(PropertyObject, type="number"):
     number: _NestedData = _NestedData()
 
     @classmethod
-    def format(cls, format):
+    def __compose__(cls, format):
         """Create a `Number` object with the expected format."""
         return cls(number=cls._NestedData(format=format))
 
@@ -114,6 +114,11 @@ class SelectOption(DataObject):
     id: str = None
     color: str = Color.DEFAULT
 
+    @classmethod
+    def __compose__(cls, name, color=Color.DEFAULT):
+        """Create a `SelectOption` object from the given name and color."""
+        return cls(name=name, color=color)
+
 
 class Select(PropertyObject, type="select"):
     """Defines the select configuration for a database property."""
@@ -124,7 +129,7 @@ class Select(PropertyObject, type="select"):
     select: _NestedData = _NestedData()
 
     @classmethod
-    def options(cls, *options):
+    def __compose__(cls, options):
         """Create a `Select` object from the list of `SelectOption`'s."""
         return cls(select=cls._NestedData(options=options))
 
@@ -198,7 +203,7 @@ class Relation(PropertyObject, type="relation"):
     relation: _NestedData = _NestedData()
 
     @classmethod
-    def database(cls, database_id):
+    def __compose__(cls, database_id):
         """Create a `Relation` property using the target database ID."""
         return cls(relation=cls._NestedData(database_id=database_id))
 

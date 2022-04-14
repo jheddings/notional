@@ -1,5 +1,6 @@
 """Utilities for working text, markdown & Rich Text in Notion."""
 
+from copy import deepcopy
 from enum import Enum
 from typing import Optional
 
@@ -216,19 +217,29 @@ class TextObject(RichTextObject, type="text"):
     text: _NestedData = _NestedData()
 
     @classmethod
-    def from_value(cls, content=None, href=None, **annotate):
-        """Return a TextObject from the native string."""
+    def __compose__(cls, text, href=None, style=None):
+        """Compose a TextObject from the given properties.
 
-        if content is None:
+        :param text: the plain text of this object
+        :param href: an optional link for this object
+        :param style: an optional Annotations object for this text
+        """
+
+        if text is None:
             return None
 
-        # TODO convert markdown in string to RichText?
+        # TODO convert markdown in text:str to RichText?
 
-        style = Annotations(**annotate) if annotate else None
         link = LinkObject(url=href) if href else None
-        data = cls._NestedData(content=str(content), link=link)
+        nested = TextObject._NestedData(content=text, link=link)
+        style = deepcopy(style)
 
-        return cls(plain_text=str(content), text=data, href=href, annotations=style)
+        return TextObject(
+            plain_text=text,
+            text=nested,
+            href=href,
+            annotations=style,
+        )
 
 
 class CodingLanguage(str, Enum):

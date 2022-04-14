@@ -5,7 +5,7 @@ import pytest
 from notional import blocks
 
 
-def test_para_from_dict():
+def test_para_from_api_data():
     """Create a Paragraph block from structured data, simulating the Notion API."""
 
     test_data = {
@@ -47,7 +47,7 @@ def test_para_from_dict():
 
 def test_bookmark_from_url():
     """Create a Bookmark block from a URL."""
-    bookmark = blocks.Bookmark.from_url("http://example.com")
+    bookmark = blocks.Bookmark["http://example.com"]
 
     assert bookmark.URL == "http://example.com"
     assert bookmark.Markdown == "<http://example.com>"
@@ -55,7 +55,7 @@ def test_bookmark_from_url():
 
 def test_embed_from_url():
     """Create an Embed block from a URL."""
-    embed = blocks.Embed.from_url("https://www.bing.com/")
+    embed = blocks.Embed["https://www.bing.com/"]
 
     assert embed.URL == "https://www.bing.com/"
     assert embed.Markdown == "<https://www.bing.com/>"
