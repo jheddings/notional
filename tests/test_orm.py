@@ -38,25 +38,16 @@ def test_invalid_base_class():
         connected_page(cls=_MySpecialPage)
 
 
-def test_session_is_none():
+def test_session_is_none(local_model):
     """Verify we raise expected errors when the session is None."""
-    CustomPage = connected_page()
-
-    class _EmptyPage(CustomPage):
-        __database__ = "mock_db"
 
     with pytest.raises(ValueError):
-        _EmptyPage.create()
+        local_model.create()
 
 
-def test_empty_page():
+def test_empty_page(local_model):
     """Verify expected behavior with an empty page."""
-    CustomPage = connected_page()
-
-    class _EmptyPage(CustomPage):
-        __database__ = "mock_db"
-
-    empty = _EmptyPage()
+    empty = local_model()
 
     assert isinstance(empty, ConnectedPageBase)
     assert empty.id is None
@@ -72,26 +63,11 @@ def test_empty_page():
         empty += blocks.Divider()
 
 
-def test_nested_page_id():
+def test_custom_model_page_id(local_model):
     """Make sure the page ID comes through."""
-    CustomPage = connected_page()
-
-    class _CustomType(CustomPage):
-        __database__ = "mock_db"
-
     page_id = uuid4()
 
     data = {"id": page_id.hex}
 
-    page = _CustomType.parse_obj(data)
+    page = local_model.parse_obj(data)
     assert page.id == page_id
-
-
-def test_basic_object():
-    """Define a basic object using ORM properties."""
-    CustomPage = connected_page()
-
-    class _CustomType(CustomPage):
-        __database__ = "mock_db"
-
-        Name = Property("Name", schema.Title())
