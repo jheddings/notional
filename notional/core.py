@@ -7,7 +7,7 @@ from enum import Enum
 from uuid import UUID
 
 from pydantic import BaseModel
-from pydantic.main import validate_model
+from pydantic.main import ModelMetaclass, validate_model
 
 log = logging.getLogger(__name__)
 
@@ -41,7 +41,55 @@ def make_api_safe(data):
     return data
 
 
-class DataObject(BaseModel):
+class ComposableObject(ModelMetaclass):
+    """Presents a meta class that composes objects using simple values.
+
+    This is primarily to allow easy definition of data objects without disrupting the
+    `BaseModel` constructor.  e.g. rather than requiring a caller to understand how
+    nested data works in the data objects, they can compose objects from simple values.
+
+    Compare the following code for declaring a Paragraph:
+
+    ```python
+    # using nested data objects:
+    text = "hello world"
+    nested = TextObject._NestedData(content=text)
+    rtf = text.TextObject(text=nested, plain_text=text)
+    content = blocks.Paragraph._NestedData(text=[rtf])
+    para = blocks.Paragraph(paragraph=content)
+
+    # using a composable object:
+    para = blocks.Paragraph["hello world"]
+    ```
+
+    Classes that support composition in this way must define and implement the internal
+    `__compose__` method.  This method takes an arbitrary number of parameters, based
+    on the needs of the implementation.  It is up to the implementing class to ensure
+    that the parameters are specificied correctly.
+    """
+
+    def __getitem__(self, params):
+        """Return the requested class by composing using the given param.
+
+        Types found in `params` will be compared to expected types in the `__compose__`
+        method.
+
+        If the requested class does not expose the `__compose__` method, this will raise
+        an exception.
+        """
+
+        if not hasattr(self, "__compose__"):
+            raise NotImplementedError(f"{self} does not support object composition")
+
+        compose = self.__compose__
+
+        if type(params) is tuple:
+            return compose(*params)
+
+        return compose(params)
+
+
+class DataObject(BaseModel, metaclass=ComposableObject):
     """The base for all API objects."""
 
     def __setattr__(self, name, value):

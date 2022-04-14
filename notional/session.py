@@ -157,7 +157,7 @@ class DatabasesEndpoint(Endpoint):
         request = {}
 
         if parent is not None:
-            ref = ParentRef.from_record(parent)
+            ref = ParentRef[parent]
             request["parent"] = ref.to_api()
 
         if isinstance(title, TextObject):
@@ -165,7 +165,7 @@ class DatabasesEndpoint(Endpoint):
         elif isinstance(title, list):
             request["title"] = [prop.to_api() for prop in title]
         elif isinstance(title, str):
-            prop = TextObject.from_value(title)
+            prop = TextObject[title]
             request["title"] = [prop.to_api()]
         elif title is not None:
             raise ValueError("Unrecognized data in 'title'")
@@ -275,7 +275,7 @@ class PagesEndpoint(Endpoint):
         if parent is None:
             raise ValueError("'parent' must be provided")
 
-        parent = ParentRef.from_record(parent)
+        parent = ParentRef[parent]
         request = {"parent": parent.to_api()}
 
         # the API requires a properties object, even if empty
@@ -283,7 +283,7 @@ class PagesEndpoint(Endpoint):
             properties = {}
 
         if title is not None:
-            properties["title"] = Title.from_value(title)
+            properties["title"] = Title[title]
 
         request["properties"] = {
             name: prop.to_api() for name, prop in properties.items()

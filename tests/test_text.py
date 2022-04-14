@@ -3,7 +3,7 @@
 import re
 
 from notional import blocks
-from notional.text import CodingLanguage, TextObject, markdown, plain_text
+from notional.text import Annotations, CodingLanguage, TextObject, markdown, plain_text
 
 
 def confirm_rtf_markdown(plain, md, rtf):
@@ -18,18 +18,13 @@ def confirm_rtf_markdown(plain, md, rtf):
 
 def confirm_block_markdown(cls, plain, md):
     """Make sure the block type returns expected markdown for the given text."""
-    block = cls.from_text(plain)
+    block = cls[plain]
 
     if plain is not None:
         assert block.PlainText == plain
 
     if md is not None:
         assert block.Markdown == md
-
-
-def test_empty_text():
-    """Verify text formatting for empty text."""
-    assert TextObject.from_value(None) is None
 
 
 def test_empty_blocks():
@@ -40,194 +35,147 @@ def test_empty_blocks():
     confirm_block_markdown(blocks.Heading2, "", "")
     confirm_block_markdown(blocks.Heading3, "", "")
 
-    confirm_block_markdown(blocks.Code, "", "")
     confirm_block_markdown(blocks.Quote, "", "")
+
+
+def test_empty_text():
+    """Verify text formatting for empty text."""
+
+    assert TextObject[None] is None
 
 
 def test_zero_length_text():
     """Verify text formatting for zero-length text."""
+    text = TextObject[""]
 
-    confirm_rtf_markdown(
-        plain="",
-        md="",
-        rtf=[
-            TextObject.from_value(None),
-            TextObject.from_value(""),
-        ],
-    )
+    assert plain_text(text) == ""
+    assert markdown(text) == ""
 
 
 def test_plain_text():
     """Verify text formatting for plain text."""
+    text = TextObject["hello world"]
 
-    confirm_rtf_markdown(
-        plain="hello world",
-        md="hello world",
-        rtf=[
-            TextObject.from_value("hello world"),
-        ],
-    )
+    assert plain_text(text) == "hello world"
+    assert markdown(text) == "hello world"
 
 
 def test_basic_links():
     """Verify text formatting for basic links."""
+    text = TextObject["Search Me", "https://www.google.com/"]
 
-    confirm_rtf_markdown(
-        plain="Search Me",
-        md="[Search Me](https://www.google.com/)",
-        rtf=[
-            TextObject.from_value("Search Me", href="https://www.google.com/"),
-        ],
-    )
+    assert plain_text(text) == "Search Me"
+    assert markdown(text) == "[Search Me](https://www.google.com/)"
 
 
 def test_bold_text():
     """Verify text formatting for bold words."""
+    bold = Annotations(bold=True)
+    text = TextObject["be BOLD", None, bold]
 
-    confirm_rtf_markdown(
-        plain="be BOLD",
-        md="*be BOLD*",
-        rtf=[
-            TextObject.from_value("be BOLD", bold=True),
-        ],
-    )
+    assert plain_text(text) == "be BOLD"
+    assert markdown(text) == "*be BOLD*"
 
 
 def test_emphasis_text():
     """Verify text formatting for italic words."""
+    style = Annotations(italic=True)
+    text = TextObject["suggestive", None, style]
 
-    confirm_rtf_markdown(
-        plain="this should work",
-        md="this **should** work",
-        rtf=[
-            TextObject.from_value("this "),
-            TextObject.from_value("should", italic=True),
-            TextObject.from_value(" work"),
-        ],
-    )
+    assert plain_text(text) == "suggestive"
+    assert markdown(text) == "**suggestive**"
 
 
 def test_bold_italic_text():
     """Verify text formatting for bold & italic words."""
+    style = Annotations(bold=True, italic=True)
+    text = TextObject["really important", None, style]
 
-    confirm_rtf_markdown(
-        plain="this is really important",
-        md="this is ***really*** *important*",
-        rtf=[
-            TextObject.from_value("this is "),
-            TextObject.from_value("really", bold=True, italic=True),
-            TextObject.from_value(" "),
-            TextObject.from_value("important", bold=True),
-        ],
-    )
+    assert plain_text(text) == "really important"
+    assert markdown(text) == "***really important***"
 
 
 def test_underline_text():
     """Verify text formatting for underline words."""
+    underline = Annotations(underline=True)
+    text = TextObject["non-standard", None, underline]
 
-    confirm_rtf_markdown(
-        plain="underline is not standard markdown",
-        md="_underline_ is not standard markdown",
-        rtf=[
-            TextObject.from_value("underline", underline=True),
-            TextObject.from_value(" is not standard markdown"),
-        ],
-    )
+    assert plain_text(text) == "non-standard"
+    assert markdown(text) == "_non-standard_"
 
 
 def test_strikethrough():
     """Verify text formatting for strikethrough text."""
+    strike = Annotations(strikethrough=True)
+    text = TextObject["canceled", None, strike]
 
-    confirm_rtf_markdown(
-        plain="canceled",
-        md="~canceled~",
-        rtf=[
-            TextObject.from_value("canceled", strikethrough=True),
-        ],
-    )
+    assert plain_text(text) == "canceled"
+    assert markdown(text) == "~canceled~"
 
 
 def test_code_word():
     """Verify text formatting for code words."""
+    code = Annotations(code=True)
+    text = TextObject["keyword", None, code]
 
-    confirm_rtf_markdown(
-        plain="look at this keyword",
-        md="look at this `keyword`",
-        rtf=[
-            TextObject.from_value("look at this "),
-            TextObject.from_value("keyword", code=True),
-        ],
-    )
+    assert plain_text(text) == "keyword"
+    assert markdown(text) == "`keyword`"
 
 
 def test_paragraph_block():
     """Create a Paragraph block from text."""
+    block = blocks.Paragraph["Lorem ipsum dolor sit amet"]
 
-    confirm_block_markdown(
-        blocks.Paragraph,
-        "Lorem ipsum dolor sit amet",
-        "Lorem ipsum dolor sit amet",
-    )
+    assert block.PlainText == "Lorem ipsum dolor sit amet"
+    assert block.Markdown == "Lorem ipsum dolor sit amet"
 
 
 def test_heading_1():
     """Verify text formatting for Heading1 blocks."""
+    block = blocks.Heading1["Introduction"]
 
-    confirm_block_markdown(
-        blocks.Heading1,
-        "Introduction",
-        "# Introduction #",
-    )
+    assert block.PlainText == "Introduction"
+    assert block.Markdown == "# Introduction #"
 
 
 def test_heading_2():
     """Verify text formatting for Heading2 blocks."""
+    block = blocks.Heading2["More Context"]
 
-    confirm_block_markdown(
-        blocks.Heading2,
-        "More Context",
-        "## More Context ##",
-    )
+    assert block.PlainText == "More Context"
+    assert block.Markdown == "## More Context ##"
 
 
 def test_heading_3():
     """Verify text formatting for Heading3 blocks."""
+    block = blocks.Heading3["Minor Point"]
 
-    confirm_block_markdown(
-        blocks.Heading3,
-        "Minor Point",
-        "### Minor Point ###",
-    )
+    assert block.PlainText == "Minor Point"
+    assert block.Markdown == "### Minor Point ###"
 
 
 def test_bulleted_list_item():
     """Verify text formatting for BulletedListItem blocks."""
+    block = blocks.BulletedListItem["point number one"]
 
-    confirm_block_markdown(
-        blocks.BulletedListItem,
-        "point number one",
-        "- point number one",
-    )
+    assert block.PlainText == "point number one"
+    assert block.Markdown == "- point number one"
 
 
 def test_numbered_list_item():
     """Verify text formatting for NumberedListItem blocks."""
+    block = blocks.NumberedListItem["first priority"]
 
-    confirm_block_markdown(
-        blocks.NumberedListItem,
-        "first priority",
-        "1. first priority",
-    )
+    assert block.PlainText == "first priority"
+    assert block.Markdown == "1. first priority"
 
 
 def test_quote_block():
     """Verify text formatting for Quote blocks."""
+    block = blocks.Quote["Now is the time for all good men..."]
 
-    confirm_block_markdown(
-        blocks.Quote,
-        "Now is the time for all good men...",
-        "> Now is the time for all good men...",
-    )
+    assert block.PlainText == "Now is the time for all good men..."
+    assert block.Markdown == "> Now is the time for all good men..."
 
 
 def test_divider_block():
@@ -239,14 +187,12 @@ def test_divider_block():
 
 def test_todo_block():
     """Verify text formatting for ToDo blocks."""
-    block = blocks.ToDo.from_text("COMPLETED")
-    block.to_do.checked = True
+    block = blocks.ToDo["COMPLETED", True]
 
     assert block.PlainText == "COMPLETED"
     assert block.Markdown == "- [x] COMPLETED"
 
-    block = blocks.ToDo.from_text("INCOMPLETE")
-    block.to_do.checked = False
+    block = blocks.ToDo["INCOMPLETE", False]
 
     assert block.PlainText == "INCOMPLETE"
     assert block.Markdown == "- [ ] INCOMPLETE"
@@ -255,7 +201,6 @@ def test_todo_block():
 def test_code_block():
     """Verify text formatting for Code blocks."""
     code = "import sys\nprint('hello world')\nsys.exit(0)"
-    block = blocks.Code.from_text(code)
-    block.code.language = CodingLanguage.PYTHON
+    block = blocks.Code[code, CodingLanguage.PYTHON]
 
     assert block.Markdown == f"```python\n{code}\n```"

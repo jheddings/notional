@@ -36,18 +36,21 @@ for block in notion.blocks.children.list(page):
             print(f"-- {child.type} => {type(child)} [{child.id}]")
 
 # create a new page
-welcome = blocks.Heading1.from_text("Welcome!")
-new_page = notion.pages.create(parent=page, title="Hello World", children=[welcome])
+welcome = blocks.Heading1["Welcome!"]
+
+new_page = notion.pages.create(
+    parent=page,
+    title="Hello World",
+    children=[welcome],
+)
 
 print(f"{page.Title} => {page.url}")
 
 # add more blocks to the page...
-notion.blocks.children.append(
-    new_page, blocks.Paragraph.from_text("Good to see you again!")
-)
+notion.blocks.children.append(new_page, blocks.Paragraph["Good to see you again!"])
 
 # change the page properties...
-notion.pages.update(new_page, title=types.Title.from_value("Farewell"))
+notion.pages.update(new_page, title=types.Title["Farewell"])
 
 # archive (delete) the new page...
 notion.pages.delete(new_page)

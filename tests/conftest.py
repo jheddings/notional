@@ -117,7 +117,7 @@ def simple_db(notion, test_area):
 
 @pytest.fixture
 def simple_model(notion, simple_db):
-    """Return a simple Object Model for testing.
+    """Return a Connected Page that matches the schema for `simple_db`.
 
     The model's database will be deleted during tear down.
     """

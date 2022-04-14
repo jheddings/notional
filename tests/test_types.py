@@ -41,7 +41,7 @@ def test_parse_title_data():
 
 def test_title_from_value():
     """Create a Title object from a literal string."""
-    title = types.Title.from_value("Get more milk")
+    title = types.Title["Get more milk"]
     assert title.Value == "Get more milk"
 
 
@@ -58,20 +58,20 @@ def test_parse_number_data():
 
 def test_number_from_float_value():
     """Create a Number object from a literal float."""
-    num = types.Number.from_value(2.718281828)
+    num = types.Number[2.718281828]
     assert num.Value == 2.718281828
 
 
 def test_number_from_string_value():
     """Create a Number object from a literal string."""
-    num = types.Number.from_value("100.00")
+    num = types.Number["100.00"]
     assert num.Value == 100
 
 
 def test_number_from_bad_string():
     """Check exceptions for strings with invalid values."""
     with pytest.raises(ValidationError):
-        types.Number.from_value("twelve")
+        types.Number["twelve"]
 
 
 def test_parse_checkbox_data():
@@ -87,20 +87,20 @@ def test_parse_checkbox_data():
 
 def test_checkbox_from_boolean_value():
     """Create a Checkbox object from a boolean."""
-    check = types.Checkbox.from_value(True)
+    check = types.Checkbox[True]
     assert check.Value
 
 
 def test_checkbox_from_string_value():
     """Create a Checkbox object from a string."""
-    check = types.Checkbox.from_value("no")
+    check = types.Checkbox["no"]
     assert not check.Value
 
 
 def test_checkbox_from_bad_string():
     """Check exceptions for strings with invalid values."""
     with pytest.raises(ValidationError):
-        types.Checkbox.from_value("foo")
+        types.Checkbox["foo"]
 
 
 def test_parse_single_date():
@@ -183,7 +183,7 @@ def test_parse_select_one_data():
 
 def test_select_one_from_string():
     """Create a SelectOne object from a literal string."""
-    priority = types.SelectOne.from_value("URGENT")
+    priority = types.SelectOne["URGENT"]
     assert priority == "URGENT"
 
 
@@ -214,9 +214,16 @@ def test_parse_multi_select_data():
     assert "TEMPORARY" not in tags
 
 
-def test_multi_select_from_strings():
+def test_multi_select_from_string():
+    """Create a MultiSelect object from a string."""
+    tags = types.MultiSelect["bar"]
+    assert tags.Values == ["bar"]
+    assert "foo" not in tags
+
+
+def test_multi_select_from_list():
     """Create a MultiSelect object from a list of strings."""
-    tags = types.MultiSelect.from_values("foo", None, "bar")
+    tags = types.MultiSelect[["foo", None, "bar"]]
     assert tags.Values == ["foo", "bar"]
     assert None not in tags
 
@@ -638,7 +645,7 @@ def test_parse_equation_data():
 
 def test_rich_text_from_value():
     """Create RichText from a literal value."""
-    rtf = types.RichText.from_value("We have new milk.")
+    rtf = types.RichText["We have new milk."]
     assert rtf.Value == "We have new milk."
 
 

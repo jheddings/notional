@@ -62,13 +62,16 @@ class ConnectedPageBase(ABC):
         self._orm_session_.blocks.children.append(self.page, *blocks)
 
     @classmethod
-    def create(cls, **properties):
+    def create(cls, **kwargs):
         """Create a new instance of the ConnectedPage type.
 
-        Any properties that support native type assignment may be set
+        Any properties that support object composition may defined in `kwargs`.
 
-        This operation takes place on the Notion server, causing the page to update
-        immediately.
+        This operation takes place on the Notion server, creating the page immediately.
+
+        :param properties: the properties to initialize for this object as a `dict()`
+                           with format `name: value` where `name` is the attribute in
+                           the custom type and `value` is a supported type for composing
         """
 
         if cls._orm_session_ is None:
@@ -78,13 +81,12 @@ class ConnectedPageBase(ABC):
 
         parent = DatabaseRef(database_id=cls._orm_database_id_)
 
-        # bypass the data constructor to avoid multiple copies of the page data...
         connected = cls()
         connected.page = cls._orm_session_.pages.create(parent=parent)
 
         # FIXME it would be better to convert properties to a dict and pass to the API,
-        # rather than setting them individually here...  this is bad performance.
-        for name, value in properties.items():
+        # rather than setting them individually here...
+        for name, value in kwargs.items():
             setattr(connected, name, value)
 
         return connected
@@ -108,7 +110,7 @@ def Property(name, cls=RichText, default=None):
 
     log.debug("creating new Property: %s", name)
 
-    def getter(self):
+    def fget(self):
         """Return the current value of the property as a python object."""
 
         if not isinstance(self, ConnectedPageBase):
@@ -130,7 +132,7 @@ def Property(name, cls=RichText, default=None):
 
         return prop
 
-    def setter(self, value):
+    def fset(self, value):
         """Set the property to the given value."""
 
         if not isinstance(self, ConnectedPageBase):
@@ -138,13 +140,11 @@ def Property(name, cls=RichText, default=None):
 
         log.debug("setter %s [%s] => %s %s", cls, name, value, type(value))
 
-        # convert native objects to expected types
         if isinstance(value, cls):
             prop = value
 
-        elif hasattr(cls, "from_value"):
-            from_value = cls.from_value
-            prop = from_value(value)
+        elif hasattr(cls, "__compose__"):
+            prop = cls.__compose__(value)
 
         else:
             raise ValueError(f"Value does not match expected type: {cls}")
@@ -155,7 +155,7 @@ def Property(name, cls=RichText, default=None):
         # update the property live on the server
         self._orm_session_.pages.update(self.page, **{name: prop})
 
-    return property(getter, setter)
+    return property(fget, fset)
 
 
 def connected_page(session=None, cls=ConnectedPageBase):

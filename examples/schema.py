@@ -42,11 +42,11 @@ status = [
 
 props = {
     "Name": schema.Title(),
-    "Estimate": schema.Number.format(schema.NumberFormat.DOLLAR),
+    "Estimate": schema.Number[schema.NumberFormat.DOLLAR],
     "Approved": schema.Checkbox(),
     "Points": schema.Number(),
     "Due Date": schema.Date(),
-    "Status": schema.Select.options(*status),
+    "Status": schema.Select[status],
     "Last Update": schema.LastEditedTime(),
 }
 
@@ -60,16 +60,16 @@ one_week = date.today() + timedelta(days=7)
 entry = notion.pages.create(
     parent=db,
     properties={
-        "Name": types.Title.from_value("Big Project"),
-        "Approved": types.Checkbox.from_value(True),
-        "Points": types.Number.from_value(42),
-        "Status": types.SelectOne.from_value("In Progress"),
-        "Due Date": types.Date.from_value(one_week),
-        "Estimate": types.Number.from_value(1000000),
+        "Name": types.Title["Big Project"],
+        "Approved": types.Checkbox[True],
+        "Points": types.Number[42],
+        "Status": types.SelectOne["In Progress"],
+        "Due Date": types.Date[one_week],
+        "Estimate": types.Number[1000000],
     },
 )
 
-# we can also construct complex values manually...
+# we can also construct complex values directly (rather than composing)...
 
 content = types.TextObject._NestedData(content="Small Project")
 text = types.TextObject(plain_text=content.content, text=content)

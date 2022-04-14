@@ -74,14 +74,12 @@ task = Task.create(
 
 print(f"{task.Title} @ {task.LastUpdate}")
 
-task.Attachments.append(
-    types.ExternalFile.from_url(
-        "https://miro.medium.com/max/2872/1*T-qHsJ6L5UjpJP-6JVZz0w.jpeg"
-    )
-)
+task.Attachments += types.ExternalFile[
+    "https://miro.medium.com/max/2872/1*T-qHsJ6L5UjpJP-6JVZz0w.jpeg", "spoon.jpeg"
+]
 
 # add task content as child blocks of this task...
-task += blocks.Paragraph.from_text("Welcome to the matrix.")
+task += blocks.Paragraph["Welcome to the matrix."]
 
 # alternative form to append multiple blocks in a single call...
-task.append(blocks.Divider(), blocks.Quote.from_text("There is no spoon."))
+task.append(blocks.Divider(), blocks.Quote["There is no spoon."])

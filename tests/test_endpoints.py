@@ -112,7 +112,7 @@ def test_create_block(notion, test_area):
 
 def test_delete_block(notion, test_area):
     """Create a block, then delete it and make sure it is gone."""
-    block = blocks.Code.from_text("test_delete_block")
+    block = blocks.Code["test_delete_block"]
 
     notion.blocks.children.append(test_area, block)
     notion.blocks.delete(block)
@@ -123,7 +123,7 @@ def test_delete_block(notion, test_area):
 
 def test_restore_block(notion, test_area):
     """Delete a block, then restore it and make sure it comes back."""
-    block = blocks.Callout.from_text("Reppearing blocks!")
+    block = blocks.Callout["Reppearing blocks!"]
 
     notion.blocks.children.append(test_area, block)
     notion.blocks.delete(block)
@@ -139,7 +139,7 @@ def test_restore_block(notion, test_area):
 
 def test_update_block(notion, test_area):
     """Update a block after it has been created."""
-    block = blocks.ToDo.from_text("Important Task")
+    block = blocks.ToDo["Important Task"]
 
     notion.blocks.children.append(test_area, block)
 
@@ -183,9 +183,9 @@ def test_create_simple_page(notion, test_area):
     """Make sure we can create a page with children."""
 
     children = [
-        blocks.Heading1.from_text("Welcome to the Matrix"),
+        blocks.Heading1["Welcome to the Matrix"],
         blocks.Divider(),
-        blocks.Paragraph.from_text("There is no spoon..."),
+        blocks.Paragraph["There is no spoon..."],
     ]
 
     page = notion.pages.create(
@@ -221,7 +221,7 @@ def test_page_icon(notion, blank_page):
     """Set a page icon and confirm."""
     assert blank_page.icon is None
 
-    snowman = types.EmojiObject(emoji="☃️")
+    snowman = types.EmojiObject["☃️"]
     notion.pages.set(blank_page, icon=snowman)
 
     winter = notion.pages.retrieve(blank_page.id)
@@ -232,9 +232,9 @@ def test_page_cover(notion, blank_page):
     """Set a page cover and confirm."""
     assert blank_page.cover is None
 
-    loved = types.ExternalFile.from_url(
+    loved = types.ExternalFile[
         "https://raw.githubusercontent.com/jheddings/notional/main/tests/data/loved.jpg"
-    )
+    ]
     notion.pages.set(blank_page, cover=loved)
 
     covered = notion.pages.retrieve(blank_page.id)
@@ -318,7 +318,7 @@ def test_change_model_title(notion, simple_model):
 def test_simple_model_with_children(simple_model):
     """Verify appending child blocks to custom types."""
     first = simple_model.create(Name="First")
-    first += blocks.Heading1.from_text("New Business")
+    first += blocks.Heading1["New Business"]
 
     num_children = 0
 
