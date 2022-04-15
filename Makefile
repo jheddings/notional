@@ -56,6 +56,12 @@ coverage: test
 	$(WITH_VENV) coverage html
 
 ################################################################################
+.PHONY: scrub-vcr
+
+scrub-vcr:
+	rm -Rf "$(BASEDIR)/tests/cassettes"
+
+################################################################################
 .PHONY: stats
 
 stats:
@@ -93,7 +99,7 @@ clean:
 ################################################################################
 .PHONY: clobber
 
-clobber: clean
+clobber: clean scrub-vcr
 	$(WITH_VENV) pre-commit uninstall
 	rm -Rf "$(DISTDIR)"
 	rm -Rf "$(VENVDIR)"

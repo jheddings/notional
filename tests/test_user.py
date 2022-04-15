@@ -1,5 +1,7 @@
 """Unit tests for the Notional user objects."""
 
+import pytest
+
 from notional.user import Bot, Person, User
 
 ALICE = """{
@@ -38,3 +40,25 @@ def test_parse_bob():
     assert type(user) == Bot
     assert user.name == "Bob"
     assert user.avatar_url is None
+
+
+@pytest.mark.vcr()
+def test_user_list(notion):
+    """Confirm that we can list some users."""
+    num_users = 0
+
+    for orig in notion.users.list():
+        dup = notion.users.retrieve(orig.id)
+        assert orig == dup
+        num_users += 1
+
+    assert num_users > 0
+
+
+@pytest.mark.vcr()
+def test_me_bot(notion):
+    """Verify that the current user looks valid."""
+    me = notion.users.me()
+
+    assert me is not None
+    assert isinstance(me, Bot)

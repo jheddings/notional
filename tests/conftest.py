@@ -1,4 +1,13 @@
-"""Fixtures for Notional unit tests."""
+"""Fixtures for Notional unit tests.
+
+Some fixtures are considered "connected" since they interact directly with the
+Notion API.  In general, tests using these fixtures should be marked with `vcr`
+to improve performance and ensure reproducibility.
+
+Required environment variables for "connected" fixtures:
+  - `NOTION_AUTH_TOKEN`: the integration token used for testing.
+  - `NOTION_TEST_AREA`: a page ID that can be used for testing
+"""
 
 import os
 
@@ -9,6 +18,23 @@ from notional import records, schema
 from notional.orm import Property, connected_page
 
 from .utils import mktitle
+
+
+@pytest.fixture(scope="module")
+def vcr_config():
+    """Configure pytest-vcr."""
+
+    def remove_headers(response):
+        response["headers"] = {}
+        return response
+
+    return {
+        "filter_headers": [
+            ("authorization", "secret..."),
+            ("user-agent", None),
+        ],
+        "before_record_response": remove_headers,
+    }
 
 
 @pytest.fixture

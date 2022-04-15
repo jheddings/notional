@@ -18,13 +18,13 @@ def test_property_type():
 def test_invalid_property_types():
     """Fail when using incorrect Property definitions."""
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         Property("BAD_TYPE", schema.Title)
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         Property("BAD_TYPE", types.Title())
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         Property("BAD_TYPE", "ImaType")
 
 
@@ -71,3 +71,62 @@ def test_custom_model_page_id(local_model):
 
     page = local_model.parse_obj(data)
     assert page.id == page_id
+
+
+@pytest.mark.vcr()
+def test_simple_model(notion, simple_model):
+    """Create a simple object and verify connectivity."""
+
+    only = simple_model.create(Name="One&Only")
+    assert only.Name == "One&Only"
+
+    obj = notion.pages.retrieve(only.id)
+    assert only.Name == obj.Title
+
+
+@pytest.mark.vcr()
+def test_change_model_title(notion, simple_model):
+    """Create a simple custom object and change its data."""
+    first = simple_model.create(Name="First")
+
+    first.Name = "Second"
+    assert first.Name == "Second"
+
+    # in our model, `Name` is the title property...
+    obj = notion.pages.retrieve(first.id)
+    assert first.Name == obj.Title
+
+
+@pytest.mark.vcr()
+def test_simple_model_with_children(simple_model):
+    """Verify appending child blocks to custom types."""
+    first = simple_model.create(Name="First")
+    first += blocks.Heading1["New Business"]
+
+    num_children = 0
+
+    for child in first.children:
+        assert child.PlainText == "New Business"
+        num_children += 1
+
+    assert num_children == 1
+
+
+@pytest.mark.vcr()
+def test_missing_property(notion, simple_db):
+    """Make sure we raise an error on missing properties."""
+
+    CustomPage = connected_page(session=notion)
+
+    class _ConnectedModel(CustomPage):
+        __database__ = simple_db.id
+
+        Name = Property("Name", schema.Title())
+        NewProperty = Property("NoSuchProperty")
+
+    incorrect = _ConnectedModel.create(Name="MissingProp")
+
+    assert incorrect.Name == "MissingProp"
+
+    with pytest.raises(AttributeError):
+        assert incorrect.NewProperty != ...

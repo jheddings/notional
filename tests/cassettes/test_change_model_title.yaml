@@ -1,0 +1,168 @@
+interactions:
+- request:
+    body: '{"parent": {"type": "page_id", "page_id": "250662d9-783d-483c-b131-341ed479f96c"},
+      "title": [{"type": "text", "plain_text": "tests/test_orm.py::test_change_model_title
+      (setup)", "text": {"content": "tests/test_orm.py::test_change_model_title (setup)"}}],
+      "properties": {"Name": {"type": "title", "title": {}}, "Index": {"type": "number",
+      "number": {"format": "number"}}, "Notes": {"type": "rich_text", "rich_text":
+      {}}, "Complete": {"type": "checkbox", "checkbox": {}}, "Due Date": {"type":
+      "date", "date": {}}, "Tags": {"type": "multi_select", "multi_select": {"options":
+      []}}}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      content-length:
+      - '579'
+      content-type:
+      - application/json
+      host:
+      - api.notion.com
+      notion-version:
+      - '2021-08-16'
+    method: POST
+    uri: https://api.notion.com/v1/databases
+  response:
+    content: '{"object":"database","id":"429bd67d-57d9-482b-b91a-fdc1c430fefc","cover":null,"icon":null,"created_time":"2022-04-15T15:39:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_time":"2022-04-15T15:39:00.000Z","title":[{"type":"text","text":{"content":"tests/test_orm.py::test_change_model_title
+      (setup)","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"tests/test_orm.py::test_change_model_title
+      (setup)","href":null}],"properties":{"Tags":{"id":"Klwg","name":"Tags","type":"multi_select","multi_select":{"options":[]}},"Notes":{"id":"Q%3CW%7B","name":"Notes","type":"rich_text","rich_text":{}},"Complete":{"id":"Xcl%3B","name":"Complete","type":"checkbox","checkbox":{}},"Due
+      Date":{"id":"m%7Do%60","name":"Due Date","type":"date","date":{}},"Index":{"id":"~%3CPA","name":"Index","type":"number","number":{"format":"number"}},"Name":{"id":"title","name":"Name","type":"title","title":{}}},"parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"url":"https://www.notion.so/429bd67d57d9482bb91afdc1c430fefc","archived":false}'
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: '{"parent": {"type": "database_id", "database_id": "429bd67d-57d9-482b-b91a-fdc1c430fefc"},
+      "properties": {}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      content-length:
+      - '108'
+      content-type:
+      - application/json
+      host:
+      - api.notion.com
+      notion-version:
+      - '2021-08-16'
+    method: POST
+    uri: https://api.notion.com/v1/pages
+  response:
+    content: '{"object":"page","id":"54b618dc-37a2-4173-bf53-b61d6952c7b8","created_time":"2022-04-15T15:39:00.000Z","last_edited_time":"2022-04-15T15:39:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"database_id","database_id":"429bd67d-57d9-482b-b91a-fdc1c430fefc"},"archived":false,"properties":{"Tags":{"id":"Klwg","type":"multi_select","multi_select":[]},"Notes":{"id":"Q%3CW%7B","type":"rich_text","rich_text":[]},"Complete":{"id":"Xcl%3B","type":"checkbox","checkbox":false},"Due
+      Date":{"id":"m%7Do%60","type":"date","date":null},"Index":{"id":"~%3CPA","type":"number","number":null},"Name":{"id":"title","type":"title","title":[]}},"url":"https://www.notion.so/54b618dc37a24173bf53b61d6952c7b8"}'
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: '{"properties": {"Name": {"type": "title", "title": [{"type": "text", "plain_text":
+      "First", "text": {"content": "First"}}]}}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      content-length:
+      - '125'
+      content-type:
+      - application/json
+      host:
+      - api.notion.com
+      notion-version:
+      - '2021-08-16'
+    method: PATCH
+    uri: https://api.notion.com/v1/pages/54b618dc37a24173bf53b61d6952c7b8
+  response:
+    content: '{"object":"page","id":"54b618dc-37a2-4173-bf53-b61d6952c7b8","created_time":"2022-04-15T15:39:00.000Z","last_edited_time":"2022-04-15T15:39:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"database_id","database_id":"429bd67d-57d9-482b-b91a-fdc1c430fefc"},"archived":false,"properties":{"Tags":{"id":"Klwg","type":"multi_select","multi_select":[]},"Notes":{"id":"Q%3CW%7B","type":"rich_text","rich_text":[]},"Complete":{"id":"Xcl%3B","type":"checkbox","checkbox":false},"Due
+      Date":{"id":"m%7Do%60","type":"date","date":null},"Index":{"id":"~%3CPA","type":"number","number":null},"Name":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"First","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"First","href":null}]}},"url":"https://www.notion.so/First-54b618dc37a24173bf53b61d6952c7b8"}'
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: '{"properties": {"Name": {"type": "title", "title": [{"type": "text", "plain_text":
+      "Second", "text": {"content": "Second"}}]}}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      content-length:
+      - '127'
+      content-type:
+      - application/json
+      host:
+      - api.notion.com
+      notion-version:
+      - '2021-08-16'
+    method: PATCH
+    uri: https://api.notion.com/v1/pages/54b618dc37a24173bf53b61d6952c7b8
+  response:
+    content: '{"object":"page","id":"54b618dc-37a2-4173-bf53-b61d6952c7b8","created_time":"2022-04-15T15:39:00.000Z","last_edited_time":"2022-04-15T15:39:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"database_id","database_id":"429bd67d-57d9-482b-b91a-fdc1c430fefc"},"archived":false,"properties":{"Tags":{"id":"Klwg","type":"multi_select","multi_select":[]},"Notes":{"id":"Q%3CW%7B","type":"rich_text","rich_text":[]},"Complete":{"id":"Xcl%3B","type":"checkbox","checkbox":false},"Due
+      Date":{"id":"m%7Do%60","type":"date","date":null},"Index":{"id":"~%3CPA","type":"number","number":null},"Name":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"Second","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Second","href":null}]}},"url":"https://www.notion.so/Second-54b618dc37a24173bf53b61d6952c7b8"}'
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      host:
+      - api.notion.com
+      notion-version:
+      - '2021-08-16'
+    method: GET
+    uri: https://api.notion.com/v1/pages/54b618dc-37a2-4173-bf53-b61d6952c7b8
+  response:
+    content: '{"object":"page","id":"54b618dc-37a2-4173-bf53-b61d6952c7b8","created_time":"2022-04-15T15:39:00.000Z","last_edited_time":"2022-04-15T15:39:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"database_id","database_id":"429bd67d-57d9-482b-b91a-fdc1c430fefc"},"archived":false,"properties":{"Tags":{"id":"Klwg","type":"multi_select","multi_select":[]},"Notes":{"id":"Q%3CW%7B","type":"rich_text","rich_text":[]},"Complete":{"id":"Xcl%3B","type":"checkbox","checkbox":false},"Due
+      Date":{"id":"m%7Do%60","type":"date","date":null},"Index":{"id":"~%3CPA","type":"number","number":null},"Name":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"Second","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Second","href":null}]}},"url":"https://www.notion.so/Second-54b618dc37a24173bf53b61d6952c7b8"}'
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      host:
+      - api.notion.com
+      notion-version:
+      - '2021-08-16'
+    method: DELETE
+    uri: https://api.notion.com/v1/blocks/429bd67d57d9482bb91afdc1c430fefc
+  response:
+    content: '{"object":"block","id":"429bd67d-57d9-482b-b91a-fdc1c430fefc","created_time":"2022-04-15T15:39:00.000Z","last_edited_time":"2022-04-15T15:39:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":true,"type":"child_database","child_database":{"title":"tests/test_orm.py::test_change_model_title
+      (setup)"}}'
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1
