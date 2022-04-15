@@ -18,22 +18,21 @@ class ConnectedPageBase(ABC):
 
     def __init__(self, **data):
         """Construct a page from the given data dictionary."""
-        self.page = Page(**data) if data else None
-        self._pending_props = {}
+        self.__page_data__ = Page(**data) if data else None
 
     @property
     def id(self):
         """Return the ID of this page (if available)."""
-        return self.page.id if self.page else None
+        return self.__page_data__.id if self.__page_data__ else None
 
     @property
     def children(self):
         """Return an iterator for all child blocks of this Page."""
 
-        if self.page is None:
+        if self.__page_data__ is None:
             return []
 
-        return self._orm_session_.blocks.children.list(parent=self.page)
+        return self._orm_session_.blocks.children.list(parent=self.__page_data__)
 
     def __iadd__(self, block):
         """Append the given block to this page.
@@ -53,14 +52,16 @@ class ConnectedPageBase(ABC):
         immediately.
         """
 
-        if self.page is None:
+        if self.__page_data__ is None:
             raise ValueError("Cannote append blocks; missing page")
 
         if self._orm_session_ is None:
             raise ValueError("Cannote append blocks; invalid session")
 
-        log.debug("appending %d blocks to page :: %s", len(blocks), self.page.id)
-        self._orm_session_.blocks.children.append(self.page, *blocks)
+        log.debug(
+            "appending %d blocks to page :: %s", len(blocks), self.__page_data__.id
+        )
+        self._orm_session_.blocks.children.append(self.__page_data__, *blocks)
 
     @classmethod
     def create(cls, **kwargs):
@@ -83,7 +84,7 @@ class ConnectedPageBase(ABC):
         parent = DatabaseRef(database_id=cls._orm_database_id_)
 
         connected = cls()
-        connected.page = cls._orm_session_.pages.create(parent=parent)
+        connected.__page_data__ = cls._orm_session_.pages.create(parent=parent)
 
         # FIXME it would be better to convert properties to a dict and pass to the API,
         # rather than setting them individually here...
@@ -105,9 +106,7 @@ class _ConnectedPropertyWrapper:
     """Contains the information and methods needed for a connected property."""
 
     def __init__(self, name, schema, default):
-        self.name = name
-        self.schema = schema
-        self.default = default
+        """Initialize the property wrapper."""
 
         if name is None or len(name) == 0:
             raise AttributeError("Must provide a valid property name")
@@ -115,6 +114,9 @@ class _ConnectedPropertyWrapper:
         if schema is None:
             raise AttributeError("Invalid schema; cannot be None")
 
+        self.name = name
+        self.default = default
+        self.schema = schema
         self.data_type = type(schema)
 
         if not hasattr(self.data_type, "type") or self.data_type.type is None:
@@ -137,30 +139,38 @@ class _ConnectedPropertyWrapper:
 
         # XXX should we do any additional error checking on the object?
 
-        self.page = obj.page
-        self.session = obj._orm_session_
+        self.parent = obj
+        self.page_data = self.parent.__page_data__
+        self.session = self.parent._orm_session_
 
-    def getter(self):
+    def get(self):
         """Return the current value of the property as a python object."""
         log.debug("fget :: %s [%s]", self.type_name, self.name)
 
+        # TODO raise instead?
+        if self.page_data is None:
+            return None
+
         try:
-            prop = self.page[self.name]
+            prop = self.page_data[self.name]
         except AttributeError:
             prop = self.default
 
         if not isinstance(prop, self.value_type):
             raise TypeError("Type mismatch")
 
-        # convert native objects to expected types
         if hasattr(prop, "Value"):
             return prop.Value
 
         return prop
 
-    def setter(self, value):
+    def set(self, value):
         """Set the property to the given value."""
         log.debug("fset :: %s [%s] => %s", self.type_name, self.name, type(value))
+
+        # TODO raise instead?
+        if self.page_data is None:
+            return None
 
         if isinstance(value, self.value_type):
             prop = value
@@ -172,11 +182,17 @@ class _ConnectedPropertyWrapper:
             raise TypeError(f"Unsupported value type for '{self.type_name}'")
 
         # update the property on the server (which will refresh the local data)
-        self.session.pages.update(self.page, **{self.name: prop})
+        self.session.pages.update(self.page_data, **{self.name: prop})
 
     def delete(self):
         """Delete the value assotiated with this property."""
-        self.session.pages.update(self.page, **{self.name: None})
+
+        # TODO raise instead?
+        if self.page_data is None:
+            return None
+
+        # set the server data to None, indicating "no value"
+        self.session.pages.update(self.page_data, **{self.name: None})
 
 
 def Property(name, schema=None, default=None):
@@ -204,17 +220,17 @@ def Property(name, schema=None, default=None):
     def fget(self):
         """Return the current value of the property as a python object."""
         cprop.bind(self)
-        return cprop.getter()
+        return cprop.get()
 
     def fset(self, value):
         """Set the property to the given value."""
         cprop.bind(self)
-        cprop.setter(value)
+        cprop.set(value)
 
-    def fdel(self, value):
+    def fdel(self):
         """Delete the value for this property."""
         cprop.bind(self)
-        cprop.delete(value)
+        cprop.delete()
 
     return property(fget, fset, fdel)
 
