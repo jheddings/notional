@@ -54,7 +54,7 @@ class BlocksEndpoint(Endpoint):
 
             parent_id = get_target_id(parent)
 
-            children = [block.to_api() for block in blocks if block is not None]
+            children = [block.to_api() for block in blocks if block]
 
             log.info("Appending %d blocks to %s ...", len(children), parent_id)
 
@@ -163,7 +163,7 @@ class DatabasesEndpoint(Endpoint):
         if isinstance(title, TextObject):
             request["title"] = [title.to_api()]
         elif isinstance(title, list):
-            request["title"] = [prop.to_api() for prop in title]
+            request["title"] = [prop.to_api() for prop in title if prop]
         elif isinstance(title, str):
             prop = TextObject[title]
             request["title"] = [prop.to_api()]
@@ -172,7 +172,8 @@ class DatabasesEndpoint(Endpoint):
 
         if schema is not None:
             request["properties"] = {
-                name: value.to_api() for name, value in schema.items()
+                name: value.to_api() if value else None
+                for name, value in schema.items()
             }
 
         return request
@@ -286,11 +287,11 @@ class PagesEndpoint(Endpoint):
             properties["title"] = Title[title]
 
         request["properties"] = {
-            name: prop.to_api() for name, prop in properties.items()
+            name: prop.to_api() if prop else None for name, prop in properties.items()
         }
 
         if children is not None:
-            request["children"] = [child.to_api() for child in children]
+            request["children"] = [child.to_api() for child in children if child]
 
         log.info("Creating page :: %s => %s", parent, title)
 
@@ -333,7 +334,10 @@ class PagesEndpoint(Endpoint):
         if not properties:
             properties = page.properties
 
-        props = {name: value.to_api() for name, value in properties.items()}
+        props = {
+            name: value.to_api() if value else None
+            for name, value in properties.items()
+        }
 
         data = self().update(page.id.hex, properties=props)
 
