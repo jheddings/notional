@@ -105,14 +105,14 @@ class ConnectedPageBase(ABC):
 class _ConnectedPropertyWrapper:
     """Contains the information and methods needed for a connected property."""
 
-    def __init__(self, name, schema, default):
+    def __init__(self, name, schema, default=...):
         """Initialize the property wrapper."""
 
         if name is None or len(name) == 0:
-            raise AttributeError("Must provide a valid property name")
+            raise ValueError("Must provide a valid property name")
 
         if schema is None:
-            raise AttributeError("Invalid schema; cannot be None")
+            raise ValueError("Invalid schema; cannot be None")
 
         self.name = name
         self.default = default
@@ -120,7 +120,7 @@ class _ConnectedPropertyWrapper:
         self.data_type = type(schema)
 
         if not hasattr(self.data_type, "type") or self.data_type.type is None:
-            raise AttributeError("Invalid schema; undefined type")
+            raise ValueError("Invalid schema; undefined type")
 
         self.type_name = self.data_type.type
 
@@ -154,7 +154,9 @@ class _ConnectedPropertyWrapper:
         try:
             prop = self.page_data[self.name]
         except AttributeError:
-            prop = self.default
+            if self.default == ...:
+                raise AttributeError(f"Missing property: '{self.name}'")
+            return self.default
 
         if not isinstance(prop, self.value_type):
             raise TypeError("Type mismatch")
@@ -191,11 +193,12 @@ class _ConnectedPropertyWrapper:
         if self.page_data is None:
             return None
 
-        # set the server data to None, indicating "no value"
-        self.session.pages.update(self.page_data, **{self.name: None})
+        empty = self.value_type()
+
+        self.session.pages.update(self.page_data, **{self.name: empty})
 
 
-def Property(name, schema=None, default=None):
+def Property(name, schema=None, default=...):
     """Define a property for a Notion Page object.
 
     :param name: the Notion table property name
@@ -209,7 +212,7 @@ def Property(name, schema=None, default=None):
         schema = RichText()
 
     elif not isinstance(schema, PropertyObject):
-        raise AttributeError("Invalid data_type; not a PropertyObject")
+        raise TypeError("Invalid data_type; not a PropertyObject")
 
     cprop = _ConnectedPropertyWrapper(
         name=name,
