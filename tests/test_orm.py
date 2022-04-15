@@ -113,6 +113,34 @@ def test_simple_model_with_children(simple_model):
 
 
 @pytest.mark.vcr()
+def test_multiple_databases(simple_model):
+    """Make sure we cannot register a model to multiple databases."""
+
+    # the simple_model fixture is already attached to a remote database...
+
+    with pytest.raises(TypeError):
+
+        class _(simple_model):
+            __database__ = "local"
+
+    with pytest.raises(TypeError):
+
+        class _(simple_model, database="local"):
+            pass
+
+
+def test_missing_database():
+    """Raise an error if a custom model fails to specify a database."""
+
+    CustomPage = connected_page()
+
+    with pytest.raises(ValueError):
+
+        class _(CustomPage):
+            pass
+
+
+@pytest.mark.vcr()
 def test_missing_property(notion, simple_db):
     """Make sure we raise an error on missing properties."""
 
