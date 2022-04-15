@@ -100,7 +100,7 @@ def dormouse():
     """Parse the `dormouse.html` test data as a test fixture."""
     parser = HtmlParser()
 
-    filename = os.path.join(BASEDIR, "data", "dormouse.html")
+    filename = os.path.join(BASEDIR, "dormouse.html")
     with open(filename, "r") as fp:
         html = fp.read()
 
