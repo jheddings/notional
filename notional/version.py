@@ -3,9 +3,11 @@
 import logging
 import os
 
+from git import InvalidGitRepositoryError
+
 log = logging.getLogger(__name__)
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 # if we are running in a local copy, append the repo information
 # XXX do we want to do something more advanced when using `make publish` ?
@@ -29,6 +31,9 @@ try:
 
     if repo.is_dirty():
         __version__ = f"{__version__}+"
+
+except InvalidGitRepositoryError:
+    pass
 
 except ModuleNotFoundError:
     pass
