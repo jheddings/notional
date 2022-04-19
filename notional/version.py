@@ -3,8 +3,6 @@
 import logging
 import os
 
-from git import InvalidGitRepositoryError
-
 log = logging.getLogger(__name__)
 
 __version__ = "0.3.2"
@@ -21,19 +19,20 @@ try:
     basedir = os.path.dirname(os.path.abspath(__file__)) + "/.."
     log.debug("version basedir: %s", basedir)
 
-    repo = git.Repo(basedir, search_parent_directories=True)
-    head = repo.head.commit
+    try:
+        repo = git.Repo(basedir, search_parent_directories=True)
+        head = repo.head.commit
 
-    assert not repo.bare
+        assert not repo.bare
 
-    # TODO add branch name
-    __version__ = f"{__version__}-{head.hexsha[:7]}"
+        # TODO add branch name
+        __version__ = f"{__version__}-{head.hexsha[:7]}"
 
-    if repo.is_dirty():
-        __version__ = f"{__version__}+"
+        if repo.is_dirty():
+            __version__ = f"{__version__}+"
 
-except InvalidGitRepositoryError:
-    pass
+    except git.InvalidGitRepositoryError:
+        pass
 
 except ModuleNotFoundError:
     pass
