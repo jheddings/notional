@@ -21,9 +21,9 @@ this, delcare a class and its members using Notional types:
 
 ```python
 class Task(CustomPage, database=NOTION_DATABASE_ID):
-    Title = Property('Title', types.Title)
-    Priority = Property('Priority', types.SelectOne)
-    DueDate = Property('Due Date', types.Date)
+    Title = Property('Title', schema.Title())
+    Priority = Property('Priority', schema.SelectOne())
+    DueDate = Property('Due Date', schema.Date())
 ```
 
 Alternatively, you may set the database ID as a private member of the custom type:
@@ -35,6 +35,8 @@ class Task(CustomPage):
 
 In the examples, `NOTION_DATABASE_ID` is defined as a string or UUID of a database
 visible to the current integration.
+
+Review the [`schema`](reference/schema.md) reference for all available types.
 
 ## Querying ##
 

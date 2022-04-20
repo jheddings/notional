@@ -81,6 +81,8 @@ class ComposableObject(ModelMetaclass):
         if not hasattr(self, "__compose__"):
             raise NotImplementedError(f"{self} does not support object composition")
 
+        # XXX if params is empty / None, consider calling the default constructor
+
         compose = self.__compose__
 
         if type(params) is tuple:
@@ -202,7 +204,7 @@ class TypedObject(DataObject):
 
         cls._modify_field_("type", default=sub_type)
 
-        # initialize a _subtypes_ map for each direct child of TypedObject
+        # initialize a __typemap__ map for each direct child of TypedObject
 
         # this allows different class trees to have the same 'type' name
         # but point to a different object (e.g. the 'date' type may have
@@ -212,15 +214,15 @@ class TypedObject(DataObject):
         # the map is defined for a subclass of TypedObject, any further
         # descendants of that class will have the new map via inheritance
 
-        if TypedObject in cls.__bases__ and not hasattr(cls, "_subtypes_"):
-            cls._subtypes_ = {}
+        if TypedObject in cls.__bases__ and not hasattr(cls, "__typemap__"):
+            cls.__typemap__ = {}
 
-        if sub_type in cls._subtypes_:
+        if sub_type in cls.__typemap__:
             raise ValueError(f"Duplicate subtype for class - {sub_type} :: {cls}")
 
         log.debug("registered new subtype: %s => %s", sub_type, cls)
 
-        cls._subtypes_[sub_type] = cls
+        cls.__typemap__[sub_type] = cls
 
     def __call__(self, field=None):
         """Return nested data from this Block.
@@ -269,10 +271,10 @@ class TypedObject(DataObject):
         if data_type is None:
             raise ValueError("Missing 'type' in TypedObject")
 
-        if not hasattr(cls, "_subtypes_"):
-            raise TypeError(f"Invalid TypedObject: {cls} - missing _subtypes_")
+        if not hasattr(cls, "__typemap__"):
+            raise TypeError(f"Invalid TypedObject: {cls} - missing __typemap__")
 
-        sub = cls._subtypes_.get(data_type)
+        sub = cls.__typemap__.get(data_type)
 
         if sub is None:
             raise TypeError(f"Unsupport sub-type: {data_type}")

@@ -1,16 +1,8 @@
-"""Unit tests for Notion API endpoints.
+"""Unit tests for Notional records."""
 
-These are considered "live" tests, as they will interact directly with the Notion API.
+import pytest
 
-Running these tests requires setting specific environment variables.  If these
-variables are not defined, the tests will be skipped.
-
-Required environment variables:
-  - `NOTION_AUTH_TOKEN`: the integration token used for testing.
-  - `NOTION_TEST_AREA`: a page ID that can be used for testing
-"""
-
-from notional import blocks, records, schema, types, user
+from notional import blocks, schema, types
 
 from .utils import mktitle
 
@@ -48,112 +40,7 @@ def confirm_blocks(notion, parent, *blocks):
     assert num_blocks == len(blocks)
 
 
-def test_active_session(notion):
-    """Verify the session reports as active."""
-    assert notion.IsActive
-
-    notion.close()
-    assert not notion.IsActive
-
-
-def test_ping_session(notion):
-    """Verify the active session responds to a ping."""
-    assert notion.ping()
-
-
-def test_user_list(notion):
-    """Confirm that we can list some users."""
-    num_users = 0
-
-    for orig in notion.users.list():
-        dup = notion.users.retrieve(orig.id)
-        assert orig == dup
-        num_users += 1
-
-    assert num_users > 0
-
-
-def test_me_bot(notion):
-    """Verify that the current user looks valid."""
-    me = notion.users.me()
-
-    assert me is not None
-    assert isinstance(me, user.Bot)
-
-
-def test_simple_search(notion):
-    """Make sure search returns some results."""
-
-    search = notion.search()
-
-    num_results = 0
-
-    for result in search.execute():
-        assert isinstance(result, records.Record)
-        num_results += 1
-
-    # sanity check to make sure some results came back
-    assert num_results > 0
-
-
-def test_create_block(notion, test_area):
-    """Create a single block and confirm its contents."""
-    block = blocks.Divider()
-
-    notion.blocks.children.append(test_area, block)
-    assert block.id is not None
-    assert block.archived is False
-
-    new_block = notion.blocks.retrieve(block.id)
-    assert new_block == block
-
-    notion.blocks.delete(new_block)
-
-
-def test_delete_block(notion, test_area):
-    """Create a block, then delete it and make sure it is gone."""
-    block = blocks.Code["test_delete_block"]
-
-    notion.blocks.children.append(test_area, block)
-    notion.blocks.delete(block)
-
-    deleted = notion.blocks.retrieve(block.id)
-    assert deleted.archived is True
-
-
-def test_restore_block(notion, test_area):
-    """Delete a block, then restore it and make sure it comes back."""
-    block = blocks.Callout["Reppearing blocks!"]
-
-    notion.blocks.children.append(test_area, block)
-    notion.blocks.delete(block)
-    notion.blocks.restore(block)
-
-    restored = notion.blocks.retrieve(block.id)
-
-    assert restored.archived is False
-    assert restored == block
-
-    notion.blocks.delete(restored)
-
-
-def test_update_block(notion, test_area):
-    """Update a block after it has been created."""
-    block = blocks.ToDo["Important Task"]
-
-    notion.blocks.children.append(test_area, block)
-
-    block.to_do.checked = True
-    notion.blocks.update(block)
-
-    todo = notion.blocks.retrieve(block.id)
-
-    assert todo.IsChecked
-    assert block == todo
-
-    notion.blocks.delete(block)
-
-
+@pytest.mark.vcr()
 def test_iterate_page_blocks(notion, test_area):
     """Iterate over all blocks on the test page and its descendants.
 
@@ -165,6 +52,7 @@ def test_iterate_page_blocks(notion, test_area):
         pass
 
 
+@pytest.mark.vcr()
 def test_create_empty_page(notion, blank_page):
     """Create an empty page and confirm its contents."""
 
@@ -179,6 +67,7 @@ def test_create_empty_page(notion, blank_page):
     assert num_children == 0, f"found {num_children} unexpected item(s) in result set"
 
 
+@pytest.mark.vcr()
 def test_create_simple_page(notion, test_area):
     """Make sure we can create a page with children."""
 
@@ -199,6 +88,7 @@ def test_create_simple_page(notion, test_area):
     notion.pages.delete(page)
 
 
+@pytest.mark.vcr()
 def test_restore_page(notion, blank_page):
     """Create / delete / restore a page.
 
@@ -217,6 +107,7 @@ def test_restore_page(notion, blank_page):
     assert not restored.archived
 
 
+@pytest.mark.vcr()
 def test_page_icon(notion, blank_page):
     """Set a page icon and confirm."""
     assert blank_page.icon is None
@@ -228,6 +119,7 @@ def test_page_icon(notion, blank_page):
     assert winter.icon == snowman
 
 
+@pytest.mark.vcr()
 def test_page_cover(notion, blank_page):
     """Set a page cover and confirm."""
     assert blank_page.cover is None
@@ -241,6 +133,7 @@ def test_page_cover(notion, blank_page):
     assert covered.cover == loved
 
 
+@pytest.mark.vcr()
 def test_create_database(notion, blank_db):
     """Create a database and confirm its contents."""
 
@@ -258,6 +151,7 @@ def test_create_database(notion, blank_db):
     assert num_children == 0, f"found {num_children} unexpected item(s) in result set"
 
 
+@pytest.mark.vcr()
 def test_restore_database(notion, blank_db):
     """Delete a database, then restore it."""
     notion.databases.delete(blank_db)
@@ -269,6 +163,7 @@ def test_restore_database(notion, blank_db):
     assert not restored.archived
 
 
+@pytest.mark.vcr()
 def test_update_schema(notion, blank_db):
     """Create a simple database and update the schema."""
 
@@ -291,39 +186,3 @@ def test_update_schema(notion, blank_db):
 
     assert improved_db.Title == "Improved Database"
     assert len(improved_db.properties) == len(props)
-
-
-def test_simple_model(notion, simple_model):
-    """Create a simple object and verify connectivity."""
-
-    only = simple_model.create(Name="One&Only")
-    assert only.Name == "One&Only"
-
-    obj = notion.pages.retrieve(only.id)
-    assert only.Name == obj.Title
-
-
-def test_change_model_title(notion, simple_model):
-    """Create a simple custom object and change its data."""
-    first = simple_model.create(Name="First")
-
-    first.Name = "Second"
-    assert first.Name == "Second"
-
-    # in our model, `Name` is the title property...
-    obj = notion.pages.retrieve(first.id)
-    assert first.Name == obj.Title
-
-
-def test_simple_model_with_children(simple_model):
-    """Verify appending child blocks to custom types."""
-    first = simple_model.create(Name="First")
-    first += blocks.Heading1["New Business"]
-
-    num_children = 0
-
-    for child in first.children:
-        assert child.PlainText == "New Business"
-        num_children += 1
-
-    assert num_children == 1

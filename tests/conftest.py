@@ -1,14 +1,40 @@
-"""Fixtures for Notional unit tests."""
+"""Fixtures for Notional unit tests.
+
+Some fixtures are considered "connected" since they interact directly with the
+Notion API.  In general, tests using these fixtures should be marked with `vcr`
+to improve performance and ensure reproducibility.
+
+Required environment variables for "connected" fixtures:
+  - `NOTION_AUTH_TOKEN`: the integration token used for testing.
+  - `NOTION_TEST_AREA`: a page ID that can be used for testing
+"""
 
 import os
 
 import pytest
 
 import notional
-from notional import records, schema, types
+from notional import records, schema
 from notional.orm import Property, connected_page
 
 from .utils import mktitle
+
+
+@pytest.fixture(scope="module")
+def vcr_config():
+    """Configure pytest-vcr."""
+
+    def remove_headers(response):
+        response["headers"] = {}
+        return response
+
+    return {
+        "filter_headers": [
+            ("authorization", "secret..."),
+            ("user-agent", None),
+        ],
+        "before_record_response": remove_headers,
+    }
 
 
 @pytest.fixture
@@ -54,7 +80,7 @@ def test_area():
 def blank_page(notion, test_area):
     """Return a temporary (empty) page for testing.
 
-    This page will be deleted during tear down.
+    This page will be deleted during teardown.
     """
 
     page = notion.pages.create(
@@ -74,7 +100,7 @@ def blank_page(notion, test_area):
 def blank_db(notion, test_area):
     """Return a temporary (empty) database for testing.
 
-    This database will be deleted during tear down.
+    This database will be deleted during teardown.
     """
 
     db = notion.databases.create(
@@ -91,11 +117,32 @@ def blank_db(notion, test_area):
 
 
 @pytest.fixture
+def local_model():
+    """Return an un-bound ORM model."""
+
+    CustomPage = connected_page()
+
+    class _BasicType(CustomPage):
+        __database__ = "local"
+
+        Name = Property("Name", schema.Title())
+        Index = Property("Index", schema.Number())
+        Notes = Property("Notes", schema.RichText())
+        Complete = Property("Complete", schema.Checkbox())
+        DueDate = Property("DueDate", schema.Date())
+        Tags = Property("Tags", schema.MultiSelect())
+
+    yield _BasicType
+
+
+@pytest.fixture
 def simple_db(notion, test_area):
     """Return a temporary (empty) database for testing.
 
-    This database will be deleted during tear down.
+    This database will be deleted during teardown.
     """
+
+    # TODO - can we derrive the schema from local_model?
 
     db = notion.databases.create(
         parent=test_area,
@@ -119,7 +166,7 @@ def simple_db(notion, test_area):
 def simple_model(notion, simple_db):
     """Return a Connected Page that matches the schema for `simple_db`.
 
-    The model's database will be deleted during tear down.
+    The model's database will be deleted during teardown.
     """
 
     CustomPage = connected_page(session=notion)
@@ -127,11 +174,12 @@ def simple_model(notion, simple_db):
     class _SimpleModel(CustomPage):
         __database__ = simple_db.id
 
-        Name = Property("Name", types.Title)
-        Index = Property("Index", types.Number)
-        Notes = Property("Notes", types.RichText)
-        Complete = Property("Complete", types.Checkbox)
-        DueDate = Property("DueDate", types.Date)
-        Tags = Property("Tags", types.MultiSelect)
+        Name = Property("Name", schema.Title())
+        Index = Property("Index", schema.Number())
+        Notes = Property("Notes", schema.RichText())
+        Complete = Property("Complete", schema.Checkbox())
+        DueDate = Property("DueDate", schema.Date())
+        Tags = Property("Tags", schema.MultiSelect())
 
+    # TODO yield connected_page(session=notion, database=simple_db)
     yield _SimpleModel
