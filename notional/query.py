@@ -12,7 +12,7 @@ from pydantic import Field, validator
 from .blocks import Block
 from .core import DataObject
 from .iterator import EndpointIterator
-from .orm import ConnectedPageBase
+from .orm import ConnectedPage
 from .records import Database, Page, ParentRef, Record
 
 log = logging.getLogger(__name__)
@@ -33,11 +33,11 @@ def get_target_id(target):
     if isinstance(target, ParentRef):
         return target().hex
 
-    if isclass(target) and issubclass(target, ConnectedPageBase):
-        if target._orm_database_id_ is None:
+    if isclass(target) and issubclass(target, ConnectedPage):
+        if target._orm_dbid_ is None:
             raise ValueError("ConnectedPage has no database")
 
-        return target._orm_database_id_
+        return target._orm_dbid_
 
     raise ValueError("unsupported query target")
 

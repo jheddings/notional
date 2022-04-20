@@ -10,7 +10,7 @@ from .types import PropertyValue
 log = logging.getLogger(__name__)
 
 
-class ConnectedPageBase(ABC):
+class ConnectedPage(ABC):
     """Base class for "live" pages via the Notion API.
 
     All changes are committed in real time.
@@ -134,7 +134,7 @@ class _ConnectedPropertyWrapper:
     def bind(self, obj):
         """Binds this property to the given object."""
 
-        if not isinstance(obj, ConnectedPageBase):
+        if not isinstance(obj, ConnectedPage):
             raise TypeError("Properties must be used in a ConnectedPage object")
 
         # XXX should we do any additional error checking on the object?
@@ -238,7 +238,7 @@ def Property(name, schema=None, default=...):
     return property(fget, fset, fdel)
 
 
-def connected_page(session=None, cls=ConnectedPageBase):
+def connected_page(session=None, cls=ConnectedPage):
     """Return a base class for "connected" pages through the Notion API.
 
     Subclasses may then inherit from the returned class to define custom ORM types.
@@ -252,7 +252,7 @@ def connected_page(session=None, cls=ConnectedPageBase):
       to the schema provided
     """
 
-    if not issubclass(cls, ConnectedPageBase):
+    if not issubclass(cls, ConnectedPage):
         raise ValueError("cls must subclass ConnectedPageBase")
 
     class _ConnectedPage(cls):

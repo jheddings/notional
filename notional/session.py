@@ -9,7 +9,7 @@ from notion_client.errors import APIResponseError
 
 from .blocks import Block
 from .iterator import EndpointIterator
-from .orm import ConnectedPageBase
+from .orm import ConnectedPage
 from .query import QueryBuilder, ResultSet, get_target_id
 from .records import Database, Page, ParentRef
 from .text import TextObject
@@ -253,7 +253,7 @@ class DatabasesEndpoint(Endpoint):
 
         cls = None
 
-        if isclass(target) and issubclass(target, ConnectedPageBase):
+        if isclass(target) and issubclass(target, ConnectedPage):
             cls = target
 
             if cls._orm_session_ != self.session:

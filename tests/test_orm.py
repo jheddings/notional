@@ -5,7 +5,7 @@ from uuid import uuid4
 import pytest
 
 from notional import blocks, schema, types
-from notional.orm import ConnectedPageBase, Property, connected_page
+from notional.orm import ConnectedPage, Property, connected_page
 
 
 def test_property_type():
@@ -49,7 +49,7 @@ def test_empty_page(local_model):
     """Verify expected behavior with an empty page."""
     empty = local_model()
 
-    assert isinstance(empty, ConnectedPageBase)
+    assert isinstance(empty, ConnectedPage)
     assert empty.id is None
 
     num_children = 0
