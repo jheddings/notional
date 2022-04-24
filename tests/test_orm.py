@@ -112,32 +112,16 @@ def test_simple_model_with_children(simple_model):
     assert num_children == 1
 
 
-@pytest.mark.vcr()
-def test_multiple_databases(simple_model):
-    """Make sure we cannot register a model to multiple databases."""
-
-    # the simple_model fixture is already attached to a remote database...
-
-    with pytest.raises(TypeError):
-
-        class _(simple_model):
-            __database__ = "local"
-
-    with pytest.raises(TypeError):
-
-        class _(simple_model, database="local"):
-            pass
-
-
 def test_missing_database():
     """Raise an error if a custom model fails to specify a database."""
 
     CustomPage = connected_page()
 
-    with pytest.raises(ValueError):
+    class _MissingDatabse(CustomPage):
+        pass
 
-        class _(CustomPage):
-            pass
+    with pytest.raises(ValueError):
+        _MissingDatabse.create()
 
 
 @pytest.mark.vcr()

@@ -1,5 +1,6 @@
 """Utilities for working text, markdown & Rich Text in Notion."""
 
+import re
 from copy import deepcopy
 from enum import Enum
 from typing import Optional
@@ -92,6 +93,20 @@ def strip(*rtf):
     """
     lstrip(*rtf)
     rstrip(*rtf)
+
+
+def make_safe_python_name(name):
+    """Make the given string safe for use as a Python identifier.
+
+    This will remove any leading characters that are not valid and change all
+    invalid interior sequences to underscore.
+    """
+
+    s = re.sub(r"[^0-9a-zA-Z_]+", "_", name)
+    s = re.sub(r"^[^a-zA-Z]+", "", s)
+
+    # remove trailing underscores
+    return s.rstrip("_")
 
 
 class Color(str, Enum):

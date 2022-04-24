@@ -256,7 +256,7 @@ class DatabasesEndpoint(Endpoint):
         if isclass(target) and issubclass(target, ConnectedPage):
             cls = target
 
-            if cls._orm_session_ != self.session:
+            if cls._notional__session != self.session:
                 raise ValueError("ConnectedPage belongs to a different session")
 
         return QueryBuilder(endpoint=self().query, cls=cls, database_id=database_id)

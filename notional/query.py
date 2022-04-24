@@ -34,10 +34,7 @@ def get_target_id(target):
         return target().hex
 
     if isclass(target) and issubclass(target, ConnectedPage):
-        if target._orm_dbid_ is None:
-            raise ValueError("ConnectedPage has no database")
-
-        return target._orm_dbid_
+        return target._notional__database
 
     raise ValueError("unsupported query target")
 

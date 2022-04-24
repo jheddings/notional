@@ -122,8 +122,8 @@ def local_model():
 
     CustomPage = connected_page()
 
-    class _BasicType(CustomPage):
-        __database__ = "local"
+    class _LocalType(CustomPage):
+        __database__ = None
 
         Name = Property("Name", schema.Title())
         Index = Property("Index", schema.Number())
@@ -132,7 +132,7 @@ def local_model():
         DueDate = Property("DueDate", schema.Date())
         Tags = Property("Tags", schema.MultiSelect())
 
-    yield _BasicType
+    yield _LocalType
 
 
 @pytest.fixture
@@ -169,17 +169,4 @@ def simple_model(notion, simple_db):
     The model's database will be deleted during teardown.
     """
 
-    CustomPage = connected_page(session=notion)
-
-    class _SimpleModel(CustomPage):
-        __database__ = simple_db.id
-
-        Name = Property("Name", schema.Title())
-        Index = Property("Index", schema.Number())
-        Notes = Property("Notes", schema.RichText())
-        Complete = Property("Complete", schema.Checkbox())
-        DueDate = Property("DueDate", schema.Date())
-        Tags = Property("Tags", schema.MultiSelect())
-
-    # TODO yield connected_page(session=notion, database=simple_db)
-    yield _SimpleModel
+    yield connected_page(session=notion, source_db=simple_db)
