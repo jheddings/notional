@@ -125,7 +125,7 @@ def test_page_cover(notion, blank_page):
     assert blank_page.cover is None
 
     loved = types.ExternalFile[
-        "https://raw.githubusercontent.com/jheddings/notional/main/tests/data/loved.jpg"
+        "https://raw.githubusercontent.com/jheddings/notional/main/tests/data/loved.png"
     ]
     notion.pages.set(blank_page, cover=loved)
 
