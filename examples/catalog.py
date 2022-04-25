@@ -12,7 +12,6 @@ import logging
 import os
 import sys
 
-from notional import orm
 from notional.orm import connected_page
 
 logging.basicConfig(level=logging.INFO)
@@ -28,7 +27,7 @@ notion = notional.connect(auth=auth_token)
 page = notion.pages.retrieve(page_id)
 CustomPage = connected_page(session=notion)
 
-# create our parts database...
+# create our databases...
 
 parts_schema = {
     "Name": schema.Title(),
@@ -42,20 +41,6 @@ parts_db = notion.databases.create(
     title="Parts",
     schema=parts_schema,
 )
-
-
-class Part(CustomPage):
-    """Defines a custom `Part` type in Notion."""
-
-    __database__ = parts_db.id
-
-    Name = orm.Property("Name", types.Title)
-    Cost = orm.Property("Cost", types.Number)
-    Inventory = orm.Property("Inventory", types.Number)
-    Supplier = orm.Property("Supplier", types.RichText)
-
-
-# create our product database...
 
 product_schema = {
     "Name": schema.Title(),
@@ -76,17 +61,10 @@ product_db = notion.databases.create(
     schema=product_schema,
 )
 
+# use the new databases to create our custom ORM classes...
 
-class Product(CustomPage):
-    """Defines a custom `Product` type in Notion."""
-
-    __database__ = product_db.id
-
-    Name = orm.Property("Name", types.Title)
-    Parts = orm.Property("Parts", types.Relation)
-    COGS = orm.Property("COGS", types.Rollup)
-    Quantity = orm.Property("Quantity", types.Number)
-
+Part = connected_page(session=notion, source_db=parts_db)
+Product = connected_page(session=notion, source_db=product_db)
 
 # add parts to the database...
 
