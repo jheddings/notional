@@ -161,3 +161,15 @@ def test_orm_icon(notion, simple_model):
 
     assert obj.icon is not None
     assert obj.icon.emoji == "🍔"
+
+
+@pytest.mark.vcr()
+def test_orm_query(simple_model):
+    """Make sure we can query for custom types."""
+
+    needle = simple_model.create(Name="Needle")
+
+    obj = simple_model.query().first()
+
+    assert obj.id == needle.id
+    assert obj.Name == "Needle"

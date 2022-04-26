@@ -40,10 +40,11 @@ Review the [`schema`](reference/schema.md) reference for all available types.
 
 ## Querying ##
 
-Use the `QueryBuilder` class to iterate over custom types:
+Connected pages expose a `query()` method, which returns a custom `QueryBuilder` for
+iterating over user-defined types:
 
 ```python
-for task in notion.databases.query(Task).execute():
+for task in Task.query().execute():
     print(f"{task.Title} => {task.Priority}")
     task.DueDate = date.today()
 ```

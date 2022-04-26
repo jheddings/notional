@@ -248,10 +248,10 @@ class ConnectedPage:
         """
 
         if self._notional__page is None:
-            raise ValueError("Cannote append blocks; missing page")
+            raise ValueError("Cannot append blocks; missing page")
 
         if self._notional__session is None:
-            raise ValueError("Cannote append blocks; invalid session")
+            raise ValueError("Cannot append blocks; invalid session")
 
         log.debug(
             "appending %d blocks to page :: %s", len(blocks), self._notional__page.id
@@ -269,6 +269,18 @@ class ConnectedPage:
         cls._notional__session = to_session
 
     @classmethod
+    def query(cls):
+        """Return a `QueryBuilder` for the custom type."""
+
+        if cls._notional__session is None:
+            raise ValueError("Unable to query; invalid session")
+
+        if cls._notional__database is None:
+            raise ValueError("Unable to query; invalid database")
+
+        return cls._notional__session.databases.query(cls)
+
+    @classmethod
     def create(cls, **kwargs):
         """Create a new instance of the ConnectedPage type.
 
@@ -282,10 +294,10 @@ class ConnectedPage:
         """
 
         if cls._notional__session is None:
-            raise ValueError("Cannote create Page; invalid session")
+            raise ValueError("Cannot create Page; invalid session")
 
         if cls._notional__database is None:
-            raise ValueError("Cannote create Page; invalid database")
+            raise ValueError("Cannot create Page; invalid database")
 
         log.debug("creating new %s :: %s", cls, cls._notional__database)
 
