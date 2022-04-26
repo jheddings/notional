@@ -175,6 +175,16 @@ class ConnectedPage:
         """Construct a page from the given data dictionary."""
         self._notional__page = Page(**data) if data else None
 
+    def __init_subclass__(cls, database=None, **kwargs):
+        """Register new subclasses of a ConnectedPage."""
+        super(cls).__init_subclass__(**kwargs)
+
+        if database is not None:
+            cls._notional__database = database
+
+        elif hasattr(cls, "__database__"):
+            cls._notional__database = cls.__database__
+
     @property
     def id(self):
         """Return the ID of this page (if available)."""
@@ -244,10 +254,7 @@ class ConnectedPage:
         if cls._notional__session is None:
             raise ValueError("Cannote create Page; invalid session")
 
-        if hasattr(cls, "__database__"):
-            cls._notional__database = cls.__database__
-
-        elif cls._notional__database is None:
+        if cls._notional__database is None:
             raise ValueError("Cannote create Page; invalid database")
 
         log.debug("creating new %s :: %s", cls, cls._notional__database)

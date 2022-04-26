@@ -5,12 +5,12 @@ interactions:
       "tests/test_records.py::test_create_simple_page (call)", "text": {"content":
       "tests/test_records.py::test_create_simple_page (call)"}}]}}, "children": [{"type":
       "heading_1", "object": "block", "has_children": false, "archived": false, "heading_1":
-      {"text": [{"type": "text", "plain_text": "Welcome to the Matrix", "text": {"content":
-      "Welcome to the Matrix"}}], "color": "default"}}, {"type": "divider", "object":
-      "block", "has_children": false, "archived": false, "divider": {}}, {"type":
-      "paragraph", "object": "block", "has_children": false, "archived": false, "paragraph":
-      {"text": [{"type": "text", "plain_text": "There is no spoon...", "text": {"content":
-      "There is no spoon..."}}], "color": "default"}}]}'
+      {"rich_text": [{"type": "text", "plain_text": "Welcome to the Matrix", "text":
+      {"content": "Welcome to the Matrix"}}], "color": "default"}}, {"type": "divider",
+      "object": "block", "has_children": false, "archived": false, "divider": {}},
+      {"type": "paragraph", "object": "block", "has_children": false, "archived":
+      false, "paragraph": {"rich_text": [{"type": "text", "plain_text": "There is
+      no spoon...", "text": {"content": "There is no spoon..."}}], "color": "default"}}]}'
     headers:
       accept:
       - '*/*'
@@ -21,19 +21,19 @@ interactions:
       connection:
       - keep-alive
       content-length:
-      - '877'
+      - '887'
       content-type:
       - application/json
       host:
       - api.notion.com
       notion-version:
-      - '2021-08-16'
+      - '2022-02-22'
     method: POST
     uri: https://api.notion.com/v1/pages
   response:
-    content: '{"object":"page","id":"bdd56e1d-d0ec-4f03-bd5c-2b5cf3283aa1","created_time":"2022-04-25T02:41:00.000Z","last_edited_time":"2022-04-25T02:41:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"archived":false,"properties":{"title":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"tests/test_records.py::test_create_simple_page
+    content: '{"object":"page","id":"135ecebc-ed70-4100-9cb3-f8daf0cb8fda","created_time":"2022-04-26T02:11:00.000Z","last_edited_time":"2022-04-26T02:11:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"archived":false,"properties":{"title":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"tests/test_records.py::test_create_simple_page
       (call)","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"tests/test_records.py::test_create_simple_page
-      (call)","href":null}]}},"url":"https://www.notion.so/tests-test_records-py-test_create_simple_page-call-bdd56e1dd0ec4f03bd5c2b5cf3283aa1"}'
+      (call)","href":null}]}},"url":"https://www.notion.so/tests-test_records-py-test_create_simple_page-call-135ecebced7041009cb3f8daf0cb8fda"}'
     headers: {}
     http_version: HTTP/1.1
     status_code: 200
@@ -51,15 +51,15 @@ interactions:
       host:
       - api.notion.com
       notion-version:
-      - '2021-08-16'
+      - '2022-02-22'
     method: GET
-    uri: https://api.notion.com/v1/blocks/bdd56e1dd0ec4f03bd5c2b5cf3283aa1/children?page_size=100
+    uri: https://api.notion.com/v1/blocks/135ecebced7041009cb3f8daf0cb8fda/children?page_size=100
   response:
-    content: '{"object":"list","results":[{"object":"block","id":"dcbeb88e-ec34-4b17-8af3-d2726cadc38f","created_time":"2022-04-25T02:41:00.000Z","last_edited_time":"2022-04-25T02:41:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":false,"type":"heading_1","heading_1":{"color":"default","text":[{"type":"text","text":{"content":"Welcome
+    content: '{"object":"list","results":[{"object":"block","id":"c9ba19a6-61df-4ffc-a3e0-a30208260c79","created_time":"2022-04-26T02:11:00.000Z","last_edited_time":"2022-04-26T02:11:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":false,"type":"heading_1","heading_1":{"rich_text":[{"type":"text","text":{"content":"Welcome
       to the Matrix","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Welcome
-      to the Matrix","href":null}]}},{"object":"block","id":"d1eb7874-9483-4a5e-8d13-c41760873918","created_time":"2022-04-25T02:41:00.000Z","last_edited_time":"2022-04-25T02:41:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":false,"type":"divider","divider":{}},{"object":"block","id":"9b4d6532-a73b-486c-8b86-3cd21d68339f","created_time":"2022-04-25T02:41:00.000Z","last_edited_time":"2022-04-25T02:41:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":false,"type":"paragraph","paragraph":{"color":"default","text":[{"type":"text","text":{"content":"There
+      to the Matrix","href":null}],"color":"default"}},{"object":"block","id":"50ec1ac6-26d9-44e6-8671-f0b9d3e9a548","created_time":"2022-04-26T02:11:00.000Z","last_edited_time":"2022-04-26T02:11:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":false,"type":"divider","divider":{}},{"object":"block","id":"d3f25589-10e8-4c68-a854-e1aced884c9c","created_time":"2022-04-26T02:11:00.000Z","last_edited_time":"2022-04-26T02:11:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":false,"type":"paragraph","paragraph":{"rich_text":[{"type":"text","text":{"content":"There
       is no spoon...","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"There
-      is no spoon...","href":null}]}}],"next_cursor":null,"has_more":false}'
+      is no spoon...","href":null}],"color":"default"}}],"next_cursor":null,"has_more":false,"type":"block","block":{}}'
     headers: {}
     http_version: HTTP/1.1
     status_code: 200
@@ -81,105 +81,13 @@ interactions:
       host:
       - api.notion.com
       notion-version:
-      - '2021-08-16'
+      - '2022-02-22'
     method: PATCH
-    uri: https://api.notion.com/v1/pages/bdd56e1dd0ec4f03bd5c2b5cf3283aa1
+    uri: https://api.notion.com/v1/pages/135ecebced7041009cb3f8daf0cb8fda
   response:
-    content: '{"object":"page","id":"bdd56e1d-d0ec-4f03-bd5c-2b5cf3283aa1","created_time":"2022-04-25T02:41:00.000Z","last_edited_time":"2022-04-25T02:41:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"archived":true,"properties":{"title":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"tests/test_records.py::test_create_simple_page
+    content: '{"object":"page","id":"135ecebc-ed70-4100-9cb3-f8daf0cb8fda","created_time":"2022-04-26T02:11:00.000Z","last_edited_time":"2022-04-26T02:11:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"archived":true,"properties":{"title":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"tests/test_records.py::test_create_simple_page
       (call)","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"tests/test_records.py::test_create_simple_page
-      (call)","href":null}]}},"url":"https://www.notion.so/tests-test_records-py-test_create_simple_page-call-bdd56e1dd0ec4f03bd5c2b5cf3283aa1"}'
-    headers: {}
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: '{"parent": {"type": "page_id", "page_id": "250662d9-783d-483c-b131-341ed479f96c"},
-      "properties": {"title": {"type": "title", "title": [{"type": "text", "plain_text":
-      "tests/test_records.py::test_create_simple_page (call)", "text": {"content":
-      "tests/test_records.py::test_create_simple_page (call)"}}]}}, "children": [{"type":
-      "heading_1", "object": "block", "has_children": false, "archived": false, "heading_1":
-      {"text": [{"type": "text", "plain_text": "Welcome to the Matrix", "text": {"content":
-      "Welcome to the Matrix"}}], "color": "default"}}, {"type": "divider", "object":
-      "block", "has_children": false, "archived": false, "divider": {}}, {"type":
-      "paragraph", "object": "block", "has_children": false, "archived": false, "paragraph":
-      {"text": [{"type": "text", "plain_text": "There is no spoon...", "text": {"content":
-      "There is no spoon..."}}], "color": "default"}}]}'
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      authorization:
-      - secret...
-      connection:
-      - keep-alive
-      content-length:
-      - '877'
-      content-type:
-      - application/json
-      host:
-      - api.notion.com
-      notion-version:
-      - '2021-08-16'
-    method: POST
-    uri: https://api.notion.com/v1/pages
-  response:
-    content: '{"object":"page","id":"cfa64643-44ef-456b-ab44-7299a84cba13","created_time":"2022-04-23T22:51:00.000Z","last_edited_time":"2022-04-23T22:51:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"archived":false,"properties":{"title":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"tests/test_records.py::test_create_simple_page
-      (call)","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"tests/test_records.py::test_create_simple_page
-      (call)","href":null}]}},"url":"https://www.notion.so/tests-test_records-py-test_create_simple_page-call-cfa6464344ef456bab447299a84cba13"}'
-    headers: {}
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      authorization:
-      - secret...
-      connection:
-      - keep-alive
-      host:
-      - api.notion.com
-      notion-version:
-      - '2021-08-16'
-    method: GET
-    uri: https://api.notion.com/v1/blocks/cfa6464344ef456bab447299a84cba13/children?page_size=100
-  response:
-    content: '{"object":"list","results":[{"object":"block","id":"b9c24607-1e47-4f07-a7ff-2d96d73287e6","created_time":"2022-04-23T22:51:00.000Z","last_edited_time":"2022-04-23T22:51:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":false,"type":"heading_1","heading_1":{"color":"default","text":[{"type":"text","text":{"content":"Welcome
-      to the Matrix","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Welcome
-      to the Matrix","href":null}]}},{"object":"block","id":"15fcad18-510a-4099-92d2-e43d55a1bf81","created_time":"2022-04-23T22:51:00.000Z","last_edited_time":"2022-04-23T22:51:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":false,"type":"divider","divider":{}},{"object":"block","id":"d20fec35-5192-4200-9b67-fcd412cb87ce","created_time":"2022-04-23T22:51:00.000Z","last_edited_time":"2022-04-23T22:51:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":false,"type":"paragraph","paragraph":{"color":"default","text":[{"type":"text","text":{"content":"There
-      is no spoon...","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"There
-      is no spoon...","href":null}]}}],"next_cursor":null,"has_more":false}'
-    headers: {}
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: '{"archived": true}'
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      authorization:
-      - secret...
-      connection:
-      - keep-alive
-      content-length:
-      - '18'
-      content-type:
-      - application/json
-      host:
-      - api.notion.com
-      notion-version:
-      - '2021-08-16'
-    method: PATCH
-    uri: https://api.notion.com/v1/pages/cfa6464344ef456bab447299a84cba13
-  response:
-    content: '{"object":"page","id":"cfa64643-44ef-456b-ab44-7299a84cba13","created_time":"2022-04-23T22:51:00.000Z","last_edited_time":"2022-04-23T22:51:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"archived":true,"properties":{"title":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"tests/test_records.py::test_create_simple_page
-      (call)","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"tests/test_records.py::test_create_simple_page
-      (call)","href":null}]}},"url":"https://www.notion.so/tests-test_records-py-test_create_simple_page-call-cfa6464344ef456bab447299a84cba13"}'
+      (call)","href":null}]}},"url":"https://www.notion.so/tests-test_records-py-test_create_simple_page-call-135ecebced7041009cb3f8daf0cb8fda"}'
     headers: {}
     http_version: HTTP/1.1
     status_code: 200

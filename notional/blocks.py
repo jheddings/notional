@@ -51,15 +51,11 @@ class TextBlock(Block, ABC):
     def __text__(self):
         """Provide short-hand access to the nested text content in this block."""
 
-        return self("text")
+        return self("rich_text")
 
     @classmethod
     def __compose__(cls, text):
-        """Compose a `TextBlock` from the given text.
-
-        In practice, this is called using a concrete subclass of `TextBlock`, such as
-        `Paragraph.from_text()` or similar.
-        """
+        """Compose a `TextBlock` from the given text."""
 
         if text is None:
             return None
@@ -74,11 +70,11 @@ class TextBlock(Block, ABC):
 
         nested = self()
 
-        if not hasattr(nested, "text"):
+        if not hasattr(nested, "rich_text"):
             raise AttributeError("nested data does not contain text")
 
-        if nested.text is None:
-            nested.text = []
+        if nested.rich_text is None:
+            nested.rich_text = []
 
         for obj in text:
             if obj is None:
@@ -101,7 +97,7 @@ class TextBlock(Block, ABC):
     def _append_rtf(self, rtf):
         """Append the given RichTextObject to this TextObject."""
         nested = self()
-        nested.text.append(rtf)
+        nested.rich_text.append(rtf)
 
     def _append_text(self, text):
         """Append the given text to this TextObject.
@@ -114,7 +110,7 @@ class TextBlock(Block, ABC):
 
         for chunk in chunky(text):
             obj = TextObject[chunk]
-            nested.text.append(obj)
+            nested.rich_text.append(obj)
 
     @property
     def PlainText(self):
@@ -162,7 +158,7 @@ class Paragraph(TextBlock, WithChildrenMixin, type="paragraph"):
     """A paragraph block in Notion."""
 
     class _NestedData(NestedObject):
-        text: List[RichTextObject] = []
+        rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -172,8 +168,8 @@ class Paragraph(TextBlock, WithChildrenMixin, type="paragraph"):
     def Markdown(self):
         """Return the contents of this block as markdown text."""
 
-        if self.paragraph and self.paragraph.text:
-            return markdown(*self.paragraph.text)
+        if self.paragraph and self.paragraph.rich_text:
+            return markdown(*self.paragraph.rich_text)
 
         return ""
 
@@ -182,7 +178,7 @@ class Heading1(TextBlock, type="heading_1"):
     """A heading_1 block in Notion."""
 
     class _NestedData(NestedObject):
-        text: List[RichTextObject] = []
+        rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
     heading_1: _NestedData = _NestedData()
@@ -191,8 +187,8 @@ class Heading1(TextBlock, type="heading_1"):
     def Markdown(self):
         """Return the contents of this block as markdown text."""
 
-        if self.heading_1 and self.heading_1.text:
-            return f"# {markdown(*self.heading_1.text)} #"
+        if self.heading_1 and self.heading_1.rich_text:
+            return f"# {markdown(*self.heading_1.rich_text)} #"
 
         return ""
 
@@ -201,7 +197,7 @@ class Heading2(TextBlock, type="heading_2"):
     """A heading_2 block in Notion."""
 
     class _NestedData(NestedObject):
-        text: List[RichTextObject] = []
+        rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
     heading_2: _NestedData = _NestedData()
@@ -210,8 +206,8 @@ class Heading2(TextBlock, type="heading_2"):
     def Markdown(self):
         """Return the contents of this block as markdown text."""
 
-        if self.heading_2 and self.heading_2.text:
-            return f"## {markdown(*self.heading_2.text)} ##"
+        if self.heading_2 and self.heading_2.rich_text:
+            return f"## {markdown(*self.heading_2.rich_text)} ##"
 
         return ""
 
@@ -220,7 +216,7 @@ class Heading3(TextBlock, type="heading_3"):
     """A heading_3 block in Notion."""
 
     class _NestedData(NestedObject):
-        text: List[RichTextObject] = []
+        rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
     heading_3: _NestedData = _NestedData()
@@ -229,8 +225,8 @@ class Heading3(TextBlock, type="heading_3"):
     def Markdown(self):
         """Return the contents of this block as markdown text."""
 
-        if self.heading_3 and self.heading_3.text:
-            return f"### {markdown(*self.heading_3.text)} ###"
+        if self.heading_3 and self.heading_3.rich_text:
+            return f"### {markdown(*self.heading_3.rich_text)} ###"
 
         return ""
 
@@ -239,7 +235,7 @@ class Quote(TextBlock, WithChildrenMixin, type="quote"):
     """A quote block in Notion."""
 
     class _NestedData(NestedObject):
-        text: List[RichTextObject] = []
+        rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -249,8 +245,8 @@ class Quote(TextBlock, WithChildrenMixin, type="quote"):
     def Markdown(self):
         """Return the contents of this block as markdown text."""
 
-        if self.quote and self.quote.text:
-            return "> " + markdown(*self.quote.text)
+        if self.quote and self.quote.rich_text:
+            return "> " + markdown(*self.quote.rich_text)
 
         return ""
 
@@ -259,7 +255,7 @@ class Code(TextBlock, type="code"):
     """A code block in Notion."""
 
     class _NestedData(NestedObject):
-        text: List[RichTextObject] = []
+        rich_text: List[RichTextObject] = []
         caption: List[RichTextObject] = []
         language: CodingLanguage = CodingLanguage.PLAIN_TEXT
 
@@ -270,7 +266,7 @@ class Code(TextBlock, type="code"):
         """Compose a `Code` block from the given text and language."""
         return Code(
             code=Code._NestedData(
-                text=[TextObject[text]],
+                rich_text=[TextObject[text]],
                 language=lang,
             )
         )
@@ -283,8 +279,8 @@ class Code(TextBlock, type="code"):
 
         # FIXME this is not the standard way to represent code blocks in markdown...
 
-        if self.code and self.code.text:
-            return f"```{lang}\n{markdown(*self.code.text)}\n```"
+        if self.code and self.code.rich_text:
+            return f"```{lang}\n{markdown(*self.code.rich_text)}\n```"
 
         return ""
 
@@ -293,7 +289,7 @@ class Callout(TextBlock, WithChildrenMixin, type="callout"):
     """A callout block in Notion."""
 
     class _NestedData(NestedObject):
-        text: List[RichTextObject] = []
+        rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         icon: Optional[Union[FileObject, EmojiObject]] = None
         color: FullColor = FullColor.DEFAULT
@@ -305,7 +301,7 @@ class BulletedListItem(TextBlock, WithChildrenMixin, type="bulleted_list_item"):
     """A bulleted list item in Notion."""
 
     class _NestedData(NestedObject):
-        text: List[RichTextObject] = []
+        rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -315,8 +311,8 @@ class BulletedListItem(TextBlock, WithChildrenMixin, type="bulleted_list_item"):
     def Markdown(self):
         """Return the contents of this block as markdown text."""
 
-        if self.bulleted_list_item and self.bulleted_list_item.text:
-            return f"- {markdown(*self.bulleted_list_item.text)}"
+        if self.bulleted_list_item and self.bulleted_list_item.rich_text:
+            return f"- {markdown(*self.bulleted_list_item.rich_text)}"
 
         return ""
 
@@ -325,7 +321,7 @@ class NumberedListItem(TextBlock, WithChildrenMixin, type="numbered_list_item"):
     """A numbered list item in Notion."""
 
     class _NestedData(NestedObject):
-        text: List[RichTextObject] = []
+        rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -335,8 +331,8 @@ class NumberedListItem(TextBlock, WithChildrenMixin, type="numbered_list_item"):
     def Markdown(self):
         """Return the contents of this block as markdown text."""
 
-        if self.numbered_list_item and self.numbered_list_item.text:
-            return f"1. {markdown(*self.numbered_list_item.text)}"
+        if self.numbered_list_item and self.numbered_list_item.rich_text:
+            return f"1. {markdown(*self.numbered_list_item.rich_text)}"
 
         return ""
 
@@ -345,7 +341,7 @@ class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
     """A todo list item in Notion."""
 
     class _NestedData(NestedObject):
-        text: List[RichTextObject] = []
+        rich_text: List[RichTextObject] = []
         checked: bool = False
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
@@ -353,11 +349,11 @@ class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
     to_do: _NestedData = _NestedData()
 
     @classmethod
-    def __compose__(cls, text, checked=False):
+    def __compose__(cls, text, checked=False, href=None):
         """Compose a ToDo block from the given text and checked state."""
         return ToDo(
             to_do=ToDo._NestedData(
-                text=[TextObject[text]],
+                rich_text=[TextObject[text, href]],
                 checked=checked,
             )
         )
@@ -374,11 +370,11 @@ class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
     def Markdown(self):
         """Return the contents of this block as markdown text."""
 
-        if self.to_do and self.to_do.text:
+        if self.to_do and self.to_do.rich_text:
             if self.to_do.checked:
-                return f"- [x] {markdown(*self.to_do.text)}"
+                return f"- [x] {markdown(*self.to_do.rich_text)}"
 
-            return f"- [ ] {markdown(*self.to_do.text)}"
+            return f"- [ ] {markdown(*self.to_do.rich_text)}"
 
         return ""
 
@@ -387,7 +383,7 @@ class Toggle(TextBlock, WithChildrenMixin, type="toggle"):
     """A toggle list item in Notion."""
 
     class _NestedData(NestedObject):
-        text: List[RichTextObject] = []
+        rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 

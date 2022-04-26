@@ -303,7 +303,7 @@ def test_strong_text():
         expected_text="Strong Text",
     )
 
-    text = block("text")
+    text = block("rich_text")
 
     assert len(text) == 1
     check_style(text[0], bold=True)
@@ -318,7 +318,7 @@ def test_emphasis_text():
         expected_text="Emphasis Text",
     )
 
-    text = block("text")
+    text = block("rich_text")
 
     assert len(text) == 1
     check_style(text[0], italic=True)
