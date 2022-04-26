@@ -39,7 +39,7 @@ def get_target_id(target):
     raise ValueError("unsupported query target")
 
 
-class TextConstraint(DataObject):
+class TextCondition(DataObject):
     """Represents text criteria in Notion."""
 
     equals: Optional[str] = None
@@ -52,7 +52,7 @@ class TextConstraint(DataObject):
     is_not_empty: Optional[bool] = None
 
 
-class NumberConstraint(DataObject):
+class NumberCondition(DataObject):
     """Represents number criteria in Notion."""
 
     equals: Optional[Union[float, int]] = None
@@ -65,14 +65,14 @@ class NumberConstraint(DataObject):
     is_not_empty: Optional[bool] = None
 
 
-class CheckboxConstraint(DataObject):
+class CheckboxCondition(DataObject):
     """Represents checkbox criteria in Notion."""
 
     equals: Optional[bool] = None
     does_not_equal: Optional[bool] = None
 
 
-class SelectOneConstraint(DataObject):
+class SelectCondition(DataObject):
     """Represents select criteria in Notion."""
 
     equals: Optional[str] = None
@@ -81,7 +81,7 @@ class SelectOneConstraint(DataObject):
     is_not_empty: Optional[bool] = None
 
 
-class MultiSelectConstraint(DataObject):
+class MultiSelectCondition(DataObject):
     """Represents a multi_select criteria in Notion."""
 
     contains: Optional[str] = None
@@ -90,7 +90,7 @@ class MultiSelectConstraint(DataObject):
     is_not_empty: Optional[bool] = None
 
 
-class DateConstraint(DataObject):
+class DateCondition(DataObject):
     """Represents date criteria in Notion."""
 
     equals: Optional[Union[date, datetime]] = None
@@ -110,7 +110,7 @@ class DateConstraint(DataObject):
     next_year: Optional[Any] = None
 
 
-class PeopleConstraint(DataObject):
+class PeopleCondition(DataObject):
     """Represents people criteria in Notion."""
 
     contains: Optional[UUID] = None
@@ -119,14 +119,14 @@ class PeopleConstraint(DataObject):
     is_not_empty: Optional[bool] = None
 
 
-class FilesConstraint(DataObject):
+class FilesCondition(DataObject):
     """Represents files criteria in Notion."""
 
     is_empty: Optional[bool] = None
     is_not_empty: Optional[bool] = None
 
 
-class RelationConstraint(DataObject):
+class RelationCondition(DataObject):
     """Represents relation criteria in Notion."""
 
     contains: Optional[UUID] = None
@@ -135,13 +135,13 @@ class RelationConstraint(DataObject):
     is_not_empty: Optional[bool] = None
 
 
-class FormulaConstraint(DataObject):
+class FormulaCondition(DataObject):
     """Represents formula criteria in Notion."""
 
-    text: Optional[TextConstraint] = None
-    checkbox: Optional[CheckboxConstraint] = None
-    number: Optional[NumberConstraint] = None
-    date: Optional[DateConstraint] = None
+    text: Optional[TextCondition] = None
+    checkbox: Optional[CheckboxCondition] = None
+    number: Optional[NumberCondition] = None
+    date: Optional[DateCondition] = None
 
 
 class QueryFilter(DataObject):
@@ -153,16 +153,17 @@ class PropertyFilter(QueryFilter):
 
     property: str
 
-    text: Optional[TextConstraint] = None
-    number: Optional[NumberConstraint] = None
-    checkbox: Optional[CheckboxConstraint] = None
-    select: Optional[SelectOneConstraint] = None
-    multi_select: Optional[MultiSelectConstraint] = None
-    date: Optional[DateConstraint] = None
-    people: Optional[PeopleConstraint] = None
-    files: Optional[FilesConstraint] = None
-    relation: Optional[RelationConstraint] = None
-    formula: Optional[FormulaConstraint] = None
+    rich_text: Optional[TextCondition] = None
+    phone_number: Optional[TextCondition] = None
+    number: Optional[NumberCondition] = None
+    checkbox: Optional[CheckboxCondition] = None
+    select: Optional[SelectCondition] = None
+    multi_select: Optional[MultiSelectCondition] = None
+    date: Optional[DateCondition] = None
+    people: Optional[PeopleCondition] = None
+    files: Optional[FilesCondition] = None
+    relation: Optional[RelationCondition] = None
+    formula: Optional[FormulaCondition] = None
 
 
 class TimestampKind(str, Enum):
@@ -194,7 +195,7 @@ class CreatedTimeFilter(TimestampFilter):
     """Represents a created_time filter in Notion."""
 
     timestamp: TimestampKind = TimestampKind.CREATED_TIME
-    created_time: DateConstraint
+    created_time: DateCondition
 
     @classmethod
     def create(cls, constraint):
@@ -206,7 +207,7 @@ class LastEditedTimeFilter(TimestampFilter):
     """Represents a last_edited_time filter in Notion."""
 
     timestamp: TimestampKind = TimestampKind.LAST_EDITED_TIME
-    last_edited_time: DateConstraint
+    last_edited_time: DateCondition
 
     @classmethod
     def create(cls, constraint):

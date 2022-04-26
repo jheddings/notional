@@ -16,11 +16,11 @@ logging.basicConfig(level=logging.INFO)
 
 import notional
 from notional.query import (
-    DateConstraint,
+    DateCondition,
     LastEditedTimeFilter,
-    NumberConstraint,
+    NumberCondition,
     SortDirection,
-    TextConstraint,
+    TextCondition,
 )
 
 dbid = sys.argv[1]
@@ -42,9 +42,9 @@ for data in query.execute():
 
 query = (
     notion.databases.query(dbid)
-    .filter(property="Title", text=TextConstraint(contains="project"))
-    .filter(property="Cost", number=NumberConstraint(greater_than=1000000))
-    .filter(LastEditedTimeFilter.create(DateConstraint(past_week={})))
+    .filter(property="Title", rich_text=TextCondition(contains="project"))
+    .filter(property="Cost", number=NumberCondition(greater_than=1000000))
+    .filter(LastEditedTimeFilter.create(DateCondition(past_week={})))
     .limit(1)
 )
 

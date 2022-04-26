@@ -25,7 +25,7 @@ def test_basic_number_constraint():
 
     qb = (
         query.QueryBuilder(mock, cls=MockDataObject)
-        .filter(property="index", number=query.NumberConstraint(equals=42))
+        .filter(property="index", number=query.NumberCondition(equals=42))
         .limit(1)
     )
 
@@ -40,11 +40,11 @@ def test_number_range_constraint():
         query.QueryBuilder(mock, cls=MockDataObject)
         .filter(
             property="index",
-            number=query.NumberConstraint(greater_than=25),
+            number=query.NumberCondition(greater_than=25),
         )
         .filter(
             property="index",
-            number=query.NumberConstraint(less_than_or_equal_to=75),
+            number=query.NumberCondition(less_than_or_equal_to=75),
         )
     )
 
