@@ -88,6 +88,15 @@ class ExternalFile(FileObject, type="external"):
 
     external: _NestedData
 
+    def __str__(self):
+        """Return a string representation of this object."""
+        name = self.name or "__unknown__"
+
+        if self.external and self.external.url:
+            return f"![{name}]({self.external.url})"
+
+        return name
+
     @classmethod
     def __compose__(cls, url, name=None):
         """Create a new `ExternalFile` from the given URL."""
