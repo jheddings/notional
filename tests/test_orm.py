@@ -148,11 +148,16 @@ def test_missing_property(notion, simple_db):
 def test_orm_icon(notion, simple_model):
     """Set the icon for a connected page."""
 
-    shades = simple_model.create()
-    shades.icon = "😎"
+    burger = simple_model.create()
+    burger.icon = "🍔"
 
-    obj = notion.pages.retrieve(shades.id)
+    fries = simple_model.create()
+    fries.icon = "🍟"
+
+    shake = simple_model.create()
+    shake.icon = "🥤"
+
+    obj = notion.pages.retrieve(burger.id)
 
     assert obj.icon is not None
-
-    # XXX why doesn't obj.icon.emoji equal "😎️" ??
+    assert obj.icon.emoji == "🍔"
