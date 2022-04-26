@@ -9,7 +9,7 @@ import logging
 from .records import Database, DatabaseRef, Page
 from .schema import PropertyObject, RichText
 from .text import make_safe_python_name
-from .types import PropertyValue
+from .types import EmojiObject, PropertyValue
 
 log = logging.getLogger(__name__)
 
@@ -198,6 +198,36 @@ class ConnectedPage:
             return []
 
         return self._notional__session.blocks.children.list(parent=self._notional__page)
+
+    @property
+    def cover(self):
+        """Return the cover for the Page."""
+        return self._notional__page.cover
+
+    @cover.setter
+    def cover(self, file):
+        """Set the cover for the Page."""
+        self._notional__session.pages.set(self._notional__page, cover=file)
+
+    @property
+    def icon(self):
+        """Return the icon for the Page."""
+        return self._notional__page.icon
+
+    @icon.setter
+    def icon(self, emoji):
+        """Set the icon for the Page.
+
+        :param emoji: may be either a single emoji string or an `EmojiObject`
+        """
+
+        if isinstance(emoji, str):
+            emoji = EmojiObject[emoji]
+
+        elif not isinstance(emoji, EmojiObject):
+            raise ValueError("Invalid emoji; unsupported type")
+
+        self._notional__session.pages.set(self._notional__page, icon=emoji)
 
     def __iadd__(self, block):
         """Append the given block to this page.

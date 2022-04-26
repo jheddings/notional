@@ -142,3 +142,17 @@ def test_missing_property(notion, simple_db):
 
     with pytest.raises(AttributeError):
         assert incorrect.NewProperty != ...
+
+
+@pytest.mark.vcr()
+def test_orm_icon(notion, simple_model):
+    """Set the icon for a connected page."""
+
+    shades = simple_model.create()
+    shades.icon = "😎"
+
+    obj = notion.pages.retrieve(shades.id)
+
+    assert obj.icon is not None
+
+    # XXX why doesn't obj.icon.emoji equal "😎️" ??

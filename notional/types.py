@@ -44,6 +44,10 @@ class EmojiObject(TypedObject, type="emoji"):
 
     emoji: str
 
+    def __str__(self):
+        """Return this EmojiObject as a simple string."""
+        return self.emoji
+
     @classmethod
     def __compose__(cls, emoji):
         """Compose an EmojiObject from the given emjoi string."""
