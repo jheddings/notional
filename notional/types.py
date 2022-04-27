@@ -27,8 +27,8 @@ class PageReference(DataObject):
     def __compose__(cls, page):
         """Return the correct page reference based on the object type."""
 
-        if isinstance(page, PageReference):
-            return page
+        if isinstance(page, str):
+            return PageReference(id=page)
 
         if isinstance(page, UUID):
             return PageReference(id=page)
@@ -420,7 +420,7 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
         """
 
         if value is None:
-            return cls(select={})
+            raise ValueError("'name' cannot be None")
 
         return cls(select=SelectValue(name=value))
 
@@ -446,6 +446,17 @@ class MultiSelect(PropertyValue, type="multi_select"):
     def __len__(self):
         """Count the number of selected values."""
         return len(self.multi_select)
+
+    def __getitem__(self, index):
+        """Return the SelectValue object at the given index."""
+
+        if self.multi_select is None:
+            raise IndexError("empty property")
+
+        if index > len(self.multi_select):
+            raise IndexError("index out of range")
+
+        return self.multi_select[index]
 
     def __iadd__(self, other):
         """Add the given option to this MultiSelect."""
@@ -480,8 +491,12 @@ class MultiSelect(PropertyValue, type="multi_select"):
         return False
 
     def __iter__(self):
-        """Return an iterator over the values in this `MultiSelect`."""
-        return self.Values
+        """Iterate over the SelectValue's in this property."""
+
+        if self.multi_select is None:
+            return None
+
+        return iter(self.multi_select)
 
     @classmethod
     def __compose__(cls, value):
@@ -563,6 +578,22 @@ class People(PropertyValue, type="people"):
 
         return False
 
+    def __len__(self):
+        """Return the number of People in this property."""
+
+        return len(self.people)
+
+    def __getitem__(self, index):
+        """Return the People object at the given index."""
+
+        if self.people is None:
+            raise IndexError("empty property")
+
+        if index > len(self.people):
+            raise IndexError("index out of range")
+
+        return self.people[index]
+
     def __str__(self):
         """Return a string representation of this property."""
         return ", ".join([str(user) for user in self.people])
@@ -609,6 +640,31 @@ class Files(PropertyValue, type="files"):
     def __str__(self):
         """Return a string representation of this property."""
         return "; ".join([str(file) for file in self.files])
+
+    def __iter__(self):
+        """Iterate over the FileObject's in this property."""
+
+        if self.files is None:
+            return None
+
+        return iter(self.files)
+
+    def __len__(self):
+        """Return the number of Files in this property."""
+
+        return len(self.files)
+
+    def __getitem__(self, name):
+        """Return the FileObject with the given name."""
+
+        if self.files is None:
+            return None
+
+        for ref in self.files:
+            if ref.name == name:
+                return ref
+
+        raise AttributeError("No such file")
 
     def __iadd__(self, obj):
         """Append the given `FileObject` in place."""
@@ -732,6 +788,30 @@ class Relation(PropertyValue, type="relation"):
     def __contains__(self, page):
         """Determine if the given page is in this Relation."""
         return PageReference[page] in self.relation
+
+    def __iter__(self):
+        """Iterate over the PageReference's in this property."""
+
+        if self.relation is None:
+            return None
+
+        return iter(self.relation)
+
+    def __len__(self):
+        """Return the number of PageReference's in this property."""
+
+        return len(self.relation)
+
+    def __getitem__(self, index):
+        """Return the PageReference object at the given index."""
+
+        if self.relation is None:
+            raise IndexError("empty property")
+
+        if index > len(self.relation):
+            raise IndexError("index out of range")
+
+        return self.relation[index]
 
     def __iadd__(self, page):
         """Add the given page to this Relation in place."""

@@ -1,12 +1,55 @@
 """Unit tests for Notional types."""
 
-from datetime import date, datetime, timezone
-from uuid import UUID
+from datetime import date, datetime, timedelta, timezone
+from uuid import UUID, uuid4
 
 import pytest
 from pydantic import ValidationError
 
 from notional import schema, types, user
+
+# TODO look for opportunities to parse using VCR - avoid keeping embedded data
+
+
+def test_page_reference_from_uuid():
+    """Compose a PageReference from a UUID."""
+    id = uuid4()
+
+    ref = types.PageReference[id]
+
+    assert ref.id == id
+
+
+def test_page_reference_from_str():
+    """Compose a PageReference from an ID string."""
+    id = uuid4()
+
+    ref = types.PageReference(id=id.hex)
+
+    assert ref.id == id
+
+
+def test_page_reference_from_ref():
+    """Compose a PageReference from another PageRef."""
+    id = uuid4()
+
+    orig = types.PageReference(id=id)
+    new = types.PageReference[orig]
+
+    assert new.id == id
+
+
+def test_invalid_page_reference_from_ref():
+    """Try to create a PageReference from invalid data."""
+
+    with pytest.raises(ValueError):
+        types.PageReference[None]
+
+    with pytest.raises(ValueError):
+        types.PageReference[False]
+
+    with pytest.raises(ValueError):
+        types.PageReference[42]
 
 
 def test_parse_title_data():
@@ -72,6 +115,17 @@ def test_number_from_bad_string():
     """Check exceptions for strings with invalid values."""
     with pytest.raises(ValidationError):
         types.Number["twelve"]
+
+
+def test_number_math():
+    """Perform math on Number objects."""
+    num = types.Number[10]
+
+    num += 2
+    assert num.Value == 12
+
+    num -= 20
+    assert num.Value == -8
 
 
 def test_parse_checkbox_data():
@@ -161,6 +215,30 @@ def test_parse_date_range():
     assert date(1978, 11, 30) in span
 
 
+def test_compose_date():
+    """Compose a Date from a single datetime."""
+
+    today = date.today()
+    single = types.Date[today]
+
+    assert single.IsRange is False
+    assert single.Start == today
+    assert single.End is None
+
+
+def test_compose_date_range():
+    """Compose a Date from a single datetime."""
+
+    today = date.today()
+    tomorrow = today + timedelta(days=1)
+
+    one_day = types.Date[today, tomorrow]
+
+    assert one_day.IsRange is True
+    assert one_day.Start == today
+    assert one_day.End == tomorrow
+
+
 def test_parse_select_one_data():
     """Create a SelectOne object from API data."""
 
@@ -181,10 +259,16 @@ def test_parse_select_one_data():
     assert priority.Value == "High"
 
 
-def test_select_one_from_string():
+def test_compose_select_one():
     """Create a SelectOne object from a literal string."""
     priority = types.SelectOne["URGENT"]
     assert priority == "URGENT"
+
+
+def test_compose_empty_select_one():
+    """Try to compose an empty SelectOne object."""
+    with pytest.raises(ValueError):
+        types.SelectOne[None]
 
 
 def test_parse_multi_select_data():
@@ -217,13 +301,21 @@ def test_parse_multi_select_data():
 def test_multi_select_from_string():
     """Create a MultiSelect object from a string."""
     tags = types.MultiSelect["bar"]
+
+    assert len(tags) == 1
     assert tags.Values == ["bar"]
     assert "foo" not in tags
+
+    # there should be exactly one item returned by the iterator...
+    for item in tags:
+        assert item.name == "bar"
 
 
 def test_multi_select_from_list():
     """Create a MultiSelect object from a list of strings."""
     tags = types.MultiSelect[["foo", None, "bar"]]
+
+    assert len(tags) == 2
     assert tags.Values == ["foo", "bar"]
     assert None not in tags
 
@@ -448,6 +540,11 @@ def test_parse_files_data():
 
     assert files.type == "files"
     assert "glass.jpg" in files
+
+    glass = files["glass.jpg"]
+
+    assert glass is not None
+    assert glass.type == "external"
 
 
 def test_created_time():
