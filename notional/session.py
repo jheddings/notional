@@ -54,7 +54,7 @@ class BlocksEndpoint(Endpoint):
 
             parent_id = get_target_id(parent)
 
-            children = [block.to_api() for block in blocks if block]
+            children = [block.to_api() for block in blocks if block is not None]
 
             log.info("Appending %d blocks to %s ...", len(children), parent_id)
 
@@ -163,7 +163,7 @@ class DatabasesEndpoint(Endpoint):
         if isinstance(title, TextObject):
             request["title"] = [title.to_api()]
         elif isinstance(title, list):
-            request["title"] = [prop.to_api() for prop in title if prop]
+            request["title"] = [prop.to_api() for prop in title if prop is not None]
         elif isinstance(title, str):
             prop = TextObject[title]
             request["title"] = [prop.to_api()]
@@ -172,7 +172,7 @@ class DatabasesEndpoint(Endpoint):
 
         if schema is not None:
             request["properties"] = {
-                name: value.to_api() if value else None
+                name: value.to_api() if value is not None else None
                 for name, value in schema.items()
             }
 
@@ -287,11 +287,14 @@ class PagesEndpoint(Endpoint):
             properties["title"] = Title[title]
 
         request["properties"] = {
-            name: prop.to_api() if prop else None for name, prop in properties.items()
+            name: prop.to_api() if prop is not None else None
+            for name, prop in properties.items()
         }
 
         if children is not None:
-            request["children"] = [child.to_api() for child in children if child]
+            request["children"] = [
+                child.to_api() for child in children if child is not None
+            ]
 
         log.info("Creating page :: %s => %s", parent, title)
 
@@ -335,7 +338,7 @@ class PagesEndpoint(Endpoint):
             properties = page.properties
 
         props = {
-            name: value.to_api() if value else None
+            name: value.to_api() if value is not None else None
             for name, value in properties.items()
         }
 
