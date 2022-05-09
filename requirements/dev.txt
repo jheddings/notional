@@ -1,6 +1,6 @@
 -r core.txt
 
-pre-commit==2.18.1
+pre-commit==2.19.0
 wheel==0.37.1
 twine==4.0.0
 gitpython==3.1.27
