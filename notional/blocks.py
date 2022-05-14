@@ -458,7 +458,7 @@ class Bookmark(Block, type="bookmark"):
 
     @classmethod
     def __compose__(cls, url):
-        """Compoase a new `Bookmark` block from a specific URL."""
+        """Compose a new `Bookmark` block from a specific URL."""
         return Bookmark(bookmark=Bookmark._NestedData(url=url))
 
     @property

@@ -38,7 +38,7 @@ def mock_endpoint(item_count, page_size):
     def page_generator(**kwargs):
         """Generate the next page for the mock endpoint using the supplied keywords.
 
-        :param start_cursor: the starting item index for the resut set
+        :param start_cursor: the starting item index for the result set
         :param user_data: optional data that will be provided in the `content`
             field for each item in the result set
         """

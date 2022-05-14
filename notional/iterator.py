@@ -15,7 +15,7 @@ class ContentIterator(ABC):
     """Base class to handle pagination over arbitrary content."""
 
     def __init__(self):
-        """Initialzie the iterator."""
+        """Initialize the iterator."""
         self.log = log.getChild("ContentIterator")
 
         self.page = None

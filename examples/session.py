@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""This script demonstrates working with the Sessoin object.
+"""This script demonstrates working with the Session object.
 
 The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 """

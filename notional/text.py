@@ -125,7 +125,7 @@ class Color(str, Enum):
 
 
 class FullColor(str, Enum):
-    """Extended color values, including backgounds."""
+    """Extended color values, including backgrounds."""
 
     DEFAULT = "default"
     GRAY = "gray"
@@ -261,7 +261,7 @@ class CodingLanguage(str, Enum):
     """Available coding languages."""
 
     ABAP = "abap"
-    ARDUION = "arduino"
+    ARDUINO = "arduino"
     BASH = "bash"
     BASIC = "basic"
     C = "c"

@@ -8,7 +8,7 @@ import pytest
 
 from notional.core import NamedObject, NestedObject, TypedObject
 
-# keep logging output to a minumim for testing
+# keep logging output to a minimum for testing
 logging.basicConfig(level=logging.INFO)
 
 

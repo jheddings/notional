@@ -5,7 +5,7 @@ Typically, these pages are entries in a database (collection) with a consistent 
 
 ## Custom Types ##
 
-Custom types must exted the `ConnectedPage` object.  To do so, first initalize a session
+Custom types must extend the `ConnectedPage` object.  To do so, first initialize a session
 and generate the page object:
 
 ```python
@@ -17,7 +17,7 @@ CustomPage = connected_page(session=notion)
 ## Data Objects ##
 
 Users may define custom types that map to entries in a Notion database.  To accomplish
-this, delcare a class and its members using Notional types:
+this, declare a class and its members using Notional types:
 
 ```python
 class Task(CustomPage, database=NOTION_DATABASE_ID):
@@ -30,7 +30,7 @@ Alternatively, you may set the database ID as a private member of the custom typ
 
 ```python
 class Task(CustomPage):
-    __database__ = NOTION_DATABSE_ID
+    __database__ = NOTION_DATABASE_ID
 ```
 
 In the examples, `NOTION_DATABASE_ID` is defined as a string or UUID of a database

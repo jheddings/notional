@@ -1,6 +1,6 @@
 # Parsers #
 
-Notional includes several parsers for importing exernal content.  They will accept
+Notional includes several parsers for importing external content. They will accept
 either string (data) or file-like objects to provide the input content.
 
 ## HTML Parser ##
@@ -86,7 +86,7 @@ After parsing, the `CsvParser` will contain `title`, `schema`, and `content`.
 ### `CsvParser.title` ###
 
 The parser will attempt to read a `name` property from the input data source.  As seen
-in the above example, this is a useful pproperty when creating the database.
+in the above example, this is a useful property when creating the database.
 
 If there is no `name` available, this property will be `None`.
 

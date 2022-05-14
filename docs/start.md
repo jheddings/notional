@@ -43,7 +43,7 @@ follow a specific pattern.  It is good to be familiar with the Notion API repres
 of these objects, as it will help understand concepts found in Notional.
 
 Many common uses of data objects require interacting with the internal data. Notional
-provides two helper methods for working with this strucure: compose and call.
+provides two helper methods for working with this structure: compose and call.
 
 ### Constructing ###
 
@@ -88,7 +88,7 @@ refer to this form as "composing" from basic types.
 
 ### Calling ###
 
-Calling a data object provides access to the underlying data strcuture, which typically
+Calling a data object provides access to the underlying data structure, which typically
 contains the content of the object.
 
 For example, to get the "checked" state of a `ToDo` block, we can use either the

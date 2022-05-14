@@ -50,7 +50,7 @@ class EmojiObject(TypedObject, type="emoji"):
 
     @classmethod
     def __compose__(cls, emoji):
-        """Compose an EmojiObject from the given emjoi string."""
+        """Compose an EmojiObject from the given emoji string."""
         return EmojiObject(emoji=emoji)
 
 
@@ -58,7 +58,7 @@ class FileObject(TypedObject):
     """A Notion file object.
 
     Depending on the context, a FileObject may require a name (such as in the `Files`
-    property).  This makes the object heirarchy difficult, so here we simply allow
+    property).  This makes the object hierarchy difficult, so here we simply allow
     `name` to be optional.  It is the responsibility of the caller to set `name` if
     required by the API.
     """
