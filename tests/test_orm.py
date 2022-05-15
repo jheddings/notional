@@ -117,11 +117,11 @@ def test_missing_database():
 
     CustomPage = connected_page()
 
-    class _MissingDatabse(CustomPage):
+    class _MissingDatabase(CustomPage):
         pass
 
     with pytest.raises(ValueError):
-        _MissingDatabse.create()
+        _MissingDatabase.create()
 
 
 @pytest.mark.vcr()

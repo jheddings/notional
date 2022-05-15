@@ -1,6 +1,6 @@
 """Utilities for parsing other document types in Notion.
 
-These parsers provide an alternative to the "Import" cabilities of the Notion client
+These parsers provide an alternative to the "Import" capabilities of the Notion client
 and Notion Web Clipper.  Perhaps that capability will be exposed to the API in the
 future, which would effectively render these parsers unnecessary.
 """
@@ -101,7 +101,7 @@ class DocumentParser(ABC):
     content: list
 
     def __init__(self):
-        """Initlize the document parser."""
+        """Initialize the document parser."""
         self.title = None
         self.content = []
 

@@ -119,7 +119,7 @@ class DataObject(BaseModel, metaclass=ComposableObject):
     def _modify_field_(cls, name, default=None):
         """Modify the `BaseModel` field information for a specific class instance.
 
-        This is necessary in particular for sublcasses that change the default values
+        This is necessary in particular for subclasses that change the default values
         of a model when defined.  Notable examples are `TypedObject` and `NamedObject`.
 
         :param name: the named attribute in the class
@@ -277,7 +277,7 @@ class TypedObject(DataObject):
         sub = cls.__typemap__.get(data_type)
 
         if sub is None:
-            raise TypeError(f"Unsupport sub-type: {data_type}")
+            raise TypeError(f"Unsupported sub-type: {data_type}")
 
         log.debug(
             "initializing typed object %s :: %s => %s -- %s", cls, data_type, sub, data

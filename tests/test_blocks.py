@@ -87,7 +87,7 @@ def test_delete_block(notion, test_area):
 @pytest.mark.vcr()
 def test_restore_block(notion, test_area):
     """Delete a block, then restore it and make sure it comes back."""
-    block = blocks.Callout["Reppearing blocks!"]
+    block = blocks.Callout["Reappearing blocks!"]
 
     notion.blocks.children.append(test_area, block)
     notion.blocks.delete(block)
