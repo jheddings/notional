@@ -1,6 +1,11 @@
 {
     "version": "2.0.0",
-
+    "options": {
+        "env": {
+            "NOTION_AUTH_TOKEN": "",
+            "NOTION_TEST_AREA": "250662d9783d483cb131341ed479f96c",
+        }
+    },
     "tasks": [
         {
             "label": "Build Local Environment",
