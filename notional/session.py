@@ -2,6 +2,7 @@
 
 import logging
 from inspect import isclass
+from operator import attrgetter
 
 import notion_client
 from httpx import ConnectError
@@ -34,16 +35,23 @@ class Endpoint(object):
         """Initialize the `Endpoint` for the supplied session."""
         self.session = session
 
+    def __init_subclass__(cls, endpoint, **kwargs):
+        """Register new subclasses of an Endpoint."""
+        super(cls).__init_subclass__(**kwargs)
 
-class BlocksEndpoint(Endpoint):
+        cls._endpoint = endpoint
+
+    def __call__(self):
+        """Return the underlying endpoint in the Notion SDK."""
+        endpoint_getter = attrgetter(self._endpoint)
+        return endpoint_getter(self.session.client)
+
+
+class BlocksEndpoint(Endpoint, endpoint="blocks"):
     """Notional interface to the API 'blocks' endpoint."""
 
-    class ChildrenEndpoint(Endpoint):
+    class ChildrenEndpoint(Endpoint, endpoint="blocks.children"):
         """Notional interface to the API 'blocks/children' endpoint."""
-
-        def __call__(self):
-            """Return the underlying endpoint in the Notion SDK."""
-            return self.session.client.blocks.children
 
         # https://developers.notion.com/reference/patch-block-children
         def append(self, parent, *blocks):
@@ -63,9 +71,7 @@ class BlocksEndpoint(Endpoint):
             if "results" in data:
 
                 if len(blocks) == len(data["results"]):
-                    for idx in range(len(blocks)):
-                        block = blocks[idx]
-                        result = data["results"][idx]
+                    for block, result in zip(blocks, data["results"]):
                         block.refresh(**result)
 
                 else:
@@ -93,10 +99,6 @@ class BlocksEndpoint(Endpoint):
         super().__init__(*args, **kwargs)
 
         self.children = BlocksEndpoint.ChildrenEndpoint(*args, **kwargs)
-
-    def __call__(self):
-        """Return the underlying endpoint in the Notion SDK."""
-        return self.session.client.blocks
 
     # https://developers.notion.com/reference/delete-a-block
     def delete(self, block):
@@ -141,12 +143,8 @@ class BlocksEndpoint(Endpoint):
         return block.refresh(**data)
 
 
-class DatabasesEndpoint(Endpoint):
+class DatabasesEndpoint(Endpoint, endpoint="databases"):
     """Notional interface to the API 'databases' endpoint."""
-
-    def __call__(self):
-        """Return the underlying endpoint in the Notion SDK."""
-        return self.session.client.databases
 
     def _build_request(self, parent=None, schema=None, title=None):
         """Build a request payload from the given items.
@@ -262,12 +260,8 @@ class DatabasesEndpoint(Endpoint):
         return QueryBuilder(endpoint=self().query, cls=cls, database_id=database_id)
 
 
-class PagesEndpoint(Endpoint):
+class PagesEndpoint(Endpoint, endpoint="pages"):
     """Notional interface to the API 'pages' endpoint."""
-
-    def __call__(self):
-        """Return the underlying endpoint in the Notion SDK."""
-        return self.session.client.pages
 
     # https://developers.notion.com/reference/post-page
     def create(self, parent, title=None, properties=None, children=None):
@@ -376,7 +370,7 @@ class PagesEndpoint(Endpoint):
         return page.refresh(**data)
 
 
-class SearchEndpoint(Endpoint):
+class SearchEndpoint(Endpoint, endpoint="search"):
     """Notional interface to the API 'search' endpoint."""
 
     # https://developers.notion.com/reference/post-search
@@ -394,15 +388,12 @@ class SearchEndpoint(Endpoint):
         if text is not None:
             params["query"] = text
 
-        return QueryBuilder(endpoint=self.session.client.search, **params)
+        search_endpoint = super().__call__()
+        return QueryBuilder(endpoint=search_endpoint, **params)
 
 
-class UsersEndpoint(Endpoint):
+class UsersEndpoint(Endpoint, endpoint="users"):
     """Notional interface to the API 'users' endpoint."""
-
-    def __call__(self):
-        """Return the underlying endpoint in the Notion SDK."""
-        return self.session.client.users
 
     # https://developers.notion.com/reference/get-users
     def list(self):
