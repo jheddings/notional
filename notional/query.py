@@ -138,7 +138,7 @@ class RelationCondition(DataObject):
 class FormulaCondition(DataObject):
     """Represents formula criteria in Notion."""
 
-    text: Optional[TextCondition] = None
+    string: Optional[TextCondition] = None
     checkbox: Optional[CheckboxCondition] = None
     number: Optional[NumberCondition] = None
     date: Optional[DateCondition] = None

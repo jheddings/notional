@@ -72,6 +72,8 @@ class NumberFormat(str, Enum):
     RIYAL = "riyal"
     RINGGIT = "ringgit"
     LEU = "leu"
+    ARGENTINE_PESO = "argentine_peso"
+    URUGUAYAN_PESO = "uruguayan_peso"
 
 
 class PropertyObject(TypedObject):
