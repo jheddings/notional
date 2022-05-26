@@ -1,0 +1,5241 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="Jason Heddings">
+      
+      
+        <link rel="canonical" href="https://jheddings.github.io/notional/reference/blocks/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.15">
+    
+    
+      
+        <title>Blocks - Notional</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.c382b1dc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.cc9b2e1e.min.css">
+        
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#notional.blocks" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Notional" class="md-header__button md-logo" aria-label="Notional" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Notional
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Blocks
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jheddings/notional" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    notional
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Notional" class="md-nav__button md-logo" aria-label="Notional" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Notional
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jheddings/notional" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    notional
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          User Guide
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="User Guide" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          User Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../start/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../iterators/" class="md-nav__link">
+        Iterators
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../query/" class="md-nav__link">
+        Querying
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../orm/" class="md-nav__link">
+        Custom Types
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parser/" class="md-nav__link">
+        Parsers
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Blocks
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Blocks
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks" class="md-nav__link">
+    notional.blocks
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Block" class="md-nav__link">
+    Block
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Bookmark" class="md-nav__link">
+    Bookmark
+  </a>
+  
+    <nav class="md-nav" aria-label="Bookmark">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Bookmark.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Bookmark.URL" class="md-nav__link">
+    URL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Bookmark.__compose__" class="md-nav__link">
+    __compose__()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Breadcrumb" class="md-nav__link">
+    Breadcrumb
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.BulletedListItem" class="md-nav__link">
+    BulletedListItem
+  </a>
+  
+    <nav class="md-nav" aria-label="BulletedListItem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.BulletedListItem.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Callout" class="md-nav__link">
+    Callout
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.ChildDatabase" class="md-nav__link">
+    ChildDatabase
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.ChildPage" class="md-nav__link">
+    ChildPage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Code" class="md-nav__link">
+    Code
+  </a>
+  
+    <nav class="md-nav" aria-label="Code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Code.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Code.__compose__" class="md-nav__link">
+    __compose__()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Column" class="md-nav__link">
+    Column
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.ColumnList" class="md-nav__link">
+    ColumnList
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Divider" class="md-nav__link">
+    Divider
+  </a>
+  
+    <nav class="md-nav" aria-label="Divider">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Divider.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Embed" class="md-nav__link">
+    Embed
+  </a>
+  
+    <nav class="md-nav" aria-label="Embed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Embed.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Embed.URL" class="md-nav__link">
+    URL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Embed.__compose__" class="md-nav__link">
+    __compose__()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.File" class="md-nav__link">
+    File
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Heading1" class="md-nav__link">
+    Heading1
+  </a>
+  
+    <nav class="md-nav" aria-label="Heading1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Heading1.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Heading2" class="md-nav__link">
+    Heading2
+  </a>
+  
+    <nav class="md-nav" aria-label="Heading2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Heading2.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Heading3" class="md-nav__link">
+    Heading3
+  </a>
+  
+    <nav class="md-nav" aria-label="Heading3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Heading3.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Image" class="md-nav__link">
+    Image
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.LinkPreview" class="md-nav__link">
+    LinkPreview
+  </a>
+  
+    <nav class="md-nav" aria-label="LinkPreview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.LinkPreview.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.LinkPreview.URL" class="md-nav__link">
+    URL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.LinkPreview.__compose__" class="md-nav__link">
+    __compose__()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.LinkToPage" class="md-nav__link">
+    LinkToPage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.NumberedListItem" class="md-nav__link">
+    NumberedListItem
+  </a>
+  
+    <nav class="md-nav" aria-label="NumberedListItem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.NumberedListItem.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.PDF" class="md-nav__link">
+    PDF
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Paragraph" class="md-nav__link">
+    Paragraph
+  </a>
+  
+    <nav class="md-nav" aria-label="Paragraph">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Paragraph.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Quote" class="md-nav__link">
+    Quote
+  </a>
+  
+    <nav class="md-nav" aria-label="Quote">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Quote.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.SyncedBlock" class="md-nav__link">
+    SyncedBlock
+  </a>
+  
+    <nav class="md-nav" aria-label="SyncedBlock">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.SyncedBlock.IsOriginal" class="md-nav__link">
+    IsOriginal
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Table" class="md-nav__link">
+    Table
+  </a>
+  
+    <nav class="md-nav" aria-label="Table">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Table.Width" class="md-nav__link">
+    Width
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Table.append" class="md-nav__link">
+    append()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.TableOfContents" class="md-nav__link">
+    TableOfContents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.TableRow" class="md-nav__link">
+    TableRow
+  </a>
+  
+    <nav class="md-nav" aria-label="TableRow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.TableRow.Width" class="md-nav__link">
+    Width
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.TableRow.append" class="md-nav__link">
+    append()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Template" class="md-nav__link">
+    Template
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.TextBlock" class="md-nav__link">
+    TextBlock
+  </a>
+  
+    <nav class="md-nav" aria-label="TextBlock">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.TextBlock.PlainText" class="md-nav__link">
+    PlainText
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.TextBlock.__text__" class="md-nav__link">
+    __text__
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.TextBlock.__compose__" class="md-nav__link">
+    __compose__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.TextBlock.concat" class="md-nav__link">
+    concat()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.ToDo" class="md-nav__link">
+    ToDo
+  </a>
+  
+    <nav class="md-nav" aria-label="ToDo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.ToDo.IsChecked" class="md-nav__link">
+    IsChecked
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.ToDo.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.ToDo.__compose__" class="md-nav__link">
+    __compose__()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Toggle" class="md-nav__link">
+    Toggle
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.UnsupportedBlock" class="md-nav__link">
+    UnsupportedBlock
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Video" class="md-nav__link">
+    Video
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.WithChildrenMixin" class="md-nav__link">
+    WithChildrenMixin
+  </a>
+  
+    <nav class="md-nav" aria-label="WithChildrenMixin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.WithChildrenMixin.__children__" class="md-nav__link">
+    __children__
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.WithChildrenMixin.__iadd__" class="md-nav__link">
+    __iadd__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.WithChildrenMixin.append" class="md-nav__link">
+    append()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/" class="md-nav__link">
+        Core
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../orm/" class="md-nav__link">
+        ORM
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parser/" class="md-nav__link">
+        Parser
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query/" class="md-nav__link">
+        Query
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../records/" class="md-nav__link">
+        Records
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema/" class="md-nav__link">
+        Schema
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/" class="md-nav__link">
+        Session
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../text/" class="md-nav__link">
+        Text
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../types/" class="md-nav__link">
+        Types
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user/" class="md-nav__link">
+        User
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          About
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="About" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          About
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/jheddings/notional/releases" class="md-nav__link">
+        Release Notes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks" class="md-nav__link">
+    notional.blocks
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Block" class="md-nav__link">
+    Block
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Bookmark" class="md-nav__link">
+    Bookmark
+  </a>
+  
+    <nav class="md-nav" aria-label="Bookmark">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Bookmark.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Bookmark.URL" class="md-nav__link">
+    URL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Bookmark.__compose__" class="md-nav__link">
+    __compose__()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Breadcrumb" class="md-nav__link">
+    Breadcrumb
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.BulletedListItem" class="md-nav__link">
+    BulletedListItem
+  </a>
+  
+    <nav class="md-nav" aria-label="BulletedListItem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.BulletedListItem.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Callout" class="md-nav__link">
+    Callout
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.ChildDatabase" class="md-nav__link">
+    ChildDatabase
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.ChildPage" class="md-nav__link">
+    ChildPage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Code" class="md-nav__link">
+    Code
+  </a>
+  
+    <nav class="md-nav" aria-label="Code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Code.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Code.__compose__" class="md-nav__link">
+    __compose__()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Column" class="md-nav__link">
+    Column
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.ColumnList" class="md-nav__link">
+    ColumnList
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Divider" class="md-nav__link">
+    Divider
+  </a>
+  
+    <nav class="md-nav" aria-label="Divider">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Divider.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Embed" class="md-nav__link">
+    Embed
+  </a>
+  
+    <nav class="md-nav" aria-label="Embed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Embed.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Embed.URL" class="md-nav__link">
+    URL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Embed.__compose__" class="md-nav__link">
+    __compose__()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.File" class="md-nav__link">
+    File
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Heading1" class="md-nav__link">
+    Heading1
+  </a>
+  
+    <nav class="md-nav" aria-label="Heading1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Heading1.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Heading2" class="md-nav__link">
+    Heading2
+  </a>
+  
+    <nav class="md-nav" aria-label="Heading2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Heading2.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Heading3" class="md-nav__link">
+    Heading3
+  </a>
+  
+    <nav class="md-nav" aria-label="Heading3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Heading3.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Image" class="md-nav__link">
+    Image
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.LinkPreview" class="md-nav__link">
+    LinkPreview
+  </a>
+  
+    <nav class="md-nav" aria-label="LinkPreview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.LinkPreview.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.LinkPreview.URL" class="md-nav__link">
+    URL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.LinkPreview.__compose__" class="md-nav__link">
+    __compose__()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.LinkToPage" class="md-nav__link">
+    LinkToPage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.NumberedListItem" class="md-nav__link">
+    NumberedListItem
+  </a>
+  
+    <nav class="md-nav" aria-label="NumberedListItem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.NumberedListItem.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.PDF" class="md-nav__link">
+    PDF
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Paragraph" class="md-nav__link">
+    Paragraph
+  </a>
+  
+    <nav class="md-nav" aria-label="Paragraph">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Paragraph.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Quote" class="md-nav__link">
+    Quote
+  </a>
+  
+    <nav class="md-nav" aria-label="Quote">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Quote.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.SyncedBlock" class="md-nav__link">
+    SyncedBlock
+  </a>
+  
+    <nav class="md-nav" aria-label="SyncedBlock">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.SyncedBlock.IsOriginal" class="md-nav__link">
+    IsOriginal
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Table" class="md-nav__link">
+    Table
+  </a>
+  
+    <nav class="md-nav" aria-label="Table">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Table.Width" class="md-nav__link">
+    Width
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.Table.append" class="md-nav__link">
+    append()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.TableOfContents" class="md-nav__link">
+    TableOfContents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.TableRow" class="md-nav__link">
+    TableRow
+  </a>
+  
+    <nav class="md-nav" aria-label="TableRow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.TableRow.Width" class="md-nav__link">
+    Width
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.TableRow.append" class="md-nav__link">
+    append()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Template" class="md-nav__link">
+    Template
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.TextBlock" class="md-nav__link">
+    TextBlock
+  </a>
+  
+    <nav class="md-nav" aria-label="TextBlock">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.TextBlock.PlainText" class="md-nav__link">
+    PlainText
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.TextBlock.__text__" class="md-nav__link">
+    __text__
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.TextBlock.__compose__" class="md-nav__link">
+    __compose__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.TextBlock.concat" class="md-nav__link">
+    concat()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.ToDo" class="md-nav__link">
+    ToDo
+  </a>
+  
+    <nav class="md-nav" aria-label="ToDo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.ToDo.IsChecked" class="md-nav__link">
+    IsChecked
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.ToDo.Markdown" class="md-nav__link">
+    Markdown
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.ToDo.__compose__" class="md-nav__link">
+    __compose__()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Toggle" class="md-nav__link">
+    Toggle
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.UnsupportedBlock" class="md-nav__link">
+    UnsupportedBlock
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.Video" class="md-nav__link">
+    Video
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notional.blocks.WithChildrenMixin" class="md-nav__link">
+    WithChildrenMixin
+  </a>
+  
+    <nav class="md-nav" aria-label="WithChildrenMixin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.WithChildrenMixin.__children__" class="md-nav__link">
+    __children__
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.WithChildrenMixin.__iadd__" class="md-nav__link">
+    __iadd__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notional.blocks.WithChildrenMixin.append" class="md-nav__link">
+    append()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/jheddings/notional/edit/master/docs/reference/blocks.md" title="Edit this page" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+  <h1>Blocks</h1>
+
+<div class="doc doc-object doc-module">
+
+<a id="notional.blocks"></a>
+    <div class="doc doc-contents first">
+
+      <p>Wrapper for Notion API blocks.</p>
+<p>Blocks are specifc records that hold content.</p>
+<p>Similar to other records, these object provide access to the primitive data structure
+used in the Notion API as well as higher-level methods.</p>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Block" class="doc doc-heading">
+        <code>
+Block            (<a class="autorefs autorefs-internal" title="notional.records.Record" href="../records/#notional.records.Record">Record</a>, <a class="autorefs autorefs-internal" title="notional.core.TypedObject" href="../core/#notional.core.TypedObject">TypedObject</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A standard block object in Notion.</p>
+<p>Calling the block will expose the nested data in the object.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Block</span><span class="p">(</span><span class="n">Record</span><span class="p">,</span> <span class="n">TypedObject</span><span class="p">,</span> <span class="nb">object</span><span class="o">=</span><span class="s2">&quot;block&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A standard block object in Notion.</span>
+
+<span class="sd">    Calling the block will expose the nested data in the object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Bookmark" class="doc doc-heading">
+        <code>
+Bookmark            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A bookmark block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Bookmark</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;bookmark&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A bookmark block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">caption</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">bookmark</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__compose__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compose a new `Bookmark` block from a specific URL.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Bookmark</span><span class="p">(</span><span class="n">bookmark</span><span class="o">=</span><span class="n">Bookmark</span><span class="o">.</span><span class="n">_NestedData</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">URL</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the URL contained in this `Bookmark` block.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bookmark</span><span class="o">.</span><span class="n">url</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bookmark</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bookmark</span><span class="o">.</span><span class="n">url</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bookmark</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.Bookmark.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.Bookmark.URL" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">URL</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the URL contained in this <code>Bookmark</code> block.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="notional.blocks.Bookmark.__compose__" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">__compose__</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-classmethod"><code>classmethod</code></small>
+      <small class="doc doc-property doc-property-special"><code>special</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Compose a new <code>Bookmark</code> block from a specific URL.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">__compose__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compose a new `Bookmark` block from a specific URL.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Bookmark</span><span class="p">(</span><span class="n">bookmark</span><span class="o">=</span><span class="n">Bookmark</span><span class="o">.</span><span class="n">_NestedData</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">))</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Breadcrumb" class="doc doc-heading">
+        <code>
+Breadcrumb            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A breadcrumb block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Breadcrumb</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;breadcrumb&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A breadcrumb block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="n">breadcrumb</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.BulletedListItem" class="doc doc-heading">
+        <code>
+BulletedListItem            (<a class="autorefs autorefs-internal" title="notional.blocks.TextBlock" href="#notional.blocks.TextBlock">TextBlock</a>, <a class="autorefs autorefs-internal" title="notional.blocks.WithChildrenMixin" href="#notional.blocks.WithChildrenMixin">WithChildrenMixin</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A bulleted list item in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">BulletedListItem</span><span class="p">(</span><span class="n">TextBlock</span><span class="p">,</span> <span class="n">WithChildrenMixin</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;bulleted_list_item&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A bulleted list item in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">rich_text</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">children</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Block</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">FullColor</span> <span class="o">=</span> <span class="n">FullColor</span><span class="o">.</span><span class="n">DEFAULT</span>
+
+    <span class="n">bulleted_list_item</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulleted_list_item</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulleted_list_item</span><span class="o">.</span><span class="n">rich_text</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">markdown</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">bulleted_list_item</span><span class="o">.</span><span class="n">rich_text</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.BulletedListItem.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Callout" class="doc doc-heading">
+        <code>
+Callout            (<a class="autorefs autorefs-internal" title="notional.blocks.TextBlock" href="#notional.blocks.TextBlock">TextBlock</a>, <a class="autorefs autorefs-internal" title="notional.blocks.WithChildrenMixin" href="#notional.blocks.WithChildrenMixin">WithChildrenMixin</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A callout block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Callout</span><span class="p">(</span><span class="n">TextBlock</span><span class="p">,</span> <span class="n">WithChildrenMixin</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;callout&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A callout block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">rich_text</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">children</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Block</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">icon</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">FileObject</span><span class="p">,</span> <span class="n">EmojiObject</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">FullColor</span> <span class="o">=</span> <span class="n">FullColor</span><span class="o">.</span><span class="n">DEFAULT</span>
+
+    <span class="n">callout</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.ChildDatabase" class="doc doc-heading">
+        <code>
+ChildDatabase            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A child database block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">ChildDatabase</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;child_database&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A child database block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">child_database</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.ChildPage" class="doc doc-heading">
+        <code>
+ChildPage            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A child page block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">ChildPage</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;child_page&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A child page block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">child_page</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Code" class="doc doc-heading">
+        <code>
+Code            (<a class="autorefs autorefs-internal" title="notional.blocks.TextBlock" href="#notional.blocks.TextBlock">TextBlock</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A code block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Code</span><span class="p">(</span><span class="n">TextBlock</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;code&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A code block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">rich_text</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">caption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">language</span><span class="p">:</span> <span class="n">CodingLanguage</span> <span class="o">=</span> <span class="n">CodingLanguage</span><span class="o">.</span><span class="n">PLAIN_TEXT</span>
+
+    <span class="n">code</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__compose__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="n">CodingLanguage</span><span class="o">.</span><span class="n">PLAIN_TEXT</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compose a `Code` block from the given text and language.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Code</span><span class="p">(</span>
+            <span class="n">code</span><span class="o">=</span><span class="n">Code</span><span class="o">.</span><span class="n">_NestedData</span><span class="p">(</span>
+                <span class="n">rich_text</span><span class="o">=</span><span class="p">[</span><span class="n">TextObject</span><span class="p">[</span><span class="n">text</span><span class="p">]],</span>
+                <span class="n">language</span><span class="o">=</span><span class="n">lang</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+
+        <span class="n">lang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">code</span><span class="o">.</span><span class="n">language</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">code</span><span class="o">.</span><span class="n">language</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="c1"># FIXME this is not the standard way to represent code blocks in markdown...</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">code</span><span class="o">.</span><span class="n">rich_text</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;```</span><span class="si">{</span><span class="n">lang</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">markdown</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">code</span><span class="o">.</span><span class="n">rich_text</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">```&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.Code.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="notional.blocks.Code.__compose__" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">__compose__</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">lang</span><span class="o">=&lt;</span><span class="n">CodingLanguage</span><span class="o">.</span><span class="n">PLAIN_TEXT</span><span class="p">:</span> <span class="s1">&#39;plain text&#39;</span><span class="o">&gt;</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-classmethod"><code>classmethod</code></small>
+      <small class="doc doc-property doc-property-special"><code>special</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Compose a <code>Code</code> block from the given text and language.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">__compose__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="n">CodingLanguage</span><span class="o">.</span><span class="n">PLAIN_TEXT</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compose a `Code` block from the given text and language.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Code</span><span class="p">(</span>
+        <span class="n">code</span><span class="o">=</span><span class="n">Code</span><span class="o">.</span><span class="n">_NestedData</span><span class="p">(</span>
+            <span class="n">rich_text</span><span class="o">=</span><span class="p">[</span><span class="n">TextObject</span><span class="p">[</span><span class="n">text</span><span class="p">]],</span>
+            <span class="n">language</span><span class="o">=</span><span class="n">lang</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Column" class="doc doc-heading">
+        <code>
+Column            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A column block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Column</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;column&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A column block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="n">column</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.ColumnList" class="doc doc-heading">
+        <code>
+ColumnList            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A column list block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">ColumnList</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;column_list&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A column list block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="n">column_list</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Divider" class="doc doc-heading">
+        <code>
+Divider            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A divider block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Divider</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;divider&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A divider block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="n">divider</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;---&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.Divider.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Embed" class="doc doc-heading">
+        <code>
+Embed            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>An embed block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Embed</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;embed&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An embed block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">embed</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__compose__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new `Embed` block from the given URL.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Embed</span><span class="p">(</span><span class="n">embed</span><span class="o">=</span><span class="n">Embed</span><span class="o">.</span><span class="n">_NestedData</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">URL</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the URL contained in this `Embed` block.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">embed</span><span class="o">.</span><span class="n">url</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">embed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">embed</span><span class="o">.</span><span class="n">url</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">embed</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.Embed.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.Embed.URL" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">URL</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the URL contained in this <code>Embed</code> block.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="notional.blocks.Embed.__compose__" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">__compose__</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-classmethod"><code>classmethod</code></small>
+      <small class="doc doc-property doc-property-special"><code>special</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Create a new <code>Embed</code> block from the given URL.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">__compose__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a new `Embed` block from the given URL.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Embed</span><span class="p">(</span><span class="n">embed</span><span class="o">=</span><span class="n">Embed</span><span class="o">.</span><span class="n">_NestedData</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">))</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.File" class="doc doc-heading">
+        <code>
+File            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A file block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">File</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A file block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="n">file</span><span class="p">:</span> <span class="n">FileObject</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Heading1" class="doc doc-heading">
+        <code>
+Heading1            (<a class="autorefs autorefs-internal" title="notional.blocks.TextBlock" href="#notional.blocks.TextBlock">TextBlock</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A heading_1 block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Heading1</span><span class="p">(</span><span class="n">TextBlock</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;heading_1&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A heading_1 block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">rich_text</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">FullColor</span> <span class="o">=</span> <span class="n">FullColor</span><span class="o">.</span><span class="n">DEFAULT</span>
+
+    <span class="n">heading_1</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">heading_1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">heading_1</span><span class="o">.</span><span class="n">rich_text</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;# </span><span class="si">{</span><span class="n">markdown</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">heading_1</span><span class="o">.</span><span class="n">rich_text</span><span class="p">)</span><span class="si">}</span><span class="s2"> #&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.Heading1.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Heading2" class="doc doc-heading">
+        <code>
+Heading2            (<a class="autorefs autorefs-internal" title="notional.blocks.TextBlock" href="#notional.blocks.TextBlock">TextBlock</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A heading_2 block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Heading2</span><span class="p">(</span><span class="n">TextBlock</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;heading_2&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A heading_2 block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">rich_text</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">FullColor</span> <span class="o">=</span> <span class="n">FullColor</span><span class="o">.</span><span class="n">DEFAULT</span>
+
+    <span class="n">heading_2</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">heading_2</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">heading_2</span><span class="o">.</span><span class="n">rich_text</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;## </span><span class="si">{</span><span class="n">markdown</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">heading_2</span><span class="o">.</span><span class="n">rich_text</span><span class="p">)</span><span class="si">}</span><span class="s2"> ##&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.Heading2.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Heading3" class="doc doc-heading">
+        <code>
+Heading3            (<a class="autorefs autorefs-internal" title="notional.blocks.TextBlock" href="#notional.blocks.TextBlock">TextBlock</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A heading_3 block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Heading3</span><span class="p">(</span><span class="n">TextBlock</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;heading_3&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A heading_3 block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">rich_text</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">FullColor</span> <span class="o">=</span> <span class="n">FullColor</span><span class="o">.</span><span class="n">DEFAULT</span>
+
+    <span class="n">heading_3</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">heading_3</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">heading_3</span><span class="o">.</span><span class="n">rich_text</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;### </span><span class="si">{</span><span class="n">markdown</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">heading_3</span><span class="o">.</span><span class="n">rich_text</span><span class="p">)</span><span class="si">}</span><span class="s2"> ###&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.Heading3.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Image" class="doc doc-heading">
+        <code>
+Image            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>An image block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Image</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;image&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An image block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="n">image</span><span class="p">:</span> <span class="n">FileObject</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.LinkPreview" class="doc doc-heading">
+        <code>
+LinkPreview            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A link_preview block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">LinkPreview</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;link_preview&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A link_preview block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">link_preview</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__compose__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new `LinkPreview` block from the given URL.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">LinkPreview</span><span class="p">(</span><span class="n">link_preview</span><span class="o">=</span><span class="n">LinkPreview</span><span class="o">.</span><span class="n">_NestedData</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">URL</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the URL contained in this `LinkPreview` block.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">link_preview</span><span class="o">.</span><span class="n">url</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">link_preview</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">link_preview</span><span class="o">.</span><span class="n">url</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">link_preview</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.LinkPreview.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.LinkPreview.URL" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">URL</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the URL contained in this <code>LinkPreview</code> block.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="notional.blocks.LinkPreview.__compose__" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">__compose__</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-classmethod"><code>classmethod</code></small>
+      <small class="doc doc-property doc-property-special"><code>special</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Create a new <code>LinkPreview</code> block from the given URL.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">__compose__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a new `LinkPreview` block from the given URL.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">LinkPreview</span><span class="p">(</span><span class="n">link_preview</span><span class="o">=</span><span class="n">LinkPreview</span><span class="o">.</span><span class="n">_NestedData</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">))</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.LinkToPage" class="doc doc-heading">
+        <code>
+LinkToPage            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A link_to_page block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">LinkToPage</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;link_to_page&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A link_to_page block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="n">link_to_page</span><span class="p">:</span> <span class="n">ParentRef</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.NumberedListItem" class="doc doc-heading">
+        <code>
+NumberedListItem            (<a class="autorefs autorefs-internal" title="notional.blocks.TextBlock" href="#notional.blocks.TextBlock">TextBlock</a>, <a class="autorefs autorefs-internal" title="notional.blocks.WithChildrenMixin" href="#notional.blocks.WithChildrenMixin">WithChildrenMixin</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A numbered list item in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">NumberedListItem</span><span class="p">(</span><span class="n">TextBlock</span><span class="p">,</span> <span class="n">WithChildrenMixin</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;numbered_list_item&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A numbered list item in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">rich_text</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">children</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Block</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">FullColor</span> <span class="o">=</span> <span class="n">FullColor</span><span class="o">.</span><span class="n">DEFAULT</span>
+
+    <span class="n">numbered_list_item</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numbered_list_item</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">numbered_list_item</span><span class="o">.</span><span class="n">rich_text</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;1. </span><span class="si">{</span><span class="n">markdown</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">numbered_list_item</span><span class="o">.</span><span class="n">rich_text</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.NumberedListItem.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.PDF" class="doc doc-heading">
+        <code>
+PDF            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A pdf block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">PDF</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;pdf&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A pdf block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="n">pdf</span><span class="p">:</span> <span class="n">FileObject</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Paragraph" class="doc doc-heading">
+        <code>
+Paragraph            (<a class="autorefs autorefs-internal" title="notional.blocks.TextBlock" href="#notional.blocks.TextBlock">TextBlock</a>, <a class="autorefs autorefs-internal" title="notional.blocks.WithChildrenMixin" href="#notional.blocks.WithChildrenMixin">WithChildrenMixin</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A paragraph block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Paragraph</span><span class="p">(</span><span class="n">TextBlock</span><span class="p">,</span> <span class="n">WithChildrenMixin</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;paragraph&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A paragraph block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">rich_text</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">children</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Block</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">FullColor</span> <span class="o">=</span> <span class="n">FullColor</span><span class="o">.</span><span class="n">DEFAULT</span>
+
+    <span class="n">paragraph</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">paragraph</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">paragraph</span><span class="o">.</span><span class="n">rich_text</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">markdown</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">paragraph</span><span class="o">.</span><span class="n">rich_text</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.Paragraph.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Quote" class="doc doc-heading">
+        <code>
+Quote            (<a class="autorefs autorefs-internal" title="notional.blocks.TextBlock" href="#notional.blocks.TextBlock">TextBlock</a>, <a class="autorefs autorefs-internal" title="notional.blocks.WithChildrenMixin" href="#notional.blocks.WithChildrenMixin">WithChildrenMixin</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A quote block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Quote</span><span class="p">(</span><span class="n">TextBlock</span><span class="p">,</span> <span class="n">WithChildrenMixin</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;quote&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A quote block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">rich_text</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">children</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Block</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">FullColor</span> <span class="o">=</span> <span class="n">FullColor</span><span class="o">.</span><span class="n">DEFAULT</span>
+
+    <span class="n">quote</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quote</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">quote</span><span class="o">.</span><span class="n">rich_text</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&gt; &quot;</span> <span class="o">+</span> <span class="n">markdown</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">quote</span><span class="o">.</span><span class="n">rich_text</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.Quote.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.SyncedBlock" class="doc doc-heading">
+        <code>
+SyncedBlock            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>, <a class="autorefs autorefs-internal" title="notional.blocks.WithChildrenMixin" href="#notional.blocks.WithChildrenMixin">WithChildrenMixin</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A synced_block block in Notion - either original or synced.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">SyncedBlock</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="n">WithChildrenMixin</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;synced_block&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A synced_block block in Notion - either original or synced.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">synced_from</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BlockRef</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">children</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Block</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">synced_block</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">IsOriginal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determine if this block represents the original content.</span>
+
+<span class="sd">        If this method returns `False`, the block represents the sync&#39;ed block.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">synced_block</span><span class="o">.</span><span class="n">synced_from</span> <span class="ow">is</span> <span class="kc">None</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.SyncedBlock.IsOriginal" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">IsOriginal</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Determine if this block represents the original content.</p>
+<p>If this method returns <code>False</code>, the block represents the sync'ed block.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Table" class="doc doc-heading">
+        <code>
+Table            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>, <a class="autorefs autorefs-internal" title="notional.blocks.WithChildrenMixin" href="#notional.blocks.WithChildrenMixin">WithChildrenMixin</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A table block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Table</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="n">WithChildrenMixin</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;table&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A table block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">table_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">has_column_header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">has_row_header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># note that children will not be populated when getting this block</span>
+        <span class="c1"># https://developers.notion.com/reference/block#table-blocks</span>
+        <span class="n">children</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">TableRow</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">table</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">TableRow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append the given row to this table.</span>
+
+<span class="sd">        This method is only applicable when creating a new `Table` block.  In order to</span>
+<span class="sd">        add rows to an existing `Table`, use the `blocks.children.append()` endpoint.</span>
+
+<span class="sd">        When adding a row, this method will rase an exception if the width does not</span>
+<span class="sd">        match the expected number of cells for existing rows in the block.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># XXX need to review whether this is applicable during update...  may need</span>
+        <span class="c1"># to raise an error if the block has already been created on the server</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">TableRow</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only TableRow may be appended to Table blocks.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Width</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">table_width</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">Width</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">Width</span> <span class="o">!=</span> <span class="n">block</span><span class="o">.</span><span class="n">Width</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of cells in row must match table&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the current width of this table.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">table_width</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.Table.Width" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Width</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the current width of this table.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="notional.blocks.Table.append" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Append the given row to this table.</p>
+<p>This method is only applicable when creating a new <code>Table</code> block.  In order to
+add rows to an existing <code>Table</code>, use the <code>blocks.children.append()</code> endpoint.</p>
+<p>When adding a row, this method will rase an exception if the width does not
+match the expected number of cells for existing rows in the block.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">TableRow</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Append the given row to this table.</span>
+
+<span class="sd">    This method is only applicable when creating a new `Table` block.  In order to</span>
+<span class="sd">    add rows to an existing `Table`, use the `blocks.children.append()` endpoint.</span>
+
+<span class="sd">    When adding a row, this method will rase an exception if the width does not</span>
+<span class="sd">    match the expected number of cells for existing rows in the block.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># XXX need to review whether this is applicable during update...  may need</span>
+    <span class="c1"># to raise an error if the block has already been created on the server</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">TableRow</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only TableRow may be appended to Table blocks.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Width</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">table_width</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">Width</span>
+    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">Width</span> <span class="o">!=</span> <span class="n">block</span><span class="o">.</span><span class="n">Width</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of cells in row must match table&quot;</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.TableOfContents" class="doc doc-heading">
+        <code>
+TableOfContents            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A table_of_contents block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">TableOfContents</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;table_of_contents&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A table_of_contents block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">FullColor</span> <span class="o">=</span> <span class="n">FullColor</span><span class="o">.</span><span class="n">DEFAULT</span>
+
+    <span class="n">table_of_contents</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.TableRow" class="doc doc-heading">
+        <code>
+TableRow            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A table_row block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">TableRow</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;table_row&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A table_row block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">cells</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">table_row</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append the given text as a new cell in this `TableRow`.</span>
+
+<span class="sd">        `text` may be a string, `RichTextObject` or a list of `RichTextObject`&#39;s.</span>
+
+<span class="sd">        :param text: the text content to append</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_row</span><span class="o">.</span><span class="n">cells</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">table_row</span><span class="o">.</span><span class="n">cells</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">table_row</span><span class="o">.</span><span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">RichTextObject</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">table_row</span><span class="o">.</span><span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">text</span><span class="p">])</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rtf</span> <span class="o">=</span> <span class="n">TextObject</span><span class="o">.</span><span class="n">from_value</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">table_row</span><span class="o">.</span><span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">rtf</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the width (number of cells) in this `TableRow`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_row</span><span class="o">.</span><span class="n">cells</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_row</span><span class="o">.</span><span class="n">cells</span> <span class="k">else</span> <span class="mi">0</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.TableRow.Width" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Width</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the width (number of cells) in this <code>TableRow</code>.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="notional.blocks.TableRow.append" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Append the given text as a new cell in this <code>TableRow</code>.</p>
+<p><code>text</code> may be a string, <code>RichTextObject</code> or a list of <code>RichTextObject</code>'s.</p>
+<p>:param text: the text content to append</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Append the given text as a new cell in this `TableRow`.</span>
+
+<span class="sd">    `text` may be a string, `RichTextObject` or a list of `RichTextObject`&#39;s.</span>
+
+<span class="sd">    :param text: the text content to append</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_row</span><span class="o">.</span><span class="n">cells</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_row</span><span class="o">.</span><span class="n">cells</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_row</span><span class="o">.</span><span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">RichTextObject</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_row</span><span class="o">.</span><span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">text</span><span class="p">])</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rtf</span> <span class="o">=</span> <span class="n">TextObject</span><span class="o">.</span><span class="n">from_value</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_row</span><span class="o">.</span><span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">rtf</span><span class="p">])</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Template" class="doc doc-heading">
+        <code>
+Template            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>, <a class="autorefs autorefs-internal" title="notional.blocks.WithChildrenMixin" href="#notional.blocks.WithChildrenMixin">WithChildrenMixin</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A template block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Template</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="n">WithChildrenMixin</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;template&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A template block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">rich_text</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">children</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Block</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">template</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.TextBlock" class="doc doc-heading">
+        <code>
+TextBlock            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>, <span title="abc.ABC">ABC</span>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A standard text block object in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">TextBlock</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A standard text block object in Notion.&quot;&quot;&quot;</span>
+
+    <span class="c1"># text blocks have a nested object with &#39;type&#39; name and a &#39;text&#39; child</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">__text__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provide short-hand access to the nested text content in this block.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="s2">&quot;rich_text&quot;</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__compose__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compose a `TextBlock` from the given text.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">obj</span>
+
+    <span class="k">def</span> <span class="nf">concat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Concatenate text (either `RichTextObject` or `str` items) to this block.&quot;&quot;&quot;</span>
+
+        <span class="n">nested</span> <span class="o">=</span> <span class="bp">self</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">nested</span><span class="p">,</span> <span class="s2">&quot;rich_text&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;nested data does not contain text&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">nested</span><span class="o">.</span><span class="n">rich_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nested</span><span class="o">.</span><span class="n">rich_text</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_append_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_append_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append the given object to the internal text of this TextObject.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">RichTextObject</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_append_rtf</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_append_text</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unsupported text object&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_append_rtf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtf</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append the given RichTextObject to this TextObject.&quot;&quot;&quot;</span>
+        <span class="n">nested</span> <span class="o">=</span> <span class="bp">self</span><span class="p">()</span>
+        <span class="n">nested</span><span class="o">.</span><span class="n">rich_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rtf</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_append_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append the given text to this TextObject.</span>
+
+<span class="sd">        This text will be split into chunks in accordance with the Notion API.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nested</span> <span class="o">=</span> <span class="bp">self</span><span class="p">()</span>
+
+        <span class="c1"># break up the text and compose new TextObject&#39;s from the pieces</span>
+
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunky</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">TextObject</span><span class="p">[</span><span class="n">chunk</span><span class="p">]</span>
+            <span class="n">nested</span><span class="o">.</span><span class="n">rich_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">PlainText</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this Block as plain text.&quot;&quot;&quot;</span>
+
+        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__text__</span>
+
+        <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">plain_text</span><span class="p">(</span><span class="o">*</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.TextBlock.PlainText" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">PlainText</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this Block as plain text.</p>
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.TextBlock.__text__" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">__text__</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+      <small class="doc doc-property doc-property-special"><code>special</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Provide short-hand access to the nested text content in this block.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="notional.blocks.TextBlock.__compose__" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">__compose__</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-classmethod"><code>classmethod</code></small>
+      <small class="doc doc-property doc-property-special"><code>special</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Compose a <code>TextBlock</code> from the given text.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">__compose__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compose a `TextBlock` from the given text.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">obj</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+    <span class="n">obj</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">obj</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="notional.blocks.TextBlock.concat" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">concat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">text</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Concatenate text (either <code>RichTextObject</code> or <code>str</code> items) to this block.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">concat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Concatenate text (either `RichTextObject` or `str` items) to this block.&quot;&quot;&quot;</span>
+
+    <span class="n">nested</span> <span class="o">=</span> <span class="bp">self</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">nested</span><span class="p">,</span> <span class="s2">&quot;rich_text&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;nested data does not contain text&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">nested</span><span class="o">.</span><span class="n">rich_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nested</span><span class="o">.</span><span class="n">rich_text</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_append_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.ToDo" class="doc doc-heading">
+        <code>
+ToDo            (<a class="autorefs autorefs-internal" title="notional.blocks.TextBlock" href="#notional.blocks.TextBlock">TextBlock</a>, <a class="autorefs autorefs-internal" title="notional.blocks.WithChildrenMixin" href="#notional.blocks.WithChildrenMixin">WithChildrenMixin</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A todo list item in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">ToDo</span><span class="p">(</span><span class="n">TextBlock</span><span class="p">,</span> <span class="n">WithChildrenMixin</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;to_do&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A todo list item in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">rich_text</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">checked</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">children</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Block</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">FullColor</span> <span class="o">=</span> <span class="n">FullColor</span><span class="o">.</span><span class="n">DEFAULT</span>
+
+    <span class="n">to_do</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__compose__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">checked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compose a ToDo block from the given text and checked state.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ToDo</span><span class="p">(</span>
+            <span class="n">to_do</span><span class="o">=</span><span class="n">ToDo</span><span class="o">.</span><span class="n">_NestedData</span><span class="p">(</span>
+                <span class="n">rich_text</span><span class="o">=</span><span class="p">[</span><span class="n">TextObject</span><span class="p">[</span><span class="n">text</span><span class="p">,</span> <span class="n">href</span><span class="p">]],</span>
+                <span class="n">checked</span><span class="o">=</span><span class="n">checked</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">IsChecked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determine if this ToDo is marked as checked or not.</span>
+
+<span class="sd">        If the block is empty (e.g. no nested data), this method returns `None`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_do</span><span class="o">.</span><span class="n">checked</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_do</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the contents of this block as markdown text.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_do</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_do</span><span class="o">.</span><span class="n">rich_text</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_do</span><span class="o">.</span><span class="n">checked</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;- [x] </span><span class="si">{</span><span class="n">markdown</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">to_do</span><span class="o">.</span><span class="n">rich_text</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;- [ ] </span><span class="si">{</span><span class="n">markdown</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">to_do</span><span class="o">.</span><span class="n">rich_text</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.ToDo.IsChecked" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">IsChecked</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Determine if this ToDo is marked as checked or not.</p>
+<p>If the block is empty (e.g. no nested data), this method returns <code>None</code>.</p>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.ToDo.Markdown" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">Markdown</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Return the contents of this block as markdown text.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="notional.blocks.ToDo.__compose__" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">__compose__</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">checked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-classmethod"><code>classmethod</code></small>
+      <small class="doc doc-property doc-property-special"><code>special</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Compose a ToDo block from the given text and checked state.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">__compose__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">checked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compose a ToDo block from the given text and checked state.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ToDo</span><span class="p">(</span>
+        <span class="n">to_do</span><span class="o">=</span><span class="n">ToDo</span><span class="o">.</span><span class="n">_NestedData</span><span class="p">(</span>
+            <span class="n">rich_text</span><span class="o">=</span><span class="p">[</span><span class="n">TextObject</span><span class="p">[</span><span class="n">text</span><span class="p">,</span> <span class="n">href</span><span class="p">]],</span>
+            <span class="n">checked</span><span class="o">=</span><span class="n">checked</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Toggle" class="doc doc-heading">
+        <code>
+Toggle            (<a class="autorefs autorefs-internal" title="notional.blocks.TextBlock" href="#notional.blocks.TextBlock">TextBlock</a>, <a class="autorefs autorefs-internal" title="notional.blocks.WithChildrenMixin" href="#notional.blocks.WithChildrenMixin">WithChildrenMixin</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A toggle list item in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Toggle</span><span class="p">(</span><span class="n">TextBlock</span><span class="p">,</span> <span class="n">WithChildrenMixin</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;toggle&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A toggle list item in Notion.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="n">rich_text</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RichTextObject</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">children</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Block</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">FullColor</span> <span class="o">=</span> <span class="n">FullColor</span><span class="o">.</span><span class="n">DEFAULT</span>
+
+    <span class="n">toggle</span><span class="p">:</span> <span class="n">_NestedData</span> <span class="o">=</span> <span class="n">_NestedData</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.UnsupportedBlock" class="doc doc-heading">
+        <code>
+UnsupportedBlock            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A placeholder for unsupported blocks in the API.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">UnsupportedBlock</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;unsupported&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A placeholder for unsupported blocks in the API.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_NestedData</span><span class="p">(</span><span class="n">NestedObject</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="n">unsupported</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_NestedData</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.Video" class="doc doc-heading">
+        <code>
+Video            (<a class="autorefs autorefs-internal" title="notional.blocks.Block" href="#notional.blocks.Block">Block</a>)
+        </code>
+
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+  </span>
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A video block in Notion.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Video</span><span class="p">(</span><span class="n">Block</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;video&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A video block in Notion.&quot;&quot;&quot;</span>
+
+    <span class="n">video</span><span class="p">:</span> <span class="n">FileObject</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="notional.blocks.WithChildrenMixin" class="doc doc-heading">
+        <code>
+WithChildrenMixin        </code>
+
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Mixin for blocks that support children blocks.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">WithChildrenMixin</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Mixin for blocks that support children blocks.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">__children__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provide short-hand access to the children in this block.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="s2">&quot;children&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append the given block to the children of this parent in place.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append the given block to the children of this parent.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;block cannot be None&quot;</span><span class="p">)</span>
+
+        <span class="n">nested</span> <span class="o">=</span> <span class="bp">self</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">nested</span><span class="p">,</span> <span class="s2">&quot;children&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;nested data does not contain children&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">nested</span><span class="o">.</span><span class="n">children</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nested</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">nested</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_children</span> <span class="o">=</span> <span class="kc">True</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="notional.blocks.WithChildrenMixin.__children__" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">__children__</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+      <small class="doc doc-property doc-property-special"><code>special</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Provide short-hand access to the children in this block.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="notional.blocks.WithChildrenMixin.__iadd__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-special"><code>special</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Append the given block to the children of this parent in place.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Append the given block to the children of this parent in place.&quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="notional.blocks.WithChildrenMixin.append" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Append the given block to the children of this parent.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>notional/blocks.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Append the given block to the children of this parent.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;block cannot be None&quot;</span><span class="p">)</span>
+
+    <span class="n">nested</span> <span class="o">=</span> <span class="bp">self</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">nested</span><span class="p">,</span> <span class="s2">&quot;children&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;nested data does not contain children&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">nested</span><span class="o">.</span><span class="n">children</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nested</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">nested</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">has_children</span> <span class="o">=</span> <span class="kc">True</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Overview
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../core/" class="md-footer__link md-footer__link--next" aria-label="Next: Core" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Core
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/jheddings/notional" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a6c66575.min.js"></script>
+      
+    
+  </body>
+</html>
