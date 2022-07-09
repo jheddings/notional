@@ -2,7 +2,7 @@
 
 BASEDIR ?= $(PWD)
 APPNAME ?= notional
-SRCDIR ?= $(BASEDIR)/$(APPNAME)
+SRCDIR ?= $(BASEDIR)/src/$(APPNAME)
 DISTDIR ?= $(BASEDIR)/dist
 DOCSDIR ?= $(BASEDIR)/docs
 
@@ -31,7 +31,7 @@ docs:
 .PHONY: publish
 
 publish: build
-	poetry publish --repository notional
+	poetry publish --repository pypi
 
 ################################################################################
 .PHONY: preflight
@@ -45,6 +45,7 @@ preflight: test
 test:
 	$(WITH_VENV) coverage run "--source=$(SRCDIR)" -m \
 		pytest --verbose "$(BASEDIR)/tests"
+	$(WITH_VENV) coverage report
 
 ################################################################################
 .PHONY: coverage
