@@ -1,5 +1,0 @@
--r core.txt
-
-mkdocs
-mkdocs-material
-mkdocstrings

@@ -5,9 +5,8 @@ APPNAME ?= notional
 SRCDIR ?= $(BASEDIR)/$(APPNAME)
 DISTDIR ?= $(BASEDIR)/dist
 DOCSDIR ?= $(BASEDIR)/docs
-VENVDIR ?= $(BASEDIR)/.venv
 
-WITH_VENV = source "$(VENVDIR)/bin/activate" &&
+WITH_VENV = poetry run
 
 SOURCES = "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests" "$(BASEDIR)/setup.py"
 
@@ -20,20 +19,19 @@ all: build test
 .PHONY: build
 
 build: preflight test
-	$(WITH_VENV) python3 setup.py sdist bdist_wheel
+	poetry build
 
 ################################################################################
 .PHONY: docs
 
 docs:
-	$(WITH_VENV) pip3 install -r "$(BASEDIR)/requirements/docs.txt"
 	$(WITH_VENV) mkdocs build
 
 ################################################################################
 .PHONY: publish
 
 publish: build
-	$(WITH_VENV) twine upload --repository notional $(DISTDIR)/*
+	poetry publish --repository notional
 
 ################################################################################
 .PHONY: preflight
@@ -47,7 +45,6 @@ preflight: test
 test:
 	$(WITH_VENV) coverage run "--source=$(SRCDIR)" -m \
 		pytest --verbose "$(BASEDIR)/tests"
-	$(WITH_VENV) coverage report
 
 ################################################################################
 .PHONY: coverage
@@ -70,17 +67,8 @@ stats:
 ################################################################################
 .PHONY: venv
 
-venv: requirements/core.txt requirements/dev.txt
-	python3 -m venv --prompt "$(APPNAME)" "$(VENVDIR)"
-	$(WITH_VENV) pip3 install --upgrade pip
-	$(WITH_VENV) pip3 install -r requirements/core.txt
-
-################################################################################
-.PHONY: devenv
-
-devenv: venv
-	$(WITH_VENV) pip3 install -r requirements/dev.txt
-	$(WITH_VENV) pip3 install -r requirements/test.txt
+venv:
+	poetry install --no-root
 	$(WITH_VENV) pre-commit install
 
 ################################################################################
@@ -99,9 +87,10 @@ clean:
 ################################################################################
 .PHONY: clobber
 
+# TODO remove poetry env
+
 clobber: clean scrub-vcr
 	$(WITH_VENV) pre-commit uninstall
 	rm -Rf "$(DISTDIR)"
-	rm -Rf "$(VENVDIR)"
 	rm -Rf "$(BASEDIR)/site"
 	rm -Rf "$(BASEDIR)/htmlcov"
