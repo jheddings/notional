@@ -5,7 +5,13 @@ description = "A high-level interface for the Notion SDK."
 license = "MIT"
 authors = ["Jason Heddings <jheddings@gmail.com>"]
 repository = "https://github.com/jheddings/notional/"
-homepage = "https://jheddings.github.io/notional/"
+documentation = "https://jheddings.github.io/notional/"
+readme = "README.md"
+classifiers=[
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
 
 [tool.poetry.dependencies]
 python = "^3.8"

@@ -13,7 +13,7 @@ SOURCES = "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests" "$(BASEDIR)/setup
 ################################################################################
 .PHONY: all
 
-all: build test
+all: build docs test
 
 ################################################################################
 .PHONY: build
@@ -31,7 +31,7 @@ docs:
 .PHONY: publish
 
 publish: build
-	poetry publish --repository pypi
+	poetry publish
 
 ################################################################################
 .PHONY: preflight
