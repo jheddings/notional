@@ -43,6 +43,7 @@ preflight: test
 .PHONY: test
 
 test:
+	poetry install
 	$(WITH_VENV) coverage run "--source=$(SRCDIR)" -m \
 		pytest --verbose "$(BASEDIR)/tests"
 	$(WITH_VENV) coverage report
