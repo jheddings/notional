@@ -71,7 +71,7 @@ stats:
 
 venv:
 	poetry install --no-root
-	$(WITH_VENV) pre-commit install
+	$(WITH_VENV) pre-commit install --install-hooks --overwrite
 
 ################################################################################
 .PHONY: clean
