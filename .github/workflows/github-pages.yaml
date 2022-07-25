@@ -11,5 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
       - run: poetry install
       - run: poetry run mkdocs gh-deploy --force
