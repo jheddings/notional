@@ -11,5 +11,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
-      - run: pip install -r requirements/docs.txt
-      - run: mkdocs gh-deploy --force
+      - run: poetry install
+      - run: poetry run mkdocs gh-deploy --force

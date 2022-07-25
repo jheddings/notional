@@ -8,8 +8,6 @@ DOCSDIR ?= $(BASEDIR)/docs
 
 WITH_VENV = poetry run
 
-SOURCES = "$(SRCDIR)" "$(BASEDIR)/examples" "$(BASEDIR)/tests" "$(BASEDIR)/setup.py"
-
 ################################################################################
 .PHONY: all
 
@@ -61,12 +59,6 @@ scrub-vcr:
 	rm -Rf "$(BASEDIR)/tests/cassettes"
 
 ################################################################################
-.PHONY: stats
-
-stats:
-	cloc $(SOURCES)
-
-################################################################################
 .PHONY: venv
 
 venv:
@@ -81,7 +73,7 @@ clean:
 	rm -f "$(SRCDIR)/examples/*.pyc"
 	rm -Rf "$(SRCDIR)/__pycache__"
 	rm -Rf "$(BASEDIR)/tests/__pycache__"
-	rm -Rf "$(BASEDIR)/.coverage"
+	rm -f "$(BASEDIR)/.coverage"
 	rm -Rf "$(BASEDIR)/.pytest_cache"
 	rm -Rf "$(BASEDIR)/build"
 	rm -Rf "$(BASEDIR)/notional.egg-info"
