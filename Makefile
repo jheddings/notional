@@ -5,6 +5,7 @@ APPNAME ?= notional
 SRCDIR ?= $(BASEDIR)/src/$(APPNAME)
 DISTDIR ?= $(BASEDIR)/dist
 DOCSDIR ?= $(BASEDIR)/docs
+VENVDIR ?= $(BASEDIR)/.venv
 
 WITH_VENV = poetry run
 
@@ -74,7 +75,6 @@ clean:
 	rm -Rf "$(SRCDIR)/__pycache__"
 	rm -Rf "$(BASEDIR)/tests/__pycache__"
 	rm -f "$(BASEDIR)/.coverage"
-	rm -Rf "$(BASEDIR)/.pytest_cache"
 	rm -Rf "$(BASEDIR)/build"
 	rm -Rf "$(BASEDIR)/notional.egg-info"
 
@@ -86,4 +86,4 @@ clobber: clean scrub-vcr
 	rm -Rf "$(DISTDIR)"
 	rm -Rf "$(BASEDIR)/site"
 	rm -Rf "$(BASEDIR)/htmlcov"
-	rm -Rf "$(BASEDIR)/.venv"
+	rm -Rf "$(VENVDIR)"
