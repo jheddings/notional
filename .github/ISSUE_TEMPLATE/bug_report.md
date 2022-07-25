@@ -6,6 +6,10 @@ labels: 'bug'
 assignees: ''
 ---
 
+_To determine to current version, run `python -m notional`_
+
+Notional Version:
+
 ### Description ###
 
 _A clear and concise description of what the bug is._
