@@ -320,6 +320,12 @@ def test_multi_select_from_list():
     assert None not in tags
 
 
+def test_compose_status():
+    """Create a Status object from a literal string."""
+    backlog = types.Status["Backlog"]
+    assert backlog == "Backlog"
+
+
 def test_parse_email_data():
     """Create an Email object from API data."""
 

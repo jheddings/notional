@@ -145,6 +145,12 @@ class MultiSelect(PropertyObject, type="multi_select"):
     multi_select: _NestedData = _NestedData()
 
 
+class Status(PropertyObject, type="status"):
+    """Defines the status configuration for a database property."""
+
+    status: Any = {}
+
+
 class Date(PropertyObject, type="date"):
     """Defines the date configuration for a database property."""
 

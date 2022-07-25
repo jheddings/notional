@@ -44,7 +44,8 @@ class Task(CustomPage):
     Attachments = Property("Attachments", schema.Files())
     Reference = Property("Reference", schema.Number())
     LastUpdate = Property("Last Update", schema.LastEditedTime())
-    Status = Property("Status")
+    Status = Property("Status", schema.Status())
+    Summary = Property("Summary")
 
 
 # display all tasks...  also, set a tag if it is not present
@@ -54,6 +55,7 @@ query = Task.query().sort(property="Title", direction=SortDirection.ASCENDING)
 for task in query.execute():
     print(f"== {task.Title} ==")
     print(f"{task.Status} => {task.DueDate}")
+    print(task.Summary)
 
     if "To Review" not in task.Tags:
         task.Tags += "To Review"

@@ -380,6 +380,54 @@ class Date(PropertyValue, type="date"):
         return None if self.date is None else self.date.end
 
 
+class Status(NativeTypeMixin, PropertyValue, type="status"):
+    """Notion status property."""
+
+    class _NestedData(NestedObject):
+        name: str = None
+        id: Optional[Union[UUID, str]] = None
+        color: Optional[Color] = None
+
+    status: Optional[_NestedData] = None
+
+    def __str__(self):
+        """Return a string representation of this property."""
+        return self.Value or ""
+
+    def __eq__(self, other):
+        """Determine if this property is equal to the given object.
+
+        To avoid confusion, this method compares Status options by name.
+        """
+
+        if other is None:
+            return self.status is None
+
+        if isinstance(other, Status):
+            return self.status.name == other.status.name
+
+        return self.status.name == other
+
+    @classmethod
+    def __compose__(cls, name, color=Color.DEFAULT):
+        """Create a `Status` property from the given name.
+
+        :param name: a string to use for this property
+        :param color: an optional Color for the status
+        """
+
+        if name is None:
+            raise ValueError("'name' cannot be None")
+
+        return cls(status=Status._NestedData(name=name, color=color))
+
+    @property
+    def Value(self):
+        """Return the value of this property as a string."""
+
+        return self.status.name
+
+
 class SelectValue(DataObject):
     """Values for select & multi-select properties."""
 
@@ -407,22 +455,23 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
         To avoid confusion, this method compares Select options by name.
         """
 
-        if self.select is None:
-            return other is None
+        if other is None:
+            return self.select is None
 
         return other == self.select.name
 
     @classmethod
-    def __compose__(cls, value):
+    def __compose__(cls, value, color=Color.DEFAULT):
         """Create a `SelectOne` property from the given value.
 
         :param value: a string to use for this property
+        :param color: an optional Color for the value
         """
 
         if value is None:
             raise ValueError("'name' cannot be None")
 
-        return cls(select=SelectValue(name=value))
+        return cls(select=SelectValue(name=value, color=color))
 
     @property
     def Value(self):
