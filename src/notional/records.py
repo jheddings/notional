@@ -84,6 +84,8 @@ class Database(Record, object="database"):
     icon: Optional[Union[FileObject, EmojiObject]] = None
     cover: Optional[FileObject] = None
     properties: Dict[str, PropertyObject] = {}
+    description: Optional[List[RichTextObject]] = None
+    is_inline: bool = False
 
     @property
     def Title(self):
