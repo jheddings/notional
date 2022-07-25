@@ -29,13 +29,9 @@ repos:
           - flake8-alfred
           - flake8-breakpoint
           - flake8-bugbear
-          # - flake8-builtins
           - flake8-comprehensions
           - flake8-docstrings
           - flake8-eradicate
           # - flake8-print
           - flake8-logging-format
-          # - flake8-return
-          # - flake8-requirements
-          # - flake8-todo
-          # - pep8-naming
+          - flake8-return
