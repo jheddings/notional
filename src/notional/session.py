@@ -220,7 +220,7 @@ class DatabasesEndpoint(Endpoint):
 
         dbid = get_target_id(database)
 
-        log.info("Updating database info :: ", dbid)
+        log.info("Updating database info :: %s", dbid)
 
         request = self._build_request(schema=schema, title=title)
 
