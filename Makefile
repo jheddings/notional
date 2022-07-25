@@ -81,10 +81,9 @@ clean:
 ################################################################################
 .PHONY: clobber
 
-# TODO remove poetry env
-
 clobber: clean scrub-vcr
 	$(WITH_VENV) pre-commit uninstall
 	rm -Rf "$(DISTDIR)"
 	rm -Rf "$(BASEDIR)/site"
 	rm -Rf "$(BASEDIR)/htmlcov"
+	rm -Rf "$(BASEDIR)/.venv"
