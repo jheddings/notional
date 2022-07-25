@@ -21,10 +21,6 @@ log = logging.getLogger(__name__)
 class ParentRef(TypedObject):
     """Reference another block."""
 
-    # XXX Notion does not handle parent references consistently in the API...
-    # in some cases, the `type` is accepted and in others it is not. eventually
-    # these should all by TypedObject's with the appropriate fields
-
     @classmethod
     def __compose__(cls, record):
         """Return the correct parent ID based on the object type."""
@@ -73,6 +69,7 @@ class Record(NamedObject):
     last_edited_time: datetime = None
     has_children: bool = False
     archived: bool = False
+    parent: ParentRef = None
 
 
 class Database(Record, object="database"):
@@ -80,7 +77,6 @@ class Database(Record, object="database"):
 
     title: List[RichTextObject] = None
     url: str = None
-    parent: ParentRef = None
     icon: Optional[Union[FileObject, EmojiObject]] = None
     cover: Optional[FileObject] = None
     properties: Dict[str, PropertyObject] = {}
@@ -100,7 +96,6 @@ class Page(Record, object="page"):
     """A standard Notion page object."""
 
     url: str = None
-    parent: ParentRef = None
     icon: Optional[Union[FileObject, EmojiObject]] = None
     cover: Optional[FileObject] = None
     properties: Dict[str, PropertyValue] = {}

@@ -207,6 +207,8 @@ class Relation(PropertyObject, type="relation"):
 
     class _NestedData(NestedObject):
         database_id: UUID = None
+        synced_property_name: Optional[str] = None
+        synced_property_id: Optional[str] = None
 
     relation: _NestedData = _NestedData()
 
