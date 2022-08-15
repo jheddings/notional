@@ -799,6 +799,17 @@ class DateFormula(FormulaResult, type="date"):
         return self.date
 
 
+class BooleanFormula(FormulaResult, type="boolean"):
+    """A Notion boolean formula result."""
+
+    boolean: Optional[bool] = None
+
+    @property
+    def Result(self):
+        """Return the result of this BooleanFormula."""
+        return self.boolean
+
+
 class Formula(PropertyValue, type="formula"):
     """A Notion formula property value."""
 
