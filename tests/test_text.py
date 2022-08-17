@@ -3,7 +3,14 @@
 import re
 
 from notional import blocks
-from notional.text import Annotations, CodingLanguage, TextObject, markdown, plain_text
+from notional.text import (
+    Annotations,
+    CodingLanguage,
+    TextObject,
+    is_emoji,
+    markdown,
+    plain_text,
+)
 
 
 def confirm_rtf_markdown(plain, md, rtf):
@@ -204,3 +211,13 @@ def test_code_block():
     block = blocks.Code[code, CodingLanguage.PYTHON]
 
     assert block.Markdown == f"```python\n{code}\n```"
+
+
+def test_is_emoji():
+    """Test if is_emoji detects single emoji."""
+    assert is_emoji("🍟")
+    assert not is_emoji("no emoji")
+    assert not is_emoji("I love 🍟")
+    assert not is_emoji("🍟🍟")
+    assert not is_emoji("🍟 is my favourite")
+    assert not is_emoji("🍟🍔")
