@@ -29,12 +29,7 @@ def markdown(*rtf):
 
 def is_emoji(text):
     """Check if text is a single emoji."""
-    count = 0
-    for emoji in EMOJI_DATA:
-        count += text.count(emoji)
-        if count > 1:
-            return False
-    return True
+    return text in EMOJI_DATA
 
 
 def chunky(text, length=MAX_TEXT_OBJECT_SIZE):
