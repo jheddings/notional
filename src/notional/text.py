@@ -5,6 +5,8 @@ from copy import deepcopy
 from enum import Enum
 from typing import Optional
 
+from emoji import EMOJI_DATA
+
 from .core import DataObject, NestedObject, TypedObject
 
 # this might be a place to capture other utilities for working with markdown, text
@@ -23,6 +25,16 @@ def plain_text(*rtf):
 def markdown(*rtf):
     """Return text as markdown from the list of RichText objects."""
     return "".join(str(text) for text in rtf if text)
+
+
+def is_emoji(text):
+    """Check if text is a single emoji."""
+    count = 0
+    for emoji in EMOJI_DATA:
+        count += text.count(emoji)
+        if count > 1:
+            return False
+    return True
 
 
 def chunky(text, length=MAX_TEXT_OBJECT_SIZE):
