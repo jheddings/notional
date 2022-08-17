@@ -7,12 +7,12 @@ in Notional: `Property()` and `connected_page()`.
 import logging
 from typing import Union
 
+from emoji import emojize
+
 from .records import Database, DatabaseRef, Page
 from .schema import PropertyObject, RichText
-from .text import make_safe_python_name, is_emoji
-from .types import EmojiObject, PropertyValue, ExternalFile
-
-from emoji import emojize
+from .text import is_emoji, make_safe_python_name
+from .types import EmojiObject, ExternalFile, PropertyValue
 
 log = logging.getLogger(__name__)
 
@@ -226,7 +226,7 @@ class ConnectedPage:
 
         if isinstance(icon, str):
             if icon.startswith(":"):
-                icon = emojize(icon, language='alias')
+                icon = emojize(icon, language="alias")
             if is_emoji(icon):
                 icon = EmojiObject[icon]
             elif icon.startswith("http"):
