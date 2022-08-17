@@ -142,7 +142,7 @@ def simple_db(notion, test_area):
     This database will be deleted during teardown.
     """
 
-    # TODO - can we derrive the schema from local_model?
+    # TODO - can we derive the schema from local_model?
 
     db = notion.databases.create(
         parent=test_area,
