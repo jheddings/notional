@@ -42,7 +42,7 @@ def make_api_safe(data):
 
 
 class ComposableObject(ModelMetaclass):
-    """Presents a meta class that composes objects using simple values.
+    """Presents a metaclass that composes objects using simple values.
 
     This is primarily to allow easy definition of data objects without disrupting the
     `BaseModel` constructor.  e.g. rather than requiring a caller to understand how
@@ -65,7 +65,7 @@ class ComposableObject(ModelMetaclass):
     Classes that support composition in this way must define and implement the internal
     `__compose__` method.  This method takes an arbitrary number of parameters, based
     on the needs of the implementation.  It is up to the implementing class to ensure
-    that the parameters are specificied correctly.
+    that the parameters are specified correctly.
     """
 
     def __getitem__(self, params):

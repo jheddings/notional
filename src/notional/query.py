@@ -7,6 +7,7 @@ from inspect import isclass
 from typing import Any, List, Optional, Union
 from uuid import UUID
 
+from notion_client.api_endpoints import SearchEndpoint
 from pydantic import Field, validator
 
 from .blocks import Block
@@ -166,6 +167,13 @@ class PropertyFilter(QueryFilter):
     formula: Optional[FormulaCondition] = None
 
 
+class SearchFilter(QueryFilter):
+    """Represents a search property filter in Notion."""
+
+    property: str
+    value: str
+
+
 class TimestampKind(str, Enum):
     """Possible timestamp types."""
 
@@ -281,7 +289,9 @@ class QueryBuilder:
 
         if filter is None:
 
-            if "property" in kwargs:
+            if isinstance(self.endpoint, SearchEndpoint):
+                filter = SearchFilter.parse_obj(kwargs)
+            elif "property" in kwargs:
                 filter = PropertyFilter.parse_obj(kwargs)
             elif "timestamp" in kwargs and kwargs["timestamp"] == "created_time":
                 filter = CreatedTimeFilter.parse_obj(kwargs)
