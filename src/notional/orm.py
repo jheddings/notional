@@ -9,7 +9,7 @@ from typing import Union
 
 from emoji import emojize
 
-from .records import Database, DatabaseRef, Page
+from .records import DatabaseRef, Page
 from .schema import PropertyObject, RichText
 from .text import is_emoji, make_safe_python_name
 from .types import EmojiObject, ExternalFile, PropertyValue
@@ -413,16 +413,13 @@ def connected_page(session=None, source_db=None, schema=None, cls=None):
     elif not issubclass(cls, ConnectedPage):
         raise ValueError("'cls' must subclass ConnectedPage")
 
-    if source_db is None:
-        dbid = None
+    dbid = None
 
-    elif not isinstance(source_db, Database):
-        raise ValueError("'source_db' must be a Database")
+    if source_db is not None:
+        if schema is None:
+            schema = source_db.properties
 
-    if schema is None:
-        schema = source_db.properties
-
-    dbid = source_db.id
+        dbid = source_db.id
 
     factory = ConnectedPageFactory(base=cls)
 
