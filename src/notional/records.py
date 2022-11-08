@@ -137,8 +137,7 @@ class Page(Record, object="page"):
         elif not isinstance(value, PropertyValue):
             raise ValueError(f"Unable to set {name} :: unsupported value type")
 
-        else:
-            self.properties[name] = value
+        self.properties[name] = value
 
     @property
     def Title(self):

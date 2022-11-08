@@ -419,11 +419,10 @@ def connected_page(session=None, source_db=None, schema=None, cls=None):
     elif not isinstance(source_db, Database):
         raise ValueError("'source_db' must be a Database")
 
-    else:
-        if schema is None:
-            schema = source_db.properties
+    if schema is None:
+        schema = source_db.properties
 
-        dbid = source_db.id
+    dbid = source_db.id
 
     factory = ConnectedPageFactory(base=cls)
 
