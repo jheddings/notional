@@ -589,7 +589,7 @@ class TableRow(Block, type="table_row"):
             self.table_row.cells.append([text])
 
         else:
-            rtf = TextObject.from_value(text)
+            rtf = TextObject[text]
             self.table_row.cells.append([rtf])
 
     @property
