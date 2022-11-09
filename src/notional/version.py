@@ -46,7 +46,10 @@ try:
     except git.InvalidGitRepositoryError:
         pass
 
+except ModuleNotFoundError:
+    log.debug("Could not find module")
+
 except Exception:
-    pass
+    log.exception("Unexpected exception while looking for version information.")
 
 log.info("%s-%s", __pkgname__, __version__)
