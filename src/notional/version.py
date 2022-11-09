@@ -3,38 +3,48 @@
 import logging
 import os
 
+import pkg_resources
+
 log = logging.getLogger(__name__)
 
-__version__ = "0.4.1"
+__pkgname__ = "notional"
 
-# if we are running in a local copy, append the repo information
-# XXX do we want to do something more advanced when using `make publish` ?
+log.debug("loading package distribution")
+_pkg_dist = pkg_resources.get_distribution(__pkgname__)
 
-log.debug("attempting to parse git version information")
+__version__ = _pkg_dist.version
 
 try:
 
+    # if we are running in a local copy, append the repo information
+    log.debug("attempting to parse git repo information")
+
     import git
 
-    basedir = os.path.dirname(os.path.abspath(__file__)) + "/.."
-    log.debug("version basedir: %s", basedir)
+    _basedir = os.path.dirname(os.path.abspath(__file__)) + "/.."
+    log.debug("version basedir: %s", _basedir)
 
     try:
-        repo = git.Repo(basedir, search_parent_directories=True)
-        head = repo.head.commit
+        _repo = git.Repo(_basedir, search_parent_directories=True)
+        _head = _repo.head.commit
 
-        assert not repo.bare
+        assert not _repo.bare
 
-        # TODO add branch name
-        __version__ = f"{__version__}-{head.hexsha[:7]}"
+        __version__ += "-" + _head.hexsha[:7]
 
-        if repo.is_dirty():
-            __version__ = f"{__version__}+"
+        _branch = _repo.active_branch.name
+        log.debug("current git branch: %s", _branch)
+
+        if _branch != "main":
+            __version__ += "-" + _branch
+
+        if _repo.is_dirty():
+            __version__ += "+"
 
     except git.InvalidGitRepositoryError:
         pass
 
-except ModuleNotFoundError:
+except Exception:
     pass
 
-log.info("notional-%s", __version__)
+log.info("%s-%s", __pkgname__, __version__)
