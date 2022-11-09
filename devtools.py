@@ -1,6 +1,7 @@
 """Tools that help maintain Notional."""
 
 import os
+import shutil
 import subprocess
 
 import click
@@ -42,9 +43,28 @@ def alert(msg):
     echo(msg, fg="black", bg="red")
 
 
+################################################################################
+## Command Utilities ##
+
+
 def exec(cmd):
     """Execute the given command."""
     subprocess.run(cmd, check=False, shell=False)
+
+
+def rmdir(path, recurse=True):
+    """Remove the given path if needed."""
+
+    if not os.path.exists(path):
+        debug(f"{path} does not exist; skipping")
+
+    elif recurse:
+        debug(f"removing tree: {path}")
+        shutil.rmtree(path)
+
+    else:
+        debug(f"removing path: {path}")
+        os.rmdir(path)
 
 
 ################################################################################
@@ -80,8 +100,8 @@ def mkdocs():
     "--vcr", "vcr_mode", help="Set the VCR record mode (default: once).", default="once"
 )
 @click.option(
-    "--coverage/--no-coverage",
-    "-C/",
+    "--coverage",
+    "-C",
     default=False,
     is_flag=True,
     help="Generate a coverage report (default: False).",
@@ -92,17 +112,15 @@ def run_unit_tests(coverage, vcr_mode):
     info("BEGIN: utest")
     debug(f"↳ coverage:{coverage} vcr:{vcr_mode}")
 
-    # TODO set VCR mode
-
     pytest = ["pytest", "--verbose", f"{BASEDIR}/tests", f"--vcr-record={vcr_mode}"]
 
     # TODO add support for generating HTML reports
 
     if coverage:
-        test_cmd = ["coverage", "run", f"--source={SRCDIR}", "-m"]
-        test_cmd.extend(pytest)
+        cov = ["coverage", "run", f"--source={SRCDIR}", "-m"]
+        cov.extend(pytest)
 
-        exec(test_cmd)
+        exec(cov)
         exec(["coverage", "report"])
 
     else:
@@ -124,24 +142,28 @@ def run_unit_tests(coverage, vcr_mode):
 def cleanup(clobber):
     """Clean intermediate files."""
 
-    info("BEGIN: cleanup")
-
     if clobber:
         alert("WARNING: this will remove all package artifacts.")
         click.confirm("Do you want to continue?", abort=True)
 
+    info("BEGIN: cleanup")
+    debug(f"↳ clobber:{clobber}")
+
     # rm -f "$(SRCDIR)/*.pyc"
     # rm -f "$(SRCDIR)/examples/*.pyc"
-    # rm -Rf "$(SRCDIR)/__pycache__"
-    # rm -Rf "$(BASEDIR)/tests/__pycache__"
+
+    rmdir(f"{BASEDIR}/__pycache__")
+    rmdir(f"{BASEDIR}/tests/__pycache__")
+    rmdir(f"{SRCDIR}/notional/__pycache__")
+
+    rmdir(f"{BASEDIR}/build")
+    rmdir(f"{BASEDIR}/notional.egg-info")
+
     # rm -f "$(BASEDIR)/.coverage"
-    # rm -Rf "$(BASEDIR)/build"
-    # rm -Rf "$(BASEDIR)/notional.egg-info"
 
     if clobber:
-        # pre-commit uninstall
-        # rm -Rf "$(DISTDIR)"
-        # rm -Rf "$(BASEDIR)/site"
-        # rm -Rf "$(BASEDIR)/htmlcov"
-        # rm -Rf "$(VENVDIR)"
-        pass
+        exec(["pre-commit", "uninstall"])
+        rmdir(f"{BASEDIR}/dist")
+        rmdir(f"{BASEDIR}/site")
+        rmdir(f"{BASEDIR}/htmlcov")
+        rmdir(f"{BASEDIR}/.venv")
