@@ -3,11 +3,11 @@
 import logging
 
 from .session import Session
-from .version import __version__
+from .version import __pkgname__, __version__
 
 log = logging.getLogger(__name__)
 
-__all__ = ["__version__", "connect"]
+__all__ = ["__version__", "__pkgname__", "connect"]
 
 
 def connect(**kwargs):
