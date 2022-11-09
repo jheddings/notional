@@ -30,6 +30,8 @@ try:
 
         assert not _repo.bare
 
+        log.debug("using repo dir: %s", _repo.git_dir)
+
         __version__ += "-" + _head.hexsha[:7]
 
         _branch = _repo.active_branch.name
