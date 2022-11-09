@@ -9,9 +9,6 @@ import click
 BASEDIR = os.path.dirname(__file__)
 SRCDIR = f"{BASEDIR}/src"
 
-# TODO install pre-commit hooks
-# pre-commit install --install-hooks --overwrite
-
 
 ################################################################################
 ## Logging Utilities ##
@@ -76,6 +73,8 @@ def preflight():
     """Run all preflight checks."""
 
     info("BEGIN: preflight")
+
+    exec(["pre-commit", "install", "--install-hooks", "--overwrite"])
     exec(["pre-commit", "run", "--all-files", "--verbose"])
 
 
@@ -111,6 +110,8 @@ def run_unit_tests(coverage, vcr_mode):
 
     info("BEGIN: utest")
     debug(f"↳ coverage:{coverage} vcr:{vcr_mode}")
+
+    # TODO look into running pytest natively (e.g. no exec)
 
     pytest = ["pytest", "--verbose", f"{BASEDIR}/tests", f"--vcr-record={vcr_mode}"]
 
