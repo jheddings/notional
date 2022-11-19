@@ -461,7 +461,7 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
         return other == self.select.name
 
     @classmethod
-    def __compose__(cls, value, color=Color.DEFAULT):
+    def __compose__(cls, value, color=None):
         """Create a `SelectOne` property from the given value.
 
         :param value: a string to use for this property
