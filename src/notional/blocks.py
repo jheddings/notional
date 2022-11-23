@@ -570,7 +570,21 @@ class TableRow(Block, type="table_row"):
     class _NestedData(NestedObject):
         cells: List[List[RichTextObject]] = None
 
+        def __getitem__(self, col):
+            """Return the cell content for the requested column.
+
+            This will raise an `IndexError` if there are not enough columns.
+            """
+            if col > len(self.cells):
+                raise IndexError()
+
+            return self.cells[col]
+
     table_row: _NestedData = _NestedData()
+
+    def __getitem__(self, cell_num):
+        """Return the cell content for the requested column."""
+        return self.table_row[cell_num]
 
     def append(self, text):
         """Append the given text as a new cell in this `TableRow`.
