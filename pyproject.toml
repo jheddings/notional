@@ -34,7 +34,7 @@ flake8 = "^4.0.1"
 mkdocs = "^1.4.2"
 mkdocstrings = "^0.19.0"
 mkdocs-material = "^8.3.9"
-mkdocstrings-python = "^0.7.1"
+mkdocstrings-python = "^0.8.2"
 
 [tool.poetry.scripts]
 preflight = "devtools:preflight"
