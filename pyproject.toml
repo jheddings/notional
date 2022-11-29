@@ -36,6 +36,12 @@ mkdocstrings = "^0.19.0"
 mkdocs-material = "^8.3.9"
 mkdocstrings-python = "^0.7.1"
 
+[tool.poetry.scripts]
+preflight = "devtools:preflight"
+utest = "devtools:run_unit_tests"
+mkdocs = "devtools:mkdocs"
+cleanup = "devtools:cleanup"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

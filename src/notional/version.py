@@ -30,6 +30,8 @@ try:
 
         assert not _repo.bare
 
+        log.debug("using repo dir: %s", _repo.git_dir)
+
         __version__ += "-" + _head.hexsha[:7]
 
         _branch = _repo.active_branch.name
@@ -44,7 +46,10 @@ try:
     except git.InvalidGitRepositoryError:
         pass
 
+except ModuleNotFoundError:
+    log.debug("Could not find module")
+
 except Exception:
-    pass
+    log.exception("Unexpected exception while looking for version information.")
 
 log.info("%s-%s", __pkgname__, __version__)
