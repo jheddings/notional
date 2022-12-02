@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/notional.svg)](https://pypi.org/project/notional)
 [![LICENSE](https://img.shields.io/github/license/jheddings/notional)](LICENSE)
-[![Code Style](https://img.shields.io/badge/code%20style-black-black)](https://github.com/ambv/black)
+[![Style](https://img.shields.io/badge/style-black-black)](https://github.com/ambv/black)
 
 A high level interface and object model for the Notion SDK.  This is loosely modeled
 after concepts found in [SQLAlchemy](http://www.sqlalchemy.org) and
