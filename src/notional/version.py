@@ -21,11 +21,15 @@ try:
 
     import git
 
-    _basedir = os.path.dirname(os.path.abspath(__file__)) + "/.."
+    # XXX there is probably a better way to do this, but we don't want to inadvertently
+    # pick up another repo (e.g. if we are installed in a .venv of another project)
+    _srcdir = os.path.dirname(os.path.abspath(__file__))
+    _basedir = os.path.abspath(os.path.join(_srcdir, "..", ".."))
+
     log.debug("version basedir: %s", _basedir)
 
     try:
-        _repo = git.Repo(_basedir, search_parent_directories=True)
+        _repo = git.Repo(_basedir)
         _head = _repo.head.commit
 
         assert not _repo.bare
