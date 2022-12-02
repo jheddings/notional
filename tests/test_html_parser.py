@@ -11,7 +11,7 @@ from notional.text import plain_text
 BASEDIR = os.path.dirname(os.path.abspath(__file__))
 
 
-def check_single_block(html, expected_type, expected_text):
+def check_single_block(html, expected_type, expected_text=None):
     """Verify the given HTML is parsed into expected block."""
 
     parser = HtmlParser()
@@ -146,7 +146,6 @@ def test_divider():
     check_single_block(
         html="<body><hr></body>",
         expected_type=blocks.Divider,
-        expected_text=None,
     )
 
 
