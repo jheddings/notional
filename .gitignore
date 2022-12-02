@@ -1,11 +1,14 @@
-__pycache__/
+*.swp
+*.swo
+*~
+.DS_Store
+
+__pycache__
 *.py[cod]
 *.prof
 .coverage
 
 .venv
-
-.vscode/launch.json
 
 local.env
 
@@ -15,4 +18,4 @@ lib
 tmp
 site
 
-*.egg-info/
+*.egg-info
