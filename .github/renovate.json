@@ -7,5 +7,6 @@
       "addLabels": [ "python" ]
     }
   ],
+  "dependencyDashboard": true,
   "extends": [ "config:base" ]
 }
