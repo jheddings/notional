@@ -3,7 +3,7 @@
   "labels": [ "dependencies" ],
   "packageRules": [
     {
-      "matchLanguages": ["python"],
+      "matchLanguages": [ "python" ],
       "addLabels": [ "python" ]
     }
   ],
