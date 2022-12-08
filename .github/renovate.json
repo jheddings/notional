@@ -7,6 +7,7 @@
       "addLabels": [ "python" ]
     }
   ],
+  "reviewers": [ "jheddings" ],
   "dependencyDashboard": false,
   "extends": [ "config:base" ]
 }
