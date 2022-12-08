@@ -12,9 +12,8 @@ classifiers=[
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
-
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.8.1"
 notion-client = "^1.0.0"
 pydantic = "^1.9.1"
 html5lib = "^1.1"
