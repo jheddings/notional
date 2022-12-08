@@ -1,12 +1,20 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "enabled": true,
+
+  "assignees": [ "jheddings" ],
   "labels": [ "dependencies", "renovate" ],
-  "packageRules": [
-    {
-      "matchLanguages": [ "python" ],
-      "addLabels": [ "python" ]
-    }
-  ],
-  "dependencyDashboard": true,
+
+  "python": { "addLabels": [ "python" ] },
+  "docker": { "addLabels": [ "docker" ] },
+  "golang": { "addLabels": [ "golang" ] },
+  "rust": { "addLabels": [ "rust" ] },
+  "java": { "addLabels": [ "java" ] },
+  "js": { "addLabels": [ "js" ] },
+  "node": { "addLabels": [ "node" ] },
+
+  "automergeType": "pr",
+  "dependencyDashboard": false,
+
   "extends": [ "config:base" ]
 }
