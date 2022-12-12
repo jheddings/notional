@@ -631,7 +631,7 @@ def test_last_edited_by():
     assert author.name == "Alice the Person"
 
 
-def test_parse_mention_user_objecy():
+def test_parse_mention_user_object():
     """Create a Mention user object from API data."""
 
     test_data = {
@@ -660,6 +660,21 @@ def test_parse_mention_user_objecy():
     assert data.name == "Alice"
 
 
+def test_compose_mention_user():
+    """Test the compose interface for mentioning users."""
+
+    alice = user.User(id="62e40b6e-3f05-494f-9220-d68a1995b54f", name="Alice")
+    at = types.MentionUser["Mention Alice", alice]
+
+    assert at.type == "mention"
+    assert at.plain_text == "Mention Alice"
+    assert at.mention.type == "user"
+
+    data = at.mention.user
+
+    assert data.name == "Alice"
+
+
 def test_parse_mention_date_object():
     """Create a Mention date object from API data."""
 
@@ -677,6 +692,21 @@ def test_parse_mention_date_object():
     data = at.mention.date
 
     assert data.start == date(2099, 1, 1)
+
+
+def test_compose_mention_date():
+    """Test the compose interface for mentioning dates."""
+
+    tomm = date.today() + timedelta(days=1)
+    at = types.MentionDate["Mention Tomorrow", tomm]
+
+    assert at.type == "mention"
+    assert at.plain_text == "Mention Tomorrow"
+    assert at.mention.type == "date"
+
+    data = at.mention.date
+
+    assert data.start == tomm
 
 
 def test_parse_mention_page_object():
@@ -729,6 +759,19 @@ def test_parse_mention_database_object():
     data = mention("database")
 
     assert data.id == UUID("57202d16-08c9-43db-a112-a0f25443dc48")
+
+
+def test_compose_mention_url():
+    """Test the compose interface for mentioning links."""
+
+    url = "https://github.com/jheddings/notional"
+    at = types.MentionLink["Notional", url]
+
+    assert at.type == "mention"
+    assert at.plain_text == "Notional"
+    assert at.mention.type == "link_preview"
+
+    assert at.mention.url == url
 
 
 def test_parse_equation_data():

@@ -127,11 +127,25 @@ class MentionUser(MentionData, type="user"):
 
     user: User
 
+    @classmethod
+    def __compose__(cls, text, user):
+        """Build a `Mention` object for the specified user."""
+
+        return MentionObject(plain_text=text, mention=MentionUser(user=user))
+
 
 class MentionPage(MentionData, type="page"):
     """Nested page data for `Mention` properties."""
 
     page: PageReference
+
+    @classmethod
+    def __compose__(cls, text, page_ref):
+        """Build a `Mention` object for the specified page reference."""
+
+        ref = PageReference[page_ref]
+
+        return MentionObject(plain_text=text, mention=MentionPage(page=ref))
 
 
 class MentionDatabase(MentionData, type="database"):
@@ -139,17 +153,39 @@ class MentionDatabase(MentionData, type="database"):
 
     database: PageReference
 
+    @classmethod
+    def __compose__(cls, text, page):
+        """Build a `Mention` object for the specified database reference."""
+
+        ref = PageReference[page]
+
+        return MentionObject(plain_text=text, mention=MentionDatabase(database=ref))
+
 
 class MentionDate(MentionData, type="date"):
     """Nested date data for `Mention` properties."""
 
     date: DateRange
 
+    @classmethod
+    def __compose__(cls, text, start, end=None):
+        """Build a `Mention` object for the specified URL."""
+
+        date_obj = DateRange(start=start, end=end)
+
+        return MentionObject(plain_text=text, mention=MentionDate(date=date_obj))
+
 
 class MentionLink(MentionData, type="link_preview"):
     """Nested url data for `Mention` properties."""
 
     url: str
+
+    @classmethod
+    def __compose__(cls, text, url):
+        """Build a `Mention` object for the specified URL."""
+
+        return MentionObject(plain_text=text, mention=MentionLink(url=url))
 
 
 class MentionTemplateData(TypedObject):
