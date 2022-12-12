@@ -13,7 +13,7 @@ from .orm import ConnectedPage
 from .query import QueryBuilder, ResultSet, get_target_id
 from .records import Database, Page, ParentRef
 from .text import TextObject
-from .types import Title
+from .types import PropertyValue, Title
 from .user import User
 
 log = logging.getLogger(__name__)
@@ -264,6 +264,29 @@ class DatabasesEndpoint(Endpoint):
 
 class PagesEndpoint(Endpoint):
     """Notional interface to the API 'pages' endpoint."""
+
+    class PropertiesEndpoint(Endpoint):
+        """Notional interface to the API 'pages/properties' endpoint."""
+
+        def __call__(self):
+            """Return the underlying endpoint in the Notion SDK."""
+            return self.session.client.pages.properties
+
+        # https://developers.notion.com/reference/retrieve-a-page-property
+        def retrieve(self, page_id, property_id):
+            """Return the Property on a specific page Page with the given ID."""
+
+            log.info("Retrieving property :: %s [%s]", page_id, property_id)
+
+            data = self().retrieve(page_id, property_id)
+
+            return PropertyValue.parse_obj(data)
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the `pages` endpoint for the Notion API."""
+        super().__init__(*args, **kwargs)
+
+        self.properties = PagesEndpoint.PropertiesEndpoint(*args, **kwargs)
 
     def __call__(self):
         """Return the underlying endpoint in the Notion SDK."""

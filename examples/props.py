@@ -30,7 +30,12 @@ page = notion.pages.retrieve(page_id)
 print(f"{page.Title} => {page.url}")
 
 # print all current properties on the page...
-for name, prop in page.properties.items():
+for name, stub in page.properties.items():
+    prop_id = stub.id
+
+    # use the endpoitn to retrive the full property data
+    prop = notion.pages.properties.retrieve(page_id, prop_id)
+
     print(f"{name} => {prop}")
 
 # update a property on the page...
