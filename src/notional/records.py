@@ -6,70 +6,14 @@ the primitive data structure, where capitalized attributes provide higher-level 
 """
 
 import logging
-from datetime import datetime
 from typing import Dict, List, Optional, Union
-from uuid import UUID
 
-from .core import NamedObject, TypedObject
+from .blocks import Record
 from .schema import PropertyObject
 from .text import plain_text
 from .types import EmojiObject, FileObject, PropertyValue, RichTextObject
 
 log = logging.getLogger(__name__)
-
-
-class ParentRef(TypedObject):
-    """Reference another block."""
-
-    @classmethod
-    def __compose__(cls, record):
-        """Return the correct parent ID based on the object type."""
-
-        if isinstance(record, ParentRef):
-            return record
-
-        if isinstance(record, Page):
-            return PageRef(page_id=record.id)
-
-        if isinstance(record, Database):
-            return DatabaseRef(database_id=record.id)
-
-        raise ValueError("Unrecognized 'parent' attribute")
-
-
-class DatabaseRef(ParentRef, type="database_id"):
-    """Reference a database."""
-
-    database_id: UUID
-
-
-class PageRef(ParentRef, type="page_id"):
-    """Reference a page."""
-
-    page_id: UUID
-
-
-class BlockRef(ParentRef, type="block_id"):
-    """Reference a block."""
-
-    block_id: UUID
-
-
-class WorkspaceParent(ParentRef, type="workspace"):
-    """Reference the workspace."""
-
-    workspace: bool = True
-
-
-class Record(NamedObject):
-    """The base type for Notion API records."""
-
-    id: UUID = None
-    created_time: datetime = None
-    last_edited_time: datetime = None
-    has_children: bool = False
-    archived: bool = False
-    parent: ParentRef = None
 
 
 class Database(Record, object="database"):

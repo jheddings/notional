@@ -1,17 +1,15 @@
 """Wrapper for Notion API blocks.
 
-Blocks are specifc records that hold content.
-
-Similar to other records, these object provide access to the primitive data structure
-used in the Notion API as well as higher-level methods.
+Blocks are the base for all Notion content.
 """
 
 import logging
 from abc import ABC
+from datetime import datetime
 from typing import Any, List, Optional, Union
+from uuid import UUID
 
-from .core import NestedObject, TypedObject
-from .records import BlockRef, ParentRef, Record
+from .core import NamedObject, NestedObject, TypedObject
 from .text import (
     CodingLanguage,
     FullColor,
@@ -21,9 +19,27 @@ from .text import (
     markdown,
     plain_text,
 )
-from .types import EmojiObject, FileObject
+from .types import BlockRef, EmojiObject, FileObject, ParentRef
+from .user import User
 
 log = logging.getLogger(__name__)
+
+
+class Record(NamedObject):
+    """The base type for all Notion API records."""
+
+    id: UUID = None
+
+    parent: ParentRef = None
+    has_children: bool = False
+
+    archived: bool = False
+
+    created_time: datetime = None
+    created_by: User = None
+
+    last_edited_time: datetime = None
+    last_edited_by: User = None
 
 
 class Block(Record, TypedObject, object="block"):

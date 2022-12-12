@@ -14,7 +14,7 @@ import os
 import pytest
 
 import notional
-from notional import records, schema
+from notional import schema, types
 from notional.orm import Property, connected_page
 
 from .utils import mktitle
@@ -73,7 +73,7 @@ def test_area():
     if parent_id is None:
         pytest.skip("missing NOTION_TEST_AREA")
 
-    return records.PageRef(page_id=parent_id)
+    return types.PageRef(page_id=parent_id)
 
 
 @pytest.fixture

@@ -9,10 +9,10 @@ from typing import Union
 
 from emoji import emojize
 
-from .records import DatabaseRef, Page
+from .records import Page
 from .schema import PropertyObject, RichText
 from .text import is_emoji, make_safe_python_name
-from .types import EmojiObject, ExternalFile, PropertyValue
+from .types import DatabaseRef, EmojiObject, ExternalFile, PropertyValue
 
 log = logging.getLogger(__name__)
 

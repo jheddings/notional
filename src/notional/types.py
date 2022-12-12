@@ -18,6 +18,71 @@ from .user import User
 log = logging.getLogger(__name__)
 
 
+# https://developers.notion.com/reference/parent-object
+class ParentRef(TypedObject):
+    """Reference another block."""
+
+    @classmethod
+    def __compose__(cls, record):
+        """Return the correct parent ID based on the object type."""
+
+        if isinstance(record, ParentRef):
+            return record
+
+        if isinstance(record, Page):
+            return PageRef(page_id=record.id)
+
+        if isinstance(record, Database):
+            return DatabaseRef(database_id=record.id)
+
+        raise ValueError("Unrecognized 'parent' attribute")
+
+
+class DatabaseRef(ParentRef, type="database_id"):
+    """Reference a database."""
+
+    database_id: UUID
+
+    @classmethod
+    def __compose__(cls, db_ref):
+        """Compose a DatabaseRef from the given reference object.
+
+        `db_ref` can be either a string, UUID, or database.
+        """
+
+
+class PageRef(ParentRef, type="page_id"):
+    """Reference a page."""
+
+    page_id: UUID
+
+    @classmethod
+    def __compose__(cls, page_ref):
+        """Compose a PageRef from the given reference object.
+
+        `page_ref` can be either a string, UUID, or page.
+        """
+
+
+class BlockRef(ParentRef, type="block_id"):
+    """Reference a block."""
+
+    block_id: UUID
+
+    @classmethod
+    def __compose__(cls, block_ref):
+        """Compose a BlockRef from the given reference object.
+
+        `block_ref` can be either a string, UUID, or block.
+        """
+
+
+class WorkspaceParent(ParentRef, type="workspace"):
+    """Reference the workspace."""
+
+    workspace: bool = True
+
+
 class PageReference(DataObject):
     """A page reference is an object with an id property."""
 

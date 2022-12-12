@@ -11,9 +11,9 @@ from .blocks import Block
 from .iterator import EndpointIterator
 from .orm import ConnectedPage
 from .query import QueryBuilder, ResultSet, get_target_id
-from .records import Database, Page, ParentRef
+from .records import Database, Page
 from .text import TextObject
-from .types import Title
+from .types import ParentRef, Title
 from .user import User
 
 log = logging.getLogger(__name__)

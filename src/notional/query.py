@@ -10,11 +10,12 @@ from uuid import UUID
 from notion_client.api_endpoints import SearchEndpoint
 from pydantic import Field, validator
 
-from .blocks import Block
+from .blocks import Block, Record
 from .core import DataObject
 from .iterator import EndpointIterator
 from .orm import ConnectedPage
-from .records import Database, Page, ParentRef, Record
+from .records import Database, Page
+from .types import ParentRef
 
 log = logging.getLogger(__name__)
 

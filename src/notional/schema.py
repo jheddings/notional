@@ -213,6 +213,17 @@ class SinglePropertyRelation(PropertyRelation, type="single_property"):
 
     single_property: Any = {}
 
+    @classmethod
+    def __compose__(cls, dbref):
+        """Create a `single_property` relation using the target database reference.
+
+        `dbref` can be either a string, UUID, or database.
+        """
+
+        dbid = None
+
+        return Relation(relation=SinglePropertyRelation(database_id=dbid))
+
 
 class DualPropertyRelation(PropertyRelation, type="dual_property"):
     """Defines a dual-property relation configuration for a database property."""
@@ -228,11 +239,6 @@ class Relation(PropertyObject, type="relation"):
     """Defines the relation configuration for a database property."""
 
     relation: PropertyRelation = PropertyRelation()
-
-    @classmethod
-    def __compose__(cls, database_id):
-        """Create a `single_property` relation using the target database ID."""
-        return cls(relation=SinglePropertyRelation(database_id=database_id))
 
 
 class Rollup(PropertyObject, type="rollup"):
