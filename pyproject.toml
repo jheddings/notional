@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "notional"
-version = "0.4.4"
+version = "0.5.0"
 description = "A high-level interface for the Notion SDK."
 license = "MIT"
 authors = ["Jason Heddings <jheddings@gmail.com>"]
@@ -14,7 +14,7 @@ classifiers=[
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-notion-client = "^1.0.0"
+notion-client = "^2.0.0"
 pydantic = "^1.9.1"
 html5lib = "^1.1"
 urllib3 = "^1.26.10"

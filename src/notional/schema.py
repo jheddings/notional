@@ -202,20 +202,37 @@ class Formula(PropertyObject, type="formula"):
     formula: _NestedData = _NestedData()
 
 
-class Relation(PropertyObject, type="relation"):
-    """Defines the relation configuration for a database property."""
+class PropertyRelation(TypedObject):
+    """Defines common configuration for a property relation."""
+
+    database_id: UUID = None
+
+
+class SinglePropertyRelation(PropertyRelation, type="single_property"):
+    """Defines a single-property relation configuration for a database property."""
+
+    single_property: Any = {}
+
+
+class DualPropertyRelation(PropertyRelation, type="dual_property"):
+    """Defines a dual-property relation configuration for a database property."""
 
     class _NestedData(NestedObject):
-        database_id: UUID = None
         synced_property_name: Optional[str] = None
         synced_property_id: Optional[str] = None
 
-    relation: _NestedData = _NestedData()
+    dual_property: _NestedData = _NestedData()
+
+
+class Relation(PropertyObject, type="relation"):
+    """Defines the relation configuration for a database property."""
+
+    relation: PropertyRelation = PropertyRelation()
 
     @classmethod
     def __compose__(cls, database_id):
-        """Create a `Relation` property using the target database ID."""
-        return cls(relation=cls._NestedData(database_id=database_id))
+        """Create a `single_property` relation using the target database ID."""
+        return cls(relation=SinglePropertyRelation(database_id=database_id))
 
 
 class Rollup(PropertyObject, type="rollup"):
