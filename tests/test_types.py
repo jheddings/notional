@@ -12,44 +12,47 @@ from notional import schema, types, user
 
 
 def test_page_reference_from_uuid():
-    """Compose a PageReference from a UUID."""
+    """Compose a ObjectReference from a UUID."""
     id = uuid4()
 
-    ref = types.PageReference[id]
+    ref = types.ObjectReference[id]
 
     assert ref.id == id
 
 
 def test_page_reference_from_str():
-    """Compose a PageReference from an ID string."""
+    """Compose a ObjectReference from an ID string."""
     id = uuid4()
 
-    ref = types.PageReference(id=id.hex)
+    ref = types.ObjectReference[id.hex]
 
     assert ref.id == id
 
 
 def test_page_reference_from_ref():
-    """Compose a PageReference from another PageRef."""
+    """Compose a ObjectReference from another PageRef."""
     id = uuid4()
 
-    orig = types.PageReference(id=id)
-    new = types.PageReference[orig]
+    orig = types.ObjectReference(id=id)
+    new = types.ObjectReference[orig]
 
     assert new.id == id
 
 
 def test_invalid_page_reference_from_ref():
-    """Try to create a PageReference from invalid data."""
+    """Try to create a ObjectReference from invalid data."""
 
     with pytest.raises(ValueError):
-        types.PageReference[None]
+        types.ObjectReference[None]
 
     with pytest.raises(ValueError):
-        types.PageReference[False]
+        types.ObjectReference[False]
 
     with pytest.raises(ValueError):
-        types.PageReference[42]
+        types.ObjectReference[42]
+
+    with pytest.raises(ValueError):
+        types.ObjectReference["this-is-not-a-UUID"]
 
 
 def test_parse_title_data():

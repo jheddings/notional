@@ -2,6 +2,7 @@
 
 import logging
 from inspect import isclass
+from typing import Dict
 
 import notion_client
 from httpx import ConnectError
@@ -11,6 +12,7 @@ from .blocks import Block, Database, Page
 from .iterator import EndpointIterator
 from .orm import ConnectedPage
 from .query import QueryBuilder, ResultSet, get_target_id
+from .schema import PropertyObject
 from .text import TextObject
 from .types import ParentRef, Title
 from .user import User
@@ -147,7 +149,12 @@ class DatabasesEndpoint(Endpoint):
         """Return the underlying endpoint in the Notion SDK."""
         return self.session.client.databases
 
-    def _build_request(self, parent=None, schema=None, title=None):
+    def _build_request(
+        self,
+        parent: ParentRef = None,
+        schema: Dict[str, PropertyObject] = None,
+        title=None,
+    ):
         """Build a request payload from the given items.
 
         *NOTE* this method does not anticipate what the request will be used for and as
@@ -156,8 +163,7 @@ class DatabasesEndpoint(Endpoint):
         request = {}
 
         if parent is not None:
-            ref = ParentRef[parent]
-            request["parent"] = ref.to_api()
+            request["parent"] = parent.to_api()
 
         if isinstance(title, TextObject):
             request["title"] = [title.to_api()]
@@ -178,7 +184,7 @@ class DatabasesEndpoint(Endpoint):
         return request
 
     # https://developers.notion.com/reference/create-a-database
-    def create(self, parent, schema, title=None):
+    def create(self, parent: ParentRef, schema: Dict[str, PropertyObject], title=None):
         """Add a database to the given Page parent."""
 
         log.info("Creating database %s - %s", parent, title)
@@ -211,7 +217,7 @@ class DatabasesEndpoint(Endpoint):
         return Database.parse_obj(data)
 
     # https://developers.notion.com/reference/update-a-database
-    def update(self, database, title=None, schema=None):
+    def update(self, database, title=None, schema: Dict[str, PropertyObject] = None):
         """Update the Database object on the server.
 
         The database info will be refreshed to the latest version from the server.
@@ -269,13 +275,12 @@ class PagesEndpoint(Endpoint):
         return self.session.client.pages
 
     # https://developers.notion.com/reference/post-page
-    def create(self, parent, title=None, properties=None, children=None):
+    def create(self, parent: ParentRef, title=None, properties=None, children=None):
         """Add a page to the given parent (Page or Database)."""
 
         if parent is None:
             raise ValueError("'parent' must be provided")
 
-        parent = ParentRef[parent]
         request = {"parent": parent.to_api()}
 
         # the API requires a properties object, even if empty
