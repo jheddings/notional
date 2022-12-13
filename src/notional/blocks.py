@@ -6,10 +6,11 @@ Blocks are the base for all Notion content.
 import logging
 from abc import ABC
 from datetime import datetime
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
 from .core import NamedObject, NestedObject, TypedObject
+from .schema import PropertyObject
 from .text import (
     CodingLanguage,
     FullColor,
@@ -19,13 +20,13 @@ from .text import (
     markdown,
     plain_text,
 )
-from .types import BlockRef, EmojiObject, FileObject, ParentRef
+from .types import BlockRef, EmojiObject, FileObject, ParentRef, PropertyValue
 from .user import User
 
 log = logging.getLogger(__name__)
 
 
-class Record(NamedObject):
+class DataRecord(NamedObject):
     """The base type for all Notion API records."""
 
     id: UUID = None
@@ -42,7 +43,92 @@ class Record(NamedObject):
     last_edited_by: User = None
 
 
-class Block(Record, TypedObject, object="block"):
+class Database(DataRecord, object="database"):
+    """A database record type."""
+
+    title: List[RichTextObject] = None
+    url: str = None
+    icon: Optional[Union[FileObject, EmojiObject]] = None
+    cover: Optional[FileObject] = None
+    properties: Dict[str, PropertyObject] = {}
+    description: Optional[List[RichTextObject]] = None
+    is_inline: bool = False
+
+    @property
+    def Title(self):
+        """Return the title of this database as plain text."""
+        if self.title is None or len(self.title) == 0:
+            return None
+
+        return plain_text(*self.title)
+
+
+class Page(DataRecord, object="page"):
+    """A standard Notion page object."""
+
+    url: str = None
+    icon: Optional[Union[FileObject, EmojiObject]] = None
+    cover: Optional[FileObject] = None
+    properties: Dict[str, PropertyValue] = {}
+
+    def __getitem__(self, name):
+        """Indexer for the given property name.
+
+        :param name: the name of the property to get from the internal properties
+        """
+
+        log.debug("get property :: {%s} [%s]", self.id, name)
+
+        if self.properties is None:
+            raise AttributeError("No properties in Page")
+
+        prop = self.properties.get(name)
+
+        if prop is None:
+            raise AttributeError(f"No such property: {name}")
+
+        return prop
+
+    def __setitem__(self, name, value):
+        """Set the object data for the given property.
+
+        If `value` is `None`, the property data will be deleted from the page.  This
+        does not affect the schema of the page, only the contents of the property.
+
+        :param name: the name of the property to set in the internal properties
+        :param prop: the PropertyValue for the named property
+        :param value: the new value for the given property
+        """
+
+        log.debug("set property :: {%s} [%s] => %s", self.id, name, value)
+
+        if value is None:
+            self.properties.pop(name, None)
+
+        elif not isinstance(value, PropertyValue):
+            raise ValueError(f"Unable to set {name} :: unsupported value type")
+
+        self.properties[name] = value
+
+    @property
+    def Title(self):
+        """Return the title of this page as a string.
+
+        The title of a page is stored in its properties.  This method will examine the
+        page properties, looking for the appropriate `title` entry and return as a
+        string.
+        """
+        if self.properties is None or len(self.properties) == 0:
+            return None
+
+        for prop in self.properties.values():
+            if prop.id == "title":
+                return prop.Value or None
+
+        return None
+
+
+class Block(DataRecord, TypedObject, object="block"):
     """A standard block object in Notion.
 
     Calling the block will expose the nested data in the object.

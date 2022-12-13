@@ -9,7 +9,7 @@ from typing import Union
 
 from emoji import emojize
 
-from .records import Page
+from .blocks import Page
 from .schema import PropertyObject, RichText
 from .text import is_emoji, make_safe_python_name
 from .types import DatabaseRef, EmojiObject, ExternalFile, PropertyValue

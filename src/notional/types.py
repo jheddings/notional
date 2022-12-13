@@ -10,6 +10,7 @@ from datetime import date, datetime
 from typing import List, Optional, Union
 from uuid import UUID
 
+from .blocks import Database, Page
 from .core import DataObject, NestedObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, TextObject, plain_text
