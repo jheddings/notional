@@ -16,5 +16,8 @@
   "automergeType": "pr",
   "dependencyDashboard": false,
 
+  "timezone": "America/Denver",
+  "schedule": ["weekly"],
+
   "extends": [ "config:base" ]
 }
