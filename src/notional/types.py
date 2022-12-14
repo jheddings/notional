@@ -12,7 +12,7 @@ from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject
 from .schema import Function
-from .text import Color, RichTextObject, TextObject, plain_text, rich_text
+from .text import Color, RichTextObject, plain_text, rich_text
 from .user import User
 
 log = logging.getLogger(__name__)
@@ -327,9 +327,9 @@ class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
         return len(self.rich_text)
 
     @classmethod
-    def __compose__(cls, text):
+    def __compose__(cls, *text):
         """Create a new `RichText` property from the given strings."""
-        return cls(rich_text=[TextObject[text]])
+        return cls(rich_text=rich_text(*text))
 
     @property
     def Value(self):
