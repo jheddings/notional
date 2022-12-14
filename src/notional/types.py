@@ -4,7 +4,6 @@ Similar to other records, these object provide access to the primitive data stru
 used in the Notion API as well as higher-level methods.
 """
 
-import logging
 from abc import ABC, abstractmethod
 from datetime import date, datetime
 from typing import List, Optional, Union
@@ -14,8 +13,6 @@ from .core import DataObject, NestedObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
 from .user import User
-
-log = logging.getLogger(__name__)
 
 
 class PageReference(DataObject):
@@ -780,7 +777,6 @@ class Files(PropertyValue, type="files"):
 
         :param ref: the `FileObject` to be added
         """
-        log.debug("append file - %s", obj)
         self.files.append(obj)
 
     def remove(self, obj):
@@ -788,7 +784,6 @@ class Files(PropertyValue, type="files"):
 
         :param ref: the `FileObject` to be removed
         """
-        log.debug("remove file - %s", obj)
         self.files.remove(obj)
 
 
