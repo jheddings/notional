@@ -17,7 +17,7 @@ from .text import TextObject
 from .types import ParentRef, Title
 from .user import User
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class SessionError(Exception):
@@ -57,7 +57,7 @@ class BlocksEndpoint(Endpoint):
 
             children = [block.to_api() for block in blocks if block is not None]
 
-            log.info("Appending %d blocks to %s ...", len(children), parent_id)
+            logger.info("Appending %d blocks to %s ...", len(children), parent_id)
 
             data = self().append(block_id=parent_id, children=children)
 
@@ -70,10 +70,10 @@ class BlocksEndpoint(Endpoint):
                         block.refresh(**result)
 
                 else:
-                    log.warning("Unable to refresh results; size mismatch")
+                    logger.warning("Unable to refresh results; size mismatch")
 
             else:
-                log.warning("Unable to refresh results; not provided")
+                logger.warning("Unable to refresh results; not provided")
 
             return parent
 
@@ -85,7 +85,7 @@ class BlocksEndpoint(Endpoint):
 
             blocks = EndpointIterator(endpoint=self().list, block_id=parent_id)
 
-            log.info("Listing blocks for %s...", parent_id)
+            logger.info("Listing blocks for %s...", parent_id)
 
             return ResultSet(exec=blocks, cls=Block)
 
@@ -103,7 +103,7 @@ class BlocksEndpoint(Endpoint):
     def delete(self, block):
         """Delete (archive) the specified Block."""
 
-        log.info("Deleting block :: %s", block.id)
+        logger.info("Deleting block :: %s", block.id)
 
         data = self().delete(block.id.hex)
 
@@ -112,7 +112,7 @@ class BlocksEndpoint(Endpoint):
     def restore(self, block):
         """Restore (unarchive) the specified Block."""
 
-        log.info("Restoring block :: %s", block.id)
+        logger.info("Restoring block :: %s", block.id)
 
         data = self().update(block.id.hex, archived=False)
 
@@ -122,7 +122,7 @@ class BlocksEndpoint(Endpoint):
     def retrieve(self, block_id):
         """Return the Block with the given ID."""
 
-        log.info("Retrieving block :: %s", block_id)
+        logger.info("Retrieving block :: %s", block_id)
 
         data = self().retrieve(block_id)
 
@@ -135,7 +135,7 @@ class BlocksEndpoint(Endpoint):
         The block info will be refreshed to the latest version from the server.
         """
 
-        log.info("Updating block :: %s", block.id)
+        logger.info("Updating block :: %s", block.id)
 
         data = self().update(block.id.hex, **block.to_api())
 
@@ -187,7 +187,7 @@ class DatabasesEndpoint(Endpoint):
     def create(self, parent: ParentRef, schema: Dict[str, PropertyObject], title=None):
         """Add a database to the given Page parent."""
 
-        log.info("Creating database %s - %s", parent, title)
+        logger.info("Creating database %s - %s", parent, title)
 
         request = self._build_request(parent, schema, title)
 
@@ -201,7 +201,7 @@ class DatabasesEndpoint(Endpoint):
 
         # DEPRECATED ENDPOINT ###
 
-        log.info("Listing known databases...")
+        logger.info("Listing known databases...")
 
         databases = EndpointIterator(endpoint=self().list)
         return ResultSet(exec=databases, cls=Database)
@@ -210,7 +210,7 @@ class DatabasesEndpoint(Endpoint):
     def retrieve(self, database_id):
         """Return the Database with the given ID."""
 
-        log.info("Retrieving database :: %s", database_id)
+        logger.info("Retrieving database :: %s", database_id)
 
         data = self().retrieve(database_id)
 
@@ -225,7 +225,7 @@ class DatabasesEndpoint(Endpoint):
 
         dbid = get_target_id(database)
 
-        log.info("Updating database info :: %s", dbid)
+        logger.info("Updating database info :: %s", dbid)
 
         request = self._build_request(schema=schema, title=title)
 
@@ -237,12 +237,12 @@ class DatabasesEndpoint(Endpoint):
 
     def delete(self, database):
         """Delete (archive) the specified Database."""
-        log.info("Deleting database :: %s", database.id)
+        logger.info("Deleting database :: %s", database.id)
         return self.session.blocks.delete(database)
 
     def restore(self, database):
         """Restore (unarchive) the specified Database."""
-        log.info("Restoring database :: %s", database.id)
+        logger.info("Restoring database :: %s", database.id)
         return self.session.blocks.restore(database)
 
     # https://developers.notion.com/reference/post-database-query
@@ -252,7 +252,7 @@ class DatabasesEndpoint(Endpoint):
         :param target: either a string with the database ID or an ORM class
         """
 
-        log.info("Initializing database query :: {%s}", get_target_id(target))
+        logger.info("Initializing database query :: {%s}", get_target_id(target))
 
         database_id = get_target_id(target)
 
@@ -300,7 +300,7 @@ class PagesEndpoint(Endpoint):
                 child.to_api() for child in children if child is not None
             ]
 
-        log.info("Creating page :: %s => %s", parent, title)
+        logger.info("Creating page :: %s => %s", parent, title)
 
         data = self().create(**request)
 
@@ -318,7 +318,7 @@ class PagesEndpoint(Endpoint):
     def retrieve(self, page_id):
         """Return the Page with the given ID."""
 
-        log.info("Retrieving page :: %s", page_id)
+        logger.info("Retrieving page :: %s", page_id)
 
         data = self().retrieve(page_id)
 
@@ -336,7 +336,7 @@ class PagesEndpoint(Endpoint):
         The page info will be refreshed to the latest version from the server.
         """
 
-        log.info("Updating page info :: %s", page.id)
+        logger.info("Updating page info :: %s", page.id)
 
         if not properties:
             properties = page.properties
@@ -357,24 +357,24 @@ class PagesEndpoint(Endpoint):
         """
 
         if cover is None:
-            log.info("Removing page cover :: %s", page.id)
+            logger.info("Removing page cover :: %s", page.id)
             data = self().update(page.id.hex, cover={})
         elif cover is not False:
-            log.info("Setting page cover :: %s => %s", page.id, cover)
+            logger.info("Setting page cover :: %s => %s", page.id, cover)
             data = self().update(page.id.hex, cover=cover.to_api())
 
         if icon is None:
-            log.info("Removing page icon :: %s", page.id)
+            logger.info("Removing page icon :: %s", page.id)
             data = self().update(page.id.hex, icon={})
         elif icon is not False:
-            log.info("Setting page icon :: %s => %s", page.id, icon)
+            logger.info("Setting page icon :: %s => %s", page.id, icon)
             data = self().update(page.id.hex, icon=icon.to_api())
 
         if archived is False:
-            log.info("Restoring page :: %s", page.id)
+            logger.info("Restoring page :: %s", page.id)
             data = self().update(page.id.hex, archived=False)
         elif archived is True:
-            log.info("Archiving page :: %s", page.id)
+            logger.info("Archiving page :: %s", page.id)
             data = self().update(page.id.hex, archived=True)
 
         return page.refresh(**data)
@@ -413,7 +413,7 @@ class UsersEndpoint(Endpoint):
         """Return an iterator for all users in the workspace."""
 
         users = EndpointIterator(endpoint=self().list)
-        log.info("Listing known users...")
+        logger.info("Listing known users...")
 
         return ResultSet(exec=users, cls=User)
 
@@ -421,7 +421,7 @@ class UsersEndpoint(Endpoint):
     def retrieve(self, user_id):
         """Return the User with the given ID."""
 
-        log.info("Retrieving user :: %s", user_id)
+        logger.info("Retrieving user :: %s", user_id)
 
         data = self().retrieve(user_id)
 
@@ -431,7 +431,7 @@ class UsersEndpoint(Endpoint):
     def me(self):
         """Return the current bot User."""
 
-        log.info("Retrieving current integration bot")
+        logger.info("Retrieving current integration bot")
 
         data = self().me()
 
@@ -457,7 +457,7 @@ class Session(object):
         self.search = SearchEndpoint(self)
         self.users = UsersEndpoint(self)
 
-        log.info("Initialized Notion SDK client")
+        logger.info("Initialized Notion SDK client")
 
     @property
     def IsActive(self):

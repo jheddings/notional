@@ -3,7 +3,6 @@
 Blocks are the base for all Notion content.
 """
 
-import logging
 from abc import ABC
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
@@ -22,8 +21,6 @@ from .text import (
 )
 from .types import BlockRef, EmojiObject, FileObject, ParentRef, PropertyValue
 from .user import User
-
-log = logging.getLogger(__name__)
 
 
 class DataRecord(NamedObject):
@@ -77,8 +74,6 @@ class Page(DataRecord, object="page"):
         :param name: the name of the property to get from the internal properties
         """
 
-        log.debug("get property :: {%s} [%s]", self.id, name)
-
         if self.properties is None:
             raise AttributeError("No properties in Page")
 
@@ -99,8 +94,6 @@ class Page(DataRecord, object="page"):
         :param prop: the PropertyValue for the named property
         :param value: the new value for the given property
         """
-
-        log.debug("set property :: {%s} [%s] => %s", self.id, name, value)
 
         if value is None:
             self.properties.pop(name, None)
