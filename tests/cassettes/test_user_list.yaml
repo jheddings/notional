@@ -13,7 +13,7 @@ interactions:
       host:
       - api.notion.com
       notion-version:
-      - '2022-02-22'
+      - '2022-06-28'
     method: GET
     uri: https://api.notion.com/v1/users?page_size=100
   response:
@@ -38,7 +38,7 @@ interactions:
       host:
       - api.notion.com
       notion-version:
-      - '2022-02-22'
+      - '2022-06-28'
     method: GET
     uri: https://api.notion.com/v1/users/ea74294e-d4c7-41f0-8929-805c80ea0d7f
   response:
@@ -61,7 +61,7 @@ interactions:
       host:
       - api.notion.com
       notion-version:
-      - '2022-02-22'
+      - '2022-06-28'
     method: GET
     uri: https://api.notion.com/v1/users/0b9fa76f-1fbe-410c-95cc-34b74a4ad423
   response:
@@ -83,7 +83,7 @@ interactions:
       host:
       - api.notion.com
       notion-version:
-      - '2022-02-22'
+      - '2022-06-28'
     method: GET
     uri: https://api.notion.com/v1/users/6860cd48-ced8-41b3-b824-c7d039085db1
   response:
@@ -107,7 +107,7 @@ interactions:
       host:
       - api.notion.com
       notion-version:
-      - '2022-02-22'
+      - '2022-06-28'
     method: GET
     uri: https://api.notion.com/v1/users/660f65a9-2a71-4e4a-8e21-ac7bb3349345
   response:
@@ -129,7 +129,7 @@ interactions:
       host:
       - api.notion.com
       notion-version:
-      - '2022-02-22'
+      - '2022-06-28'
     method: GET
     uri: https://api.notion.com/v1/users/6b3259d1-9a7a-4135-8a36-3d38f040a9ce
   response:
@@ -151,7 +151,7 @@ interactions:
       host:
       - api.notion.com
       notion-version:
-      - '2022-02-22'
+      - '2022-06-28'
     method: GET
     uri: https://api.notion.com/v1/users/9ef2cc87-7c49-4410-ba6d-ea512661c42e
   response:
