@@ -875,6 +875,7 @@ class Relation(PropertyValue, type="relation"):
     """A Notion relation property value."""
 
     relation: List[PageReference] = []
+    has_more: bool = False
 
     @classmethod
     def __compose__(cls, pages):
