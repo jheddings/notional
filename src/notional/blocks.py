@@ -91,7 +91,6 @@ class Page(DataRecord, object="page"):
         does not affect the schema of the page, only the contents of the property.
 
         :param name: the name of the property to set in the internal properties
-        :param prop: the PropertyValue for the named property
         :param value: the new value for the given property
         """
 
