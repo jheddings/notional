@@ -22,6 +22,29 @@ def plain_text(*rtf):
     return "".join(text.plain_text for text in rtf if text)
 
 
+def rich_text(*text):
+    """Return a list of RichTextObject's from the list of text elements."""
+
+    rtf = []
+
+    for obj in text:
+
+        if obj is None:
+            continue
+
+        if isinstance(obj, RichTextObject):
+            rtf.append(obj)
+
+        elif isinstance(obj, str):
+            txt = text_blocks(obj)
+            rtf.extend(txt)
+
+        else:
+            raise ValueError("unsupported text object")
+
+    return rtf
+
+
 def markdown(*rtf):
     """Return text as markdown from the list of RichText objects."""
     return "".join(str(text) for text in rtf if text)
@@ -35,6 +58,15 @@ def is_emoji(text):
 def chunky(text, length=MAX_TEXT_OBJECT_SIZE):
     """Break the given `text` into chunks of at most `length` size."""
     return (text[idx : idx + length] for idx in range(0, len(text), length))
+
+
+def text_blocks(text: str):
+    """Convert the given plain text into an array of TextObject's.
+
+    If the test is larger than the maximum block size for the Notion API, it will be broken
+    into multiple blocks.
+    """
+    return [TextObject[chunk] for chunk in chunky(text)]
 
 
 def truncate(text, length=-1, trail="..."):
@@ -227,6 +259,23 @@ class RichTextObject(TypedObject):
                 text = f"`{text}`"
 
         return text
+
+    def __compose__(cls, text, href=None, style=None):
+        """Compose a TextObject from the given properties.
+
+        :param text: the plain text of this object
+        :param href: an optional link for this object
+        :param style: an optional Annotations object for this text
+        """
+
+        if text is None:
+            return None
+
+        # TODO convert markdown in text:str to RichText?
+
+        style = deepcopy(style)
+
+        return RichTextObject(text, href=href, annotations=style)
 
 
 class TextObject(RichTextObject, type="text"):

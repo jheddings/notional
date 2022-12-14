@@ -21,4 +21,4 @@ me = notion.users.me()
 print(f"My Bot: {me.name}")
 
 for user in notion.users.list():
-    print(f"{user.name} => {user.type} :: {type(user)}")
+    print(f"{user.name} => {user.type} :: {type(user)} [{user.id}]")
