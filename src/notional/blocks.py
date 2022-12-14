@@ -16,9 +16,9 @@ from .text import (
     FullColor,
     RichTextObject,
     TextObject,
-    chunky,
     markdown,
     plain_text,
+    rich_text,
 )
 from .types import BlockRef, EmojiObject, FileObject, ParentRef, PropertyValue
 from .user import User
@@ -147,7 +147,7 @@ class UnsupportedBlock(Block, type="unsupported"):
 class TextBlock(Block, ABC):
     """A standard text block object in Notion."""
 
-    # text blocks have a nested object with 'type' name and a 'text' child
+    # text blocks have a nested object with 'type' name and a 'rich_text' child
 
     @property
     def __text__(self):
@@ -156,63 +156,33 @@ class TextBlock(Block, ABC):
         return self("rich_text")
 
     @classmethod
-    def __compose__(cls, text):
-        """Compose a `TextBlock` from the given text."""
+    def __compose__(cls, *text):
+        """Compose a `TextBlock` from the given text items."""
 
         if text is None:
             return None
 
         obj = cls()
-        obj.concat(text)
+        obj.concat(*text)
 
         return obj
 
     def concat(self, *text):
         """Concatenate text (either `RichTextObject` or `str` items) to this block."""
 
+        # calling the block returns the nested data...  this helps deal with
+        # sublcasses of `TextBlock` that each have different "type" attributes
         nested = self()
 
         if not hasattr(nested, "rich_text"):
-            raise AttributeError("nested data does not contain text")
+            raise AttributeError("nested data does not contain rich_text")
+
+        rtf = rich_text(*text)
 
         if nested.rich_text is None:
-            nested.rich_text = []
-
-        for obj in text:
-            if obj is None:
-                continue
-
-            self._append_object(obj)
-
-    def _append_object(self, obj):
-        """Append the given object to the internal text of this TextObject."""
-
-        if isinstance(obj, RichTextObject):
-            self._append_rtf(obj)
-
-        elif isinstance(obj, str):
-            self._append_text(obj)
-
+            nested.rich_text = rtf
         else:
-            raise ValueError("unsupported text object")
-
-    def _append_rtf(self, rtf):
-        """Append the given RichTextObject to this TextObject."""
-        nested = self()
-        nested.rich_text.append(rtf)
-
-    def _append_text(self, text):
-        """Append the given text to this TextObject.
-
-        This text will be split into chunks in accordance with the Notion API.
-        """
-        nested = self()
-
-        # break up the text and compose new TextObject's from the pieces
-
-        for chunk in chunky(text):
-            obj = TextObject[chunk]
-            nested.rich_text.append(obj)
+            nested.rich_text.extend(rtf)
 
     @property
     def PlainText(self):

@@ -12,7 +12,7 @@ from uuid import UUID
 
 from .core import DataObject, NestedObject, TypedObject
 from .schema import Function
-from .text import Color, RichTextObject, TextObject, plain_text
+from .text import Color, RichTextObject, TextObject, plain_text, rich_text
 from .user import User
 
 log = logging.getLogger(__name__)
@@ -192,11 +192,29 @@ class MentionUser(MentionData, type="user"):
 
     user: User
 
+    @classmethod
+    def __compose__(cls, user: User):
+        """Build a `Mention` object for the specified user.
+
+        The `id` field must be set for the given User.  Other fields may cause errors
+        if they do not match the specific type returned from the API.
+        """
+
+        return MentionObject(plain_text=str(user), mention=MentionUser(user=user))
+
 
 class MentionPage(MentionData, type="page"):
     """Nested page data for `Mention` properties."""
 
     page: ObjectReference
+
+    @classmethod
+    def __compose__(cls, page_ref):
+        """Build a `Mention` object for the specified page reference."""
+
+        ref = ObjectReference[page_ref]
+
+        return MentionObject(plain_text=str(ref), mention=MentionPage(page=ref))
 
 
 class MentionDatabase(MentionData, type="database"):
@@ -204,17 +222,41 @@ class MentionDatabase(MentionData, type="database"):
 
     database: ObjectReference
 
+    @classmethod
+    def __compose__(cls, page):
+        """Build a `Mention` object for the specified database reference."""
+
+        ref = ObjectReference[page]
+
+        return MentionObject(plain_text=str(ref), mention=MentionDatabase(database=ref))
+
 
 class MentionDate(MentionData, type="date"):
     """Nested date data for `Mention` properties."""
 
     date: DateRange
 
+    @classmethod
+    def __compose__(cls, start, end=None):
+        """Build a `Mention` object for the specified URL."""
 
-class MentionLink(MentionData, type="link_preview"):
-    """Nested url data for `Mention` properties."""
+        date_obj = DateRange(start=start, end=end)
 
-    url: str
+        return MentionObject(
+            plain_text=str(date_obj), mention=MentionDate(date=date_obj)
+        )
+
+
+class MentionLinkPreview(MentionData, type="link_preview"):
+    """Nested url data for `Mention` properties.
+
+    These objects cannot be created via the API.
+    """
+
+    class _NestedData(NestedObject):
+        url: str
+
+    link_preview: _NestedData
 
 
 class MentionTemplateData(TypedObject):
@@ -326,9 +368,9 @@ class Title(NativeTypeMixin, PropertyValue, type="title"):
         return len(self.title)
 
     @classmethod
-    def __compose__(cls, text):
-        """Create a new `Title` property from the given text."""
-        return cls(title=[TextObject[text]])
+    def __compose__(cls, *text):
+        """Create a new `Title` property from the given text elements."""
+        return cls(title=rich_text(*text))
 
     @property
     def Value(self):
