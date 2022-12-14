@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 CONTENT_PAGE_SIZE = 100
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ContentIterator(ABC):
@@ -16,7 +16,7 @@ class ContentIterator(ABC):
 
     def __init__(self):
         """Initialize the iterator."""
-        self.log = log.getChild("ContentIterator")
+        self.logger = logger.getChild("ContentIterator")
 
         self.page = None
         self.page_index = -1
@@ -25,7 +25,7 @@ class ContentIterator(ABC):
 
     def __iter__(self):
         """Initialize the iterator."""
-        self.log.debug("initializing content iterator")
+        self.logger.debug("initializing content iterator")
 
         return self
 
@@ -127,7 +127,7 @@ class ResultSetIterator(PositionalIterator, ABC):
         if cursor:
             params["start_cursor"] = cursor
 
-        self.log.debug("loading next page - start cursor: %s", cursor)
+        self.logger.debug("loading next page - start cursor: %s", cursor)
 
         # TODO error checking on result
         data = self.load_page_data(params)
@@ -138,7 +138,7 @@ class ResultSetIterator(PositionalIterator, ABC):
             items=data["results"] if "results" in data else None,
         )
 
-        self.log.debug(
+        self.logger.debug(
             "loaded %d results; next cursor: %s", results.page_size, results.next_cursor
         )
 
@@ -167,7 +167,7 @@ class EndpointIterator(ResultSetIterator):
 
         self.endpoint = endpoint
         self.params = params or {}
-        self.log = log.getChild("EndpointIterator")
+        self.logger = logger.getChild("EndpointIterator")
 
     def __setitem__(self, name, value):
         """Set the parameter in this `EndpointIterator`."""

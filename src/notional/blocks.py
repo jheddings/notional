@@ -23,7 +23,7 @@ from .text import (
 )
 from .types import EmojiObject, FileObject
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Block(Record, TypedObject, object="block"):
