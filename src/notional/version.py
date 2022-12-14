@@ -5,11 +5,11 @@ import os
 
 import pkg_resources
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 __pkgname__ = "notional"
 
-log.debug("loading package distribution")
+logger.debug("loading package distribution")
 _pkg_dist = pkg_resources.get_distribution(__pkgname__)
 
 __version__ = _pkg_dist.version
@@ -17,7 +17,7 @@ __version__ = _pkg_dist.version
 try:
 
     # if we are running in a local copy, append the repo information
-    log.debug("attempting to parse git repo information")
+    logger.debug("attempting to parse git repo information")
 
     import git
 
@@ -26,7 +26,7 @@ try:
     _srcdir = os.path.dirname(os.path.abspath(__file__))
     _basedir = os.path.abspath(os.path.join(_srcdir, "..", ".."))
 
-    log.debug("version basedir: %s", _basedir)
+    logger.debug("version basedir: %s", _basedir)
 
     try:
         _repo = git.Repo(_basedir)
@@ -34,12 +34,12 @@ try:
 
         assert not _repo.bare
 
-        log.debug("using repo dir: %s", _repo.git_dir)
+        logger.debug("using repo dir: %s", _repo.git_dir)
 
         __version__ += "-" + _head.hexsha[:7]
 
         _branch = _repo.active_branch.name
-        log.debug("current git branch: %s", _branch)
+        logger.debug("current git branch: %s", _branch)
 
         if _branch != "main":
             __version__ += "-" + _branch
@@ -51,9 +51,9 @@ try:
         pass
 
 except ModuleNotFoundError:
-    log.debug("Could not find module")
+    logger.debug("Could not find module")
 
 except Exception:
-    log.exception("Unexpected exception while looking for version information.")
+    logger.exception("Unexpected exception while looking for version information.")
 
-log.info("%s-%s", __pkgname__, __version__)
+logger.info("%s-%s", __pkgname__, __version__)

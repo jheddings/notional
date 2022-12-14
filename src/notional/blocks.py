@@ -6,7 +6,6 @@ Similar to other records, these object provide access to the primitive data stru
 used in the Notion API as well as higher-level methods.
 """
 
-import logging
 from abc import ABC
 from typing import Any, List, Optional, Union
 
@@ -22,8 +21,6 @@ from .text import (
     plain_text,
 )
 from .types import EmojiObject, FileObject
-
-log = logging.getLogger(__name__)
 
 
 class Block(Record, TypedObject, object="block"):

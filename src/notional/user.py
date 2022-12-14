@@ -1,13 +1,10 @@
 """Wrapper for Notion user objects."""
 
-import logging
 from enum import Enum
 from typing import Optional
 from uuid import UUID
 
 from .core import DataObject, NestedObject
-
-log = logging.getLogger(__name__)
 
 
 class UserType(str, Enum):
