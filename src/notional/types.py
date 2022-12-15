@@ -9,7 +9,7 @@ from datetime import date, datetime
 from typing import List, Optional, Union
 from uuid import UUID
 
-from .core import DataObject, NestedObject, TypedObject
+from .core import DataObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, TextObject, plain_text, rich_text
 from .user import User
@@ -135,7 +135,7 @@ class FileObject(TypedObject):
 class HostedFile(FileObject, type="file"):
     """A Notion file object."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         url: str
         expiry_time: Optional[datetime] = None
 
@@ -145,7 +145,7 @@ class HostedFile(FileObject, type="file"):
 class ExternalFile(FileObject, type="external"):
     """An external file object."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         url: str
 
     external: _NestedData
@@ -250,7 +250,7 @@ class MentionLinkPreview(MentionData, type="link_preview"):
     These objects cannot be created via the API.
     """
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         url: str
 
     link_preview: _NestedData
@@ -287,7 +287,7 @@ class MentionObject(RichTextObject, type="mention"):
 class EquationObject(RichTextObject, type="equation"):
     """Notion equation element."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         expression: str
 
     equation: _NestedData
@@ -487,7 +487,7 @@ class Date(PropertyValue, type="date"):
 class Status(NativeTypeMixin, PropertyValue, type="status"):
     """Notion status property."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         name: str = None
         id: Optional[Union[UUID, str]] = None
         color: Optional[Color] = None

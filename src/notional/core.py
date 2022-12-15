@@ -177,9 +177,19 @@ class NamedObject(DataObject):
 class TypedObject(DataObject):
     """A type-referenced object.
 
-    Many objects in the Notion API follow a generic->specific pattern with a 'type'
-    parameter followed by additional data.  These objects must specify a `type`
-    attribute to ensure that the correct object is created.
+    Many objects in the Notion API follow a standard pattern with a 'type' property
+    followed by additional data.  These objects must specify a `type` attribute to
+    ensure that the correct object is created.
+
+    For example, this contains a nested 'detail' object:
+
+        data = {
+            type: "detail",
+            ...
+            detail: {
+                ...
+            }
+        }
 
     Calling the object provides direct access to the data stored in `{type}`.
     """
@@ -284,24 +294,3 @@ class TypedObject(DataObject):
         )
 
         return sub(**data)
-
-
-class NestedObject(DataObject):
-    """Represents an API object with nested data.
-
-    These objects require a 'type' property and a matching property of the same
-    name, which holds additional data.
-
-    For example, this contains a nested 'text' object:
-
-        data = {
-            type: "text",
-            ...
-            text: {
-                ...
-            }
-        }
-
-    Currently, this is a convenience class for clarity - it does not provide additional
-    functionality at this time.
-    """

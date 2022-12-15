@@ -7,7 +7,7 @@ from typing import Optional
 
 from emoji import EMOJI_DATA
 
-from .core import DataObject, NestedObject, TypedObject
+from .core import DataObject, TypedObject
 
 # this might be a place to capture other utilities for working with markdown, text
 # rich text, etc...  the challenge is not importing types due to a circular ref.
@@ -281,7 +281,7 @@ class RichTextObject(TypedObject):
 class TextObject(RichTextObject, type="text"):
     """Notion text element."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         content: str = None
         link: Optional[LinkObject] = None
 

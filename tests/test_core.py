@@ -6,7 +6,7 @@ from typing import List
 
 import pytest
 
-from notional.core import NamedObject, NestedObject, TypedObject
+from notional.core import DataObject, NamedObject, TypedObject
 
 # keep logging output to a minimum for testing
 logging.basicConfig(level=logging.INFO)
@@ -89,7 +89,7 @@ class CustomTypes(str, Enum):
 class ComplexDataObject(TypedObject, type="nested"):
     """A complex object (with nested data) used for testing only."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         key: str = None
         value: str = None
 
