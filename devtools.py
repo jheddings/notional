@@ -101,9 +101,11 @@ def mkdocs():
 @click.option(
     "--coverage",
     "-C",
-    default=False,
-    is_flag=True,
-    help="Generate a coverage report (default: False).",
+    default=None,
+    is_flag=False,
+    flag_value="report",
+    type=click.Choice(["report", "html"], case_sensitive=False),
+    help="Generate a coverage report (default: None).",
 )
 def run_unit_tests(coverage, vcr_mode):
     """Run unit tests."""
@@ -115,14 +117,12 @@ def run_unit_tests(coverage, vcr_mode):
 
     pytest = ["pytest", "--verbose", f"{BASEDIR}/tests", f"--vcr-record={vcr_mode}"]
 
-    # TODO add support for generating HTML reports
-
-    if coverage:
+    if coverage is not None:
         cov = ["coverage", "run", f"--source={SRCDIR}", "-m"]
         cov.extend(pytest)
 
         exec(cov)
-        exec(["coverage", "report"])
+        exec(["coverage", coverage])
 
     else:
         exec(pytest)
