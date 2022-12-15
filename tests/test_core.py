@@ -86,7 +86,7 @@ class CustomTypes(str, Enum):
     TYPE_THREE = "three"
 
 
-class ComplexDataObject(TypedObject, type="nested"):
+class ComplexDataObject(TypedObject, type="detail"):
     """A complex object (with nested data) used for testing only."""
 
     class _NestedData(DataObject):
@@ -94,7 +94,7 @@ class ComplexDataObject(TypedObject, type="nested"):
         value: str = None
 
     id: str
-    nested: _NestedData = _NestedData()
+    detail: _NestedData = _NestedData()
     simple: List[Person] = []
     custom: CustomTypes = None
 
@@ -155,12 +155,12 @@ def test_set_default_type_for_new_objects():
 
 def test_standard_nested_object():
     """Create a nested object and check fields for proper values."""
-    nested = ComplexDataObject._NestedData(key="foo", value="bar")
-    complex = ComplexDataObject(id="complex", nested=nested)
+    detail = ComplexDataObject._NestedData(key="foo", value="bar")
+    complex = ComplexDataObject(id="complex", detail=detail)
 
     assert complex.id == "complex"
-    assert complex.nested.key == "foo"
-    assert complex.nested.value == "bar"
+    assert complex.detail.key == "foo"
+    assert complex.detail.value == "bar"
 
 
 def test_invalid_nested_field_call():
@@ -177,8 +177,8 @@ def test_get_nested_data():
 
     assert complex("value") is None
 
-    nested = complex()
-    nested.value = "bar"
+    detail = complex()
+    detail.value = "bar"
 
-    assert complex.nested.key is None
-    assert complex.nested.value == "bar"
+    assert complex.detail.key is None
+    assert complex.detail.value == "bar"
