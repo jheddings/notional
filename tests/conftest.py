@@ -39,7 +39,7 @@ def vcr_config():
 
 @pytest.fixture
 def notion():
-    """Return the `PageRef` used for live testing.
+    """Establish a live session for testing.
 
     This fixture depends on the `NOTION_AUTH_TOKEN` environment variable.  If it is not
     present, this fixture will skip the current test.
@@ -73,7 +73,13 @@ def test_area():
     if parent_id is None:
         pytest.skip("missing NOTION_TEST_AREA")
 
-    return types.PageRef(page_id=parent_id)
+    yield types.PageRef(page_id=parent_id)
+
+
+@pytest.fixture
+def test_page(notion, test_area):
+    """Return a page used for live testing."""
+    yield notion.pages.retrieve(test_area)
 
 
 @pytest.fixture

@@ -152,7 +152,7 @@ class ExternalFile(FileObject, type="external"):
 
     def __str__(self):
         """Return a string representation of this object."""
-        name = self.name or "__unknown__"
+        name = super().__str__()
 
         if self.external and self.external.url:
             return f"![{name}]({self.external.url})"

@@ -11,7 +11,7 @@ from notional import schema, types, user
 # TODO look for opportunities to parse using VCR - avoid keeping embedded data
 
 
-def test_page_reference_from_uuid():
+def test_obj_reference_from_uuid():
     """Compose a ObjectReference from a UUID."""
     id = uuid4()
 
@@ -20,7 +20,7 @@ def test_page_reference_from_uuid():
     assert ref.id == id
 
 
-def test_page_reference_from_str():
+def test_obj_reference_from_str():
     """Compose a ObjectReference from an ID string."""
     id = uuid4()
 
@@ -29,8 +29,8 @@ def test_page_reference_from_str():
     assert ref.id == id
 
 
-def test_page_reference_from_ref():
-    """Compose a ObjectReference from another PageRef."""
+def test_obj_reference_from_ref():
+    """Compose a ObjectReference from another ref."""
     id = uuid4()
 
     orig = types.ObjectReference(id=id)
@@ -53,6 +53,35 @@ def test_invalid_page_reference_from_ref():
 
     with pytest.raises(ValueError):
         types.ObjectReference["this-is-not-a-UUID"]
+
+
+def test_compose_page_ref():
+    """Compose a PageRef from a UUID."""
+    id = uuid4()
+    ref = types.PageRef[id.hex]
+    assert ref.page_id == id
+
+
+def test_compose_db_ref():
+    """Compose a DatabaseRef from a UUID."""
+    id = uuid4()
+    ref = types.DatabaseRef[id.hex]
+    assert ref.database_id == id
+
+
+def test_compose_block_ref():
+    """Compose a BlockRef from a UUID."""
+    id = uuid4()
+    ref = types.BlockRef[id.hex]
+    assert ref.block_id == id
+
+
+def test_emoji():
+    """Make sure EmojiObject's behave properly."""
+    obj = types.EmojiObject["☃️"]
+
+    assert obj.emoji == "☃️"
+    assert str(obj) == "☃️"
 
 
 def test_parse_title_data():
@@ -554,6 +583,7 @@ def test_parse_files_data():
 
     assert glass is not None
     assert glass.type == "external"
+    assert "[glass.jpg]" in str(glass)
 
 
 def test_created_time():
