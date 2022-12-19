@@ -84,7 +84,7 @@ def test_parse_title_data():
 
 def test_title_from_value():
     """Create a Title object from a literal string."""
-    title = types.Title["Get more milk"]
+    title = types.Title["Get more", " milk"]
     assert title.Value == "Get more milk"
 
 
@@ -631,7 +631,7 @@ def test_last_edited_by():
     assert author.name == "Alice the Person"
 
 
-def test_parse_mention_user_objecy():
+def test_parse_mention_user_object():
     """Create a Mention user object from API data."""
 
     test_data = {
@@ -660,6 +660,19 @@ def test_parse_mention_user_objecy():
     assert data.name == "Alice"
 
 
+def test_compose_mention_user():
+    """Test the compose interface for mentioning users."""
+
+    alice = user.User(id="62e40b6e-3f05-494f-9220-d68a1995b54f", name="Alice")
+    at = types.MentionUser[alice]
+
+    assert at.type == "mention"
+    assert at.plain_text == str(alice)
+    assert at.mention.type == "user"
+    assert at.mention.user is not None
+    assert at.mention.user.name == "Alice"
+
+
 def test_parse_mention_date_object():
     """Create a Mention date object from API data."""
 
@@ -677,6 +690,19 @@ def test_parse_mention_date_object():
     data = at.mention.date
 
     assert data.start == date(2099, 1, 1)
+
+
+def test_compose_mention_date():
+    """Test the compose interface for mentioning dates."""
+
+    tomm = date.today() + timedelta(days=1)
+    at = types.MentionDate[tomm]
+
+    assert at.type == "mention"
+    assert at.plain_text == str(tomm)
+    assert at.mention.type == "date"
+    assert at.mention.date is not None
+    assert at.mention.date.start == tomm
 
 
 def test_parse_mention_page_object():
@@ -729,6 +755,33 @@ def test_parse_mention_database_object():
     data = mention("database")
 
     assert data.id == UUID("57202d16-08c9-43db-a112-a0f25443dc48")
+
+
+def test_parse_mention_link_preview():
+    """Create a Mention link_preview object from API data."""
+
+    test_data = {
+        "type": "mention",
+        "mention": {
+            "type": "link_preview",
+            "link_preview": {"url": "https://github.com/jheddings/notional"},
+        },
+        "plain_text": "https://github.com/jheddings/notional",
+        "href": "https://github.com/jheddings/notional",
+    }
+
+    mention = types.MentionObject.parse_obj(test_data)
+
+    assert mention.type == "mention"
+
+    nested = mention()
+
+    assert isinstance(nested, types.MentionLinkPreview)
+    assert nested.type == "link_preview"
+
+    data = mention("link_preview")
+
+    assert data.url == "https://github.com/jheddings/notional"
 
 
 def test_parse_equation_data():
