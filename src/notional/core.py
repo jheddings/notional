@@ -162,8 +162,6 @@ class DataObject(BaseModel, metaclass=ComposableObject):
 class NamedObject(DataObject):
     """A Notion API object."""
 
-    # XXX should NamedObject have the same typing ability as TypedObject?
-
     object: str
 
     def __init_subclass__(cls, object=None, **kwargs):
