@@ -17,7 +17,7 @@
   "dependencyDashboard": false,
 
   "timezone": "America/Denver",
-  "schedule": ["weekly"],
+  "schedule": ["on monday"],
 
   "extends": [ "config:base" ]
 }
