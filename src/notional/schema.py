@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Any, List, Optional
 from uuid import UUID
 
-from .core import DataObject, NestedObject, TypedObject
+from .core import DataObject, TypedObject
 from .text import Color
 
 
@@ -98,7 +98,7 @@ class RichText(PropertyObject, type="rich_text"):
 class Number(PropertyObject, type="number"):
     """Defines the number configuration for a database property."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         format: NumberFormat = NumberFormat.NUMBER
 
     number: _NestedData = _NestedData()
@@ -125,7 +125,7 @@ class SelectOption(DataObject):
 class Select(PropertyObject, type="select"):
     """Defines the select configuration for a database property."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         options: List[SelectOption] = []
 
     select: _NestedData = _NestedData()
@@ -139,7 +139,7 @@ class Select(PropertyObject, type="select"):
 class MultiSelect(PropertyObject, type="multi_select"):
     """Defines the multi-select configuration for a database property."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         options: List[SelectOption] = []
 
     multi_select: _NestedData = _NestedData()
@@ -196,7 +196,7 @@ class PhoneNumber(PropertyObject, type="phone_number"):
 class Formula(PropertyObject, type="formula"):
     """Defines the formula configuration for a database property."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         expression: str = None
 
     formula: _NestedData = _NestedData()
@@ -213,11 +213,22 @@ class SinglePropertyRelation(PropertyRelation, type="single_property"):
 
     single_property: Any = {}
 
+    @classmethod
+    def __compose__(cls, dbref):
+        """Create a `single_property` relation using the target database reference.
+
+        `dbref` can be either a string, UUID, or database.
+        """
+
+        dbid = None
+
+        return Relation(relation=SinglePropertyRelation(database_id=dbid))
+
 
 class DualPropertyRelation(PropertyRelation, type="dual_property"):
     """Defines a dual-property relation configuration for a database property."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         synced_property_name: Optional[str] = None
         synced_property_id: Optional[str] = None
 
@@ -229,16 +240,11 @@ class Relation(PropertyObject, type="relation"):
 
     relation: PropertyRelation = PropertyRelation()
 
-    @classmethod
-    def __compose__(cls, database_id):
-        """Create a `single_property` relation using the target database ID."""
-        return cls(relation=SinglePropertyRelation(database_id=database_id))
-
 
 class Rollup(PropertyObject, type="rollup"):
     """Defines the rollup configuration for a database property."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         function: Function = Function.COUNT_ALL
 
         relation_property_name: Optional[str] = None

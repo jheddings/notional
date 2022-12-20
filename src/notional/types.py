@@ -9,31 +9,96 @@ from datetime import date, datetime
 from typing import List, Optional, Union
 from uuid import UUID
 
-from .core import DataObject, NestedObject, TypedObject
+from .core import DataObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
 from .user import User
 
 
-class PageReference(DataObject):
-    """A page reference is an object with an id property."""
+class ObjectReference(DataObject):
+    """A general-purpose object reference in the Notion API."""
 
     id: UUID
 
     @classmethod
-    def __compose__(cls, page):
-        """Return the correct page reference based on the object type."""
+    def __compose__(cls, ref):
+        """Compose an ObjectReference from the given reference.
 
-        if isinstance(page, str):
-            return PageReference(id=page)
+        `ref` may be a `UUID`, `str` or Notional object with an `id` attribute.
+        """
 
-        if isinstance(page, UUID):
-            return PageReference(id=page)
+        if isinstance(ref, UUID):
+            return ObjectReference(id=ref)
 
-        if hasattr(page, "id"):
-            return PageReference(id=page.id)
+        if isinstance(ref, str):
+            # pydantic handles the conversion for us
+            return ObjectReference(id=ref)
 
-        raise ValueError("Unrecognized 'page' attribute")
+        if isinstance(ref, DataObject) and hasattr(ref, "id"):
+            # this would typically be another Notional object, which happens
+            # to contain an `id` attribute...  we can use that for the ref
+            return ObjectReference(id=ref.id)
+
+        raise ValueError("Unrecognized 'ref' attribute")
+
+
+# https://developers.notion.com/reference/parent-object
+class ParentRef(TypedObject):
+    """Reference another block as a parent."""
+
+    # note that this class is simply a placeholder for the typed concrete *Ref classes
+    # callers should always instantiate the intended concrete versions
+
+
+class DatabaseRef(ParentRef, type="database_id"):
+    """Reference a database."""
+
+    database_id: UUID
+
+    @classmethod
+    def __compose__(cls, db_ref):
+        """Compose a DatabaseRef from the given reference object.
+
+        `db_ref` can be either a string, UUID, or database.
+        """
+        ref = ObjectReference[db_ref]
+        return DatabaseRef(database_id=ref.id)
+
+
+class PageRef(ParentRef, type="page_id"):
+    """Reference a page."""
+
+    page_id: UUID
+
+    @classmethod
+    def __compose__(cls, page_ref):
+        """Compose a PageRef from the given reference object.
+
+        `page_ref` can be either a string, UUID, or page.
+        """
+        ref = ObjectReference[page_ref]
+        return PageRef(page_id=ref.id)
+
+
+class BlockRef(ParentRef, type="block_id"):
+    """Reference a block."""
+
+    block_id: UUID
+
+    @classmethod
+    def __compose__(cls, block_ref):
+        """Compose a BlockRef from the given reference object.
+
+        `block_ref` can be either a string, UUID, or block.
+        """
+        ref = ObjectReference[block_ref]
+        return BlockRef(block_id=ref.id)
+
+
+class WorkspaceRef(ParentRef, type="workspace"):
+    """Reference the workspace."""
+
+    workspace: bool = True
 
 
 class EmojiObject(TypedObject, type="emoji"):
@@ -70,7 +135,7 @@ class FileObject(TypedObject):
 class HostedFile(FileObject, type="file"):
     """A Notion file object."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         url: str
         expiry_time: Optional[datetime] = None
 
@@ -80,14 +145,14 @@ class HostedFile(FileObject, type="file"):
 class ExternalFile(FileObject, type="external"):
     """An external file object."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         url: str
 
     external: _NestedData
 
     def __str__(self):
         """Return a string representation of this object."""
-        name = self.name or "__unknown__"
+        name = super().__str__()
 
         if self.external and self.external.url:
             return f"![{name}]({self.external.url})"
@@ -138,13 +203,13 @@ class MentionUser(MentionData, type="user"):
 class MentionPage(MentionData, type="page"):
     """Nested page data for `Mention` properties."""
 
-    page: PageReference
+    page: ObjectReference
 
     @classmethod
     def __compose__(cls, page_ref):
         """Build a `Mention` object for the specified page reference."""
 
-        ref = PageReference[page_ref]
+        ref = ObjectReference[page_ref]
 
         return MentionObject(plain_text=str(ref), mention=MentionPage(page=ref))
 
@@ -152,13 +217,13 @@ class MentionPage(MentionData, type="page"):
 class MentionDatabase(MentionData, type="database"):
     """Nested database information for `Mention` properties."""
 
-    database: PageReference
+    database: ObjectReference
 
     @classmethod
     def __compose__(cls, page):
         """Build a `Mention` object for the specified database reference."""
 
-        ref = PageReference[page]
+        ref = ObjectReference[page]
 
         return MentionObject(plain_text=str(ref), mention=MentionDatabase(database=ref))
 
@@ -185,7 +250,7 @@ class MentionLinkPreview(MentionData, type="link_preview"):
     These objects cannot be created via the API.
     """
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         url: str
 
     link_preview: _NestedData
@@ -222,7 +287,7 @@ class MentionObject(RichTextObject, type="mention"):
 class EquationObject(RichTextObject, type="equation"):
     """Notion equation element."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         expression: str
 
     equation: _NestedData
@@ -422,7 +487,7 @@ class Date(PropertyValue, type="date"):
 class Status(NativeTypeMixin, PropertyValue, type="status"):
     """Notion status property."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         name: str = None
         id: Optional[Union[UUID, str]] = None
         color: Optional[Color] = None
@@ -869,7 +934,7 @@ class Formula(PropertyValue, type="formula"):
 class Relation(PropertyValue, type="relation"):
     """A Notion relation property value."""
 
-    relation: List[PageReference] = []
+    relation: List[ObjectReference] = []
     has_more: bool = False
 
     @classmethod
@@ -877,18 +942,18 @@ class Relation(PropertyValue, type="relation"):
         """Return a `Relation` property with the specified pages."""
 
         if isinstance(pages, list):
-            refs = [PageReference[page] for page in pages]
+            refs = [ObjectReference[page] for page in pages]
         else:
-            refs = [PageReference[pages]]
+            refs = [ObjectReference[pages]]
 
         return cls(relation=refs)
 
     def __contains__(self, page):
         """Determine if the given page is in this Relation."""
-        return PageReference[page] in self.relation
+        return ObjectReference[page] in self.relation
 
     def __iter__(self):
-        """Iterate over the PageReference's in this property."""
+        """Iterate over the ObjectReference's in this property."""
 
         if self.relation is None:
             return None
@@ -896,12 +961,12 @@ class Relation(PropertyValue, type="relation"):
         return iter(self.relation)
 
     def __len__(self):
-        """Return the number of PageReference's in this property."""
+        """Return the number of ObjectReference's in this property."""
 
         return len(self.relation)
 
     def __getitem__(self, index):
-        """Return the PageReference object at the given index."""
+        """Return the ObjectReference object at the given index."""
 
         if self.relation is None:
             raise IndexError("empty property")
@@ -914,7 +979,7 @@ class Relation(PropertyValue, type="relation"):
     def __iadd__(self, page):
         """Add the given page to this Relation in place."""
 
-        ref = PageReference[page]
+        ref = ObjectReference[page]
 
         if ref in self.relation:
             raise ValueError(f"Duplicate item: {ref.id}")
@@ -926,7 +991,7 @@ class Relation(PropertyValue, type="relation"):
     def __isub__(self, page):
         """Remove the given page from this Relation in place."""
 
-        ref = PageReference[page]
+        ref = ObjectReference[page]
 
         if ref in self.relation:
             raise ValueError(f"No such item: {ref.id}")

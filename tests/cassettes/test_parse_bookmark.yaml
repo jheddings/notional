@@ -1,0 +1,24 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      host:
+      - api.notion.com
+      notion-version:
+      - '2022-06-28'
+    method: GET
+    uri: https://api.notion.com/v1/blocks/4b6de8fddec5472eb630f328f809944c
+  response:
+    content: '{"object":"block","id":"4b6de8fd-dec5-472e-b630-f328f809944c","parent":{"type":"page_id","page_id":"42faa3d6-2b2e-46e8-8565-481c52fcd553"},"created_time":"2022-03-23T04:40:00.000Z","last_edited_time":"2022-12-16T04:27:00.000Z","created_by":{"object":"user","id":"ea74294e-d4c7-41f0-8929-805c80ea0d7f"},"last_edited_by":{"object":"user","id":"ea74294e-d4c7-41f0-8929-805c80ea0d7f"},"has_children":false,"archived":false,"type":"bookmark","bookmark":{"caption":[],"url":"https://www.cs.cmu.edu/~rgs/alice-VII.html"}}'
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1

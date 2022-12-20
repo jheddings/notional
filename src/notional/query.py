@@ -10,11 +10,11 @@ from uuid import UUID
 from notion_client.api_endpoints import SearchEndpoint
 from pydantic import Field, validator
 
-from .blocks import Block
+from .blocks import Block, Database, DataRecord, Page
 from .core import DataObject
 from .iterator import EndpointIterator
 from .orm import ConnectedPage
-from .records import Database, Page, ParentRef, Record
+from .types import ParentRef
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ def get_target_id(target):
     if isinstance(target, UUID):
         return target.hex
 
-    if isinstance(target, Record):
+    if isinstance(target, DataRecord):
         return target.id.hex
 
     if isinstance(target, ParentRef):
@@ -410,6 +410,6 @@ class ResultSet:
             elif item["object"] == "block":
                 item = Block.parse_obj(item)
             else:
-                item = Record.parse_obj(item)
+                item = DataRecord.parse_obj(item)
 
         return item
