@@ -9,7 +9,7 @@ from datetime import date, datetime
 from typing import List, Optional, Union
 from uuid import UUID
 
-from .core import DataObject, TypedObject
+from .core import DataObject, NamedObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
 from .user import User
@@ -1099,3 +1099,17 @@ class LastEditedBy(PropertyValue, type="last_edited_by"):
     def __str__(self):
         """Return the contents of this property as a string."""
         return str(self.last_edited_by)
+
+
+# https://developers.notion.com/reference/property-item-object
+class PropertyItem(NamedObject, object="property_item"):
+    """A PropertyItem returned by the Notion API."""
+
+    class _NestedData(DataObject):
+        id: str = None
+        type: str = None
+        next_url: Optional[str] = None
+
+    results: List[PropertyValue] = []
+    next_cursor: Optional[str] = None
+    property_item: _NestedData = _NestedData()

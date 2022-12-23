@@ -14,14 +14,7 @@ from .orm import ConnectedPage
 from .query import QueryBuilder, ResultSet
 from .schema import PropertyObject
 from .text import TextObject
-from .types import (
-    DatabaseRef,
-    ObjectReference,
-    PageRef,
-    ParentRef,
-    PropertyValue,
-    Title,
-)
+from .types import DatabaseRef, ObjectReference, PageRef, ParentRef, PropertyItem, Title
 from .user import User
 
 logger = logging.getLogger(__name__)
@@ -396,7 +389,7 @@ class PagesEndpoint(Endpoint):
 
             data = self().retrieve(page_id, property_id)
 
-            return PropertyValue.parse_obj(data)
+            return PropertyItem.parse_obj(data)
 
     def __init__(self, *args, **kwargs):
         """Initialize the `pages` endpoint for the Notion API."""
