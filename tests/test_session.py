@@ -2,7 +2,7 @@
 
 import pytest
 
-from notional import records
+from notional.blocks import DataRecord
 
 
 @pytest.mark.vcr()
@@ -29,7 +29,7 @@ def test_simple_search(notion):
     num_results = 0
 
     for result in search.execute():
-        assert isinstance(result, records.Record)
+        assert isinstance(result, DataRecord)
         num_results += 1
 
     # sanity check to make sure some results came back

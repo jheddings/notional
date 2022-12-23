@@ -5,19 +5,16 @@ import os
 
 import pkg_resources
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 __pkgname__ = "notional"
 
-log.debug("loading package distribution")
 _pkg_dist = pkg_resources.get_distribution(__pkgname__)
 
 __version__ = _pkg_dist.version
 
+# if we are running in a local copy, append the repo information
 try:
-
-    # if we are running in a local copy, append the repo information
-    log.debug("attempting to parse git repo information")
 
     import git
 
@@ -26,20 +23,15 @@ try:
     _srcdir = os.path.dirname(os.path.abspath(__file__))
     _basedir = os.path.abspath(os.path.join(_srcdir, "..", ".."))
 
-    log.debug("version basedir: %s", _basedir)
-
     try:
         _repo = git.Repo(_basedir)
         _head = _repo.head.commit
 
         assert not _repo.bare
 
-        log.debug("using repo dir: %s", _repo.git_dir)
-
         __version__ += "-" + _head.hexsha[:7]
 
         _branch = _repo.active_branch.name
-        log.debug("current git branch: %s", _branch)
 
         if _branch != "main":
             __version__ += "-" + _branch
@@ -50,10 +42,12 @@ try:
     except git.InvalidGitRepositoryError:
         pass
 
+# if python-git is not installed...
 except ModuleNotFoundError:
-    log.debug("Could not find module")
+    logger.debug("repository information not available")
+    pass
 
 except Exception:
-    log.exception("Unexpected exception while looking for version information.")
+    logger.exception("Unexpected exception while looking for version information.")
 
-log.info("%s-%s", __pkgname__, __version__)
+logger.info("%s-%s", __pkgname__, __version__)

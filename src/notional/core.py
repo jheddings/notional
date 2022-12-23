@@ -9,7 +9,7 @@ from uuid import UUID
 from pydantic import BaseModel
 from pydantic.main import ModelMetaclass, validate_model
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def make_api_safe(data):
@@ -141,7 +141,7 @@ class DataObject(BaseModel, metaclass=ComposableObject):
 
         for name in fields:
             value = values[name]
-            log.debug("set object data -- %s => %s", name, value)
+            logger.debug("set object data -- %s => %s", name, value)
             setattr(__pydantic_self__, name, value)
 
         return __pydantic_self__
@@ -156,13 +156,14 @@ class DataObject(BaseModel, metaclass=ComposableObject):
         # we need to convert "special" types to string forms to help the JSON encoder.
         # there are efforts underway in pydantic to make this easier, but for now...
 
+        # TODO read-only fields should not be sent to the API
+        # https://github.com/jheddings/notional/issues/9
+
         return make_api_safe(data)
 
 
 class NamedObject(DataObject):
     """A Notion API object."""
-
-    # XXX should NamedObject have the same typing ability as TypedObject?
 
     object: str
 
@@ -177,9 +178,19 @@ class NamedObject(DataObject):
 class TypedObject(DataObject):
     """A type-referenced object.
 
-    Many objects in the Notion API follow a generic->specific pattern with a 'type'
-    parameter followed by additional data.  These objects must specify a `type`
-    attribute to ensure that the correct object is created.
+    Many objects in the Notion API follow a standard pattern with a 'type' property
+    followed by additional data.  These objects must specify a `type` attribute to
+    ensure that the correct object is created.
+
+    For example, this contains a nested 'detail' object:
+
+        data = {
+            type: "detail",
+            ...
+            detail: {
+                ...
+            }
+        }
 
     Calling the object provides direct access to the data stored in `{type}`.
     """
@@ -220,7 +231,7 @@ class TypedObject(DataObject):
         if sub_type in cls.__typemap__:
             raise ValueError(f"Duplicate subtype for class - {sub_type} :: {cls}")
 
-        log.debug("registered new subtype: %s => %s", sub_type, cls)
+        logger.debug("registered new subtype: %s => %s", sub_type, cls)
 
         cls.__typemap__[sub_type] = cls
 
@@ -279,29 +290,8 @@ class TypedObject(DataObject):
         if sub is None:
             raise TypeError(f"Unsupported sub-type: {data_type}")
 
-        log.debug(
+        logger.debug(
             "initializing typed object %s :: %s => %s -- %s", cls, data_type, sub, data
         )
 
         return sub(**data)
-
-
-class NestedObject(DataObject):
-    """Represents an API object with nested data.
-
-    These objects require a 'type' property and a matching property of the same
-    name, which holds additional data.
-
-    For example, this contains a nested 'text' object:
-
-        data = {
-            type: "text",
-            ...
-            text: {
-                ...
-            }
-        }
-
-    Currently, this is a convenience class for clarity - it does not provide additional
-    functionality at this time.
-    """

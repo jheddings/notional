@@ -5,4 +5,4 @@ At the moment, this simply prints the current version and exits.
 
 import notional
 
-print(f"notional-{notional.__version__}")
+print(f"{notional.__pkgname__}-{notional.__version__}")

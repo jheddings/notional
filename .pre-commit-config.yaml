@@ -4,7 +4,6 @@ repos:
     rev: "5.10.1"
     hooks:
       - id: isort
-        args: [--profile, black]
 
   - repo: https://github.com/psf/black
     rev: "22.3.0"
@@ -32,6 +31,5 @@ repos:
           - flake8-comprehensions
           - flake8-docstrings
           - flake8-eradicate
-          # - flake8-print
           - flake8-logging-format
           - flake8-return

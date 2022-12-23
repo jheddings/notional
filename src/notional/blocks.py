@@ -1,32 +1,130 @@
 """Wrapper for Notion API blocks.
 
-Blocks are specifc records that hold content.
-
-Similar to other records, these object provide access to the primitive data structure
-used in the Notion API as well as higher-level methods.
+Blocks are the base for all Notion content.
 """
 
-import logging
 from abc import ABC
-from typing import Any, List, Optional, Union
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
+from uuid import UUID
 
-from .core import NestedObject, TypedObject
-from .records import BlockRef, ParentRef, Record
+from .core import DataObject, NamedObject, TypedObject
+from .schema import PropertyObject
 from .text import (
     CodingLanguage,
     FullColor,
     RichTextObject,
     TextObject,
-    chunky,
     markdown,
     plain_text,
+    rich_text,
 )
-from .types import EmojiObject, FileObject
+from .types import BlockRef, EmojiObject, FileObject, ParentRef, PropertyValue
+from .user import User
 
-log = logging.getLogger(__name__)
+
+class DataRecord(NamedObject):
+    """The base type for all Notion API records."""
+
+    id: UUID = None
+
+    parent: ParentRef = None
+    has_children: bool = False
+
+    archived: bool = False
+
+    created_time: datetime = None
+    created_by: User = None
+
+    last_edited_time: datetime = None
+    last_edited_by: User = None
 
 
-class Block(Record, TypedObject, object="block"):
+class Database(DataRecord, object="database"):
+    """A database record type."""
+
+    title: List[RichTextObject] = None
+    url: str = None
+    icon: Optional[Union[FileObject, EmojiObject]] = None
+    cover: Optional[FileObject] = None
+    properties: Dict[str, PropertyObject] = {}
+    description: Optional[List[RichTextObject]] = None
+    is_inline: bool = False
+
+    @property
+    def Title(self):
+        """Return the title of this database as plain text."""
+        if self.title is None or len(self.title) == 0:
+            return None
+
+        return plain_text(*self.title)
+
+
+class Page(DataRecord, object="page"):
+    """A standard Notion page object."""
+
+    url: str = None
+    icon: Optional[Union[FileObject, EmojiObject]] = None
+    cover: Optional[FileObject] = None
+    properties: Dict[str, PropertyValue] = {}
+
+    def __getitem__(self, name):
+        """Indexer for the given property name.
+
+        :param name: the name of the property to get from the internal properties
+        """
+
+        if self.properties is None:
+            raise AttributeError("No properties in Page")
+
+        prop = self.properties.get(name)
+
+        if prop is None:
+            raise AttributeError(f"No such property: {name}")
+
+        return prop
+
+    def __setitem__(self, name, value):
+        """Set the object data for the given property.
+
+        If `value` is `None`, the property data will be deleted from the page.  This
+        does not affect the schema of the page, only the contents of the property.
+
+        :param name: the name of the property to set in the internal properties
+        :param value: the new value for the given property
+        """
+
+        if value is None:
+            self.properties.pop(name, None)
+
+        elif isinstance(value, PropertyValue):
+            self.properties[name] = value
+
+        else:
+            raise ValueError(f"Unable to set {name} :: unsupported value type")
+
+    @property
+    def Title(self):
+        """Return the title of this page as a string.
+
+        The title of a page is stored in its properties.  This method will examine the
+        page properties, looking for the appropriate `title` entry and return as a
+        string.
+        """
+        if self.properties is None:
+            return None
+
+        # the 'title' property may (or may not) be indexed by name...  especially in the case of
+        # database pages.  the only reliable way to find the title is by scanning each property.
+
+        for prop in self.properties.values():
+            if prop.id == "title":
+                return prop.Value
+
+        return None
+
+
+class Block(DataRecord, TypedObject, object="block"):
     """A standard block object in Notion.
 
     Calling the block will expose the nested data in the object.
@@ -36,7 +134,7 @@ class Block(Record, TypedObject, object="block"):
 class UnsupportedBlock(Block, type="unsupported"):
     """A placeholder for unsupported blocks in the API."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         pass
 
     unsupported: Optional[_NestedData] = None
@@ -45,7 +143,7 @@ class UnsupportedBlock(Block, type="unsupported"):
 class TextBlock(Block, ABC):
     """A standard text block object in Notion."""
 
-    # text blocks have a nested object with 'type' name and a 'text' child
+    # text blocks have a nested object with 'type' name and a 'rich_text' child
 
     @property
     def __text__(self):
@@ -54,63 +152,33 @@ class TextBlock(Block, ABC):
         return self("rich_text")
 
     @classmethod
-    def __compose__(cls, text):
-        """Compose a `TextBlock` from the given text."""
+    def __compose__(cls, *text):
+        """Compose a `TextBlock` from the given text items."""
 
         if text is None:
             return None
 
         obj = cls()
-        obj.concat(text)
+        obj.concat(*text)
 
         return obj
 
     def concat(self, *text):
         """Concatenate text (either `RichTextObject` or `str` items) to this block."""
 
+        # calling the block returns the nested data...  this helps deal with
+        # sublcasses of `TextBlock` that each have different "type" attributes
         nested = self()
 
         if not hasattr(nested, "rich_text"):
-            raise AttributeError("nested data does not contain text")
+            raise AttributeError("nested data does not contain rich_text")
+
+        rtf = rich_text(*text)
 
         if nested.rich_text is None:
-            nested.rich_text = []
-
-        for obj in text:
-            if obj is None:
-                continue
-
-            self._append_object(obj)
-
-    def _append_object(self, obj):
-        """Append the given object to the internal text of this TextObject."""
-
-        if isinstance(obj, RichTextObject):
-            self._append_rtf(obj)
-
-        elif isinstance(obj, str):
-            self._append_text(obj)
-
+            nested.rich_text = rtf
         else:
-            raise ValueError("unsupported text object")
-
-    def _append_rtf(self, rtf):
-        """Append the given RichTextObject to this TextObject."""
-        nested = self()
-        nested.rich_text.append(rtf)
-
-    def _append_text(self, text):
-        """Append the given text to this TextObject.
-
-        This text will be split into chunks in accordance with the Notion API.
-        """
-        nested = self()
-
-        # break up the text and compose new TextObject's from the pieces
-
-        for chunk in chunky(text):
-            obj = TextObject[chunk]
-            nested.rich_text.append(obj)
+            nested.rich_text.extend(rtf)
 
     @property
     def PlainText(self):
@@ -157,7 +225,7 @@ class WithChildrenMixin:
 class Paragraph(TextBlock, WithChildrenMixin, type="paragraph"):
     """A paragraph block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
@@ -177,7 +245,7 @@ class Paragraph(TextBlock, WithChildrenMixin, type="paragraph"):
 class Heading1(TextBlock, type="heading_1"):
     """A heading_1 block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
@@ -196,7 +264,7 @@ class Heading1(TextBlock, type="heading_1"):
 class Heading2(TextBlock, type="heading_2"):
     """A heading_2 block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
@@ -215,7 +283,7 @@ class Heading2(TextBlock, type="heading_2"):
 class Heading3(TextBlock, type="heading_3"):
     """A heading_3 block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
@@ -234,7 +302,7 @@ class Heading3(TextBlock, type="heading_3"):
 class Quote(TextBlock, WithChildrenMixin, type="quote"):
     """A quote block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
@@ -254,7 +322,7 @@ class Quote(TextBlock, WithChildrenMixin, type="quote"):
 class Code(TextBlock, type="code"):
     """A code block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         rich_text: List[RichTextObject] = []
         caption: List[RichTextObject] = []
         language: CodingLanguage = CodingLanguage.PLAIN_TEXT
@@ -275,7 +343,7 @@ class Code(TextBlock, type="code"):
     def Markdown(self):
         """Return the contents of this block as markdown text."""
 
-        lang = self.code.language if self.code and self.code.language else ""
+        lang = self.code.language.value if self.code and self.code.language else ""
 
         # FIXME this is not the standard way to represent code blocks in markdown...
 
@@ -288,7 +356,7 @@ class Code(TextBlock, type="code"):
 class Callout(TextBlock, WithChildrenMixin, type="callout"):
     """A callout block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         icon: Optional[Union[FileObject, EmojiObject]] = None
@@ -300,7 +368,7 @@ class Callout(TextBlock, WithChildrenMixin, type="callout"):
 class BulletedListItem(TextBlock, WithChildrenMixin, type="bulleted_list_item"):
     """A bulleted list item in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
@@ -320,7 +388,7 @@ class BulletedListItem(TextBlock, WithChildrenMixin, type="bulleted_list_item"):
 class NumberedListItem(TextBlock, WithChildrenMixin, type="numbered_list_item"):
     """A numbered list item in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
@@ -340,7 +408,7 @@ class NumberedListItem(TextBlock, WithChildrenMixin, type="numbered_list_item"):
 class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
     """A todo list item in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         rich_text: List[RichTextObject] = []
         checked: bool = False
         children: Optional[List[Block]] = None
@@ -382,7 +450,7 @@ class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
 class Toggle(TextBlock, WithChildrenMixin, type="toggle"):
     """A toggle list item in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
@@ -404,7 +472,7 @@ class Divider(Block, type="divider"):
 class TableOfContents(Block, type="table_of_contents"):
     """A table_of_contents block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         color: FullColor = FullColor.DEFAULT
 
     table_of_contents: _NestedData = _NestedData()
@@ -413,7 +481,7 @@ class TableOfContents(Block, type="table_of_contents"):
 class Breadcrumb(Block, type="breadcrumb"):
     """A breadcrumb block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         pass
 
     breadcrumb: _NestedData = _NestedData()
@@ -422,7 +490,7 @@ class Breadcrumb(Block, type="breadcrumb"):
 class Embed(Block, type="embed"):
     """An embed block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         url: str = None
 
     embed: _NestedData = _NestedData()
@@ -450,7 +518,7 @@ class Embed(Block, type="embed"):
 class Bookmark(Block, type="bookmark"):
     """A bookmark block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         url: str = None
         caption: Optional[List[RichTextObject]] = None
 
@@ -479,7 +547,7 @@ class Bookmark(Block, type="bookmark"):
 class LinkPreview(Block, type="link_preview"):
     """A link_preview block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         url: str = None
 
     link_preview: _NestedData = _NestedData()
@@ -531,7 +599,7 @@ class PDF(Block, type="pdf"):
 class ChildPage(Block, type="child_page"):
     """A child page block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         title: str = None
 
     child_page: _NestedData = _NestedData()
@@ -540,7 +608,7 @@ class ChildPage(Block, type="child_page"):
 class ChildDatabase(Block, type="child_database"):
     """A child database block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         title: str = None
 
     child_database: _NestedData = _NestedData()
@@ -549,7 +617,7 @@ class ChildDatabase(Block, type="child_database"):
 class ColumnList(Block, type="column_list"):
     """A column list block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         pass
 
     column_list: _NestedData = _NestedData()
@@ -558,7 +626,7 @@ class ColumnList(Block, type="column_list"):
 class Column(Block, type="column"):
     """A column block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         pass
 
     column: _NestedData = _NestedData()
@@ -567,7 +635,7 @@ class Column(Block, type="column"):
 class TableRow(Block, type="table_row"):
     """A table_row block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         cells: List[List[RichTextObject]] = None
 
         def __getitem__(self, col):
@@ -615,7 +683,7 @@ class TableRow(Block, type="table_row"):
 class Table(Block, WithChildrenMixin, type="table"):
     """A table block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         table_width: int = 0
         has_column_header: bool = False
         has_row_header: bool = False
@@ -664,7 +732,7 @@ class LinkToPage(Block, type="link_to_page"):
 class SyncedBlock(Block, WithChildrenMixin, type="synced_block"):
     """A synced_block block in Notion - either original or synced."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         synced_from: Optional[BlockRef] = None
         children: Optional[List[Block]] = None
 
@@ -682,7 +750,7 @@ class SyncedBlock(Block, WithChildrenMixin, type="synced_block"):
 class Template(Block, WithChildrenMixin, type="template"):
     """A template block in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         rich_text: Optional[List[RichTextObject]] = None
         children: Optional[List[Block]] = None
 

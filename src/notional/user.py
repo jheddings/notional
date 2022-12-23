@@ -1,13 +1,10 @@
 """Wrapper for Notion user objects."""
 
-import logging
 from enum import Enum
 from typing import Optional
 from uuid import UUID
 
-from .core import DataObject, NestedObject
-
-log = logging.getLogger(__name__)
+from .core import DataObject
 
 
 class UserType(str, Enum):
@@ -48,7 +45,7 @@ class User(DataObject):
 class Person(User):
     """Represents a Person in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         email: str
 
     person: _NestedData = None
@@ -61,7 +58,7 @@ class Person(User):
 class Bot(User):
     """Represents a Bot in Notion."""
 
-    class _NestedData(NestedObject):
+    class _NestedData(DataObject):
         pass
 
     bot: _NestedData = None

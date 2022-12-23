@@ -17,9 +17,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.7"
+          - "3.8"
           - "3.9"
           - "3.10"
+          - "3.11"
 
     steps:
       - uses: actions/checkout@v3
@@ -38,7 +39,7 @@ jobs:
 
       - name: Run unit tests
         run: |
-          poetry run pytest tests --vcr-record=none
+          poetry run utest --vcr=none
         env:
           NOTION_AUTH_TOKEN: ${{ secrets.NOTION_AUTH_TOKEN }}
           NOTION_TEST_AREA: ${{ secrets.NOTION_TEST_AREA }}

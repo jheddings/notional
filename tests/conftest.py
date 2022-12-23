@@ -14,7 +14,7 @@ import os
 import pytest
 
 import notional
-from notional import records, schema
+from notional import schema, types
 from notional.orm import Property, connected_page
 
 from .utils import mktitle
@@ -39,7 +39,7 @@ def vcr_config():
 
 @pytest.fixture
 def notion():
-    """Return the `PageRef` used for live testing.
+    """Establish a live session for testing.
 
     This fixture depends on the `NOTION_AUTH_TOKEN` environment variable.  If it is not
     present, this fixture will skip the current test.
@@ -73,7 +73,13 @@ def test_area():
     if parent_id is None:
         pytest.skip("missing NOTION_TEST_AREA")
 
-    return records.PageRef(page_id=parent_id)
+    yield types.PageRef(page_id=parent_id)
+
+
+@pytest.fixture
+def test_page(notion, test_area):
+    """Return a page used for live testing."""
+    yield notion.pages.retrieve(test_area)
 
 
 @pytest.fixture
@@ -83,13 +89,16 @@ def blank_page(notion, test_area):
     This page will be deleted during teardown.
     """
 
+    page_title = mktitle()
+
     page = notion.pages.create(
         parent=test_area,
-        title=mktitle(),
+        title=page_title,
     )
 
     assert page.id is not None
     assert page.parent == test_area
+    assert page.Title == page_title
 
     yield page
 
@@ -103,13 +112,17 @@ def blank_db(notion, test_area):
     This database will be deleted during teardown.
     """
 
+    db_title = mktitle()
+
     db = notion.databases.create(
         parent=test_area,
-        title=mktitle(),
+        title=db_title,
         schema={
             "Name": schema.Title(),
         },
     )
+
+    assert db.Title == db_title
 
     yield db
 
