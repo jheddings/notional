@@ -212,17 +212,6 @@ class DatabasesEndpoint(Endpoint):
 
         return Database.parse_obj(data)
 
-    # https://developers.notion.com/reference/get-databases
-    def list(self):
-        """Return an iterator for all Database objects in the integration scope."""
-
-        # DEPRECATED ENDPOINT ###
-
-        logger.info("Listing known databases...")
-
-        databases = EndpointIterator(endpoint=self().list)
-        return ResultSet(exec=databases, cls=Database)
-
     # https://developers.notion.com/reference/retrieve-a-database
     def retrieve(self, database_id):
         """Return the Database with the given ID."""
