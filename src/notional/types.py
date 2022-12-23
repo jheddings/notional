@@ -27,6 +27,9 @@ class ObjectReference(DataObject):
         `ref` may be a `UUID`, `str`, `ParentRef` or `DataObject` with an `id` attribute.
         """
 
+        if isinstance(ref, cls):
+            return ref.copy(deep=True)
+
         if isinstance(ref, UUID):
             return ObjectReference(id=ref)
 
