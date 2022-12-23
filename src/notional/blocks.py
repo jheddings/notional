@@ -114,12 +114,14 @@ class Page(DataRecord, object="page"):
         if self.properties is None:
             return None
 
-        prop = self.properties.get("title")
+        # the 'title' property may (or may not) be indexed by name...  especially in the case of
+        # database pages.  the only reliable way to find the title is by scanning each property.
 
-        if prop is None:
-            return None
+        for prop in self.properties.values():
+            if prop.id == "title":
+                return prop.Value
 
-        return prop.Value or None
+        return None
 
 
 class Block(DataRecord, TypedObject, object="block"):
