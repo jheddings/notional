@@ -343,7 +343,7 @@ class Code(TextBlock, type="code"):
     def Markdown(self):
         """Return the contents of this block as markdown text."""
 
-        lang = self.code.language if self.code and self.code.language else ""
+        lang = self.code.language.value if self.code and self.code.language else ""
 
         # FIXME this is not the standard way to represent code blocks in markdown...
 
