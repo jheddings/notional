@@ -51,6 +51,8 @@ class BlocksEndpoint(Endpoint):
             """Add the given blocks as children of the specified parent.
 
             The blocks info will be refreshed based on returned data.
+
+            `parent` may be any suitable `ObjectReference` type.
             """
 
             parent_id = ObjectReference[parent].id
@@ -79,7 +81,10 @@ class BlocksEndpoint(Endpoint):
 
         # https://developers.notion.com/reference/get-block-children
         def list(self, parent):
-            """Return all Blocks contained by the specified parent."""
+            """Return all Blocks contained by the specified parent.
+
+            `parent` may be any suitable `ObjectReference` type.
+            """
 
             parent_id = ObjectReference[parent].id
 
@@ -101,27 +106,39 @@ class BlocksEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/delete-a-block
     def delete(self, block):
-        """Delete (archive) the specified Block."""
+        """Delete (archive) the specified Block.
 
-        logger.info("Deleting block :: %s", block.id)
+        `block` may be any suitable `ObjectReference` type.
+        """
 
-        data = self().delete(block.id.hex)
+        block_id = ObjectReference[block].id
+        logger.info("Deleting block :: %s", block_id)
 
-        return block.refresh(**data)
+        data = self().delete(block_id)
+
+        return Block.parse_obj(data)
 
     def restore(self, block):
-        """Restore (unarchive) the specified Block."""
+        """Restore (unarchive) the specified Block.
 
-        logger.info("Restoring block :: %s", block.id)
+        `block` may be any suitable `ObjectReference` type.
+        """
 
-        data = self().update(block.id.hex, archived=False)
+        block_id = ObjectReference[block].id
+        logger.info("Restoring block :: %s", block_id)
 
-        return block.refresh(**data)
+        data = self().update(block_id, archived=False)
+
+        return Block.parse_obj(data)
 
     # https://developers.notion.com/reference/retrieve-a-block
-    def retrieve(self, block_id):
-        """Return the Block with the given ID."""
+    def retrieve(self, block):
+        """Return the requested Block.
 
+        `block` may be any suitable `ObjectReference` type.
+        """
+
+        block_id = ObjectReference[block].id
         logger.info("Retrieving block :: %s", block_id)
 
         data = self().retrieve(block_id)
@@ -129,7 +146,7 @@ class BlocksEndpoint(Endpoint):
         return Block.parse_obj(data)
 
     # https://developers.notion.com/reference/update-a-block
-    def update(self, block):
+    def update(self, block: Block):
         """Update the block content on the server.
 
         The block info will be refreshed to the latest version from the server.
@@ -217,13 +234,15 @@ class DatabasesEndpoint(Endpoint):
         return Database.parse_obj(data)
 
     # https://developers.notion.com/reference/update-a-database
-    def update(self, database, title=None, schema: Dict[str, PropertyObject] = None):
+    def update(self, dbref, title=None, schema: Dict[str, PropertyObject] = None):
         """Update the Database object on the server.
 
         The database info will be refreshed to the latest version from the server.
+
+        `dbref` may be any suitable `ObjectReference` type.
         """
 
-        dbid = ObjectReference[database].id
+        dbid = ObjectReference[dbref].id
 
         logger.info("Updating database info :: %s", dbid)
 
@@ -231,9 +250,9 @@ class DatabasesEndpoint(Endpoint):
 
         if request:
             data = self().update(dbid, **request)
-            database = database.refresh(**data)
+            dbref = dbref.refresh(**data)
 
-        return database
+        return dbref
 
     def delete(self, database):
         """Delete (archive) the specified Database."""
@@ -249,7 +268,7 @@ class DatabasesEndpoint(Endpoint):
     def query(self, target):
         """Initialize a new Query object with the target data class.
 
-        :param target: either a string with the database ID or an ORM class
+        :param target: either an `ObjectReference` or an ORM class
         """
 
         if issubclass(target, ConnectedPage):

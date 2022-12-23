@@ -90,8 +90,11 @@ def test_restore_block(notion, test_area):
     block = blocks.Callout["Reappearing blocks!"]
 
     notion.blocks.children.append(test_area, block)
-    notion.blocks.delete(block)
-    notion.blocks.restore(block)
+    deleted = notion.blocks.delete(block)
+    assert deleted.archived is True
+
+    # restore and capture the target block
+    block = notion.blocks.restore(block)
 
     # get the new restored back from the API
     restored = notion.blocks.retrieve(block.id)
