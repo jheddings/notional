@@ -78,10 +78,12 @@ def test_delete_block(notion, test_area):
     block = blocks.Code["test_delete_block"]
 
     notion.blocks.children.append(test_area, block)
-    notion.blocks.delete(block)
+    block = notion.blocks.delete(block)
 
     deleted = notion.blocks.retrieve(block.id)
+
     assert deleted.archived is True
+    assert deleted == block
 
 
 @pytest.mark.vcr()
