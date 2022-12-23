@@ -11,10 +11,10 @@ from notion_client.errors import APIResponseError
 from .blocks import Block, Database, Page
 from .iterator import EndpointIterator
 from .orm import ConnectedPage
-from .query import QueryBuilder, ResultSet, get_target_id
+from .query import QueryBuilder, ResultSet
 from .schema import PropertyObject
 from .text import TextObject
-from .types import ParentRef, Title
+from .types import ObjectReference, ParentRef, Title
 from .user import User
 
 logger = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ class BlocksEndpoint(Endpoint):
             The blocks info will be refreshed based on returned data.
             """
 
-            parent_id = get_target_id(parent)
+            parent_id = ObjectReference[parent].id
 
             children = [block.to_api() for block in blocks if block is not None]
 
@@ -81,7 +81,7 @@ class BlocksEndpoint(Endpoint):
         def list(self, parent):
             """Return all Blocks contained by the specified parent."""
 
-            parent_id = get_target_id(parent)
+            parent_id = ObjectReference[parent].id
 
             blocks = EndpointIterator(endpoint=self().list, block_id=parent_id)
 
@@ -223,7 +223,7 @@ class DatabasesEndpoint(Endpoint):
         The database info will be refreshed to the latest version from the server.
         """
 
-        dbid = get_target_id(database)
+        dbid = ObjectReference[database].id
 
         logger.info("Updating database info :: %s", dbid)
 
@@ -252,9 +252,12 @@ class DatabasesEndpoint(Endpoint):
         :param target: either a string with the database ID or an ORM class
         """
 
-        logger.info("Initializing database query :: {%s}", get_target_id(target))
+        if issubclass(target, ConnectedPage):
+            dbid = target._notional__database
+        else:
+            dbid = ObjectReference[target].id
 
-        database_id = get_target_id(target)
+        logger.info("Initializing database query :: {%s}", dbid)
 
         cls = None
 
@@ -264,7 +267,7 @@ class DatabasesEndpoint(Endpoint):
             if cls._notional__session != self.session:
                 raise ValueError("ConnectedPage belongs to a different session")
 
-        return QueryBuilder(endpoint=self().query, cls=cls, database_id=database_id)
+        return QueryBuilder(endpoint=self().query, cls=cls, database_id=dbid)
 
 
 class PagesEndpoint(Endpoint):
