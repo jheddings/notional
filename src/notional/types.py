@@ -24,8 +24,11 @@ class ObjectReference(DataObject):
     def __compose__(cls, ref):
         """Compose an ObjectReference from the given reference.
 
-        `ref` may be a `UUID`, `str` or Notional object with an `id` attribute.
+        `ref` may be a `UUID`, `str`, `ParentRef` or `DataObject` with an `id` attribute.
         """
+
+        if isinstance(ref, cls):
+            return ref.copy(deep=True)
 
         if isinstance(ref, UUID):
             return ObjectReference(id=ref)
@@ -34,10 +37,13 @@ class ObjectReference(DataObject):
             # pydantic handles the conversion for us
             return ObjectReference(id=ref)
 
+        if isinstance(ref, ParentRef):
+            # ParentRef's are typed-objects with a nested UUID
+            return ObjectReference(id=ref())
+
         if isinstance(ref, DataObject) and hasattr(ref, "id"):
-            # this would typically be another Notional object, which happens
-            # to contain an `id` attribute...  we can use that for the ref
-            return ObjectReference(id=ref.id)
+            # re-compose the ObjectReference from the internal ID
+            return ObjectReference[ref.id]
 
         raise ValueError("Unrecognized 'ref' attribute")
 

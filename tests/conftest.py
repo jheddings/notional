@@ -89,13 +89,16 @@ def blank_page(notion, test_area):
     This page will be deleted during teardown.
     """
 
+    page_title = mktitle()
+
     page = notion.pages.create(
         parent=test_area,
-        title=mktitle(),
+        title=page_title,
     )
 
     assert page.id is not None
     assert page.parent == test_area
+    assert page.Title == page_title
 
     yield page
 
@@ -109,13 +112,17 @@ def blank_db(notion, test_area):
     This database will be deleted during teardown.
     """
 
+    db_title = mktitle()
+
     db = notion.databases.create(
         parent=test_area,
-        title=mktitle(),
+        title=db_title,
         schema={
             "Name": schema.Title(),
         },
     )
+
+    assert db.Title == db_title
 
     yield db
 

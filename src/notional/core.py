@@ -156,6 +156,9 @@ class DataObject(BaseModel, metaclass=ComposableObject):
         # we need to convert "special" types to string forms to help the JSON encoder.
         # there are efforts underway in pydantic to make this easier, but for now...
 
+        # TODO read-only fields should not be sent to the API
+        # https://github.com/jheddings/notional/issues/9
+
         return make_api_safe(data)
 
 

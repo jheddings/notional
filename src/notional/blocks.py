@@ -97,10 +97,11 @@ class Page(DataRecord, object="page"):
         if value is None:
             self.properties.pop(name, None)
 
-        elif not isinstance(value, PropertyValue):
-            raise ValueError(f"Unable to set {name} :: unsupported value type")
+        elif isinstance(value, PropertyValue):
+            self.properties[name] = value
 
-        self.properties[name] = value
+        else:
+            raise ValueError(f"Unable to set {name} :: unsupported value type")
 
     @property
     def Title(self):
@@ -110,12 +111,15 @@ class Page(DataRecord, object="page"):
         page properties, looking for the appropriate `title` entry and return as a
         string.
         """
-        if self.properties is None or len(self.properties) == 0:
+        if self.properties is None:
             return None
+
+        # the 'title' property may (or may not) be indexed by name...  especially in the case of
+        # database pages.  the only reliable way to find the title is by scanning each property.
 
         for prop in self.properties.values():
             if prop.id == "title":
-                return prop.Value or None
+                return prop.Value
 
         return None
 

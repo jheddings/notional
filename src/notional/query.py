@@ -3,7 +3,6 @@
 import logging
 from datetime import date, datetime
 from enum import Enum
-from inspect import isclass
 from typing import Any, List, Optional, Union
 from uuid import UUID
 
@@ -12,32 +11,9 @@ from pydantic import Field, validator
 
 from .blocks import Block, Database, DataRecord, Page
 from .core import DataObject
-from .iterator import EndpointIterator
-from .orm import ConnectedPage
-from .types import ParentRef
+from .iterator import ContentIterator, EndpointIterator
 
 logger = logging.getLogger(__name__)
-
-
-def get_target_id(target):
-    """Examine the given target and returns the appropriate ID as a string."""
-
-    if isinstance(target, str):
-        return target
-
-    if isinstance(target, UUID):
-        return target.hex
-
-    if isinstance(target, DataRecord):
-        return target.id.hex
-
-    if isinstance(target, ParentRef):
-        return target().hex
-
-    if isclass(target) and issubclass(target, ConnectedPage):
-        return target._notional__database
-
-    raise ValueError("unsupported query target")
 
 
 class TextCondition(DataObject):
@@ -385,8 +361,11 @@ class QueryBuilder:
 class ResultSet:
     """A result for a specific query."""
 
-    def __init__(self, exec, cls=None):
-        """Initialize a new `ResultSet`."""
+    def __init__(self, exec: ContentIterator, cls=None):
+        """Initialize a new `ResultSet` from the given iterable.
+
+        If `cls` is provided, it will be used to parse objects in the sequence.
+        """
         self.source = exec
         self.cls = cls
 

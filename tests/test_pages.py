@@ -77,13 +77,16 @@ def test_create_simple_page(notion, test_area):
         blocks.Paragraph["There is no spoon..."],
     ]
 
+    title = mktitle()
+
     page = notion.pages.create(
         parent=test_area,
-        title=mktitle(),
+        title=title,
         children=children,
     )
 
     confirm_blocks(notion, page, *children)
+    assert page.Title == title
 
     notion.pages.delete(page)
 

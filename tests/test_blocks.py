@@ -78,10 +78,12 @@ def test_delete_block(notion, test_area):
     block = blocks.Code["test_delete_block"]
 
     notion.blocks.children.append(test_area, block)
-    notion.blocks.delete(block)
+    block = notion.blocks.delete(block)
 
     deleted = notion.blocks.retrieve(block.id)
+
     assert deleted.archived is True
+    assert deleted == block
 
 
 @pytest.mark.vcr()
@@ -90,8 +92,11 @@ def test_restore_block(notion, test_area):
     block = blocks.Callout["Reappearing blocks!"]
 
     notion.blocks.children.append(test_area, block)
-    notion.blocks.delete(block)
-    notion.blocks.restore(block)
+    deleted = notion.blocks.delete(block)
+    assert deleted.archived is True
+
+    # restore and capture the target block
+    block = notion.blocks.restore(block)
 
     # get the new restored back from the API
     restored = notion.blocks.retrieve(block.id)
