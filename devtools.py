@@ -160,10 +160,11 @@ def cleanup(clobber):
     rmdir(f"{BASEDIR}/build")
     rmdir(f"{BASEDIR}/notional.egg-info")
 
-    # rm -f "$(BASEDIR)/.coverage"
+    os.remove(f"{BASEDIR}/.coverage")
 
     if clobber:
         exec(["pre-commit", "uninstall"])
+
         rmdir(f"{BASEDIR}/dist")
         rmdir(f"{BASEDIR}/site")
         rmdir(f"{BASEDIR}/htmlcov")
