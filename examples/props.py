@@ -29,14 +29,16 @@ notion = notional.connect(auth=auth_token)
 page = notion.pages.retrieve(page_id)
 print(f"{page.Title} => {page.url}")
 
+prop_id = "%3AT%3Cz"
+prop = notion.pages.properties.retrieve(page_id, prop_id)
+
 # print all current properties on the page...
-for name, stub in page.properties.items():
-    prop_id = stub.id
+for name, value in page.properties.items():
 
-    # use the endpoitn to retrive the full property data
-    prop = notion.pages.properties.retrieve(page_id, prop_id)
+    # use the endpoint to retrive the full property data
+    prop = notion.pages.properties.retrieve(page_id, value.id)
 
-    print(f"{name} => {prop}")
+    print(f"{name} [{prop.id}] => {prop.type}")
 
 # update a property on the page...
 page["Complete"] = types.Checkbox[True]

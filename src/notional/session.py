@@ -14,7 +14,14 @@ from .orm import ConnectedPage
 from .query import QueryBuilder, ResultSet
 from .schema import PropertyObject
 from .text import TextObject
-from .types import DatabaseRef, ObjectReference, PageRef, ParentRef, PropertyItem, Title
+from .types import (
+    DatabaseRef,
+    ObjectReference,
+    PageRef,
+    ParentRef,
+    PropertyValue,
+    Title,
+)
 from .user import User
 
 logger = logging.getLogger(__name__)
@@ -67,7 +74,7 @@ class Session(object):
         self.client.close()
         self.client = None
 
-    def ping(self) -> bool:
+    def ping(self):
         """Confirm that the session is active and able to connect to Notion.
 
         Raises SessionError if there is a problem, otherwise returns True.
@@ -385,11 +392,11 @@ class PagesEndpoint(Endpoint):
         def retrieve(self, page_id, property_id):
             """Return the Property on a specific page Page with the given ID."""
 
-            logger.info("Retrieving property :: %s [%s]", page_id, property_id)
+            logger.info("Retrieving property :: %s [%s]", property_id, page_id)
 
             data = self().retrieve(page_id, property_id)
 
-            return PropertyItem.parse_obj(data)
+            return PropertyValue.parse_obj(data)
 
     def __init__(self, *args, **kwargs):
         """Initialize the `pages` endpoint for the Notion API."""

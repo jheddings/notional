@@ -6,10 +6,10 @@ used in the Notion API as well as higher-level methods.
 
 from abc import ABC, abstractmethod
 from datetime import date, datetime
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 from uuid import UUID
 
-from .core import DataObject, NamedObject, TypedObject
+from .core import DataObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
 from .user import User
@@ -1102,14 +1102,17 @@ class LastEditedBy(PropertyValue, type="last_edited_by"):
 
 
 # https://developers.notion.com/reference/property-item-object
-class PropertyItem(NamedObject, object="property_item"):
-    """A PropertyItem returned by the Notion API."""
+class PropertyItemList(PropertyValue, type="property_item"):
+    """A list of `PropertyItem`'s returned by the Notion API."""
 
     class _NestedData(DataObject):
         id: str = None
         type: str = None
         next_url: Optional[str] = None
 
-    results: List[PropertyValue] = []
+    # XXX this should be a List[PropertyValue] but the schema for paginated
+    # PropertyItems is different than their corresponding PropertyValue
+    results: List[Any] = []
+
     next_cursor: Optional[str] = None
     property_item: _NestedData = _NestedData()
