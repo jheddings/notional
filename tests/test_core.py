@@ -28,7 +28,7 @@ ALICE = {"object": "person", "name": "Alice the Person"}
 
 BOB = {"object": "person", "name": "Bob the Person", "pets": [TIGER, FLUFFY]}
 
-STAN = {"name": "Stanley"}
+STAN = {"object": "robot", "name": "Stanley"}
 
 
 class Actor(NamedObject):
@@ -99,24 +99,28 @@ class ComplexDataObject(TypedObject, type="detail"):
     custom: CustomTypes = None
 
 
-def test_parse_basic_object():
-    """Parse DataObject's from structured data to simulate the Notion API."""
-    person = Person.parse_obj(ALICE)
-    assert person.name == "Alice the Person"
-    assert person.pets is None
-
-
 def test_parse_named_object():
-    """Parse NamedObject's from structured data to simulate the Notion API."""
-    stan = Person.parse_obj(STAN)
+    """Parse NamedObject's from structured data."""
+
+    stan = Person.parse_obj(BOB)
     assert stan.object == "person"
 
     stan = Robot.parse_obj(STAN)
     assert stan.object == "robot"
 
 
+def test_invalid_named_object():
+    """Make sure that parsing the wrong objects raise an error."""
+
+    with pytest.raises(ValueError):
+        Robot.parse_obj(BOB)
+
+    with pytest.raises(ValueError):
+        Person.parse_obj(STAN)
+
+
 def test_parse_typed_data_object():
-    """Parse TypedObject's from structured data to simulate the Notion API."""
+    """Parse TypedObject's from structured data."""
 
     tiger = Animal.parse_obj(TIGER)
     assert type(tiger) == Cat

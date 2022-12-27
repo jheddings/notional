@@ -6,7 +6,7 @@ from datetime import date, datetime
 from enum import Enum
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from pydantic.main import ModelMetaclass, validate_model
 
 logger = logging.getLogger(__name__)
@@ -173,6 +173,15 @@ class NamedObject(DataObject):
 
         if object is not None:
             cls._modify_field_("object", default=object)
+
+    @validator("object")
+    def _verify_object_name(cls, val):
+        """Make sure that the deserialzied object matches the name in this class."""
+
+        if val != cls.object:
+            raise ValueError(f"Invalid object for '{cls.object}' - {val}")
+
+        return val
 
 
 class TypedObject(DataObject):
