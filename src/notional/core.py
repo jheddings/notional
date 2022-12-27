@@ -221,10 +221,6 @@ class TypedObject(DataObject):
         # but point to a different object (e.g. the 'date' type may have
         # different implementations depending where it is used in the API)
 
-        # also, due to the order in which typed classes are defined, once
-        # the map is defined for a subclass of TypedObject, any further
-        # descendants of that class will have the new map via inheritance
-
         if TypedObject in cls.__bases__ and not hasattr(cls, "__notional_typemap__"):
             cls.__notional_typemap__ = {}
 
