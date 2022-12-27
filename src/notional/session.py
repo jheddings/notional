@@ -469,16 +469,19 @@ class PagesEndpoint(Endpoint):
 
         data = self().retrieve(page_id)
 
+        # XXX would it make sense to expand the full properties here?
+        # e.g. call the PropertiesEndpoint to make sure all data is retrieved
+
         return Page.parse_obj(data)
 
     # https://developers.notion.com/reference/patch-page
     def update(self, page: Page, **properties):
         """Update the Page object properties on the server.
 
-        If `properties` are provided, only those values will be updated.  If
-        `properties` is empty, all page properties will be updated.
+        An optional `properties` may be specified as `"name"`: `PropertyValue` pairs.
 
-        `properties` are specified as `"name"`: `PropertyValue` pairs.
+        If `properties` are provided, only those values will be updated.
+        If `properties` is empty, all page properties will be updated.
 
         The page info will be refreshed to the latest version from the server.
         """
