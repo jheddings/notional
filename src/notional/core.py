@@ -174,7 +174,7 @@ class NamedObject(DataObject):
         if object is not None:
             cls._modify_field_("object", default=object)
 
-    @validator("object")
+    @validator("object", always=True, pre=False)
     def _verify_object_name(cls, val):
         """Make sure that the deserialzied object matches the name in this class."""
 
