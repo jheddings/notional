@@ -1102,8 +1102,19 @@ class LastEditedBy(PropertyValue, type="last_edited_by"):
 
 
 # https://developers.notion.com/reference/property-item-object
-class PropertyItemList(PropertyValue, type="property_item"):
-    """A list of `PropertyItem`'s returned by the Notion API."""
+class PropertyItem(TypedObject):
+    """A `PropertyItem` returned by the Notion API.
+
+    Many property items can be parsed as their corresponding `PropertyValue` types.  As a result,
+    we defer to those types whenever possible.
+    """
+
+    object: str
+    id: Optional[str] = None
+
+
+class PropertyItemList(PropertyItem, type="property_item"):
+    """A paginated list of `PropertyItem`'s returned by the Notion API."""
 
     class _NestedData(DataObject):
         id: str = None

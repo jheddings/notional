@@ -2,11 +2,12 @@
 
 import logging
 from inspect import isclass
-from typing import Dict
+from typing import Dict, Union
 
 import notion_client
 from httpx import ConnectError
 from notion_client.errors import APIResponseError
+from pydantic import parse_obj_as
 
 from .blocks import Block, Database, Page
 from .iterator import EndpointIterator
@@ -19,6 +20,7 @@ from .types import (
     ObjectReference,
     PageRef,
     ParentRef,
+    PropertyItem,
     PropertyValue,
     Title,
 )
@@ -394,9 +396,11 @@ class PagesEndpoint(Endpoint):
 
             logger.info("Retrieving property :: %s [%s]", property_id, page_id)
 
+            # TODO (optionally) unwrap paginated property_item's
+
             data = self().retrieve(page_id, property_id)
 
-            return PropertyValue.parse_obj(data)
+            return parse_obj_as(Union[PropertyValue, PropertyItem], obj=data)
 
     def __init__(self, *args, **kwargs):
         """Initialize the `pages` endpoint for the Notion API."""
@@ -469,7 +473,7 @@ class PagesEndpoint(Endpoint):
 
         data = self().retrieve(page_id)
 
-        # XXX would it make sense to expand the full properties here?
+        # XXX would it make sense to (optionally) expand the full properties here?
         # e.g. call the PropertiesEndpoint to make sure all data is retrieved
 
         return Page.parse_obj(data)
