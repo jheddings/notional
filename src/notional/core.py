@@ -81,14 +81,12 @@ class ComposableObject(ModelMetaclass):
         if not hasattr(self, "__compose__"):
             raise NotImplementedError(f"{self} does not support object composition")
 
-        # XXX if params is empty / None, consider calling the default constructor
-
-        compose = self.__compose__
+        compose_func = self.__compose__
 
         if type(params) is tuple:
-            return compose(*params)
+            return compose_func(*params)
 
-        return compose(params)
+        return compose_func(params)
 
 
 class DataObject(BaseModel, metaclass=ComposableObject):
@@ -213,18 +211,11 @@ class TypedObject(DataObject):
         """Register the subtypes of the TypedObject subclass."""
         super().__init_subclass__(**kwargs)
 
-        if type is not None:
-            sub_type = type
-
-        elif hasattr(cls, "__type__"):
-            sub_type = cls.__type__
-
-        else:
-            sub_type = cls.__name__
+        sub_type = cls.__name__ if type is None else type
 
         cls._modify_field_("type", default=sub_type)
 
-        # initialize a __typemap__ map for each direct child of TypedObject
+        # initialize a __notional_typemap__ map for each direct child of TypedObject
 
         # this allows different class trees to have the same 'type' name
         # but point to a different object (e.g. the 'date' type may have
@@ -234,15 +225,15 @@ class TypedObject(DataObject):
         # the map is defined for a subclass of TypedObject, any further
         # descendants of that class will have the new map via inheritance
 
-        if TypedObject in cls.__bases__ and not hasattr(cls, "__typemap__"):
-            cls.__typemap__ = {}
+        if TypedObject in cls.__bases__ and not hasattr(cls, "__notional_typemap__"):
+            cls.__notional_typemap__ = {}
 
-        if sub_type in cls.__typemap__:
+        if sub_type in cls.__notional_typemap__:
             raise ValueError(f"Duplicate subtype for class - {sub_type} :: {cls}")
 
         logger.debug("registered new subtype: %s => %s", sub_type, cls)
 
-        cls.__typemap__[sub_type] = cls
+        cls.__notional_typemap__[sub_type] = cls
 
     def __call__(self, field=None):
         """Return nested data from this Block.
@@ -291,10 +282,12 @@ class TypedObject(DataObject):
         if data_type is None:
             raise ValueError("Missing 'type' in TypedObject")
 
-        if not hasattr(cls, "__typemap__"):
-            raise TypeError(f"Invalid TypedObject: {cls} - missing __typemap__")
+        if not hasattr(cls, "__notional_typemap__"):
+            raise TypeError(
+                f"Invalid TypedObject: {cls} - missing __notional_typemap__"
+            )
 
-        sub = cls.__typemap__.get(data_type)
+        sub = cls.__notional_typemap__.get(data_type)
 
         if sub is None:
             raise TypeError(f"Unsupported sub-type: {data_type}")
