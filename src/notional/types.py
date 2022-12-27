@@ -1121,8 +1121,9 @@ class PropertyItemList(PropertyItem, type="property_item"):
         type: str = None
         next_url: Optional[str] = None
 
-    # XXX this should be a List[PropertyValue] but the schema for paginated
-    # PropertyItems is different than their corresponding PropertyValue
+    # XXX this would be a List[PropertyValue] type, but the schema for paginated PropertyItems is
+    # different than their corresponding PropertyValue; e.g. rich_text page properties contain a list
+    # list of RichTextObjet's, however property items have a single object - looking to improve
     results: List[Any] = []
 
     next_cursor: Optional[str] = None
