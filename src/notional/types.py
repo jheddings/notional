@@ -944,15 +944,9 @@ class Relation(PropertyValue, type="relation"):
     has_more: bool = False
 
     @classmethod
-    def __compose__(cls, pages):
+    def __compose__(cls, *pages):
         """Return a `Relation` property with the specified pages."""
-
-        if isinstance(pages, list):
-            refs = [ObjectReference[page] for page in pages]
-        else:
-            refs = [ObjectReference[pages]]
-
-        return cls(relation=refs)
+        return cls(relation=[ObjectReference[page] for page in pages])
 
     def __contains__(self, page):
         """Determine if the given page is in this Relation."""

@@ -217,12 +217,10 @@ class SinglePropertyRelation(PropertyRelation, type="single_property"):
     def __compose__(cls, dbref):
         """Create a `single_property` relation using the target database reference.
 
-        `dbref` can be either a string, UUID, or database.
+        `dbref` must be either a string or UUID.
         """
 
-        dbid = None
-
-        return Relation(relation=SinglePropertyRelation(database_id=dbid))
+        return Relation(relation=SinglePropertyRelation(database_id=dbref))
 
 
 class DualPropertyRelation(PropertyRelation, type="dual_property"):

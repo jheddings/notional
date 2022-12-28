@@ -44,7 +44,7 @@ parts_db = notion.databases.create(
 
 product_schema = {
     "Name": schema.Title(),
-    "Parts": schema.Relation[parts_db.id],
+    "Parts": schema.SinglePropertyRelation[parts_db.id],
     "COGS": schema.Rollup(
         rollup=schema.Rollup._NestedData(
             relation_property_name="Parts",
@@ -93,13 +93,13 @@ quasipaddle = Part.create(
 
 capsule = Product.create(
     Name="Evacuation Capsule",
-    Parts=types.Relation[[x_throstle, quasipaddle]],
+    Parts=types.Relation[x_throstle.id, quasipaddle.id],
     Quantity=3,
 )
 
 rocket = Product.create(
     Name="Rocket Ship",
-    Parts=types.Relation[[x_throstle, depthgrater, quasipaddle]],
+    Parts=types.Relation[x_throstle.id, quasipaddle.id, depthgrater.id],
     Quantity=1,
 )
 
