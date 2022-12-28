@@ -6,10 +6,10 @@ used in the Notion API as well as higher-level methods.
 
 from abc import ABC, abstractmethod
 from datetime import date, datetime
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 from uuid import UUID
 
-from .core import DataObject, TypedObject
+from .core import DataObject, NamedObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
 from .user import User
@@ -24,7 +24,7 @@ class ObjectReference(DataObject):
     def __compose__(cls, ref):
         """Compose an ObjectReference from the given reference.
 
-        `ref` may be a `UUID`, `str`, `ParentRef` or `DataObject` with an `id` attribute.
+        `ref` may be a `UUID`, `str`, `ParentRef` or `DataObject` with an `id`.
         """
 
         if isinstance(ref, cls):
@@ -1096,29 +1096,35 @@ class LastEditedBy(PropertyValue, type="last_edited_by"):
 
 
 # https://developers.notion.com/reference/property-item-object
-class PropertyItem(TypedObject):
+class PropertyItem(TypedObject, NamedObject):
     """A `PropertyItem` returned by the Notion API.
 
-    Many property items can be parsed as their corresponding `PropertyValue` types.  As a result,
-    we defer to those types whenever possible.
+    Property items may be either a single item value or a paginated list of items.
     """
 
-    object: str
     id: Optional[str] = None
 
 
-class PropertyItemList(PropertyItem, type="property_item"):
-    """A paginated list of `PropertyItem`'s returned by the Notion API."""
+class BasicPropertyItem(PropertyItem, object="property_item"):
+    """A single property item returned by the Notion API.
+
+    Basic property items have a similar schema to corresponding property values, with an
+    additional `object` field.
+    """
+
+
+class PropertyItemList(PropertyItem, object="list", type="property_item"):
+    """A paginated list of property items returned by the Notion API.
+
+    Property item lists contain one or more pages of basic property items.  These types
+    do not match the schema for corresponding property values.
+    """
 
     class _NestedData(DataObject):
         id: str = None
         type: str = None
         next_url: Optional[str] = None
 
-    # XXX this would be a List[PropertyValue] type, but the schema for paginated PropertyItems is
-    # different than their corresponding PropertyValue; e.g. rich_text page properties contain a list
-    # of RichTextObject's, however property items have a single object - looking to ways to improve
-    results: List[Any] = []
-
+    results: List[PropertyItem] = []
     next_cursor: Optional[str] = None
     property_item: _NestedData = _NestedData()
