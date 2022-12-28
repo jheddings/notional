@@ -396,9 +396,10 @@ class PagesEndpoint(Endpoint):
 
             logger.info("Retrieving property :: %s [%s]", property_id, page_id)
 
-            # TODO (optionally) unwrap paginated property_item's
-
             data = self().retrieve(page_id, property_id)
+
+            # many property items can be parsed as basic PropertyValue types...  try
+            # first parsing as a PropertyValue, then as a PropertyItem if needed
 
             return parse_obj_as(Union[PropertyValue, PropertyItem], obj=data)
 
