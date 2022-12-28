@@ -1123,7 +1123,7 @@ class PropertyItemList(PropertyItem, type="property_item"):
 
     # XXX this would be a List[PropertyValue] type, but the schema for paginated PropertyItems is
     # different than their corresponding PropertyValue; e.g. rich_text page properties contain a list
-    # list of RichTextObjet's, however property items have a single object - looking to improve
+    # of RichTextObject's, however property items have a single object - looking to ways to improve
     results: List[Any] = []
 
     next_cursor: Optional[str] = None

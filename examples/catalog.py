@@ -3,7 +3,7 @@
 """This script demonstrates relationships between databases in Notion.
 
 The script accepts a single command line option, which is a page ID.  It will then
-create two databases using related fields.
+create two databases using related fields and build ORM objects from the new databases.
 
 The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 """
@@ -99,7 +99,7 @@ capsule = Product.create(
 
 rocket = Product.create(
     Name="Rocket Ship",
-    Parts=types.Relation[[x_throstle, depthgrater]],
+    Parts=types.Relation[[x_throstle, depthgrater, quasipaddle]],
     Quantity=1,
 )
 
