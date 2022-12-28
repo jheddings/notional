@@ -41,7 +41,7 @@ def make_api_safe(data):
     return data
 
 
-class ComposableObject(ModelMetaclass):
+class ComposableObjectMeta(ModelMetaclass):
     """Presents a metaclass that composes objects using simple values.
 
     This is primarily to allow easy definition of data objects without disrupting the
@@ -89,7 +89,7 @@ class ComposableObject(ModelMetaclass):
         return compose_func(params)
 
 
-class DataObject(BaseModel, metaclass=ComposableObject):
+class DataObject(BaseModel, metaclass=ComposableObjectMeta):
     """The base for all API objects."""
 
     def __setattr__(self, name, value):
