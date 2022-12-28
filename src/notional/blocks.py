@@ -114,8 +114,9 @@ class Page(DataRecord, object="page"):
         if self.properties is None:
             return None
 
-        # the 'title' property may (or may not) be indexed by name...  especially in the case of
-        # database pages.  the only reliable way to find the title is by scanning each property.
+        # the 'title' property may (or may not) be indexed by name...  especially in
+        # the case of # database pages.  the only reliable way to find the title is by
+        # scanning each property.
 
         for prop in self.properties.values():
             if prop.id == "title":

@@ -63,8 +63,8 @@ def chunky(text, length=MAX_TEXT_OBJECT_SIZE):
 def text_blocks(text: str):
     """Convert the given plain text into an array of TextObject's.
 
-    If the test is larger than the maximum block size for the Notion API, it will be broken
-    into multiple blocks.
+    If the test is larger than the maximum block size for the Notion API, it will be
+    broken into multiple blocks.
     """
     return [TextObject[chunk] for chunk in chunky(text)]
 
