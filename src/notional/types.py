@@ -1110,6 +1110,10 @@ class BasicPropertyItem(PropertyItem, object="property_item"):
 
     Basic property items have a similar schema to corresponding property values, with an
     additional `object` field.
+
+    Currently, basic property items are converted directly to a corresponding property
+    value when retrieved from the properties endpoint.  This class is provided as a
+    placeholder for future use.
     """
 
 
