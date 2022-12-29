@@ -1,7 +1,7 @@
 """Consistent version information for notional."""
 
 import logging
-import os
+from pathlib import Path
 
 import pkg_resources
 
@@ -18,10 +18,12 @@ try:
 
     import git
 
+    # the folder containing Notional source
+    _srcdir = Path(__file__).parent.resolve()
+
     # XXX there is probably a better way to do this, but we don't want to inadvertently
     # pick up another repo (e.g. if we are installed in a .venv of another project)
-    _srcdir = os.path.dirname(os.path.abspath(__file__))
-    _basedir = os.path.abspath(os.path.join(_srcdir, "..", ".."))
+    _basedir = _srcdir.parent.parent
 
     try:
         _repo = git.Repo(_basedir)
