@@ -164,6 +164,19 @@ def test_parse_typed_data_object():
         assert pet in [fluffy, tiger]
 
 
+def test_mixing_object_types():
+    """Make sure that parsing the wrong objects returns the correct type."""
+
+    # because subclasses of a type tree share the typemap, trying to
+    # parse as the "wrong" class should return the correct class instead
+
+    fluffy = Cat.parse_obj(FLUFFY)
+    assert isinstance(fluffy, Dog)
+
+    tiger = Dog.parse_obj(TIGER)
+    assert isinstance(tiger, Cat)
+
+
 def test_set_default_type_for_new_objects():
     """Verify that "type" is set when creating new TypedObject's."""
     bruce = Dog(name="bruce", age=3, breed="collie")

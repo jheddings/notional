@@ -88,7 +88,11 @@ class ComposableObjectMeta(ModelMetaclass):
 
 
 class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
-    """The base for all API objects."""
+    """The base for all API objects.
+
+    As a general convention, data fields in lower case are defined by the
+    Notion API.  Properties in Title Case are provided for convenience.
+    """
 
     def __setattr__(self, name, value):
         """Set the attribute of this object to a given value.
@@ -176,7 +180,7 @@ class NotionObject(GenericObject):
             cls._set_field_default("object", default=object)
 
     @validator("object", always=True, pre=False)
-    def _verify_object_name(cls, val):
+    def _verify_object_matches_expected(cls, val):
         """Make sure that the deserialzied object matches the name in this class."""
 
         if val != cls.object:
