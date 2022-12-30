@@ -235,9 +235,9 @@ class TypedObject(GenericObject):
         cls.__notional_typemap__[sub_type] = cls
 
     def __call__(self, field=None):
-        """Return nested data from this Block.
+        """Return the nested data object contained by this `TypedObject`.
 
-        If a field is provided, the contents of that field in the NestedData will be
+        If a field is provided, the contents of that field in the nested data will be
         returned.  Otherwise, the full contents of the NestedData will be returned.
         """
 
