@@ -9,13 +9,13 @@ from datetime import date, datetime
 from typing import List, Optional, Union
 from uuid import UUID
 
-from .core import DataObject, NamedObject, TypedObject
+from .core import GenericObject, NotionObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
 from .user import User
 
 
-class ObjectReference(DataObject):
+class ObjectReference(GenericObject):
     """A general-purpose object reference in the Notion API."""
 
     id: UUID
@@ -24,7 +24,7 @@ class ObjectReference(DataObject):
     def __compose__(cls, ref):
         """Compose an ObjectReference from the given reference.
 
-        `ref` may be a `UUID`, `str`, `ParentRef` or `DataObject` with an `id`.
+        `ref` may be a `UUID`, `str`, `ParentRef` or `GenericObject` with an `id`.
         """
 
         if isinstance(ref, cls):
@@ -41,7 +41,7 @@ class ObjectReference(DataObject):
             # ParentRef's are typed-objects with a nested UUID
             return ObjectReference(id=ref())
 
-        if isinstance(ref, DataObject) and hasattr(ref, "id"):
+        if isinstance(ref, GenericObject) and hasattr(ref, "id"):
             # re-compose the ObjectReference from the internal ID
             return ObjectReference[ref.id]
 
@@ -107,6 +107,14 @@ class WorkspaceRef(ParentRef, type="workspace"):
     workspace: bool = True
 
 
+class ObjectList(NotionObject, TypedObject, object="list"):
+    """A paginated list of objects returned by the Notion API."""
+
+    results: List[GenericObject] = []
+    has_more: bool = False
+    next_cursor: Optional[str] = None
+
+
 class EmojiObject(TypedObject, type="emoji"):
     """A Notion emoji object."""
 
@@ -141,7 +149,7 @@ class FileObject(TypedObject):
 class HostedFile(FileObject, type="file"):
     """A Notion file object."""
 
-    class _NestedData(DataObject):
+    class _NestedData(GenericObject):
         url: str
         expiry_time: Optional[datetime] = None
 
@@ -151,7 +159,7 @@ class HostedFile(FileObject, type="file"):
 class ExternalFile(FileObject, type="external"):
     """An external file object."""
 
-    class _NestedData(DataObject):
+    class _NestedData(GenericObject):
         url: str
 
     external: _NestedData
@@ -171,7 +179,7 @@ class ExternalFile(FileObject, type="external"):
         return cls(name=name, external=cls._NestedData(url=url))
 
 
-class DateRange(DataObject):
+class DateRange(GenericObject):
     """A Notion date range, with an optional end date."""
 
     start: Union[date, datetime]
@@ -256,7 +264,7 @@ class MentionLinkPreview(MentionData, type="link_preview"):
     These objects cannot be created via the API.
     """
 
-    class _NestedData(DataObject):
+    class _NestedData(GenericObject):
         url: str
 
     link_preview: _NestedData
@@ -293,7 +301,7 @@ class MentionObject(RichTextObject, type="mention"):
 class EquationObject(RichTextObject, type="equation"):
     """Notion equation element."""
 
-    class _NestedData(DataObject):
+    class _NestedData(GenericObject):
         expression: str
 
     equation: _NestedData
@@ -493,7 +501,7 @@ class Date(PropertyValue, type="date"):
 class Status(NativeTypeMixin, PropertyValue, type="status"):
     """Notion status property."""
 
-    class _NestedData(DataObject):
+    class _NestedData(GenericObject):
         name: str = None
         id: Optional[Union[UUID, str]] = None
         color: Optional[Color] = None
@@ -538,7 +546,7 @@ class Status(NativeTypeMixin, PropertyValue, type="status"):
         return self.status.name
 
 
-class SelectValue(DataObject):
+class SelectValue(GenericObject):
     """Values for select & multi-select properties."""
 
     name: str
@@ -1096,39 +1104,27 @@ class LastEditedBy(PropertyValue, type="last_edited_by"):
 
 
 # https://developers.notion.com/reference/property-item-object
-class PropertyItem(TypedObject, NamedObject):
+class PropertyItem(PropertyValue, NotionObject, object="property_item"):
     """A `PropertyItem` returned by the Notion API.
 
-    Property items may be either a single item value or a paginated list of items.
-    """
+    Basic property items have a similar schema to corresponding property values.  As a
+    result, these items share the `PropertyValue` type definitions.
 
-    id: Optional[str] = None
-
-
-class BasicPropertyItem(PropertyItem, object="property_item"):
-    """A single property item returned by the Notion API.
-
-    Basic property items have a similar schema to corresponding property values, with an
-    additional `object` field.
-
-    Currently, basic property items are converted directly to a corresponding property
-    value when retrieved from the properties endpoint.  This class is provided as a
-    placeholder for future use.
+    This class provides a placeholder for parsing property items, however objects
+    parse by this class will likely be `PropertyValue`'s instead.
     """
 
 
-class PropertyItemList(PropertyItem, object="list", type="property_item"):
+class PropertyItemList(ObjectList, type="property_item"):
     """A paginated list of property items returned by the Notion API.
 
     Property item lists contain one or more pages of basic property items.  These types
-    do not match the schema for corresponding property values.
+    do not typically match the schema for corresponding property values.
     """
 
-    class _NestedData(DataObject):
+    class _NestedData(GenericObject):
         id: str = None
         type: str = None
         next_url: Optional[str] = None
 
-    results: List[PropertyItem] = []
-    next_cursor: Optional[str] = None
     property_item: _NestedData = _NestedData()

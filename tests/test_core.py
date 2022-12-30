@@ -6,7 +6,7 @@ from typing import List
 
 import pytest
 
-from notional.core import DataObject, NamedObject, TypedObject
+from notional.core import GenericObject, NotionObject, TypedObject
 
 # keep logging output to a minimum for testing
 logging.basicConfig(level=logging.INFO)
@@ -24,14 +24,27 @@ FLUFFY = {
 
 ACE = {"type": "eagle", "age": 245, "color": "gray", "species": "bald"}
 
-ALICE = {"object": "person", "name": "Alice the Person"}
+ALICE = {
+    "id": "5e3204b7-f2d8-496c-876f-7db2d16e5805",
+    "object": "person",
+    "name": "Alice the Person",
+}
 
-BOB = {"object": "person", "name": "Bob the Person", "pets": [TIGER, FLUFFY]}
+BOB = {
+    "id": "e9de0b88-5ace-47e9-b569-1a8b01569e21",
+    "object": "person",
+    "name": "Bob the Person",
+    "pets": [TIGER, FLUFFY],
+}
 
-STAN = {"object": "robot", "name": "Stanley"}
+STAN = {
+    "id": "1e0042be-9407-4064-9bea-ecdcf6c2d78b",
+    "object": "robot",
+    "name": "Stanley",
+}
 
 
-class Actor(NamedObject):
+class Actor(NotionObject):
     """A structured Actor class for testing."""
 
     name: str
@@ -86,10 +99,10 @@ class CustomTypes(str, Enum):
     TYPE_THREE = "three"
 
 
-class ComplexDataObject(TypedObject, type="detail"):
+class ComplexGenericObject(TypedObject, type="detail"):
     """A complex object (with nested data) used for testing only."""
 
-    class _NestedData(DataObject):
+    class _NestedData(GenericObject):
         key: str = None
         value: str = None
 
@@ -100,7 +113,7 @@ class ComplexDataObject(TypedObject, type="detail"):
 
 
 def test_parse_named_object():
-    """Parse NamedObject's from structured data."""
+    """Parse obects from structured data."""
 
     stan = Person.parse_obj(BOB)
     assert stan.object == "person"
@@ -159,8 +172,8 @@ def test_set_default_type_for_new_objects():
 
 def test_standard_nested_object():
     """Create a nested object and check fields for proper values."""
-    detail = ComplexDataObject._NestedData(key="foo", value="bar")
-    complex = ComplexDataObject(id="complex", detail=detail)
+    detail = ComplexGenericObject._NestedData(key="foo", value="bar")
+    complex = ComplexGenericObject(id="complex", detail=detail)
 
     assert complex.id == "complex"
     assert complex.detail.key == "foo"
@@ -169,7 +182,7 @@ def test_standard_nested_object():
 
 def test_invalid_nested_field_call():
     """Check for errors when we call for an invalid nested field."""
-    complex = ComplexDataObject(id="complex")
+    complex = ComplexGenericObject(id="complex")
 
     with pytest.raises(AttributeError):
         complex("does_not_exist")
@@ -177,7 +190,7 @@ def test_invalid_nested_field_call():
 
 def test_get_nested_data():
     """Call a block to return the nested data."""
-    complex = ComplexDataObject(id="complex")
+    complex = ComplexGenericObject(id="complex")
 
     assert complex("value") is None
 

@@ -4,7 +4,7 @@ import pytest
 
 from notional import query
 
-from .mocks import MockDataObject, mock_endpoint
+from .mocks import MockGenericObject, mock_endpoint
 
 # NOTE these tests help to debug issues in the query builder, however they do not
 # perform an actual query.  the intent of these objects is to represent the API
@@ -24,7 +24,7 @@ def test_basic_number_constraint():
     mock = mock_endpoint(1000, 100)
 
     qb = (
-        query.QueryBuilder(mock, cls=MockDataObject)
+        query.QueryBuilder(mock, cls=MockGenericObject)
         .filter(property="index", number=query.NumberCondition(equals=42))
         .limit(1)
     )
@@ -37,7 +37,7 @@ def test_number_range_constraint():
     mock = mock_endpoint(1000, 23)
 
     qb = (
-        query.QueryBuilder(mock, cls=MockDataObject)
+        query.QueryBuilder(mock, cls=MockGenericObject)
         .filter(
             property="index",
             number=query.NumberCondition(greater_than=25),

@@ -4,6 +4,7 @@ import inspect
 import logging
 from datetime import date, datetime
 from enum import Enum
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, validator
@@ -89,7 +90,7 @@ class ComposableObjectMeta(ModelMetaclass):
         return compose_func(params)
 
 
-class DataObject(BaseModel, metaclass=ComposableObjectMeta):
+class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
     """The base for all API objects."""
 
     def __setattr__(self, name, value):
@@ -118,7 +119,7 @@ class DataObject(BaseModel, metaclass=ComposableObjectMeta):
         """Modify the `BaseModel` field information for a specific class instance.
 
         This is necessary in particular for subclasses that change the default values
-        of a model when defined.  Notable examples are `TypedObject` and `NamedObject`.
+        of a model when defined.  Notable examples are `TypedObject` and `NotionObject`.
 
         :param name: the named attribute in the class
         :param default: the new default for the named field
@@ -160,13 +161,14 @@ class DataObject(BaseModel, metaclass=ComposableObjectMeta):
         return make_api_safe(data)
 
 
-class NamedObject(DataObject):
-    """A Notion API object."""
+class NotionObject(GenericObject):
+    """A top-level Notion API resource."""
 
     object: str
+    id: Optional[UUID] = None
 
     def __init_subclass__(cls, object=None, **kwargs):
-        """Update `DataObject` defaults for the named object."""
+        """Update `GenericObject` defaults for the named object."""
         super().__init_subclass__(**kwargs)
 
         if object is not None:
@@ -182,7 +184,7 @@ class NamedObject(DataObject):
         return val
 
 
-class TypedObject(DataObject):
+class TypedObject(GenericObject):
     """A type-referenced object.
 
     Many objects in the Notion API follow a standard pattern with a 'type' property

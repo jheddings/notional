@@ -21,7 +21,7 @@ from .types import (
     PageRef,
     ParentRef,
     PropertyItem,
-    PropertyValue,
+    PropertyItemList,
     Title,
 )
 from .user import User
@@ -398,10 +398,7 @@ class PagesEndpoint(Endpoint):
 
             data = self().retrieve(page_id, property_id)
 
-            # many property items can be parsed as basic PropertyValue types...  try
-            # first parsing as a PropertyValue, then as a PropertyItem if needed
-
-            return parse_obj_as(Union[PropertyValue, PropertyItem], obj=data)
+            return parse_obj_as(Union[PropertyItem, PropertyItemList], obj=data)
 
     def __init__(self, *args, **kwargs):
         """Initialize the `pages` endpoint for the Notion API."""
