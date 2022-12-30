@@ -9,6 +9,8 @@ from datetime import date, datetime
 from typing import Any, List, Optional, Union
 from uuid import UUID
 
+from notion_client import helpers
+
 from .core import GenericObject, NotionObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
@@ -46,6 +48,15 @@ class ObjectReference(GenericObject):
             return ObjectReference[ref.id]
 
         raise ValueError("Unrecognized 'ref' attribute")
+
+    @property
+    def URL(self):
+        """Return the Notion URL for this object reference.
+
+        Note: this is a convenience property only.  It does not guarantee that the
+        URL exists or that it is accessible by the integration.
+        """
+        return helpers.get_url(self.id)
 
 
 # https://developers.notion.com/reference/parent-object
