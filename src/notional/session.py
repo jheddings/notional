@@ -2,11 +2,12 @@
 
 import logging
 from inspect import isclass
-from typing import Dict
+from typing import Dict, Union
 
 import notion_client
 from httpx import ConnectError
 from notion_client.errors import APIResponseError
+from pydantic import parse_obj_as
 
 from .blocks import Block, Database, Page
 from .iterator import EndpointIterator
@@ -14,7 +15,15 @@ from .orm import ConnectedPage
 from .query import QueryBuilder, ResultSet
 from .schema import PropertyObject
 from .text import TextObject
-from .types import DatabaseRef, ObjectReference, PageRef, ParentRef, Title
+from .types import (
+    DatabaseRef,
+    ObjectReference,
+    PageRef,
+    ParentRef,
+    PropertyItem,
+    PropertyItemList,
+    Title,
+)
 from .user import User
 
 logger = logging.getLogger(__name__)
@@ -67,7 +76,7 @@ class Session(object):
         self.client.close()
         self.client = None
 
-    def ping(self) -> bool:
+    def ping(self):
         """Confirm that the session is active and able to connect to Notion.
 
         Raises SessionError if there is a problem, otherwise returns True.
@@ -374,6 +383,29 @@ class DatabasesEndpoint(Endpoint):
 class PagesEndpoint(Endpoint):
     """Notional interface to the API 'pages' endpoint."""
 
+    class PropertiesEndpoint(Endpoint):
+        """Notional interface to the API 'pages/properties' endpoint."""
+
+        def __call__(self):
+            """Return the underlying endpoint in the Notion SDK."""
+            return self.session.client.pages.properties
+
+        # https://developers.notion.com/reference/retrieve-a-page-property
+        def retrieve(self, page_id, property_id):
+            """Return the Property on a specific page Page with the given ID."""
+
+            logger.info("Retrieving property :: %s [%s]", property_id, page_id)
+
+            data = self().retrieve(page_id, property_id)
+
+            return parse_obj_as(Union[PropertyItem, PropertyItemList], obj=data)
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the `pages` endpoint for the Notion API."""
+        super().__init__(*args, **kwargs)
+
+        self.properties = PagesEndpoint.PropertiesEndpoint(*args, **kwargs)
+
     def __call__(self):
         """Return the underlying endpoint in the Notion SDK."""
         return self.session.client.pages
@@ -439,16 +471,19 @@ class PagesEndpoint(Endpoint):
 
         data = self().retrieve(page_id)
 
+        # XXX would it make sense to (optionally) expand the full properties here?
+        # e.g. call the PropertiesEndpoint to make sure all data is retrieved
+
         return Page.parse_obj(data)
 
     # https://developers.notion.com/reference/patch-page
     def update(self, page: Page, **properties):
         """Update the Page object properties on the server.
 
-        If `properties` are provided, only those values will be updated.  If
-        `properties` is empty, all page properties will be updated.
+        An optional `properties` may be specified as `"name"`: `PropertyValue` pairs.
 
-        `properties` are specified as `"name"`: `PropertyValue` pairs.
+        If `properties` are provided, only those values will be updated.
+        If `properties` is empty, all page properties will be updated.
 
         The page info will be refreshed to the latest version from the server.
         """

@@ -2,9 +2,8 @@
 
 from enum import Enum
 from typing import Optional
-from uuid import UUID
 
-from .core import DataObject
+from .core import GenericObject, NotionObject
 
 
 class UserType(str, Enum):
@@ -14,13 +13,11 @@ class UserType(str, Enum):
     BOT = "bot"
 
 
-class User(DataObject):
+class User(NotionObject, object="user"):
     """Represents a User in Notion."""
 
     # XXX why isn't this a TypedObject ?
 
-    id: UUID
-    object: str = "user"
     type: Optional[UserType] = None
     name: Optional[str] = None
     avatar_url: Optional[str] = None
@@ -45,7 +42,7 @@ class User(DataObject):
 class Person(User):
     """Represents a Person in Notion."""
 
-    class _NestedData(DataObject):
+    class _NestedData(GenericObject):
         email: str
 
     person: _NestedData = None
@@ -58,7 +55,7 @@ class Person(User):
 class Bot(User):
     """Represents a Bot in Notion."""
 
-    class _NestedData(DataObject):
+    class _NestedData(GenericObject):
         pass
 
     bot: _NestedData = None

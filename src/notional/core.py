@@ -4,9 +4,10 @@ import inspect
 import logging
 from datetime import date, datetime
 from enum import Enum
+from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from pydantic.main import ModelMetaclass, validate_model
 
 logger = logging.getLogger(__name__)
@@ -41,7 +42,7 @@ def make_api_safe(data):
     return data
 
 
-class ComposableObject(ModelMetaclass):
+class ComposableObjectMeta(ModelMetaclass):
     """Presents a metaclass that composes objects using simple values.
 
     This is primarily to allow easy definition of data objects without disrupting the
@@ -81,17 +82,15 @@ class ComposableObject(ModelMetaclass):
         if not hasattr(self, "__compose__"):
             raise NotImplementedError(f"{self} does not support object composition")
 
-        # XXX if params is empty / None, consider calling the default constructor
-
-        compose = self.__compose__
+        compose_func = self.__compose__
 
         if type(params) is tuple:
-            return compose(*params)
+            return compose_func(*params)
 
-        return compose(params)
+        return compose_func(params)
 
 
-class DataObject(BaseModel, metaclass=ComposableObject):
+class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
     """The base for all API objects."""
 
     def __setattr__(self, name, value):
@@ -120,7 +119,7 @@ class DataObject(BaseModel, metaclass=ComposableObject):
         """Modify the `BaseModel` field information for a specific class instance.
 
         This is necessary in particular for subclasses that change the default values
-        of a model when defined.  Notable examples are `TypedObject` and `NamedObject`.
+        of a model when defined.  Notable examples are `TypedObject` and `NotionObject`.
 
         :param name: the named attribute in the class
         :param default: the new default for the named field
@@ -162,20 +161,30 @@ class DataObject(BaseModel, metaclass=ComposableObject):
         return make_api_safe(data)
 
 
-class NamedObject(DataObject):
-    """A Notion API object."""
+class NotionObject(GenericObject):
+    """A top-level Notion API resource."""
 
     object: str
+    id: Optional[UUID] = None
 
     def __init_subclass__(cls, object=None, **kwargs):
-        """Update `DataObject` defaults for the named object."""
+        """Update `GenericObject` defaults for the named object."""
         super().__init_subclass__(**kwargs)
 
         if object is not None:
             cls._modify_field_("object", default=object)
 
+    @validator("object", always=True, pre=False)
+    def _verify_object_name(cls, val):
+        """Make sure that the deserialzied object matches the name in this class."""
 
-class TypedObject(DataObject):
+        if val != cls.object:
+            raise ValueError(f"Invalid object for '{cls.object}' - {val}")
+
+        return val
+
+
+class TypedObject(GenericObject):
     """A type-referenced object.
 
     Many objects in the Notion API follow a standard pattern with a 'type' property
@@ -204,36 +213,25 @@ class TypedObject(DataObject):
         """Register the subtypes of the TypedObject subclass."""
         super().__init_subclass__(**kwargs)
 
-        if type is not None:
-            sub_type = type
-
-        elif hasattr(cls, "__type__"):
-            sub_type = cls.__type__
-
-        else:
-            sub_type = cls.__name__
+        sub_type = cls.__name__ if type is None else type
 
         cls._modify_field_("type", default=sub_type)
 
-        # initialize a __typemap__ map for each direct child of TypedObject
+        # initialize a __notional_typemap__ map for each direct child of TypedObject
 
         # this allows different class trees to have the same 'type' name
         # but point to a different object (e.g. the 'date' type may have
         # different implementations depending where it is used in the API)
 
-        # also, due to the order in which typed classes are defined, once
-        # the map is defined for a subclass of TypedObject, any further
-        # descendants of that class will have the new map via inheritance
+        if TypedObject in cls.__bases__ and not hasattr(cls, "__notional_typemap__"):
+            cls.__notional_typemap__ = {}
 
-        if TypedObject in cls.__bases__ and not hasattr(cls, "__typemap__"):
-            cls.__typemap__ = {}
-
-        if sub_type in cls.__typemap__:
+        if sub_type in cls.__notional_typemap__:
             raise ValueError(f"Duplicate subtype for class - {sub_type} :: {cls}")
 
         logger.debug("registered new subtype: %s => %s", sub_type, cls)
 
-        cls.__typemap__[sub_type] = cls
+        cls.__notional_typemap__[sub_type] = cls
 
     def __call__(self, field=None):
         """Return nested data from this Block.
@@ -282,10 +280,12 @@ class TypedObject(DataObject):
         if data_type is None:
             raise ValueError("Missing 'type' in TypedObject")
 
-        if not hasattr(cls, "__typemap__"):
-            raise TypeError(f"Invalid TypedObject: {cls} - missing __typemap__")
+        if not hasattr(cls, "__notional_typemap__"):
+            raise TypeError(
+                f"Invalid TypedObject: {cls} - missing __notional_typemap__"
+            )
 
-        sub = cls.__typemap__.get(data_type)
+        sub = cls.__notional_typemap__.get(data_type)
 
         if sub is None:
             raise TypeError(f"Unsupported sub-type: {data_type}")

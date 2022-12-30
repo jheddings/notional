@@ -7,7 +7,7 @@ from typing import Optional
 
 from emoji import EMOJI_DATA
 
-from .core import DataObject, TypedObject
+from .core import GenericObject, TypedObject
 
 # this might be a place to capture other utilities for working with markdown, text
 # rich text, etc...  the challenge is not importing types due to a circular ref.
@@ -63,8 +63,8 @@ def chunky(text, length=MAX_TEXT_OBJECT_SIZE):
 def text_blocks(text: str):
     """Convert the given plain text into an array of TextObject's.
 
-    If the test is larger than the maximum block size for the Notion API, it will be broken
-    into multiple blocks.
+    If the test is larger than the maximum block size for the Notion API, it will be
+    broken into multiple blocks.
     """
     return [TextObject[chunk] for chunk in chunky(text)]
 
@@ -188,14 +188,14 @@ class FullColor(str, Enum):
     RED_BACKGROUND = "red_background"
 
 
-class LinkObject(DataObject):
+class LinkObject(GenericObject):
     """Reference a URL."""
 
     type: str = "url"
     url: str = None
 
 
-class Annotations(DataObject):
+class Annotations(GenericObject):
     """Style information for RichTextObject's."""
 
     bold: bool = False
@@ -281,7 +281,7 @@ class RichTextObject(TypedObject):
 class TextObject(RichTextObject, type="text"):
     """Notion text element."""
 
-    class _NestedData(DataObject):
+    class _NestedData(GenericObject):
         content: str = None
         link: Optional[LinkObject] = None
 

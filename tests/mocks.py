@@ -7,7 +7,7 @@ from typing import Any
 from pydantic import BaseModel
 
 
-class MockDataObject(BaseModel):
+class MockGenericObject(BaseModel):
     """A mock object that mirrors the data returned from `mock_endpoint(...)`."""
 
     index: int
