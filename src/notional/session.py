@@ -10,20 +10,12 @@ from notion_client.errors import APIResponseError
 from pydantic import parse_obj_as
 
 from .blocks import Block, Database, Page
-from .iterator import EndpointIterator
+from .iterator import EndpointIterator, PropertyItemList
 from .orm import ConnectedPage
-from .query import QueryBuilder, ResultSet
+from .query import QueryBuilder
 from .schema import PropertyObject
 from .text import TextObject
-from .types import (
-    DatabaseRef,
-    ObjectReference,
-    PageRef,
-    ParentRef,
-    PropertyItem,
-    PropertyItemList,
-    Title,
-)
+from .types import DatabaseRef, ObjectReference, PageRef, ParentRef, PropertyItem, Title
 from .user import User
 
 logger = logging.getLogger(__name__)
@@ -166,11 +158,11 @@ class BlocksEndpoint(Endpoint):
 
             parent_id = ObjectReference[parent].id
 
-            blocks = EndpointIterator(endpoint=self().list, block_id=parent_id)
-
             logger.info("Listing blocks for %s...", parent_id)
 
-            return ResultSet(exec=blocks, cls=Block)
+            blocks = EndpointIterator(endpoint=self().list)
+
+            return blocks(block_id=parent_id)
 
     def __init__(self, *args, **kwargs):
         """Initialize the `blocks` endpoint for the Notion API."""
@@ -260,15 +252,9 @@ class DatabasesEndpoint(Endpoint):
         if parent is not None:
             request["parent"] = parent.dict()
 
-        if isinstance(title, TextObject):
-            request["title"] = [title.dict()]
-        elif isinstance(title, list):
-            request["title"] = [prop.dict() for prop in title if prop is not None]
-        elif isinstance(title, str):
+        if title is not None:
             prop = TextObject[title]
             request["title"] = [prop.dict()]
-        elif title is not None:
-            raise ValueError("Unrecognized data in 'title'")
 
         if schema is not None:
             request["properties"] = {
@@ -572,10 +558,11 @@ class UsersEndpoint(Endpoint):
     def list(self):
         """Return an iterator for all users in the workspace."""
 
-        users = EndpointIterator(endpoint=self().list)
         logger.info("Listing known users...")
 
-        return ResultSet(exec=users, cls=User)
+        users = EndpointIterator(endpoint=self().list)
+
+        return users()
 
     # https://developers.notion.com/reference/get-user
     def retrieve(self, user_id):

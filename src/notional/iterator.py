@@ -1,14 +1,90 @@
-"""Iterator classes for notional."""
+"""Iterator classes for working with paginated API responses."""
 
 import logging
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
+
+from .blocks import Block, Database, Page
+from .core import GenericObject, NotionObject, TypedObject
+from .types import PropertyItem
+from .user import User
 
 CONTENT_PAGE_SIZE = 100
 
 logger = logging.getLogger(__name__)
+
+
+class ObjectList(NotionObject, TypedObject, object="list"):
+    """A paginated list of objects returned by the Notion API."""
+
+    results: List[NotionObject] = []
+    has_more: bool = False
+    next_cursor: Optional[str] = None
+
+    @validator("results", pre=True, each_item=True)
+    def _convert_results_list(cls, val):
+        """Convert the results list to specifc objects."""
+
+        if "object" not in val:
+            raise ValueError("Unknown object in results")
+
+        if val["object"] == BlockList.type:
+            return Block.parse_obj(val)
+
+        if val["object"] == PageList.type:
+            return Page.parse_obj(val)
+
+        if val["object"] == DatabaseList.type:
+            return Database.parse_obj(val)
+
+        if val["object"] == PropertyItemList.type:
+            return PropertyItem.parse_obj(val)
+
+        if val["object"] == UserList.type:
+            return User.parse_obj(val)
+
+        raise ValueError("Invalid object in results")
+
+
+class BlockList(ObjectList, type="block"):
+    """A list of Block objects returned by the Notion API."""
+
+    block: Any = {}
+
+
+class PageList(ObjectList, type="page"):
+    """A list of Page objects returned by the Notion API."""
+
+    page: Any = {}
+
+
+class DatabaseList(ObjectList, type="database"):
+    """A list of Database objects returned by the Notion API."""
+
+    database: Any = {}
+
+
+class UserList(ObjectList, type="user"):
+    """A list of User objects returned by the Notion API."""
+
+    user: Any = {}
+
+
+class PropertyItemList(ObjectList, type="property_item"):
+    """A paginated list of property items returned by the Notion API.
+
+    Property item lists contain one or more pages of basic property items.  These types
+    do not typically match the schema for corresponding property values.
+    """
+
+    class _NestedData(GenericObject):
+        id: str = None
+        type: str = None
+        next_url: Optional[str] = None
+
+    property_item: _NestedData = _NestedData()
 
 
 class ContentIterator(ABC):
@@ -153,11 +229,11 @@ class ResultSetIterator(PositionalIterator, ABC):
         """Load the page of data defined by the given params."""
 
 
-class EndpointIterator(ResultSetIterator):
+class LegacyIterator(ResultSetIterator):
     """Base class for iterating over results from an API endpoint."""
 
     def __init__(self, endpoint, **params):
-        """Initialize the `EndpointIterator` for a specific API endpoint.
+        """Initialize the `LegacyIterator` for a specific API endpoint.
 
         :param endpoint: the concrete endpoint to use for this iterator
         :param params: parameters sent to the endpoint when called
@@ -168,10 +244,75 @@ class EndpointIterator(ResultSetIterator):
         self.params = params or {}
 
     def __setitem__(self, name, value):
-        """Set the parameter in this `EndpointIterator`."""
+        """Set the parameter in this `LegacyIterator`."""
         self.params[name] = value
 
     def load_page_data(self, params):
         """Return the next page with given parameters."""
         params.update(self.params)
         return self.endpoint(**params)
+
+
+class EndpointIterator:
+    """Iterates over results from a paginated API response.
+
+    These objects may be reused, however they are not thread safe.  For example,
+    after creating the following iterator:
+
+        notion = notional.connect(auth=NOTION_AUTH_TOKEN)
+        query = EndpointIterator(notion.databases().query)
+
+    The iterator may be reused with different database ID's:
+
+        for items in query(database_id=first_db):
+            ...
+
+        for items in query(database_id=second_db):
+            ...
+    """
+
+    def __init__(self, endpoint):
+        """Initialize an object list iterator."""
+        self.endpoint = endpoint
+
+        self.has_mode = None
+        self.next_cursor = None
+        self.total_items = -1
+        self.page_num = -1
+
+    def __call__(self, **kwargs):
+        """Return a generator for this object list."""
+
+        self.has_more = True
+        self.next_cursor = None
+        self.page_num = 0
+        self.total_items = 0
+
+        while self.has_more:
+            self.page_num += 1
+
+            page = self.endpoint(
+                start_cursor=self.next_cursor,
+                page_size=CONTENT_PAGE_SIZE,
+                **kwargs,
+            )
+
+            api_list = ObjectList.parse_obj(page)
+
+            for obj in api_list.results:
+                self.total_items += 1
+
+                yield obj
+
+            self.next_cursor = api_list.next_cursor
+            self.has_more = api_list.has_more and self.next_cursor is not None
+
+    def list(self, **kwargs):
+        """Collect all items from the endpoint as a list."""
+
+        all_items = []
+
+        for item in self(**kwargs):
+            all_items.append(item)
+
+        return all_items

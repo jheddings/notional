@@ -22,13 +22,20 @@ auth_token = os.getenv("NOTION_AUTH_TOKEN")
 
 notion = notional.connect(auth=auth_token)
 
-# NOTE calling the notional endpoint exposes the underlying raw data endpoint
+# NOTE iterators operate on the SDK endpoints... calling
+# the notional endpoint exposes the notion_client endpoint
 
-tasks = EndpointIterator(
-    endpoint=notion.databases().query,
-    database_id=dbid,
-    sorts=[{"direction": "ascending", "property": "Last Update"}],
-)
+query = EndpointIterator(notion.databases().query)
 
-for data in tasks:
-    print(f"{data['id']} => {data['url']}")
+params = {
+    "database_id": dbid,
+    "sorts": [
+        {
+            "direction": "ascending",
+            "property": "Last Update",
+        }
+    ],
+}
+
+for data in query(**params):
+    print(f"{data.id} [{data.object}] => {data.url}")

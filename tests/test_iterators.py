@@ -1,6 +1,6 @@
 """Unit tests for the Notional iterators."""
 
-from notional.iterator import EndpointIterator
+from notional.iterator import LegacyIterator
 
 from .mocks import mock_endpoint
 
@@ -9,7 +9,7 @@ def test_basic_usage():
     """Simple test for basic functionality."""
 
     mock = mock_endpoint(1042, 100)
-    iter = EndpointIterator(endpoint=mock, user_data="testing")
+    iter = LegacyIterator(endpoint=mock, user_data="testing")
 
     n_items = 0
 
@@ -28,7 +28,7 @@ def test_exactly_one_page():
     """Test the iterator for exactly one page of results."""
 
     mock = mock_endpoint(100, 100)
-    iter = EndpointIterator(endpoint=mock, user_data="one_page")
+    iter = LegacyIterator(endpoint=mock, user_data="one_page")
 
     n_items = 0
 
@@ -46,7 +46,7 @@ def test_one_result():
     """Make sure the iterator works for exactly one result."""
 
     mock = mock_endpoint(1, 100)
-    iter = EndpointIterator(endpoint=mock)
+    iter = LegacyIterator(endpoint=mock)
 
     n_items = 0
 
@@ -64,7 +64,7 @@ def test_empty_result():
     """Make sure the iterator works with empty results."""
 
     mock = mock_endpoint(0, 100)
-    iter = EndpointIterator(endpoint=mock)
+    iter = LegacyIterator(endpoint=mock)
 
     n_items = 0
 

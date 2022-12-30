@@ -11,7 +11,7 @@ from pydantic import Field, validator
 
 from .blocks import Block, Database, DataRecord, Page
 from .core import GenericObject
-from .iterator import ContentIterator, EndpointIterator
+from .iterator import ContentIterator, LegacyIterator
 
 logger = logging.getLogger(__name__)
 
@@ -343,7 +343,7 @@ class QueryBuilder:
         if self.params:
             query.update(self.params)
 
-        exec = EndpointIterator(endpoint=self.endpoint, **query)
+        exec = LegacyIterator(endpoint=self.endpoint, **query)
 
         return ResultSet(exec=exec, cls=self.cls)
 

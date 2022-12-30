@@ -6,7 +6,7 @@ used in the Notion API as well as higher-level methods.
 
 from abc import ABC, abstractmethod
 from datetime import date, datetime
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 from uuid import UUID
 
 from notion_client import helpers
@@ -116,53 +116,6 @@ class WorkspaceRef(ParentRef, type="workspace"):
     """Reference the workspace."""
 
     workspace: bool = True
-
-
-class ObjectList(NotionObject, TypedObject, object="list"):
-    """A paginated list of objects returned by the Notion API."""
-
-    results: List[NotionObject] = []
-    has_more: bool = False
-    next_cursor: Optional[str] = None
-
-
-class BlockList(ObjectList, type="block"):
-    """A list of Block objects returned by the Notion API."""
-
-    block: Any = {}
-
-
-class PageList(ObjectList, type="page"):
-    """A list of Page objects returned by the Notion API."""
-
-    page: Any = {}
-
-
-class DatabaseList(ObjectList, type="database"):
-    """A list of Database objects returned by the Notion API."""
-
-    database: Any = {}
-
-
-class UserList(ObjectList, type="user"):
-    """A list of User objects returned by the Notion API."""
-
-    user: Any = {}
-
-
-class PropertyItemList(ObjectList, type="property_item"):
-    """A paginated list of property items returned by the Notion API.
-
-    Property item lists contain one or more pages of basic property items.  These types
-    do not typically match the schema for corresponding property values.
-    """
-
-    class _NestedData(GenericObject):
-        id: str = None
-        type: str = None
-        next_url: Optional[str] = None
-
-    property_item: _NestedData = _NestedData()
 
 
 class EmojiObject(TypedObject, type="emoji"):
