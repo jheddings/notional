@@ -13,13 +13,13 @@ from pydantic.main import ModelMetaclass, validate_model
 logger = logging.getLogger(__name__)
 
 
-def make_api_safe(data):
+def serialize_to_api(data):
     """Recursively convert the given data to an API-safe form.
 
     This is mostly to handle data types that will not directly serialize to JSON.
     """
 
-    # https://github.com/samuelcolvin/pydantic/issues/1409#issuecomment-877175194
+    # https://github.com/samuelcolvin/pydantic/issues/1409
 
     if isinstance(data, (date, datetime)):
         return data.isoformat()
@@ -30,14 +30,11 @@ def make_api_safe(data):
     if isinstance(data, Enum):
         return data.value
 
+    if isinstance(data, (list, tuple)):
+        return [serialize_to_api(value) for value in data]
+
     if isinstance(data, dict):
-        return {name: make_api_safe(value) for name, value in data.items()}
-
-    if isinstance(data, list):
-        return [make_api_safe(value) for value in data]
-
-    if isinstance(data, tuple):
-        return [make_api_safe(value) for value in data]
+        return {name: serialize_to_api(value) for name, value in data.items()}
 
     return data
 
@@ -130,10 +127,10 @@ class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
         cls.__fields__[name].required = default is None
 
     # https://github.com/samuelcolvin/pydantic/discussions/3139
-    def refresh(__pydantic_self__, **data):
+    def refresh(__notional_self__, **data):
         """Refresh the internal attributes with new data."""
 
-        values, fields, error = validate_model(__pydantic_self__.__class__, data)
+        values, fields, error = validate_model(__notional_self__.__class__, data)
 
         if error:
             raise error
@@ -141,24 +138,23 @@ class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
         for name in fields:
             value = values[name]
             logger.debug("set object data -- %s => %s", name, value)
-            setattr(__pydantic_self__, name, value)
+            setattr(__notional_self__, name, value)
 
-        return __pydantic_self__
+        return __notional_self__
 
-    def to_api(self):
+    def dict(self, **kwargs):
         """Convert to a suitable representation for the Notion API."""
 
         # the API doesn't like "undefined" values...
+        kwargs["exclude_none"] = True
+        kwargs["by_alias"] = True
 
-        data = self.dict(exclude_none=True, by_alias=True)
-
-        # we need to convert "special" types to string forms to help the JSON encoder.
-        # there are efforts underway in pydantic to make this easier, but for now...
+        obj = super().dict(**kwargs)
 
         # TODO read-only fields should not be sent to the API
         # https://github.com/jheddings/notional/issues/9
 
-        return make_api_safe(data)
+        return serialize_to_api(obj)
 
 
 class NotionObject(GenericObject):

@@ -338,7 +338,7 @@ class QueryBuilder:
 
         logger.debug("executing query - %s", self.query)
 
-        query = self.query.to_api()
+        query = self.query.dict()
 
         if self.params:
             query.update(self.params)

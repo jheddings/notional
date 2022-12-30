@@ -135,7 +135,7 @@ class BlocksEndpoint(Endpoint):
 
             parent_id = ObjectReference[parent].id
 
-            children = [block.to_api() for block in blocks if block is not None]
+            children = [block.dict() for block in blocks if block is not None]
 
             logger.info("Appending %d blocks to %s ...", len(children), parent_id)
 
@@ -232,7 +232,7 @@ class BlocksEndpoint(Endpoint):
 
         logger.info("Updating block :: %s", block.id)
 
-        data = self().update(block.id.hex, **block.to_api())
+        data = self().update(block.id.hex, **block.dict())
 
         return block.refresh(**data)
 
@@ -258,21 +258,21 @@ class DatabasesEndpoint(Endpoint):
         request = {}
 
         if parent is not None:
-            request["parent"] = parent.to_api()
+            request["parent"] = parent.dict()
 
         if isinstance(title, TextObject):
-            request["title"] = [title.to_api()]
+            request["title"] = [title.dict()]
         elif isinstance(title, list):
-            request["title"] = [prop.to_api() for prop in title if prop is not None]
+            request["title"] = [prop.dict() for prop in title if prop is not None]
         elif isinstance(title, str):
             prop = TextObject[title]
-            request["title"] = [prop.to_api()]
+            request["title"] = [prop.dict()]
         elif title is not None:
             raise ValueError("Unrecognized data in 'title'")
 
         if schema is not None:
             request["properties"] = {
-                name: value.to_api() if value is not None else None
+                name: value.dict() if value is not None else None
                 for name, value in schema.items()
             }
 
@@ -417,7 +417,7 @@ class PagesEndpoint(Endpoint):
         if parent is None:
             raise ValueError("'parent' must be provided")
 
-        request = {"parent": parent.to_api()}
+        request = {"parent": parent.dict()}
 
         # the API requires a properties object, even if empty
         if properties is None:
@@ -427,13 +427,13 @@ class PagesEndpoint(Endpoint):
             properties["title"] = Title[title]
 
         request["properties"] = {
-            name: prop.to_api() if prop is not None else None
+            name: prop.dict() if prop is not None else None
             for name, prop in properties.items()
         }
 
         if children is not None:
             request["children"] = [
-                child.to_api() for child in children if child is not None
+                child.dict() for child in children if child is not None
             ]
 
         logger.info("Creating page :: %s => %s", parent, title)
@@ -494,7 +494,7 @@ class PagesEndpoint(Endpoint):
             properties = page.properties
 
         props = {
-            name: value.to_api() if value is not None else None
+            name: value.dict() if value is not None else None
             for name, value in properties.items()
         }
 
@@ -519,14 +519,14 @@ class PagesEndpoint(Endpoint):
             props["cover"] = {}
         elif cover is not False:
             logger.info("Setting page cover :: %s => %s", page_id, cover)
-            props["cover"] = cover.to_api()
+            props["cover"] = cover.dict()
 
         if icon is None:
             logger.info("Removing page icon :: %s", page_id)
             props["icon"] = {}
         elif icon is not False:
             logger.info("Setting page icon :: %s => %s", page_id, icon)
-            props["icon"] = icon.to_api()
+            props["icon"] = icon.dict()
 
         if archived is False:
             logger.info("Restoring page :: %s", page_id)
