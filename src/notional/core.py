@@ -93,7 +93,7 @@ class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
     def __setattr__(self, name, value):
         """Set the attribute of this object to a given value.
 
-        The implementation of `BaseModel.__setattr__` does not allow for properties.
+        The implementation of `BaseModel.__setattr__` does not support property setters.
 
         See https://github.com/samuelcolvin/pydantic/issues/1577
         """
@@ -101,8 +101,8 @@ class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
             super().__setattr__(name, value)
         except ValueError as err:
             setters = inspect.getmembers(
-                self.__class__,
-                predicate=lambda x: isinstance(x, property) and x.fset is not None,
+                object=self.__class__,
+                predicate=lambda x: isinstance(x, property),
             )
             for setter_name, _ in setters:
                 if setter_name == name:
@@ -112,7 +112,7 @@ class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
                 raise err
 
     @classmethod
-    def _modify_field_(cls, name, default=None):
+    def _set_field_default(cls, name, default=None):
         """Modify the `BaseModel` field information for a specific class instance.
 
         This is necessary in particular for subclasses that change the default values
@@ -121,10 +121,15 @@ class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
         :param name: the named attribute in the class
         :param default: the new default for the named field
         """
+
+        # set the attribute on the class to the given default
         setattr(cls, name, default)
 
-        cls.__fields__[name].default = default
-        cls.__fields__[name].required = default is None
+        # update the model field definition
+        field = cls.__fields__.get(name)
+
+        field.default = default
+        field.required = default is None
 
     # https://github.com/samuelcolvin/pydantic/discussions/3139
     def refresh(__notional_self__, **data):
@@ -168,7 +173,7 @@ class NotionObject(GenericObject):
         super().__init_subclass__(**kwargs)
 
         if object is not None:
-            cls._modify_field_("object", default=object)
+            cls._set_field_default("object", default=object)
 
     @validator("object", always=True, pre=False)
     def _verify_object_name(cls, val):
@@ -211,7 +216,7 @@ class TypedObject(GenericObject):
 
         sub_type = cls.__name__ if type is None else type
 
-        cls._modify_field_("type", default=sub_type)
+        cls._set_field_default("type", default=sub_type)
 
         # initialize a __notional_typemap__ map for each direct child of TypedObject
 
