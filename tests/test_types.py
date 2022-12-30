@@ -345,7 +345,7 @@ def test_multi_select_from_string():
 
 def test_multi_select_from_list():
     """Create a MultiSelect object from a list of strings."""
-    tags = types.MultiSelect[["foo", None, "bar"]]
+    tags = types.MultiSelect["foo", None, "bar"]
 
     assert len(tags) == 2
     assert tags.Values == ["foo", "bar"]

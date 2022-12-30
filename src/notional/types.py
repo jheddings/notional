@@ -607,6 +607,15 @@ class SelectValue(GenericObject):
         """Return a string representation of this property."""
         return self.name
 
+    @classmethod
+    def __compose__(cls, value, color=None):
+        """Create a `SelectValue` property from the given value.
+
+        :param value: a string to use for this property
+        :param color: an optional Color for the value
+        """
+        return cls(name=value, color=color)
+
 
 class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
     """Notion select type."""
@@ -635,11 +644,7 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
         :param value: a string to use for this property
         :param color: an optional Color for the value
         """
-
-        if value is None:
-            raise ValueError("'name' cannot be None")
-
-        return cls(select=SelectValue(name=value, color=color))
+        return cls(select=SelectValue[value, color])
 
     @property
     def Value(self):
@@ -716,13 +721,11 @@ class MultiSelect(PropertyValue, type="multi_select"):
         return iter(self.multi_select)
 
     @classmethod
-    def __compose__(cls, value):
-        """Initialize a new MultiSelect from the given value."""
+    def __compose__(cls, *values):
+        """Initialize a new MultiSelect from the given value(s)."""
+        select = [SelectValue[value] for value in values if value is not None]
 
-        if isinstance(value, list):
-            return cls._compose_from_list(*value)
-
-        return cls._compose_from_list(value)
+        return cls(multi_select=select)
 
     def append(self, *values):
         """Add selected values to this MultiSelect."""
@@ -732,8 +735,7 @@ class MultiSelect(PropertyValue, type="multi_select"):
                 raise ValueError("'None' is an invalid value")
 
             if value not in self:
-                opt = SelectValue(name=value)
-                self.multi_select.append(opt)
+                self.multi_select.append(SelectValue[value])
 
     def remove(self, *values):
         """Remove selected values from this MultiSelect."""
@@ -748,23 +750,6 @@ class MultiSelect(PropertyValue, type="multi_select"):
             return None
 
         return [str(val) for val in self.multi_select if val.name is not None]
-
-    @classmethod
-    def _compose_from_list(cls, *values):
-        """Create a Select block from a list of values.
-
-        All values in the list will be automatically converted to strings.
-        """
-
-        select = []
-
-        for value in values:
-            if value is None:
-                continue
-
-            select.append(SelectValue(name=str(value)))
-
-        return cls(multi_select=select)
 
 
 class People(PropertyValue, type="people"):
