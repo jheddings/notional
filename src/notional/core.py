@@ -214,25 +214,9 @@ class TypedObject(GenericObject):
         """Register the subtypes of the TypedObject subclass."""
         super().__init_subclass__(**kwargs)
 
-        sub_type = cls.__name__ if type is None else type
+        type_name = cls.__name__ if type is None else type
 
-        cls._set_field_default("type", default=sub_type)
-
-        # initialize a __notional_typemap__ map for each direct child of TypedObject
-
-        # this allows different class trees to have the same 'type' name
-        # but point to a different object (e.g. the 'date' type may have
-        # different implementations depending where it is used in the API)
-
-        if TypedObject in cls.__bases__ and not hasattr(cls, "__notional_typemap__"):
-            cls.__notional_typemap__ = {}
-
-        if sub_type in cls.__notional_typemap__:
-            raise ValueError(f"Duplicate subtype for class - {sub_type} :: {cls}")
-
-        logger.debug("registered new subtype: %s => %s", sub_type, cls)
-
-        cls.__notional_typemap__[sub_type] = cls
+        cls._register_type(type_name)
 
     def __call__(self, field=None):
         """Return the nested data object contained by this `TypedObject`.
@@ -256,7 +240,7 @@ class TypedObject(GenericObject):
     @classmethod
     def __get_validators__(cls):
         """Provide `BaseModel` with the means to convert `TypedObject`'s."""
-        yield cls._convert_to_real_type_
+        yield cls._resolve_type
 
     @classmethod
     def parse_obj(cls, obj):
@@ -264,10 +248,32 @@ class TypedObject(GenericObject):
 
         This method overrides `BaseModel.parse_obj()`.
         """
-        return cls._convert_to_real_type_(obj)
+        return cls._resolve_type(obj)
 
     @classmethod
-    def _convert_to_real_type_(cls, data):
+    def _register_type(cls, name):
+        """Register a specific class for the given 'type' name."""
+
+        cls._set_field_default("type", default=name)
+
+        # initialize a __notional_typemap__ map for each direct child of TypedObject
+
+        # this allows different class trees to have the same 'type' name
+        # but point to a different object (e.g. the 'date' type may have
+        # different implementations depending where it is used in the API)
+
+        if not hasattr(cls, "__notional_typemap__"):
+            cls.__notional_typemap__ = {}
+
+        if name in cls.__notional_typemap__:
+            raise ValueError(f"Duplicate subtype for class - {name} :: {cls}")
+
+        logger.debug("registered new subtype: %s => %s", name, cls)
+
+        cls.__notional_typemap__[name] = cls
+
+    @classmethod
+    def _resolve_type(cls, data):
         """Instantiate the correct object based on the 'type' field."""
 
         if isinstance(data, cls):
@@ -276,23 +282,21 @@ class TypedObject(GenericObject):
         if not isinstance(data, dict):
             raise ValueError("Invalid 'data' object")
 
-        data_type = data.get("type")
-
-        if data_type is None:
-            raise ValueError("Missing 'type' in TypedObject")
-
         if not hasattr(cls, "__notional_typemap__"):
-            raise TypeError(
-                f"Invalid TypedObject: {cls} - missing __notional_typemap__"
-            )
+            raise TypeError(f"Missing '__notional_typemap__' in {cls}")
 
-        sub = cls.__notional_typemap__.get(data_type)
+        type_name = data.get("type")
+
+        if type_name is None:
+            raise ValueError("Missing 'type' in data")
+
+        sub = cls.__notional_typemap__.get(type_name)
 
         if sub is None:
-            raise TypeError(f"Unsupported sub-type: {data_type}")
+            raise TypeError(f"Unsupported sub-type: {type_name}")
 
         logger.debug(
-            "initializing typed object %s :: %s => %s -- %s", cls, data_type, sub, data
+            "initializing typed object %s :: %s => %s -- %s", cls, type_name, sub, data
         )
 
         return sub(**data)
