@@ -411,11 +411,21 @@ class PagesEndpoint(Endpoint):
         return self.session.client.pages
 
     # https://developers.notion.com/reference/post-page
-    def create(self, parent: ParentRef, title=None, properties=None, children=None):
-        """Add a page to the given parent (Page or Database)."""
+    def create(self, parent, title=None, properties=None, children=None):
+        """Add a page to the given parent (Page or Database).
+
+        `parent` may be a `ParentRef`, `Page`, or `Database` object.
+        """
 
         if parent is None:
             raise ValueError("'parent' must be provided")
+
+        if isinstance(parent, Page):
+            parent = PageRef[parent]
+        elif isinstance(parent, Database):
+            parent = DatabaseRef[parent]
+        elif not isinstance(parent, ParentRef):
+            raise ValueError("Unsupported 'parent'")
 
         request = {"parent": parent.to_api()}
 
