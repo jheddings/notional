@@ -43,7 +43,7 @@ def mock_endpoint(item_count, page_size):
             field for each item in the result set
         """
 
-        start = int(kwargs.get("start_cursor", 0))
+        start = int(kwargs.get("start_cursor") or 0)
         user_data = kwargs.get("user_data", None)
         pagenum = math.floor(start / page_size) + 1
 

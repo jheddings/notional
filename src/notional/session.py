@@ -384,6 +384,7 @@ class PagesEndpoint(Endpoint):
 
             data = self().retrieve(page_id, property_id)
 
+            # TODO should PropertyListItem return an iterator instead?
             return parse_obj_as(Union[PropertyItem, PropertyItemList], obj=data)
 
     def __init__(self, *args, **kwargs):

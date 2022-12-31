@@ -11,7 +11,7 @@ from .core import GenericObject, NotionObject, TypedObject
 from .types import PropertyItem
 from .user import User
 
-CONTENT_PAGE_SIZE = 100
+MAX_PAGE_SIZE = 100
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class ObjectList(NotionObject, TypedObject, object="list"):
         if val["object"] == UserList.type:
             return User.parse_obj(val)
 
-        raise ValueError("Invalid object in results")
+        return GenericObject.parse_obj(val)
 
 
 class BlockList(ObjectList, type="block"):
@@ -64,6 +64,12 @@ class DatabaseList(ObjectList, type="database"):
     """A list of Database objects returned by the Notion API."""
 
     database: Any = {}
+
+
+class PageOrDatabaseList(ObjectList, type="page_or_database"):
+    """A list of Page or Database objects returned by the Notion API."""
+
+    page_or_database: Any = {}
 
 
 class UserList(ObjectList, type="user"):
@@ -197,7 +203,7 @@ class ResultSetIterator(PositionalIterator, ABC):
     def get_page_data(self, cursor):
         """Retrieve the page of data starting at the given cursor."""
 
-        params = {"page_size": CONTENT_PAGE_SIZE}
+        params = {"page_size": MAX_PAGE_SIZE}
 
         if cursor:
             params["start_cursor"] = cursor
@@ -281,21 +287,21 @@ class EndpointIterator:
         self.page_num = -1
 
     def __call__(self, **kwargs):
-        """Return a generator for this object list."""
+        """Return a generator for this endpoint using the given parameters."""
 
-        self.has_more = True
-        self.next_cursor = None
-        self.page_num = 0
         self.total_items = 0
+        self.page_num = 0
+        self.has_more = True
+
+        if "page_size" not in kwargs:
+            kwargs["page_size"] = MAX_PAGE_SIZE
+
+        self.next_cursor = kwargs.pop("start_cursor", None)
 
         while self.has_more:
             self.page_num += 1
 
-            page = self.endpoint(
-                start_cursor=self.next_cursor,
-                page_size=CONTENT_PAGE_SIZE,
-                **kwargs,
-            )
+            page = self.endpoint(start_cursor=self.next_cursor, **kwargs)
 
             api_list = ObjectList.parse_obj(page)
 

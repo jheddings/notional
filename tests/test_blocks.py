@@ -5,20 +5,15 @@ import pytest
 from notional import blocks
 
 
-def test_bookmark_from_url():
-    """Create a Bookmark block from a URL."""
-    bookmark = blocks.Bookmark["http://example.com"]
+def add_verify(notion, page, block):
+    """Add the block to the give page and read it back."""
 
-    assert bookmark.URL == "http://example.com"
-    assert bookmark.Markdown == "<http://example.com>"
+    notion.blocks.children.append(page, block)
+    new_block = notion.blocks.retrieve(block.id)
 
+    assert new_block == block
 
-def test_embed_from_url():
-    """Create an Embed block from a URL."""
-    embed = blocks.Embed["https://www.bing.com/"]
-
-    assert embed.URL == "https://www.bing.com/"
-    assert embed.Markdown == "<https://www.bing.com/>"
+    notion.blocks.delete(block.id)
 
 
 def test_append_without_children_support():
@@ -127,48 +122,64 @@ def test_update_block(notion, test_area):
 
 
 @pytest.mark.vcr()
-def test_parse_breadcrumb(notion):
+def test_bookmark_block(notion, test_page):
+    """Create and parse Bookmark blocks."""
+
+    bookmark = blocks.Bookmark["http://example.com"]
+
+    assert bookmark.URL == "http://example.com"
+    assert bookmark.Markdown == "<http://example.com>"
+
+    add_verify(notion, test_page, bookmark)
+
+
+@pytest.mark.vcr()
+def test_embed_block(notion, test_page):
+    """Create and parse Embed blocks."""
+
+    embed = blocks.Embed["https://www.bing.com/"]
+
+    assert embed.URL == "https://www.bing.com/"
+    assert embed.Markdown == "<https://www.bing.com/>"
+
+    add_verify(notion, test_page, embed)
+
+
+@pytest.mark.vcr()
+def test_parse_breadcrumb(notion, test_page):
     """Verify that breadcrumb blocks from the API are parsed correctly."""
-    block_id = "ebf949622c1a46238fcdc5d7c4fef9bb"
-
-    block = notion.blocks.retrieve(block_id)
-    assert isinstance(block, blocks.Breadcrumb)
+    breadcrumb = blocks.Breadcrumb()
+    add_verify(notion, test_page, breadcrumb)
 
 
 @pytest.mark.vcr()
-def test_parse_callout(notion):
+def test_parse_callout(notion, test_page):
     """Verify that callout blocks from the API are parsed correctly."""
-    block_id = "00ade642ce834f6dacb12e2ab0434020"
 
-    block = notion.blocks.retrieve(block_id)
-    assert isinstance(block, blocks.Callout)
+    callout = blocks.Callout["Attention!", "⚠️"]
+
+    add_verify(notion, test_page, callout)
 
 
 @pytest.mark.vcr()
-def test_parse_toc_block(notion):
+def test_parse_toc_block(notion, test_page):
     """Verify that 'table of contents' from the API are parsed correctly."""
-    block_id = "aadef1ce443c474b9211f196fb2a893c"
-
-    block = notion.blocks.retrieve(block_id)
-    assert isinstance(block, blocks.TableOfContents)
+    toc = blocks.TableOfContents()
+    add_verify(notion, test_page, toc)
 
 
 @pytest.mark.vcr()
-def test_parse_bookmark(notion):
-    """Verify that bookmarks from the API are parsed correctly."""
-    block_id = "4b6de8fddec5472eb630f328f809944c"
-
-    block = notion.blocks.retrieve(block_id)
-    assert isinstance(block, blocks.Bookmark)
-
-
-@pytest.mark.vcr()
-def test_parse_code_block(notion):
+def test_code_block(notion, test_page):
     """Verify that code blocks from the API are parsed correctly."""
-    block_id = "1872fd9c99b64c14a78053c3bc6c0a7a"
 
-    block = notion.blocks.retrieve(block_id)
-    assert isinstance(block, blocks.Code)
+    with open(__file__, "r") as fp:
+        text = fp.read()
+
+    code = blocks.Code[text]
+
+    assert code.PlainText == text
+
+    add_verify(notion, test_page, code)
 
 
 @pytest.mark.vcr()
