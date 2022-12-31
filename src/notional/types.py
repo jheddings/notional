@@ -339,12 +339,15 @@ class NativeTypeMixin:
     def __eq__(self, other):
         """Determine if this property is equal to the given object."""
 
-        return self.Value == other
+        # if `other` is a NativeTypeMixin, this comparrison will call __eq__ on that
+        # object using this objects `Value` as the value for `other` (allowing callers
+        # to compare using either native types or NativeTypeMixin's)
+
+        return other == self.Value
 
     def __ne__(self, other):
         """Determine if this property is not equal to the given object."""
-
-        return self.Value != other
+        return not self.__eq__(other)
 
     @classmethod
     def __compose__(cls, value):
@@ -430,28 +433,73 @@ class Number(NativeTypeMixin, PropertyValue, type="number"):
 
     number: Optional[Union[float, int]] = None
 
+    def __float__(self):
+        """Return the Number as a `float`."""
+
+        if self.number is None:
+            raise ValueError("Cannot convert 'None' to float")
+
+        return float(self.number)
+
+    def __int__(self):
+        """Return the Number as an `int`."""
+
+        if self.number is None:
+            raise ValueError("Cannot convert 'None' to int")
+
+        return int(self.number)
+
     def __iadd__(self, other):
         """Add the given value to this Number."""
 
-        self.number += other
+        if isinstance(other, Number):
+            self.number += other.Value
+        else:
+            self.number += other
+
         return self
 
     def __isub__(self, other):
         """Subtract the given value from this Number."""
 
-        self.number -= other
+        if isinstance(other, Number):
+            self.number -= other.Value
+        else:
+            self.number -= other
+
         return self
+
+    def __add__(self, other):
+        """Add the value of `other` and returns the result as a Number."""
+        return Number[other + self.Value]
+
+    def __sub__(self, other):
+        """Subtract the value of `other` and returns the result as a Number."""
+        return Number[self.Value - float(other)]
+
+    def __mul__(self, other):
+        """Multiply the value of `other` and returns the result as a Number."""
+        return Number[other * self.Value]
+
+    def __le__(self, other):
+        """Return `True` if this `Number` is less-than-or-equal-to `other`."""
+        return self < other or self == other
+
+    def __lt__(self, other):
+        """Return `True` if this `Number` is less-than `other`."""
+        return other > self.Value
+
+    def __ge__(self, other):
+        """Return `True` if this `Number` is greater-than-or-equal-to `other`."""
+        return self > other or self == other
+
+    def __gt__(self, other):
+        """Return `True` if this `Number` is greater-than `other`."""
+        return other < self.Value
 
     @property
     def Value(self):
         """Get the current value of this property as a native Python number."""
-
-        if self.number is None:
-            return None
-
-        if self.number == int(self.number):
-            return int(self.number)
-
         return self.number
 
 

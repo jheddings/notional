@@ -149,15 +149,44 @@ def test_number_from_bad_string():
         types.Number["twelve"]
 
 
+def test_compare_numbers():
+    """Compare Number objects and native numbers."""
+    num = types.Number[50]
+
+    assert num == 50
+    assert num == types.Number[50]
+
+    assert num <= 50
+    assert num < 51
+
+    assert num >= 50
+    assert num > types.Number[49]
+
+
 def test_number_math():
     """Perform math on Number objects."""
     num = types.Number[10]
+    assert int(num) == 10
 
     num += 2
     assert num.Value == 12
 
-    num -= 20
+    num += types.Number[2]
+    assert num.Value == 14
+
+    num -= 22
     assert num.Value == -8
+
+    num = num + types.Number[6]
+    assert num.Value == -2
+
+    num = num - types.Number[-100]
+    assert num.Value == 98
+
+    num = num * types.Number[2.7]
+    assert num.Value == 264.6
+    assert float(num) == 264.6
+    assert int(num) == 264
 
 
 def test_parse_checkbox_data():
