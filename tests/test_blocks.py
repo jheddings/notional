@@ -6,7 +6,10 @@ from notional import blocks
 
 
 def add_verify(notion, page, block):
-    """Add the block to the give page and read it back."""
+    """Add the block to the give page and read it back.
+
+    If the assertion fails, the block is left in place for debugging.
+    """
 
     notion.blocks.children.append(page, block)
     new_block = notion.blocks.retrieve(block.id)
@@ -41,7 +44,7 @@ def test_append_none():
 
 
 def test_concat_none():
-    """Ensure we raise an appropriate error when concatenating None to a text block."""
+    """Ensure concatenating None to a text block results in empty text."""
 
     para = blocks.Paragraph()
 
@@ -146,34 +149,32 @@ def test_embed_block(notion, test_page):
 
 
 @pytest.mark.vcr()
-def test_parse_breadcrumb(notion, test_page):
-    """Verify that breadcrumb blocks from the API are parsed correctly."""
+def test_breadcrumb_block(notion, test_page):
+    """Verify that breadcrumb blocks from the API are handled correctly."""
     breadcrumb = blocks.Breadcrumb()
     add_verify(notion, test_page, breadcrumb)
 
 
 @pytest.mark.vcr()
-def test_parse_callout(notion, test_page):
-    """Verify that callout blocks from the API are parsed correctly."""
-
+def test_callout_block(notion, test_page):
+    """Verify that callout blocks from the API are handled correctly."""
     callout = blocks.Callout["Attention!", "⚠️"]
-
     add_verify(notion, test_page, callout)
 
 
 @pytest.mark.vcr()
-def test_parse_toc_block(notion, test_page):
-    """Verify that 'table of contents' from the API are parsed correctly."""
+def test_toc_block(notion, test_page):
+    """Verify that 'table of contents' from the API are handled correctly."""
     toc = blocks.TableOfContents()
     add_verify(notion, test_page, toc)
 
 
 @pytest.mark.vcr()
 def test_code_block(notion, test_page):
-    """Verify that code blocks from the API are parsed correctly."""
+    """Verify that code blocks from the API are handled correctly."""
 
     with open(__file__, "r") as fp:
-        text = fp.read()
+        text = fp.read().strip()
 
     code = blocks.Code[text]
 
@@ -184,7 +185,7 @@ def test_code_block(notion, test_page):
 
 @pytest.mark.vcr()
 def test_parse_simple_table(notion):
-    """Verify that table blocks from the API are parsed correctly."""
+    """Verify that table blocks from the API are handled correctly."""
     block_id = "c0bdf627b59c4cf685dd4b3dad8d4755"
 
     block = notion.blocks.retrieve(block_id)
@@ -193,7 +194,7 @@ def test_parse_simple_table(notion):
 
 @pytest.mark.vcr()
 def test_parse_synced_block(notion):
-    """Verify that synced blocks from the API are parsed correctly."""
+    """Verify that synced blocks from the API are handled correctly."""
     orig_block_id = "c4d5ddc629df458ca4b88f33e5d86857"
     sync_block_id = "f8f177e6fd84418f8405b3e57ca91562"
 

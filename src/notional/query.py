@@ -9,9 +9,8 @@ from uuid import UUID
 from notion_client.api_endpoints import SearchEndpoint
 from pydantic import Field, validator
 
-from .blocks import Block, Database, DataRecord, Page
 from .core import GenericObject
-from .iterator import ContentIterator, LegacyIterator
+from .iterator import MAX_PAGE_SIZE, EndpointIterator
 
 logger = logging.getLogger(__name__)
 
@@ -232,14 +231,15 @@ class Query(GenericObject):
     sorts: Optional[List[PropertySort]] = None
     filter: Optional[QueryFilter] = None
     start_cursor: Optional[UUID] = None
-    page_size: int = 100
+    page_size: int = MAX_PAGE_SIZE
 
     @validator("page_size")
     def valid_page_size(cls, value):
         """Validate that the given page size meets the Notion API requirements."""
 
         assert value > 0, "size must be greater than zero"
-        assert value <= 100, "size must be less than or equal to 100"
+        assert value <= MAX_PAGE_SIZE, "size must be less than or equal to 100"
+
         return value
 
 
@@ -343,9 +343,7 @@ class QueryBuilder:
         if self.params:
             query.update(self.params)
 
-        exec = LegacyIterator(endpoint=self.endpoint, **query)
-
-        return ResultSet(exec=exec, cls=self.cls)
+        return EndpointIterator(self.endpoint)(**query)
 
     def first(self):
         """Execute the current query and return the first result only."""
@@ -356,39 +354,3 @@ class QueryBuilder:
             logger.debug("iterator returned empty result set")
 
         return None
-
-
-class ResultSet:
-    """A result for a specific query."""
-
-    def __init__(self, exec: ContentIterator, cls=None):
-        """Initialize a new `ResultSet` from the given iterable.
-
-        If `cls` is provided, it will be used to parse objects in the sequence.
-        """
-        self.source = exec
-        self.cls = cls
-
-    def __iter__(self):
-        """Return an iterator for this `ResultSet`."""
-        return self
-
-    def __next__(self):
-        """Return the next item from this `ResultSet`."""
-
-        item = next(self.source)
-
-        if self.cls is not None:
-            item = self.cls.parse_obj(item)
-
-        elif "object" in item:
-            if item["object"] == "page":
-                item = Page.parse_obj(item)
-            elif item["object"] == "database":
-                item = Database.parse_obj(item)
-            elif item["object"] == "block":
-                item = Block.parse_obj(item)
-            else:
-                item = DataRecord.parse_obj(item)
-
-        return item
