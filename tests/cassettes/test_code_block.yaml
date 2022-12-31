@@ -1,0 +1,647 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      host:
+      - api.notion.com
+      notion-version:
+      - '2022-06-28'
+    method: GET
+    uri: https://api.notion.com/v1/pages/250662d9-783d-483c-b131-341ed479f96c
+  response:
+    content: '{"object":"page","id":"250662d9-783d-483c-b131-341ed479f96c","created_time":"2021-08-03T13:21:00.000Z","last_edited_time":"2022-12-31T05:18:00.000Z","created_by":{"object":"user","id":"ea74294e-d4c7-41f0-8929-805c80ea0d7f"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":{"type":"external","external":{"url":"https://images.unsplash.com/photo-1562380156-9a99cd92484c?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb"}},"icon":null,"parent":{"type":"page_id","page_id":"931a3b8b-875e-462d-a31d-29b49475d922"},"archived":false,"properties":{"title":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"Notional","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Notional","href":null}]}},"url":"https://www.notion.so/Notional-250662d9783d483cb131341ed479f96c"}'
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: '{"children": [{"type": "code", "object": "block", "has_children": false,
+      "archived": false, "code": {"rich_text": [{"type": "text", "plain_text": "\"\"\"Unit
+      tests for Notional blocks.\"\"\"\n\nimport pytest\n\nfrom notional import blocks,
+      types\n\n\ndef add_verify(notion, page, block):\n    \"\"\"Add the block to
+      the give page and read it back.\"\"\"\n\n    notion.blocks.children.append(page,
+      block)\n    new_block = notion.blocks.retrieve(block.id)\n\n    assert new_block
+      == block\n\n    notion.blocks.delete(block.id)\n\n\ndef test_append_without_children_support():\n    \"\"\"Confirm
+      that the mixin handles missing children in subclasses.\"\"\"\n\n    class _NoChildren(blocks.WithChildrenMixin):\n        pass\n\n    block
+      = _NoChildren()\n    para = blocks.Paragraph()\n\n    with pytest.raises(TypeError):\n        block.append(para)\n\n\ndef
+      test_append_none():\n    \"\"\"Ensure we raise an appropriate error when appending
+      None to a block.\"\"\"\n    para = blocks.Paragraph()\n\n    with pytest.raises(ValueError):\n        para.append(None)\n\n    with
+      pytest.raises(ValueError):\n        para += None\n\n\ndef test_concat_none():\n    \"\"\"Ensure
+      we raise an appropriate error when concatenating None to a text block.\"\"\"\n\n    para
+      = blocks.Paragraph()\n\n    para.concat()\n    assert para.PlainText == \"\"\n\n    para.concat(None)\n    assert
+      para.PlainText == \"\"\n\n\n@pytest.mark.vcr()\ndef test_create_block(notion,
+      test_area):\n    \"\"\"Create a single block and confirm its contents.\"\"\"\n    block
+      = blocks.Divider()\n\n    notion.blocks.children.append(test_area, block)\n    assert
+      block.id is not None\n    assert block.archived is False\n\n    new_block =
+      notion.blocks.retrieve(block.id)\n    assert new_block == block\n\n    notion.blocks.delete(new_block)\n\n\n@pytest.mark.vcr()\ndef
+      test_delete_block(notion, test_area):\n    \"\"\"Create a block, then delete
+      it and make sure it is gone.\"\"\"\n    block = blocks.Code[\"test_delete_block\"]\n\n    notion.blocks.children.append(test_area,
+      block)\n    block = notion.blocks.delete(block)\n\n    deleted = notion.blocks.retrieve(block.id)\n\n    assert
+      deleted.archived is True\n    assert deleted == block\n\n\n@pytest.mark.vcr()\ndef
+      test_restore_block(notion, test_area):\n    \"\"\"D", "text": {"content": "\"\"\"Unit
+      tests for Notional blocks.\"\"\"\n\nimport pytest\n\nfrom notional import blocks,
+      types\n\n\ndef add_verify(notion, page, block):\n    \"\"\"Add the block to
+      the give page and read it back.\"\"\"\n\n    notion.blocks.children.append(page,
+      block)\n    new_block = notion.blocks.retrieve(block.id)\n\n    assert new_block
+      == block\n\n    notion.blocks.delete(block.id)\n\n\ndef test_append_without_children_support():\n    \"\"\"Confirm
+      that the mixin handles missing children in subclasses.\"\"\"\n\n    class _NoChildren(blocks.WithChildrenMixin):\n        pass\n\n    block
+      = _NoChildren()\n    para = blocks.Paragraph()\n\n    with pytest.raises(TypeError):\n        block.append(para)\n\n\ndef
+      test_append_none():\n    \"\"\"Ensure we raise an appropriate error when appending
+      None to a block.\"\"\"\n    para = blocks.Paragraph()\n\n    with pytest.raises(ValueError):\n        para.append(None)\n\n    with
+      pytest.raises(ValueError):\n        para += None\n\n\ndef test_concat_none():\n    \"\"\"Ensure
+      we raise an appropriate error when concatenating None to a text block.\"\"\"\n\n    para
+      = blocks.Paragraph()\n\n    para.concat()\n    assert para.PlainText == \"\"\n\n    para.concat(None)\n    assert
+      para.PlainText == \"\"\n\n\n@pytest.mark.vcr()\ndef test_create_block(notion,
+      test_area):\n    \"\"\"Create a single block and confirm its contents.\"\"\"\n    block
+      = blocks.Divider()\n\n    notion.blocks.children.append(test_area, block)\n    assert
+      block.id is not None\n    assert block.archived is False\n\n    new_block =
+      notion.blocks.retrieve(block.id)\n    assert new_block == block\n\n    notion.blocks.delete(new_block)\n\n\n@pytest.mark.vcr()\ndef
+      test_delete_block(notion, test_area):\n    \"\"\"Create a block, then delete
+      it and make sure it is gone.\"\"\"\n    block = blocks.Code[\"test_delete_block\"]\n\n    notion.blocks.children.append(test_area,
+      block)\n    block = notion.blocks.delete(block)\n\n    deleted = notion.blocks.retrieve(block.id)\n\n    assert
+      deleted.archived is True\n    assert deleted == block\n\n\n@pytest.mark.vcr()\ndef
+      test_restore_block(notion, test_area):\n    \"\"\"D"}}, {"type": "text", "plain_text":
+      "elete a block, then restore it and make sure it comes back.\"\"\"\n    block
+      = blocks.Callout[\"Reappearing blocks!\"]\n\n    notion.blocks.children.append(test_area,
+      block)\n    deleted = notion.blocks.delete(block)\n    assert deleted.archived
+      is True\n\n    # restore and capture the target block\n    block = notion.blocks.restore(block)\n\n    #
+      get the new restored back from the API\n    restored = notion.blocks.retrieve(block.id)\n\n    assert
+      restored.archived is False\n    assert restored == block\n\n    notion.blocks.delete(restored)\n\n\n@pytest.mark.vcr()\ndef
+      test_update_block(notion, test_area):\n    \"\"\"Update a block after it has
+      been created.\"\"\"\n    block = blocks.ToDo[\"Important Task\"]\n\n    notion.blocks.children.append(test_area,
+      block)\n\n    block.to_do.checked = True\n    notion.blocks.update(block)\n\n    #
+      get the new block back from the API\n    todo = notion.blocks.retrieve(block.id)\n\n    assert
+      todo.IsChecked\n    assert block == todo\n\n    notion.blocks.delete(block)\n\n\n@pytest.mark.vcr()\ndef
+      test_bookmark_block(notion, test_page):\n    \"\"\"Create and parse Bookmark
+      blocks.\"\"\"\n\n    bookmark = blocks.Bookmark[\"http://example.com\"]\n\n    assert
+      bookmark.URL == \"http://example.com\"\n    assert bookmark.Markdown == \"<http://example.com>\"\n\n    add_verify(notion,
+      test_page, bookmark)\n\n\n@pytest.mark.vcr()\ndef test_embed_block(notion, test_page):\n    \"\"\"Create
+      and parse Embed blocks.\"\"\"\n\n    embed = blocks.Embed[\"https://www.bing.com/\"]\n\n    assert
+      embed.URL == \"https://www.bing.com/\"\n    assert embed.Markdown == \"<https://www.bing.com/>\"\n\n    add_verify(notion,
+      test_page, embed)\n\n\n@pytest.mark.vcr()\ndef test_parse_breadcrumb(notion,
+      test_page):\n    \"\"\"Verify that breadcrumb blocks from the API are parsed
+      correctly.\"\"\"\n    breadcrumb = blocks.Breadcrumb()\n    add_verify(notion,
+      test_page, breadcrumb)\n\n\n@pytest.mark.vcr()\ndef test_parse_callout(notion,
+      test_page):\n    \"\"\"Verify that callout blocks from the API are parsed correctly.\"\"\"\n    \n    callout
+      = blocks.Callout[\"Attention!\", \"\u26a0\ufe0f\"]\n", "text": {"content": "elete
+      a block, then restore it and make sure it comes back.\"\"\"\n    block = blocks.Callout[\"Reappearing
+      blocks!\"]\n\n    notion.blocks.children.append(test_area, block)\n    deleted
+      = notion.blocks.delete(block)\n    assert deleted.archived is True\n\n    #
+      restore and capture the target block\n    block = notion.blocks.restore(block)\n\n    #
+      get the new restored back from the API\n    restored = notion.blocks.retrieve(block.id)\n\n    assert
+      restored.archived is False\n    assert restored == block\n\n    notion.blocks.delete(restored)\n\n\n@pytest.mark.vcr()\ndef
+      test_update_block(notion, test_area):\n    \"\"\"Update a block after it has
+      been created.\"\"\"\n    block = blocks.ToDo[\"Important Task\"]\n\n    notion.blocks.children.append(test_area,
+      block)\n\n    block.to_do.checked = True\n    notion.blocks.update(block)\n\n    #
+      get the new block back from the API\n    todo = notion.blocks.retrieve(block.id)\n\n    assert
+      todo.IsChecked\n    assert block == todo\n\n    notion.blocks.delete(block)\n\n\n@pytest.mark.vcr()\ndef
+      test_bookmark_block(notion, test_page):\n    \"\"\"Create and parse Bookmark
+      blocks.\"\"\"\n\n    bookmark = blocks.Bookmark[\"http://example.com\"]\n\n    assert
+      bookmark.URL == \"http://example.com\"\n    assert bookmark.Markdown == \"<http://example.com>\"\n\n    add_verify(notion,
+      test_page, bookmark)\n\n\n@pytest.mark.vcr()\ndef test_embed_block(notion, test_page):\n    \"\"\"Create
+      and parse Embed blocks.\"\"\"\n\n    embed = blocks.Embed[\"https://www.bing.com/\"]\n\n    assert
+      embed.URL == \"https://www.bing.com/\"\n    assert embed.Markdown == \"<https://www.bing.com/>\"\n\n    add_verify(notion,
+      test_page, embed)\n\n\n@pytest.mark.vcr()\ndef test_parse_breadcrumb(notion,
+      test_page):\n    \"\"\"Verify that breadcrumb blocks from the API are parsed
+      correctly.\"\"\"\n    breadcrumb = blocks.Breadcrumb()\n    add_verify(notion,
+      test_page, breadcrumb)\n\n\n@pytest.mark.vcr()\ndef test_parse_callout(notion,
+      test_page):\n    \"\"\"Verify that callout blocks from the API are parsed correctly.\"\"\"\n    \n    callout
+      = blocks.Callout[\"Attention!\", \"\u26a0\ufe0f\"]\n"}}, {"type": "text", "plain_text":
+      "\n    add_verify(notion, test_page, callout)\n\n\n@pytest.mark.vcr()\ndef test_parse_toc_block(notion,
+      test_page):\n    \"\"\"Verify that ''table of contents'' from the API are parsed
+      correctly.\"\"\"\n    toc = blocks.TableOfContents()\n    add_verify(notion,
+      test_page, toc)\n\n\n@pytest.mark.vcr()\ndef test_code_block(notion, test_page):\n    \"\"\"Verify
+      that code blocks from the API are parsed correctly.\"\"\"\n\n    with open(__file__,
+      \"r\") as fp:\n        text = fp.read()\n\n    code = blocks.Code[text]\n\n    assert
+      code.PlainText == text\n\n    add_verify(notion, test_page, code)\n\n\n@pytest.mark.vcr()\ndef
+      test_parse_simple_table(notion):\n    \"\"\"Verify that table blocks from the
+      API are parsed correctly.\"\"\"\n    block_id = \"c0bdf627b59c4cf685dd4b3dad8d4755\"\n\n    block
+      = notion.blocks.retrieve(block_id)\n    assert isinstance(block, blocks.Table)\n\n\n@pytest.mark.vcr()\ndef
+      test_parse_synced_block(notion):\n    \"\"\"Verify that synced blocks from the
+      API are parsed correctly.\"\"\"\n    orig_block_id = \"c4d5ddc629df458ca4b88f33e5d86857\"\n    sync_block_id
+      = \"f8f177e6fd84418f8405b3e57ca91562\"\n\n    orig_block = notion.blocks.retrieve(orig_block_id)\n    sync_block
+      = notion.blocks.retrieve(sync_block_id)\n\n    assert isinstance(orig_block,
+      blocks.SyncedBlock)\n    assert orig_block.IsOriginal\n\n    assert isinstance(sync_block,
+      blocks.SyncedBlock)\n    assert not sync_block.IsOriginal\n", "text": {"content":
+      "\n    add_verify(notion, test_page, callout)\n\n\n@pytest.mark.vcr()\ndef test_parse_toc_block(notion,
+      test_page):\n    \"\"\"Verify that ''table of contents'' from the API are parsed
+      correctly.\"\"\"\n    toc = blocks.TableOfContents()\n    add_verify(notion,
+      test_page, toc)\n\n\n@pytest.mark.vcr()\ndef test_code_block(notion, test_page):\n    \"\"\"Verify
+      that code blocks from the API are parsed correctly.\"\"\"\n\n    with open(__file__,
+      \"r\") as fp:\n        text = fp.read()\n\n    code = blocks.Code[text]\n\n    assert
+      code.PlainText == text\n\n    add_verify(notion, test_page, code)\n\n\n@pytest.mark.vcr()\ndef
+      test_parse_simple_table(notion):\n    \"\"\"Verify that table blocks from the
+      API are parsed correctly.\"\"\"\n    block_id = \"c0bdf627b59c4cf685dd4b3dad8d4755\"\n\n    block
+      = notion.blocks.retrieve(block_id)\n    assert isinstance(block, blocks.Table)\n\n\n@pytest.mark.vcr()\ndef
+      test_parse_synced_block(notion):\n    \"\"\"Verify that synced blocks from the
+      API are parsed correctly.\"\"\"\n    orig_block_id = \"c4d5ddc629df458ca4b88f33e5d86857\"\n    sync_block_id
+      = \"f8f177e6fd84418f8405b3e57ca91562\"\n\n    orig_block = notion.blocks.retrieve(orig_block_id)\n    sync_block
+      = notion.blocks.retrieve(sync_block_id)\n\n    assert isinstance(orig_block,
+      blocks.SyncedBlock)\n    assert orig_block.IsOriginal\n\n    assert isinstance(sync_block,
+      blocks.SyncedBlock)\n    assert not sync_block.IsOriginal\n"}}], "caption":
+      [], "language": "plain text"}}]}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      content-length:
+      - '11760'
+      content-type:
+      - application/json
+      host:
+      - api.notion.com
+      notion-version:
+      - '2022-06-28'
+    method: PATCH
+    uri: https://api.notion.com/v1/blocks/250662d9-783d-483c-b131-341ed479f96c/children
+  response:
+    content: "{\"object\":\"list\",\"results\":[{\"object\":\"block\",\"id\":\"5f025d85-ae7f-4091-b52d-593a26ae95fc\",\"parent\":{\"type\":\"page_id\",\"page_id\":\"250662d9-783d-483c-b131-341ed479f96c\"},\"created_time\":\"2022-12-31T05:18:00.000Z\",\"last_edited_time\":\"2022-12-31T05:18:00.000Z\",\"created_by\":{\"object\":\"user\",\"id\":\"6860cd48-ced8-41b3-b824-c7d039085db1\"},\"last_edited_by\":{\"object\":\"user\",\"id\":\"6860cd48-ced8-41b3-b824-c7d039085db1\"},\"has_children\":false,\"archived\":false,\"type\":\"code\",\"code\":{\"caption\":[],\"rich_text\":[{\"type\":\"text\",\"text\":{\"content\":\"\\\"\\\"\\\"Unit
+      tests for Notional blocks.\\\"\\\"\\\"\\n\\nimport pytest\\n\\nfrom notional
+      import blocks, types\\n\\n\\ndef add_verify(notion, page, block):\\n    \\\"\\\"\\\"Add
+      the block to the give page and read it back.\\\"\\\"\\\"\\n\\n    notion.blocks.children.append(page,
+      block)\\n    new_block = notion.blocks.retrieve(block.id)\\n\\n    assert new_block
+      == block\\n\\n    notion.blocks.delete(block.id)\\n\\n\\ndef test_append_without_children_support():\\n
+      \   \\\"\\\"\\\"Confirm that the mixin handles missing children in subclasses.\\\"\\\"\\\"\\n\\n
+      \   class _NoChildren(blocks.WithChildrenMixin):\\n        pass\\n\\n    block
+      = _NoChildren()\\n    para = blocks.Paragraph()\\n\\n    with pytest.raises(TypeError):\\n
+      \       block.append(para)\\n\\n\\ndef test_append_none():\\n    \\\"\\\"\\\"Ensure
+      we raise an appropriate error when appending None to a block.\\\"\\\"\\\"\\n
+      \   para = blocks.Paragraph()\\n\\n    with pytest.raises(ValueError):\\n        para.append(None)\\n\\n
+      \   with pytest.raises(ValueError):\\n        para += None\\n\\n\\ndef test_concat_none():\\n
+      \   \\\"\\\"\\\"Ensure we raise an appropriate error when concatenating None
+      to a text block.\\\"\\\"\\\"\\n\\n    para = blocks.Paragraph()\\n\\n    para.concat()\\n
+      \   assert para.PlainText == \\\"\\\"\\n\\n    para.concat(None)\\n    assert
+      para.PlainText == \\\"\\\"\\n\\n\\n@pytest.mark.vcr()\\ndef test_create_block(notion,
+      test_area):\\n    \\\"\\\"\\\"Create a single block and confirm its contents.\\\"\\\"\\\"\\n
+      \   block = blocks.Divider()\\n\\n    notion.blocks.children.append(test_area,
+      block)\\n    assert block.id is not None\\n    assert block.archived is False\\n\\n
+      \   new_block = notion.blocks.retrieve(block.id)\\n    assert new_block == block\\n\\n
+      \   notion.blocks.delete(new_block)\\n\\n\\n@pytest.mark.vcr()\\ndef test_delete_block(notion,
+      test_area):\\n    \\\"\\\"\\\"Create a block, then delete it and make sure it
+      is gone.\\\"\\\"\\\"\\n    block = blocks.Code[\\\"test_delete_block\\\"]\\n\\n
+      \   notion.blocks.children.append(test_area, block)\\n    block = notion.blocks.delete(block)\\n\\n
+      \   deleted = notion.blocks.retrieve(block.id)\\n\\n    assert deleted.archived
+      is True\\n    assert deleted == block\\n\\n\\n@pytest.mark.vcr()\\ndef test_restore_block(notion,
+      test_area):\\n    \\\"\\\"\\\"D\",\"link\":null},\"annotations\":{\"bold\":false,\"italic\":false,\"strikethrough\":false,\"underline\":false,\"code\":false,\"color\":\"default\"},\"plain_text\":\"\\\"\\\"\\\"Unit
+      tests for Notional blocks.\\\"\\\"\\\"\\n\\nimport pytest\\n\\nfrom notional
+      import blocks, types\\n\\n\\ndef add_verify(notion, page, block):\\n    \\\"\\\"\\\"Add
+      the block to the give page and read it back.\\\"\\\"\\\"\\n\\n    notion.blocks.children.append(page,
+      block)\\n    new_block = notion.blocks.retrieve(block.id)\\n\\n    assert new_block
+      == block\\n\\n    notion.blocks.delete(block.id)\\n\\n\\ndef test_append_without_children_support():\\n
+      \   \\\"\\\"\\\"Confirm that the mixin handles missing children in subclasses.\\\"\\\"\\\"\\n\\n
+      \   class _NoChildren(blocks.WithChildrenMixin):\\n        pass\\n\\n    block
+      = _NoChildren()\\n    para = blocks.Paragraph()\\n\\n    with pytest.raises(TypeError):\\n
+      \       block.append(para)\\n\\n\\ndef test_append_none():\\n    \\\"\\\"\\\"Ensure
+      we raise an appropriate error when appending None to a block.\\\"\\\"\\\"\\n
+      \   para = blocks.Paragraph()\\n\\n    with pytest.raises(ValueError):\\n        para.append(None)\\n\\n
+      \   with pytest.raises(ValueError):\\n        para += None\\n\\n\\ndef test_concat_none():\\n
+      \   \\\"\\\"\\\"Ensure we raise an appropriate error when concatenating None
+      to a text block.\\\"\\\"\\\"\\n\\n    para = blocks.Paragraph()\\n\\n    para.concat()\\n
+      \   assert para.PlainText == \\\"\\\"\\n\\n    para.concat(None)\\n    assert
+      para.PlainText == \\\"\\\"\\n\\n\\n@pytest.mark.vcr()\\ndef test_create_block(notion,
+      test_area):\\n    \\\"\\\"\\\"Create a single block and confirm its contents.\\\"\\\"\\\"\\n
+      \   block = blocks.Divider()\\n\\n    notion.blocks.children.append(test_area,
+      block)\\n    assert block.id is not None\\n    assert block.archived is False\\n\\n
+      \   new_block = notion.blocks.retrieve(block.id)\\n    assert new_block == block\\n\\n
+      \   notion.blocks.delete(new_block)\\n\\n\\n@pytest.mark.vcr()\\ndef test_delete_block(notion,
+      test_area):\\n    \\\"\\\"\\\"Create a block, then delete it and make sure it
+      is gone.\\\"\\\"\\\"\\n    block = blocks.Code[\\\"test_delete_block\\\"]\\n\\n
+      \   notion.blocks.children.append(test_area, block)\\n    block = notion.blocks.delete(block)\\n\\n
+      \   deleted = notion.blocks.retrieve(block.id)\\n\\n    assert deleted.archived
+      is True\\n    assert deleted == block\\n\\n\\n@pytest.mark.vcr()\\ndef test_restore_block(notion,
+      test_area):\\n    \\\"\\\"\\\"D\",\"href\":null},{\"type\":\"text\",\"text\":{\"content\":\"elete
+      a block, then restore it and make sure it comes back.\\\"\\\"\\\"\\n    block
+      = blocks.Callout[\\\"Reappearing blocks!\\\"]\\n\\n    notion.blocks.children.append(test_area,
+      block)\\n    deleted = notion.blocks.delete(block)\\n    assert deleted.archived
+      is True\\n\\n    # restore and capture the target block\\n    block = notion.blocks.restore(block)\\n\\n
+      \   # get the new restored back from the API\\n    restored = notion.blocks.retrieve(block.id)\\n\\n
+      \   assert restored.archived is False\\n    assert restored == block\\n\\n    notion.blocks.delete(restored)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_update_block(notion, test_area):\\n    \\\"\\\"\\\"Update a block after
+      it has been created.\\\"\\\"\\\"\\n    block = blocks.ToDo[\\\"Important Task\\\"]\\n\\n
+      \   notion.blocks.children.append(test_area, block)\\n\\n    block.to_do.checked
+      = True\\n    notion.blocks.update(block)\\n\\n    # get the new block back from
+      the API\\n    todo = notion.blocks.retrieve(block.id)\\n\\n    assert todo.IsChecked\\n
+      \   assert block == todo\\n\\n    notion.blocks.delete(block)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_bookmark_block(notion, test_page):\\n    \\\"\\\"\\\"Create and parse Bookmark
+      blocks.\\\"\\\"\\\"\\n\\n    bookmark = blocks.Bookmark[\\\"http://example.com\\\"]\\n\\n
+      \   assert bookmark.URL == \\\"http://example.com\\\"\\n    assert bookmark.Markdown
+      == \\\"<http://example.com>\\\"\\n\\n    add_verify(notion, test_page, bookmark)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_embed_block(notion, test_page):\\n    \\\"\\\"\\\"Create and parse Embed
+      blocks.\\\"\\\"\\\"\\n\\n    embed = blocks.Embed[\\\"https://www.bing.com/\\\"]\\n\\n
+      \   assert embed.URL == \\\"https://www.bing.com/\\\"\\n    assert embed.Markdown
+      == \\\"<https://www.bing.com/>\\\"\\n\\n    add_verify(notion, test_page, embed)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_breadcrumb(notion, test_page):\\n    \\\"\\\"\\\"Verify that breadcrumb
+      blocks from the API are parsed correctly.\\\"\\\"\\\"\\n    breadcrumb = blocks.Breadcrumb()\\n
+      \   add_verify(notion, test_page, breadcrumb)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_callout(notion, test_page):\\n    \\\"\\\"\\\"Verify that callout
+      blocks from the API are parsed correctly.\\\"\\\"\\\"\\n    \\n    callout =
+      blocks.Callout[\\\"Attention!\\\", \\\"\u26A0\uFE0F\\\"]\\n\",\"link\":null},\"annotations\":{\"bold\":false,\"italic\":false,\"strikethrough\":false,\"underline\":false,\"code\":false,\"color\":\"default\"},\"plain_text\":\"elete
+      a block, then restore it and make sure it comes back.\\\"\\\"\\\"\\n    block
+      = blocks.Callout[\\\"Reappearing blocks!\\\"]\\n\\n    notion.blocks.children.append(test_area,
+      block)\\n    deleted = notion.blocks.delete(block)\\n    assert deleted.archived
+      is True\\n\\n    # restore and capture the target block\\n    block = notion.blocks.restore(block)\\n\\n
+      \   # get the new restored back from the API\\n    restored = notion.blocks.retrieve(block.id)\\n\\n
+      \   assert restored.archived is False\\n    assert restored == block\\n\\n    notion.blocks.delete(restored)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_update_block(notion, test_area):\\n    \\\"\\\"\\\"Update a block after
+      it has been created.\\\"\\\"\\\"\\n    block = blocks.ToDo[\\\"Important Task\\\"]\\n\\n
+      \   notion.blocks.children.append(test_area, block)\\n\\n    block.to_do.checked
+      = True\\n    notion.blocks.update(block)\\n\\n    # get the new block back from
+      the API\\n    todo = notion.blocks.retrieve(block.id)\\n\\n    assert todo.IsChecked\\n
+      \   assert block == todo\\n\\n    notion.blocks.delete(block)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_bookmark_block(notion, test_page):\\n    \\\"\\\"\\\"Create and parse Bookmark
+      blocks.\\\"\\\"\\\"\\n\\n    bookmark = blocks.Bookmark[\\\"http://example.com\\\"]\\n\\n
+      \   assert bookmark.URL == \\\"http://example.com\\\"\\n    assert bookmark.Markdown
+      == \\\"<http://example.com>\\\"\\n\\n    add_verify(notion, test_page, bookmark)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_embed_block(notion, test_page):\\n    \\\"\\\"\\\"Create and parse Embed
+      blocks.\\\"\\\"\\\"\\n\\n    embed = blocks.Embed[\\\"https://www.bing.com/\\\"]\\n\\n
+      \   assert embed.URL == \\\"https://www.bing.com/\\\"\\n    assert embed.Markdown
+      == \\\"<https://www.bing.com/>\\\"\\n\\n    add_verify(notion, test_page, embed)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_breadcrumb(notion, test_page):\\n    \\\"\\\"\\\"Verify that breadcrumb
+      blocks from the API are parsed correctly.\\\"\\\"\\\"\\n    breadcrumb = blocks.Breadcrumb()\\n
+      \   add_verify(notion, test_page, breadcrumb)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_callout(notion, test_page):\\n    \\\"\\\"\\\"Verify that callout
+      blocks from the API are parsed correctly.\\\"\\\"\\\"\\n    \\n    callout =
+      blocks.Callout[\\\"Attention!\\\", \\\"\u26A0\uFE0F\\\"]\\n\",\"href\":null},{\"type\":\"text\",\"text\":{\"content\":\"\\n
+      \   add_verify(notion, test_page, callout)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_toc_block(notion, test_page):\\n    \\\"\\\"\\\"Verify that 'table
+      of contents' from the API are parsed correctly.\\\"\\\"\\\"\\n    toc = blocks.TableOfContents()\\n
+      \   add_verify(notion, test_page, toc)\\n\\n\\n@pytest.mark.vcr()\\ndef test_code_block(notion,
+      test_page):\\n    \\\"\\\"\\\"Verify that code blocks from the API are parsed
+      correctly.\\\"\\\"\\\"\\n\\n    with open(__file__, \\\"r\\\") as fp:\\n        text
+      = fp.read()\\n\\n    code = blocks.Code[text]\\n\\n    assert code.PlainText
+      == text\\n\\n    add_verify(notion, test_page, code)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_simple_table(notion):\\n    \\\"\\\"\\\"Verify that table blocks
+      from the API are parsed correctly.\\\"\\\"\\\"\\n    block_id = \\\"c0bdf627b59c4cf685dd4b3dad8d4755\\\"\\n\\n
+      \   block = notion.blocks.retrieve(block_id)\\n    assert isinstance(block,
+      blocks.Table)\\n\\n\\n@pytest.mark.vcr()\\ndef test_parse_synced_block(notion):\\n
+      \   \\\"\\\"\\\"Verify that synced blocks from the API are parsed correctly.\\\"\\\"\\\"\\n
+      \   orig_block_id = \\\"c4d5ddc629df458ca4b88f33e5d86857\\\"\\n    sync_block_id
+      = \\\"f8f177e6fd84418f8405b3e57ca91562\\\"\\n\\n    orig_block = notion.blocks.retrieve(orig_block_id)\\n
+      \   sync_block = notion.blocks.retrieve(sync_block_id)\\n\\n    assert isinstance(orig_block,
+      blocks.SyncedBlock)\\n    assert orig_block.IsOriginal\\n\\n    assert isinstance(sync_block,
+      blocks.SyncedBlock)\\n    assert not sync_block.IsOriginal\\n\",\"link\":null},\"annotations\":{\"bold\":false,\"italic\":false,\"strikethrough\":false,\"underline\":false,\"code\":false,\"color\":\"default\"},\"plain_text\":\"\\n
+      \   add_verify(notion, test_page, callout)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_toc_block(notion, test_page):\\n    \\\"\\\"\\\"Verify that 'table
+      of contents' from the API are parsed correctly.\\\"\\\"\\\"\\n    toc = blocks.TableOfContents()\\n
+      \   add_verify(notion, test_page, toc)\\n\\n\\n@pytest.mark.vcr()\\ndef test_code_block(notion,
+      test_page):\\n    \\\"\\\"\\\"Verify that code blocks from the API are parsed
+      correctly.\\\"\\\"\\\"\\n\\n    with open(__file__, \\\"r\\\") as fp:\\n        text
+      = fp.read()\\n\\n    code = blocks.Code[text]\\n\\n    assert code.PlainText
+      == text\\n\\n    add_verify(notion, test_page, code)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_simple_table(notion):\\n    \\\"\\\"\\\"Verify that table blocks
+      from the API are parsed correctly.\\\"\\\"\\\"\\n    block_id = \\\"c0bdf627b59c4cf685dd4b3dad8d4755\\\"\\n\\n
+      \   block = notion.blocks.retrieve(block_id)\\n    assert isinstance(block,
+      blocks.Table)\\n\\n\\n@pytest.mark.vcr()\\ndef test_parse_synced_block(notion):\\n
+      \   \\\"\\\"\\\"Verify that synced blocks from the API are parsed correctly.\\\"\\\"\\\"\\n
+      \   orig_block_id = \\\"c4d5ddc629df458ca4b88f33e5d86857\\\"\\n    sync_block_id
+      = \\\"f8f177e6fd84418f8405b3e57ca91562\\\"\\n\\n    orig_block = notion.blocks.retrieve(orig_block_id)\\n
+      \   sync_block = notion.blocks.retrieve(sync_block_id)\\n\\n    assert isinstance(orig_block,
+      blocks.SyncedBlock)\\n    assert orig_block.IsOriginal\\n\\n    assert isinstance(sync_block,
+      blocks.SyncedBlock)\\n    assert not sync_block.IsOriginal\\n\",\"href\":null}],\"language\":\"plain
+      text\"}}],\"next_cursor\":null,\"has_more\":false,\"type\":\"block\",\"block\":{}}"
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      host:
+      - api.notion.com
+      notion-version:
+      - '2022-06-28'
+    method: GET
+    uri: https://api.notion.com/v1/blocks/5f025d85-ae7f-4091-b52d-593a26ae95fc
+  response:
+    content: "{\"object\":\"block\",\"id\":\"5f025d85-ae7f-4091-b52d-593a26ae95fc\",\"parent\":{\"type\":\"page_id\",\"page_id\":\"250662d9-783d-483c-b131-341ed479f96c\"},\"created_time\":\"2022-12-31T05:18:00.000Z\",\"last_edited_time\":\"2022-12-31T05:18:00.000Z\",\"created_by\":{\"object\":\"user\",\"id\":\"6860cd48-ced8-41b3-b824-c7d039085db1\"},\"last_edited_by\":{\"object\":\"user\",\"id\":\"6860cd48-ced8-41b3-b824-c7d039085db1\"},\"has_children\":false,\"archived\":false,\"type\":\"code\",\"code\":{\"caption\":[],\"rich_text\":[{\"type\":\"text\",\"text\":{\"content\":\"\\\"\\\"\\\"Unit
+      tests for Notional blocks.\\\"\\\"\\\"\\n\\nimport pytest\\n\\nfrom notional
+      import blocks, types\\n\\n\\ndef add_verify(notion, page, block):\\n    \\\"\\\"\\\"Add
+      the block to the give page and read it back.\\\"\\\"\\\"\\n\\n    notion.blocks.children.append(page,
+      block)\\n    new_block = notion.blocks.retrieve(block.id)\\n\\n    assert new_block
+      == block\\n\\n    notion.blocks.delete(block.id)\\n\\n\\ndef test_append_without_children_support():\\n
+      \   \\\"\\\"\\\"Confirm that the mixin handles missing children in subclasses.\\\"\\\"\\\"\\n\\n
+      \   class _NoChildren(blocks.WithChildrenMixin):\\n        pass\\n\\n    block
+      = _NoChildren()\\n    para = blocks.Paragraph()\\n\\n    with pytest.raises(TypeError):\\n
+      \       block.append(para)\\n\\n\\ndef test_append_none():\\n    \\\"\\\"\\\"Ensure
+      we raise an appropriate error when appending None to a block.\\\"\\\"\\\"\\n
+      \   para = blocks.Paragraph()\\n\\n    with pytest.raises(ValueError):\\n        para.append(None)\\n\\n
+      \   with pytest.raises(ValueError):\\n        para += None\\n\\n\\ndef test_concat_none():\\n
+      \   \\\"\\\"\\\"Ensure we raise an appropriate error when concatenating None
+      to a text block.\\\"\\\"\\\"\\n\\n    para = blocks.Paragraph()\\n\\n    para.concat()\\n
+      \   assert para.PlainText == \\\"\\\"\\n\\n    para.concat(None)\\n    assert
+      para.PlainText == \\\"\\\"\\n\\n\\n@pytest.mark.vcr()\\ndef test_create_block(notion,
+      test_area):\\n    \\\"\\\"\\\"Create a single block and confirm its contents.\\\"\\\"\\\"\\n
+      \   block = blocks.Divider()\\n\\n    notion.blocks.children.append(test_area,
+      block)\\n    assert block.id is not None\\n    assert block.archived is False\\n\\n
+      \   new_block = notion.blocks.retrieve(block.id)\\n    assert new_block == block\\n\\n
+      \   notion.blocks.delete(new_block)\\n\\n\\n@pytest.mark.vcr()\\ndef test_delete_block(notion,
+      test_area):\\n    \\\"\\\"\\\"Create a block, then delete it and make sure it
+      is gone.\\\"\\\"\\\"\\n    block = blocks.Code[\\\"test_delete_block\\\"]\\n\\n
+      \   notion.blocks.children.append(test_area, block)\\n    block = notion.blocks.delete(block)\\n\\n
+      \   deleted = notion.blocks.retrieve(block.id)\\n\\n    assert deleted.archived
+      is True\\n    assert deleted == block\\n\\n\\n@pytest.mark.vcr()\\ndef test_restore_block(notion,
+      test_area):\\n    \\\"\\\"\\\"D\",\"link\":null},\"annotations\":{\"bold\":false,\"italic\":false,\"strikethrough\":false,\"underline\":false,\"code\":false,\"color\":\"default\"},\"plain_text\":\"\\\"\\\"\\\"Unit
+      tests for Notional blocks.\\\"\\\"\\\"\\n\\nimport pytest\\n\\nfrom notional
+      import blocks, types\\n\\n\\ndef add_verify(notion, page, block):\\n    \\\"\\\"\\\"Add
+      the block to the give page and read it back.\\\"\\\"\\\"\\n\\n    notion.blocks.children.append(page,
+      block)\\n    new_block = notion.blocks.retrieve(block.id)\\n\\n    assert new_block
+      == block\\n\\n    notion.blocks.delete(block.id)\\n\\n\\ndef test_append_without_children_support():\\n
+      \   \\\"\\\"\\\"Confirm that the mixin handles missing children in subclasses.\\\"\\\"\\\"\\n\\n
+      \   class _NoChildren(blocks.WithChildrenMixin):\\n        pass\\n\\n    block
+      = _NoChildren()\\n    para = blocks.Paragraph()\\n\\n    with pytest.raises(TypeError):\\n
+      \       block.append(para)\\n\\n\\ndef test_append_none():\\n    \\\"\\\"\\\"Ensure
+      we raise an appropriate error when appending None to a block.\\\"\\\"\\\"\\n
+      \   para = blocks.Paragraph()\\n\\n    with pytest.raises(ValueError):\\n        para.append(None)\\n\\n
+      \   with pytest.raises(ValueError):\\n        para += None\\n\\n\\ndef test_concat_none():\\n
+      \   \\\"\\\"\\\"Ensure we raise an appropriate error when concatenating None
+      to a text block.\\\"\\\"\\\"\\n\\n    para = blocks.Paragraph()\\n\\n    para.concat()\\n
+      \   assert para.PlainText == \\\"\\\"\\n\\n    para.concat(None)\\n    assert
+      para.PlainText == \\\"\\\"\\n\\n\\n@pytest.mark.vcr()\\ndef test_create_block(notion,
+      test_area):\\n    \\\"\\\"\\\"Create a single block and confirm its contents.\\\"\\\"\\\"\\n
+      \   block = blocks.Divider()\\n\\n    notion.blocks.children.append(test_area,
+      block)\\n    assert block.id is not None\\n    assert block.archived is False\\n\\n
+      \   new_block = notion.blocks.retrieve(block.id)\\n    assert new_block == block\\n\\n
+      \   notion.blocks.delete(new_block)\\n\\n\\n@pytest.mark.vcr()\\ndef test_delete_block(notion,
+      test_area):\\n    \\\"\\\"\\\"Create a block, then delete it and make sure it
+      is gone.\\\"\\\"\\\"\\n    block = blocks.Code[\\\"test_delete_block\\\"]\\n\\n
+      \   notion.blocks.children.append(test_area, block)\\n    block = notion.blocks.delete(block)\\n\\n
+      \   deleted = notion.blocks.retrieve(block.id)\\n\\n    assert deleted.archived
+      is True\\n    assert deleted == block\\n\\n\\n@pytest.mark.vcr()\\ndef test_restore_block(notion,
+      test_area):\\n    \\\"\\\"\\\"D\",\"href\":null},{\"type\":\"text\",\"text\":{\"content\":\"elete
+      a block, then restore it and make sure it comes back.\\\"\\\"\\\"\\n    block
+      = blocks.Callout[\\\"Reappearing blocks!\\\"]\\n\\n    notion.blocks.children.append(test_area,
+      block)\\n    deleted = notion.blocks.delete(block)\\n    assert deleted.archived
+      is True\\n\\n    # restore and capture the target block\\n    block = notion.blocks.restore(block)\\n\\n
+      \   # get the new restored back from the API\\n    restored = notion.blocks.retrieve(block.id)\\n\\n
+      \   assert restored.archived is False\\n    assert restored == block\\n\\n    notion.blocks.delete(restored)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_update_block(notion, test_area):\\n    \\\"\\\"\\\"Update a block after
+      it has been created.\\\"\\\"\\\"\\n    block = blocks.ToDo[\\\"Important Task\\\"]\\n\\n
+      \   notion.blocks.children.append(test_area, block)\\n\\n    block.to_do.checked
+      = True\\n    notion.blocks.update(block)\\n\\n    # get the new block back from
+      the API\\n    todo = notion.blocks.retrieve(block.id)\\n\\n    assert todo.IsChecked\\n
+      \   assert block == todo\\n\\n    notion.blocks.delete(block)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_bookmark_block(notion, test_page):\\n    \\\"\\\"\\\"Create and parse Bookmark
+      blocks.\\\"\\\"\\\"\\n\\n    bookmark = blocks.Bookmark[\\\"http://example.com\\\"]\\n\\n
+      \   assert bookmark.URL == \\\"http://example.com\\\"\\n    assert bookmark.Markdown
+      == \\\"<http://example.com>\\\"\\n\\n    add_verify(notion, test_page, bookmark)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_embed_block(notion, test_page):\\n    \\\"\\\"\\\"Create and parse Embed
+      blocks.\\\"\\\"\\\"\\n\\n    embed = blocks.Embed[\\\"https://www.bing.com/\\\"]\\n\\n
+      \   assert embed.URL == \\\"https://www.bing.com/\\\"\\n    assert embed.Markdown
+      == \\\"<https://www.bing.com/>\\\"\\n\\n    add_verify(notion, test_page, embed)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_breadcrumb(notion, test_page):\\n    \\\"\\\"\\\"Verify that breadcrumb
+      blocks from the API are parsed correctly.\\\"\\\"\\\"\\n    breadcrumb = blocks.Breadcrumb()\\n
+      \   add_verify(notion, test_page, breadcrumb)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_callout(notion, test_page):\\n    \\\"\\\"\\\"Verify that callout
+      blocks from the API are parsed correctly.\\\"\\\"\\\"\\n    \\n    callout =
+      blocks.Callout[\\\"Attention!\\\", \\\"\u26A0\uFE0F\\\"]\\n\",\"link\":null},\"annotations\":{\"bold\":false,\"italic\":false,\"strikethrough\":false,\"underline\":false,\"code\":false,\"color\":\"default\"},\"plain_text\":\"elete
+      a block, then restore it and make sure it comes back.\\\"\\\"\\\"\\n    block
+      = blocks.Callout[\\\"Reappearing blocks!\\\"]\\n\\n    notion.blocks.children.append(test_area,
+      block)\\n    deleted = notion.blocks.delete(block)\\n    assert deleted.archived
+      is True\\n\\n    # restore and capture the target block\\n    block = notion.blocks.restore(block)\\n\\n
+      \   # get the new restored back from the API\\n    restored = notion.blocks.retrieve(block.id)\\n\\n
+      \   assert restored.archived is False\\n    assert restored == block\\n\\n    notion.blocks.delete(restored)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_update_block(notion, test_area):\\n    \\\"\\\"\\\"Update a block after
+      it has been created.\\\"\\\"\\\"\\n    block = blocks.ToDo[\\\"Important Task\\\"]\\n\\n
+      \   notion.blocks.children.append(test_area, block)\\n\\n    block.to_do.checked
+      = True\\n    notion.blocks.update(block)\\n\\n    # get the new block back from
+      the API\\n    todo = notion.blocks.retrieve(block.id)\\n\\n    assert todo.IsChecked\\n
+      \   assert block == todo\\n\\n    notion.blocks.delete(block)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_bookmark_block(notion, test_page):\\n    \\\"\\\"\\\"Create and parse Bookmark
+      blocks.\\\"\\\"\\\"\\n\\n    bookmark = blocks.Bookmark[\\\"http://example.com\\\"]\\n\\n
+      \   assert bookmark.URL == \\\"http://example.com\\\"\\n    assert bookmark.Markdown
+      == \\\"<http://example.com>\\\"\\n\\n    add_verify(notion, test_page, bookmark)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_embed_block(notion, test_page):\\n    \\\"\\\"\\\"Create and parse Embed
+      blocks.\\\"\\\"\\\"\\n\\n    embed = blocks.Embed[\\\"https://www.bing.com/\\\"]\\n\\n
+      \   assert embed.URL == \\\"https://www.bing.com/\\\"\\n    assert embed.Markdown
+      == \\\"<https://www.bing.com/>\\\"\\n\\n    add_verify(notion, test_page, embed)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_breadcrumb(notion, test_page):\\n    \\\"\\\"\\\"Verify that breadcrumb
+      blocks from the API are parsed correctly.\\\"\\\"\\\"\\n    breadcrumb = blocks.Breadcrumb()\\n
+      \   add_verify(notion, test_page, breadcrumb)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_callout(notion, test_page):\\n    \\\"\\\"\\\"Verify that callout
+      blocks from the API are parsed correctly.\\\"\\\"\\\"\\n    \\n    callout =
+      blocks.Callout[\\\"Attention!\\\", \\\"\u26A0\uFE0F\\\"]\\n\",\"href\":null},{\"type\":\"text\",\"text\":{\"content\":\"\\n
+      \   add_verify(notion, test_page, callout)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_toc_block(notion, test_page):\\n    \\\"\\\"\\\"Verify that 'table
+      of contents' from the API are parsed correctly.\\\"\\\"\\\"\\n    toc = blocks.TableOfContents()\\n
+      \   add_verify(notion, test_page, toc)\\n\\n\\n@pytest.mark.vcr()\\ndef test_code_block(notion,
+      test_page):\\n    \\\"\\\"\\\"Verify that code blocks from the API are parsed
+      correctly.\\\"\\\"\\\"\\n\\n    with open(__file__, \\\"r\\\") as fp:\\n        text
+      = fp.read()\\n\\n    code = blocks.Code[text]\\n\\n    assert code.PlainText
+      == text\\n\\n    add_verify(notion, test_page, code)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_simple_table(notion):\\n    \\\"\\\"\\\"Verify that table blocks
+      from the API are parsed correctly.\\\"\\\"\\\"\\n    block_id = \\\"c0bdf627b59c4cf685dd4b3dad8d4755\\\"\\n\\n
+      \   block = notion.blocks.retrieve(block_id)\\n    assert isinstance(block,
+      blocks.Table)\\n\\n\\n@pytest.mark.vcr()\\ndef test_parse_synced_block(notion):\\n
+      \   \\\"\\\"\\\"Verify that synced blocks from the API are parsed correctly.\\\"\\\"\\\"\\n
+      \   orig_block_id = \\\"c4d5ddc629df458ca4b88f33e5d86857\\\"\\n    sync_block_id
+      = \\\"f8f177e6fd84418f8405b3e57ca91562\\\"\\n\\n    orig_block = notion.blocks.retrieve(orig_block_id)\\n
+      \   sync_block = notion.blocks.retrieve(sync_block_id)\\n\\n    assert isinstance(orig_block,
+      blocks.SyncedBlock)\\n    assert orig_block.IsOriginal\\n\\n    assert isinstance(sync_block,
+      blocks.SyncedBlock)\\n    assert not sync_block.IsOriginal\\n\",\"link\":null},\"annotations\":{\"bold\":false,\"italic\":false,\"strikethrough\":false,\"underline\":false,\"code\":false,\"color\":\"default\"},\"plain_text\":\"\\n
+      \   add_verify(notion, test_page, callout)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_toc_block(notion, test_page):\\n    \\\"\\\"\\\"Verify that 'table
+      of contents' from the API are parsed correctly.\\\"\\\"\\\"\\n    toc = blocks.TableOfContents()\\n
+      \   add_verify(notion, test_page, toc)\\n\\n\\n@pytest.mark.vcr()\\ndef test_code_block(notion,
+      test_page):\\n    \\\"\\\"\\\"Verify that code blocks from the API are parsed
+      correctly.\\\"\\\"\\\"\\n\\n    with open(__file__, \\\"r\\\") as fp:\\n        text
+      = fp.read()\\n\\n    code = blocks.Code[text]\\n\\n    assert code.PlainText
+      == text\\n\\n    add_verify(notion, test_page, code)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_simple_table(notion):\\n    \\\"\\\"\\\"Verify that table blocks
+      from the API are parsed correctly.\\\"\\\"\\\"\\n    block_id = \\\"c0bdf627b59c4cf685dd4b3dad8d4755\\\"\\n\\n
+      \   block = notion.blocks.retrieve(block_id)\\n    assert isinstance(block,
+      blocks.Table)\\n\\n\\n@pytest.mark.vcr()\\ndef test_parse_synced_block(notion):\\n
+      \   \\\"\\\"\\\"Verify that synced blocks from the API are parsed correctly.\\\"\\\"\\\"\\n
+      \   orig_block_id = \\\"c4d5ddc629df458ca4b88f33e5d86857\\\"\\n    sync_block_id
+      = \\\"f8f177e6fd84418f8405b3e57ca91562\\\"\\n\\n    orig_block = notion.blocks.retrieve(orig_block_id)\\n
+      \   sync_block = notion.blocks.retrieve(sync_block_id)\\n\\n    assert isinstance(orig_block,
+      blocks.SyncedBlock)\\n    assert orig_block.IsOriginal\\n\\n    assert isinstance(sync_block,
+      blocks.SyncedBlock)\\n    assert not sync_block.IsOriginal\\n\",\"href\":null}],\"language\":\"plain
+      text\"}}"
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      host:
+      - api.notion.com
+      notion-version:
+      - '2022-06-28'
+    method: DELETE
+    uri: https://api.notion.com/v1/blocks/5f025d85-ae7f-4091-b52d-593a26ae95fc
+  response:
+    content: "{\"object\":\"block\",\"id\":\"5f025d85-ae7f-4091-b52d-593a26ae95fc\",\"parent\":{\"type\":\"page_id\",\"page_id\":\"250662d9-783d-483c-b131-341ed479f96c\"},\"created_time\":\"2022-12-31T05:18:00.000Z\",\"last_edited_time\":\"2022-12-31T05:18:00.000Z\",\"created_by\":{\"object\":\"user\",\"id\":\"6860cd48-ced8-41b3-b824-c7d039085db1\"},\"last_edited_by\":{\"object\":\"user\",\"id\":\"6860cd48-ced8-41b3-b824-c7d039085db1\"},\"has_children\":false,\"archived\":true,\"type\":\"code\",\"code\":{\"caption\":[],\"rich_text\":[{\"type\":\"text\",\"text\":{\"content\":\"\\\"\\\"\\\"Unit
+      tests for Notional blocks.\\\"\\\"\\\"\\n\\nimport pytest\\n\\nfrom notional
+      import blocks, types\\n\\n\\ndef add_verify(notion, page, block):\\n    \\\"\\\"\\\"Add
+      the block to the give page and read it back.\\\"\\\"\\\"\\n\\n    notion.blocks.children.append(page,
+      block)\\n    new_block = notion.blocks.retrieve(block.id)\\n\\n    assert new_block
+      == block\\n\\n    notion.blocks.delete(block.id)\\n\\n\\ndef test_append_without_children_support():\\n
+      \   \\\"\\\"\\\"Confirm that the mixin handles missing children in subclasses.\\\"\\\"\\\"\\n\\n
+      \   class _NoChildren(blocks.WithChildrenMixin):\\n        pass\\n\\n    block
+      = _NoChildren()\\n    para = blocks.Paragraph()\\n\\n    with pytest.raises(TypeError):\\n
+      \       block.append(para)\\n\\n\\ndef test_append_none():\\n    \\\"\\\"\\\"Ensure
+      we raise an appropriate error when appending None to a block.\\\"\\\"\\\"\\n
+      \   para = blocks.Paragraph()\\n\\n    with pytest.raises(ValueError):\\n        para.append(None)\\n\\n
+      \   with pytest.raises(ValueError):\\n        para += None\\n\\n\\ndef test_concat_none():\\n
+      \   \\\"\\\"\\\"Ensure we raise an appropriate error when concatenating None
+      to a text block.\\\"\\\"\\\"\\n\\n    para = blocks.Paragraph()\\n\\n    para.concat()\\n
+      \   assert para.PlainText == \\\"\\\"\\n\\n    para.concat(None)\\n    assert
+      para.PlainText == \\\"\\\"\\n\\n\\n@pytest.mark.vcr()\\ndef test_create_block(notion,
+      test_area):\\n    \\\"\\\"\\\"Create a single block and confirm its contents.\\\"\\\"\\\"\\n
+      \   block = blocks.Divider()\\n\\n    notion.blocks.children.append(test_area,
+      block)\\n    assert block.id is not None\\n    assert block.archived is False\\n\\n
+      \   new_block = notion.blocks.retrieve(block.id)\\n    assert new_block == block\\n\\n
+      \   notion.blocks.delete(new_block)\\n\\n\\n@pytest.mark.vcr()\\ndef test_delete_block(notion,
+      test_area):\\n    \\\"\\\"\\\"Create a block, then delete it and make sure it
+      is gone.\\\"\\\"\\\"\\n    block = blocks.Code[\\\"test_delete_block\\\"]\\n\\n
+      \   notion.blocks.children.append(test_area, block)\\n    block = notion.blocks.delete(block)\\n\\n
+      \   deleted = notion.blocks.retrieve(block.id)\\n\\n    assert deleted.archived
+      is True\\n    assert deleted == block\\n\\n\\n@pytest.mark.vcr()\\ndef test_restore_block(notion,
+      test_area):\\n    \\\"\\\"\\\"D\",\"link\":null},\"annotations\":{\"bold\":false,\"italic\":false,\"strikethrough\":false,\"underline\":false,\"code\":false,\"color\":\"default\"},\"plain_text\":\"\\\"\\\"\\\"Unit
+      tests for Notional blocks.\\\"\\\"\\\"\\n\\nimport pytest\\n\\nfrom notional
+      import blocks, types\\n\\n\\ndef add_verify(notion, page, block):\\n    \\\"\\\"\\\"Add
+      the block to the give page and read it back.\\\"\\\"\\\"\\n\\n    notion.blocks.children.append(page,
+      block)\\n    new_block = notion.blocks.retrieve(block.id)\\n\\n    assert new_block
+      == block\\n\\n    notion.blocks.delete(block.id)\\n\\n\\ndef test_append_without_children_support():\\n
+      \   \\\"\\\"\\\"Confirm that the mixin handles missing children in subclasses.\\\"\\\"\\\"\\n\\n
+      \   class _NoChildren(blocks.WithChildrenMixin):\\n        pass\\n\\n    block
+      = _NoChildren()\\n    para = blocks.Paragraph()\\n\\n    with pytest.raises(TypeError):\\n
+      \       block.append(para)\\n\\n\\ndef test_append_none():\\n    \\\"\\\"\\\"Ensure
+      we raise an appropriate error when appending None to a block.\\\"\\\"\\\"\\n
+      \   para = blocks.Paragraph()\\n\\n    with pytest.raises(ValueError):\\n        para.append(None)\\n\\n
+      \   with pytest.raises(ValueError):\\n        para += None\\n\\n\\ndef test_concat_none():\\n
+      \   \\\"\\\"\\\"Ensure we raise an appropriate error when concatenating None
+      to a text block.\\\"\\\"\\\"\\n\\n    para = blocks.Paragraph()\\n\\n    para.concat()\\n
+      \   assert para.PlainText == \\\"\\\"\\n\\n    para.concat(None)\\n    assert
+      para.PlainText == \\\"\\\"\\n\\n\\n@pytest.mark.vcr()\\ndef test_create_block(notion,
+      test_area):\\n    \\\"\\\"\\\"Create a single block and confirm its contents.\\\"\\\"\\\"\\n
+      \   block = blocks.Divider()\\n\\n    notion.blocks.children.append(test_area,
+      block)\\n    assert block.id is not None\\n    assert block.archived is False\\n\\n
+      \   new_block = notion.blocks.retrieve(block.id)\\n    assert new_block == block\\n\\n
+      \   notion.blocks.delete(new_block)\\n\\n\\n@pytest.mark.vcr()\\ndef test_delete_block(notion,
+      test_area):\\n    \\\"\\\"\\\"Create a block, then delete it and make sure it
+      is gone.\\\"\\\"\\\"\\n    block = blocks.Code[\\\"test_delete_block\\\"]\\n\\n
+      \   notion.blocks.children.append(test_area, block)\\n    block = notion.blocks.delete(block)\\n\\n
+      \   deleted = notion.blocks.retrieve(block.id)\\n\\n    assert deleted.archived
+      is True\\n    assert deleted == block\\n\\n\\n@pytest.mark.vcr()\\ndef test_restore_block(notion,
+      test_area):\\n    \\\"\\\"\\\"D\",\"href\":null},{\"type\":\"text\",\"text\":{\"content\":\"elete
+      a block, then restore it and make sure it comes back.\\\"\\\"\\\"\\n    block
+      = blocks.Callout[\\\"Reappearing blocks!\\\"]\\n\\n    notion.blocks.children.append(test_area,
+      block)\\n    deleted = notion.blocks.delete(block)\\n    assert deleted.archived
+      is True\\n\\n    # restore and capture the target block\\n    block = notion.blocks.restore(block)\\n\\n
+      \   # get the new restored back from the API\\n    restored = notion.blocks.retrieve(block.id)\\n\\n
+      \   assert restored.archived is False\\n    assert restored == block\\n\\n    notion.blocks.delete(restored)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_update_block(notion, test_area):\\n    \\\"\\\"\\\"Update a block after
+      it has been created.\\\"\\\"\\\"\\n    block = blocks.ToDo[\\\"Important Task\\\"]\\n\\n
+      \   notion.blocks.children.append(test_area, block)\\n\\n    block.to_do.checked
+      = True\\n    notion.blocks.update(block)\\n\\n    # get the new block back from
+      the API\\n    todo = notion.blocks.retrieve(block.id)\\n\\n    assert todo.IsChecked\\n
+      \   assert block == todo\\n\\n    notion.blocks.delete(block)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_bookmark_block(notion, test_page):\\n    \\\"\\\"\\\"Create and parse Bookmark
+      blocks.\\\"\\\"\\\"\\n\\n    bookmark = blocks.Bookmark[\\\"http://example.com\\\"]\\n\\n
+      \   assert bookmark.URL == \\\"http://example.com\\\"\\n    assert bookmark.Markdown
+      == \\\"<http://example.com>\\\"\\n\\n    add_verify(notion, test_page, bookmark)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_embed_block(notion, test_page):\\n    \\\"\\\"\\\"Create and parse Embed
+      blocks.\\\"\\\"\\\"\\n\\n    embed = blocks.Embed[\\\"https://www.bing.com/\\\"]\\n\\n
+      \   assert embed.URL == \\\"https://www.bing.com/\\\"\\n    assert embed.Markdown
+      == \\\"<https://www.bing.com/>\\\"\\n\\n    add_verify(notion, test_page, embed)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_breadcrumb(notion, test_page):\\n    \\\"\\\"\\\"Verify that breadcrumb
+      blocks from the API are parsed correctly.\\\"\\\"\\\"\\n    breadcrumb = blocks.Breadcrumb()\\n
+      \   add_verify(notion, test_page, breadcrumb)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_callout(notion, test_page):\\n    \\\"\\\"\\\"Verify that callout
+      blocks from the API are parsed correctly.\\\"\\\"\\\"\\n    \\n    callout =
+      blocks.Callout[\\\"Attention!\\\", \\\"\u26A0\uFE0F\\\"]\\n\",\"link\":null},\"annotations\":{\"bold\":false,\"italic\":false,\"strikethrough\":false,\"underline\":false,\"code\":false,\"color\":\"default\"},\"plain_text\":\"elete
+      a block, then restore it and make sure it comes back.\\\"\\\"\\\"\\n    block
+      = blocks.Callout[\\\"Reappearing blocks!\\\"]\\n\\n    notion.blocks.children.append(test_area,
+      block)\\n    deleted = notion.blocks.delete(block)\\n    assert deleted.archived
+      is True\\n\\n    # restore and capture the target block\\n    block = notion.blocks.restore(block)\\n\\n
+      \   # get the new restored back from the API\\n    restored = notion.blocks.retrieve(block.id)\\n\\n
+      \   assert restored.archived is False\\n    assert restored == block\\n\\n    notion.blocks.delete(restored)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_update_block(notion, test_area):\\n    \\\"\\\"\\\"Update a block after
+      it has been created.\\\"\\\"\\\"\\n    block = blocks.ToDo[\\\"Important Task\\\"]\\n\\n
+      \   notion.blocks.children.append(test_area, block)\\n\\n    block.to_do.checked
+      = True\\n    notion.blocks.update(block)\\n\\n    # get the new block back from
+      the API\\n    todo = notion.blocks.retrieve(block.id)\\n\\n    assert todo.IsChecked\\n
+      \   assert block == todo\\n\\n    notion.blocks.delete(block)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_bookmark_block(notion, test_page):\\n    \\\"\\\"\\\"Create and parse Bookmark
+      blocks.\\\"\\\"\\\"\\n\\n    bookmark = blocks.Bookmark[\\\"http://example.com\\\"]\\n\\n
+      \   assert bookmark.URL == \\\"http://example.com\\\"\\n    assert bookmark.Markdown
+      == \\\"<http://example.com>\\\"\\n\\n    add_verify(notion, test_page, bookmark)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_embed_block(notion, test_page):\\n    \\\"\\\"\\\"Create and parse Embed
+      blocks.\\\"\\\"\\\"\\n\\n    embed = blocks.Embed[\\\"https://www.bing.com/\\\"]\\n\\n
+      \   assert embed.URL == \\\"https://www.bing.com/\\\"\\n    assert embed.Markdown
+      == \\\"<https://www.bing.com/>\\\"\\n\\n    add_verify(notion, test_page, embed)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_breadcrumb(notion, test_page):\\n    \\\"\\\"\\\"Verify that breadcrumb
+      blocks from the API are parsed correctly.\\\"\\\"\\\"\\n    breadcrumb = blocks.Breadcrumb()\\n
+      \   add_verify(notion, test_page, breadcrumb)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_callout(notion, test_page):\\n    \\\"\\\"\\\"Verify that callout
+      blocks from the API are parsed correctly.\\\"\\\"\\\"\\n    \\n    callout =
+      blocks.Callout[\\\"Attention!\\\", \\\"\u26A0\uFE0F\\\"]\\n\",\"href\":null},{\"type\":\"text\",\"text\":{\"content\":\"\\n
+      \   add_verify(notion, test_page, callout)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_toc_block(notion, test_page):\\n    \\\"\\\"\\\"Verify that 'table
+      of contents' from the API are parsed correctly.\\\"\\\"\\\"\\n    toc = blocks.TableOfContents()\\n
+      \   add_verify(notion, test_page, toc)\\n\\n\\n@pytest.mark.vcr()\\ndef test_code_block(notion,
+      test_page):\\n    \\\"\\\"\\\"Verify that code blocks from the API are parsed
+      correctly.\\\"\\\"\\\"\\n\\n    with open(__file__, \\\"r\\\") as fp:\\n        text
+      = fp.read()\\n\\n    code = blocks.Code[text]\\n\\n    assert code.PlainText
+      == text\\n\\n    add_verify(notion, test_page, code)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_simple_table(notion):\\n    \\\"\\\"\\\"Verify that table blocks
+      from the API are parsed correctly.\\\"\\\"\\\"\\n    block_id = \\\"c0bdf627b59c4cf685dd4b3dad8d4755\\\"\\n\\n
+      \   block = notion.blocks.retrieve(block_id)\\n    assert isinstance(block,
+      blocks.Table)\\n\\n\\n@pytest.mark.vcr()\\ndef test_parse_synced_block(notion):\\n
+      \   \\\"\\\"\\\"Verify that synced blocks from the API are parsed correctly.\\\"\\\"\\\"\\n
+      \   orig_block_id = \\\"c4d5ddc629df458ca4b88f33e5d86857\\\"\\n    sync_block_id
+      = \\\"f8f177e6fd84418f8405b3e57ca91562\\\"\\n\\n    orig_block = notion.blocks.retrieve(orig_block_id)\\n
+      \   sync_block = notion.blocks.retrieve(sync_block_id)\\n\\n    assert isinstance(orig_block,
+      blocks.SyncedBlock)\\n    assert orig_block.IsOriginal\\n\\n    assert isinstance(sync_block,
+      blocks.SyncedBlock)\\n    assert not sync_block.IsOriginal\\n\",\"link\":null},\"annotations\":{\"bold\":false,\"italic\":false,\"strikethrough\":false,\"underline\":false,\"code\":false,\"color\":\"default\"},\"plain_text\":\"\\n
+      \   add_verify(notion, test_page, callout)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_toc_block(notion, test_page):\\n    \\\"\\\"\\\"Verify that 'table
+      of contents' from the API are parsed correctly.\\\"\\\"\\\"\\n    toc = blocks.TableOfContents()\\n
+      \   add_verify(notion, test_page, toc)\\n\\n\\n@pytest.mark.vcr()\\ndef test_code_block(notion,
+      test_page):\\n    \\\"\\\"\\\"Verify that code blocks from the API are parsed
+      correctly.\\\"\\\"\\\"\\n\\n    with open(__file__, \\\"r\\\") as fp:\\n        text
+      = fp.read()\\n\\n    code = blocks.Code[text]\\n\\n    assert code.PlainText
+      == text\\n\\n    add_verify(notion, test_page, code)\\n\\n\\n@pytest.mark.vcr()\\ndef
+      test_parse_simple_table(notion):\\n    \\\"\\\"\\\"Verify that table blocks
+      from the API are parsed correctly.\\\"\\\"\\\"\\n    block_id = \\\"c0bdf627b59c4cf685dd4b3dad8d4755\\\"\\n\\n
+      \   block = notion.blocks.retrieve(block_id)\\n    assert isinstance(block,
+      blocks.Table)\\n\\n\\n@pytest.mark.vcr()\\ndef test_parse_synced_block(notion):\\n
+      \   \\\"\\\"\\\"Verify that synced blocks from the API are parsed correctly.\\\"\\\"\\\"\\n
+      \   orig_block_id = \\\"c4d5ddc629df458ca4b88f33e5d86857\\\"\\n    sync_block_id
+      = \\\"f8f177e6fd84418f8405b3e57ca91562\\\"\\n\\n    orig_block = notion.blocks.retrieve(orig_block_id)\\n
+      \   sync_block = notion.blocks.retrieve(sync_block_id)\\n\\n    assert isinstance(orig_block,
+      blocks.SyncedBlock)\\n    assert orig_block.IsOriginal\\n\\n    assert isinstance(sync_block,
+      blocks.SyncedBlock)\\n    assert not sync_block.IsOriginal\\n\",\"href\":null}],\"language\":\"plain
+      text\"}}"
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1
