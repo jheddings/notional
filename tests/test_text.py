@@ -1,26 +1,7 @@
 """Unit tests for text types in Notional."""
 
-import re
-
 from notional import blocks
-from notional.text import (
-    Annotations,
-    CodingLanguage,
-    TextObject,
-    is_emoji,
-    markdown,
-    plain_text,
-)
-
-
-def confirm_rtf_markdown(plain, md, rtf):
-    """Confirm the expected text for the given list of RichTextObject's."""
-
-    if plain is not None:
-        assert plain_text(*rtf) == plain
-
-    if md is not None:
-        assert markdown(*rtf) == md
+from notional.text import Annotations, TextObject, is_emoji, markdown, plain_text
 
 
 def confirm_block_markdown(cls, plain, md):
@@ -127,90 +108,6 @@ def test_code_word():
 
     assert plain_text(text) == "keyword"
     assert markdown(text) == "`keyword`"
-
-
-def test_paragraph_block():
-    """Create a Paragraph block from text."""
-    block = blocks.Paragraph["Lorem ipsum dolor sit amet"]
-
-    assert block.PlainText == "Lorem ipsum dolor sit amet"
-    assert block.Markdown == "Lorem ipsum dolor sit amet"
-
-
-def test_heading_1():
-    """Verify text formatting for Heading1 blocks."""
-    block = blocks.Heading1["Introduction"]
-
-    assert block.PlainText == "Introduction"
-    assert block.Markdown == "# Introduction #"
-
-
-def test_heading_2():
-    """Verify text formatting for Heading2 blocks."""
-    block = blocks.Heading2["More Context"]
-
-    assert block.PlainText == "More Context"
-    assert block.Markdown == "## More Context ##"
-
-
-def test_heading_3():
-    """Verify text formatting for Heading3 blocks."""
-    block = blocks.Heading3["Minor Point"]
-
-    assert block.PlainText == "Minor Point"
-    assert block.Markdown == "### Minor Point ###"
-
-
-def test_bulleted_list_item():
-    """Verify text formatting for BulletedListItem blocks."""
-    block = blocks.BulletedListItem["point number one"]
-
-    assert block.PlainText == "point number one"
-    assert block.Markdown == "- point number one"
-
-
-def test_numbered_list_item():
-    """Verify text formatting for NumberedListItem blocks."""
-    block = blocks.NumberedListItem["first priority"]
-
-    assert block.PlainText == "first priority"
-    assert block.Markdown == "1. first priority"
-
-
-def test_quote_block():
-    """Verify text formatting for Quote blocks."""
-    block = blocks.Quote["Now is the time for all good men..."]
-
-    assert block.PlainText == "Now is the time for all good men..."
-    assert block.Markdown == "> Now is the time for all good men..."
-
-
-def test_divider_block():
-    """Create a Divider and check its behavior."""
-    div = blocks.Divider()
-
-    assert re.match(r"^([*_-])\1{2,}$", div.Markdown)
-
-
-def test_todo_block():
-    """Verify text formatting for ToDo blocks."""
-    block = blocks.ToDo["COMPLETED", True]
-
-    assert block.PlainText == "COMPLETED"
-    assert block.Markdown == "- [x] COMPLETED"
-
-    block = blocks.ToDo["INCOMPLETE", False]
-
-    assert block.PlainText == "INCOMPLETE"
-    assert block.Markdown == "- [ ] INCOMPLETE"
-
-
-def test_code_block():
-    """Verify text formatting for Code blocks."""
-    code = "import sys\nprint('hello world')\nsys.exit(0)"
-    block = blocks.Code[code, CodingLanguage.PYTHON]
-
-    assert block.Markdown == f"```python\n{code}\n```"
 
 
 def test_is_emoji():

@@ -159,19 +159,12 @@ class TextBlock(Block, ABC):
     def concat(self, *text):
         """Concatenate text (either `RichTextObject` or `str` items) to this block."""
 
+        rtf = rich_text(*text)
+
         # calling the block returns the nested data...  this helps deal with
         # sublcasses of `TextBlock` that each have different "type" attributes
         nested = self()
-
-        if not hasattr(nested, "rich_text"):
-            raise AttributeError("nested data does not contain rich_text")
-
-        rtf = rich_text(*text)
-
-        if nested.rich_text is None:
-            nested.rich_text = rtf
-        else:
-            nested.rich_text.extend(rtf)
+        nested.rich_text.extend(rtf)
 
     @property
     def PlainText(self):
@@ -203,9 +196,6 @@ class WithChildrenMixin:
             raise ValueError("block cannot be None")
 
         nested = self()
-
-        if not hasattr(nested, "children"):
-            raise TypeError("nested data does not contain children")
 
         if nested.children is None:
             nested.children = []

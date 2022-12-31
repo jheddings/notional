@@ -148,6 +148,11 @@ class FileObject(TypedObject):
         """Return a string representation of this object."""
         return self.name or "__unknown__"
 
+    @property
+    def URL(self):
+        """Return the URL to this FileObject."""
+        return self("url")
+
 
 class HostedFile(FileObject, type="file"):
     """A Notion file object."""
