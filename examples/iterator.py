@@ -39,3 +39,5 @@ params = {
 
 for data in query(**params):
     print(f"{data.id} [{data.object}] => {data.url}")
+
+print(f"=> Endpoint returned {query.total_items} items in {query.page_num} pages.")
