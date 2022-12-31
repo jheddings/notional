@@ -1,0 +1,121 @@
+interactions:
+- request:
+    body: '{"parent": {"type": "page_id", "page_id": "250662d9-783d-483c-b131-341ed479f96c"},
+      "title": [{"type": "text", "plain_text": "tests/test_query.py::test_query_database
+      (setup)", "text": {"content": "tests/test_query.py::test_query_database (setup)"}}],
+      "properties": {"Name": {"type": "title", "title": {}}, "Index": {"type": "number",
+      "number": {"format": "number"}}, "Notes": {"type": "rich_text", "rich_text":
+      {}}, "Complete": {"type": "checkbox", "checkbox": {}}, "Due Date": {"type":
+      "date", "date": {}}, "Tags": {"type": "multi_select", "multi_select": {"options":
+      []}}}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      content-length:
+      - '575'
+      content-type:
+      - application/json
+      host:
+      - api.notion.com
+      notion-version:
+      - '2022-06-28'
+    method: POST
+    uri: https://api.notion.com/v1/databases
+  response:
+    content: '{"object":"database","id":"b41285c6-7a0b-456d-909d-4f0ae12218a1","cover":null,"icon":null,"created_time":"2022-12-31T19:20:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_time":"2022-12-31T19:20:00.000Z","title":[{"type":"text","text":{"content":"tests/test_query.py::test_query_database
+      (setup)","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"tests/test_query.py::test_query_database
+      (setup)","href":null}],"description":[],"is_inline":false,"properties":{"Due
+      Date":{"id":"Qbdm","name":"Due Date","type":"date","date":{}},"Notes":{"id":"_BK%3A","name":"Notes","type":"rich_text","rich_text":{}},"Complete":{"id":"c%3BIA","name":"Complete","type":"checkbox","checkbox":{}},"Tags":{"id":"tHlC","name":"Tags","type":"multi_select","multi_select":{"options":[]}},"Index":{"id":"xkOS","name":"Index","type":"number","number":{"format":"number"}},"Name":{"id":"title","name":"Name","type":"title","title":{}}},"parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"url":"https://www.notion.so/b41285c67a0b456d909d4f0ae12218a1","archived":false}'
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: '{"parent": {"type": "database_id", "database_id": "b41285c6-7a0b-456d-909d-4f0ae12218a1"},
+      "properties": {"title": {"type": "title", "title": [{"type": "text", "plain_text":
+      "Find Me!", "text": {"content": "Find Me!"}}]}}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      content-length:
+      - '222'
+      content-type:
+      - application/json
+      host:
+      - api.notion.com
+      notion-version:
+      - '2022-06-28'
+    method: POST
+    uri: https://api.notion.com/v1/pages
+  response:
+    content: '{"object":"page","id":"6865943e-3ef3-4a98-87ae-dbda48a02cda","created_time":"2022-12-31T19:20:00.000Z","last_edited_time":"2022-12-31T19:20:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"database_id","database_id":"b41285c6-7a0b-456d-909d-4f0ae12218a1"},"archived":false,"properties":{"Due
+      Date":{"id":"Qbdm","type":"date","date":null},"Notes":{"id":"_BK%3A","type":"rich_text","rich_text":[]},"Complete":{"id":"c%3BIA","type":"checkbox","checkbox":false},"Tags":{"id":"tHlC","type":"multi_select","multi_select":[]},"Index":{"id":"xkOS","type":"number","number":null},"Name":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"Find
+      Me!","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Find
+      Me!","href":null}]}},"url":"https://www.notion.so/Find-Me-6865943e3ef34a9887aedbda48a02cda"}'
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: '{"page_size": 100}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      content-length:
+      - '18'
+      content-type:
+      - application/json
+      host:
+      - api.notion.com
+      notion-version:
+      - '2022-06-28'
+    method: POST
+    uri: https://api.notion.com/v1/databases/b41285c6-7a0b-456d-909d-4f0ae12218a1/query
+  response:
+    content: '{"object":"list","results":[{"object":"page","id":"6865943e-3ef3-4a98-87ae-dbda48a02cda","created_time":"2022-12-31T19:20:00.000Z","last_edited_time":"2022-12-31T19:20:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"database_id","database_id":"b41285c6-7a0b-456d-909d-4f0ae12218a1"},"archived":false,"properties":{"Due
+      Date":{"id":"Qbdm","type":"date","date":null},"Notes":{"id":"_BK%3A","type":"rich_text","rich_text":[]},"Complete":{"id":"c%3BIA","type":"checkbox","checkbox":false},"Tags":{"id":"tHlC","type":"multi_select","multi_select":[]},"Index":{"id":"xkOS","type":"number","number":null},"Name":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"Find
+      Me!","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Find
+      Me!","href":null}]}},"url":"https://www.notion.so/Find-Me-6865943e3ef34a9887aedbda48a02cda"}],"next_cursor":null,"has_more":false,"type":"page","page":{}}'
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - secret...
+      connection:
+      - keep-alive
+      host:
+      - api.notion.com
+      notion-version:
+      - '2022-06-28'
+    method: DELETE
+    uri: https://api.notion.com/v1/blocks/b41285c6-7a0b-456d-909d-4f0ae12218a1
+  response:
+    content: '{"object":"block","id":"b41285c6-7a0b-456d-909d-4f0ae12218a1","parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"created_time":"2022-12-31T19:20:00.000Z","last_edited_time":"2022-12-31T19:20:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":true,"type":"child_database","child_database":{"title":"tests/test_query.py::test_query_database
+      (setup)"}}'
+    headers: {}
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1

@@ -2,6 +2,7 @@
 
 import re
 
+import notion_client
 import pytest
 
 from notional import blocks, types
@@ -303,6 +304,21 @@ def test_embed(notion, test_page):
     assert embed.Markdown == "<https://www.bing.com/>"
 
     add_verify(notion, test_page, embed)
+
+
+@pytest.mark.vcr()
+def test_link_preview(notion, test_page):
+    """Verify that link_preview blocks are handled correctly."""
+
+    link = blocks.LinkPreview["https://www.youtube.com/"]
+
+    assert link.type == "link_preview"
+    assert link.URL == "https://www.youtube.com/"
+    assert link.Markdown == "<https://www.youtube.com/>"
+
+    # link_preview blocks cannot be added via the API
+    with pytest.raises(notion_client.errors.APIResponseError):
+        notion.blocks.children.append(test_page, link)
 
 
 @pytest.mark.vcr()

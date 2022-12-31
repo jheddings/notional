@@ -348,20 +348,18 @@ class DatabasesEndpoint(Endpoint):
         :param target: either a `DatabaseRef` type or an ORM class
         """
 
-        if issubclass(target, ConnectedPage):
-            dbid = target._notional__database
-        else:
-            dbid = DatabaseRef[target].database_id
-
-        logger.info("Initializing database query :: {%s}", dbid)
-
-        cls = None
-
         if isclass(target) and issubclass(target, ConnectedPage):
             cls = target
+            dbid = target._notional__database
 
             if cls._notional__session != self.session:
                 raise ValueError("ConnectedPage belongs to a different session")
+
+        else:
+            cls = None
+            dbid = DatabaseRef[target].database_id
+
+        logger.info("Initializing database query :: {%s} [%s]", dbid, cls)
 
         return QueryBuilder(endpoint=self().query, cls=cls, database_id=dbid)
 
