@@ -161,41 +161,29 @@ class TimestampFilter(QueryFilter):
 
     timestamp: TimestampKind
 
-    @classmethod
-    def create(cls, kind, constraint):
-        """Create a new `TimeStampFilter` using the given constraint."""
-
-        if kind == TimestampKind.CREATED_TIME:
-            return CreatedTimeFilter.create(constraint)
-
-        if kind == TimestampKind.LAST_EDITED_TIME:
-            return LastEditedTimeFilter.create(constraint)
-
-        raise ValueError("Unsupported kind for timestamp")
-
 
 class CreatedTimeFilter(TimestampFilter):
     """Represents a created_time filter in Notion."""
 
-    timestamp: TimestampKind = TimestampKind.CREATED_TIME
     created_time: DateCondition
+    timestamp: TimestampKind = TimestampKind.CREATED_TIME
 
     @classmethod
-    def create(cls, constraint):
+    def __compose__(cls, value):
         """Create a new `CreatedTimeFilter` using the given constraint."""
-        return CreatedTimeFilter(created_time=constraint)
+        return CreatedTimeFilter(created_time=value)
 
 
 class LastEditedTimeFilter(TimestampFilter):
     """Represents a last_edited_time filter in Notion."""
 
-    timestamp: TimestampKind = TimestampKind.LAST_EDITED_TIME
     last_edited_time: DateCondition
+    timestamp: TimestampKind = TimestampKind.LAST_EDITED_TIME
 
     @classmethod
-    def create(cls, constraint):
+    def __compose__(cls, value):
         """Create a new `LastEditedTimeFilter` using the given constraint."""
-        return LastEditedTimeFilter(last_edited_time=constraint)
+        return LastEditedTimeFilter(last_edited_time=value)
 
 
 class CompoundFilter(QueryFilter):
@@ -323,10 +311,10 @@ class QueryBuilder:
 
         return self
 
-    def limit(self, page_size):
-        """Limit the number of results to the given page size."""
+    def limit(self, count):
+        """Limit the number of results to the given count."""
 
-        self.query.page_size = page_size
+        self.query.page_size = count
 
         return self
 
