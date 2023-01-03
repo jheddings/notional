@@ -10,20 +10,12 @@ from notion_client.errors import APIResponseError
 from pydantic import parse_obj_as
 
 from .blocks import Block, Database, Page
-from .iterator import EndpointIterator
+from .iterator import EndpointIterator, PropertyItemList
 from .orm import ConnectedPage
-from .query import QueryBuilder, ResultSet
+from .query import QueryBuilder
 from .schema import PropertyObject
 from .text import TextObject
-from .types import (
-    DatabaseRef,
-    ObjectReference,
-    PageRef,
-    ParentRef,
-    PropertyItem,
-    PropertyItemList,
-    Title,
-)
+from .types import DatabaseRef, ObjectReference, PageRef, ParentRef, PropertyItem, Title
 from .user import User
 
 logger = logging.getLogger(__name__)
@@ -135,7 +127,7 @@ class BlocksEndpoint(Endpoint):
 
             parent_id = ObjectReference[parent].id
 
-            children = [block.to_api() for block in blocks if block is not None]
+            children = [block.dict() for block in blocks if block is not None]
 
             logger.info("Appending %d blocks to %s ...", len(children), parent_id)
 
@@ -166,11 +158,11 @@ class BlocksEndpoint(Endpoint):
 
             parent_id = ObjectReference[parent].id
 
-            blocks = EndpointIterator(endpoint=self().list, block_id=parent_id)
-
             logger.info("Listing blocks for %s...", parent_id)
 
-            return ResultSet(exec=blocks, cls=Block)
+            blocks = EndpointIterator(endpoint=self().list)
+
+            return blocks(block_id=parent_id)
 
     def __init__(self, *args, **kwargs):
         """Initialize the `blocks` endpoint for the Notion API."""
@@ -232,7 +224,7 @@ class BlocksEndpoint(Endpoint):
 
         logger.info("Updating block :: %s", block.id)
 
-        data = self().update(block.id.hex, **block.to_api())
+        data = self().update(block.id.hex, **block.dict())
 
         return block.refresh(**data)
 
@@ -258,21 +250,15 @@ class DatabasesEndpoint(Endpoint):
         request = {}
 
         if parent is not None:
-            request["parent"] = parent.to_api()
+            request["parent"] = parent.dict()
 
-        if isinstance(title, TextObject):
-            request["title"] = [title.to_api()]
-        elif isinstance(title, list):
-            request["title"] = [prop.to_api() for prop in title if prop is not None]
-        elif isinstance(title, str):
+        if title is not None:
             prop = TextObject[title]
-            request["title"] = [prop.to_api()]
-        elif title is not None:
-            raise ValueError("Unrecognized data in 'title'")
+            request["title"] = [prop.dict()]
 
         if schema is not None:
             request["properties"] = {
-                name: value.to_api() if value is not None else None
+                name: value.dict() if value is not None else None
                 for name, value in schema.items()
             }
 
@@ -362,22 +348,20 @@ class DatabasesEndpoint(Endpoint):
         :param target: either a `DatabaseRef` type or an ORM class
         """
 
-        if issubclass(target, ConnectedPage):
-            dbid = target._notional__database
-        else:
-            dbid = DatabaseRef[target].database_id
-
-        logger.info("Initializing database query :: {%s}", dbid)
-
-        cls = None
-
         if isclass(target) and issubclass(target, ConnectedPage):
             cls = target
+            dbid = target._notional__database
 
             if cls._notional__session != self.session:
                 raise ValueError("ConnectedPage belongs to a different session")
 
-        return QueryBuilder(endpoint=self().query, cls=cls, database_id=dbid)
+        else:
+            cls = None
+            dbid = DatabaseRef[target].database_id
+
+        logger.info("Initializing database query :: {%s} [%s]", dbid, cls)
+
+        return QueryBuilder(endpoint=self().query, datatype=cls, database_id=dbid)
 
 
 class PagesEndpoint(Endpoint):
@@ -398,6 +382,7 @@ class PagesEndpoint(Endpoint):
 
             data = self().retrieve(page_id, property_id)
 
+            # TODO should PropertyListItem return an iterator instead?
             return parse_obj_as(Union[PropertyItem, PropertyItemList], obj=data)
 
     def __init__(self, *args, **kwargs):
@@ -427,7 +412,7 @@ class PagesEndpoint(Endpoint):
         elif not isinstance(parent, ParentRef):
             raise ValueError("Unsupported 'parent'")
 
-        request = {"parent": parent.to_api()}
+        request = {"parent": parent.dict()}
 
         # the API requires a properties object, even if empty
         if properties is None:
@@ -437,13 +422,13 @@ class PagesEndpoint(Endpoint):
             properties["title"] = Title[title]
 
         request["properties"] = {
-            name: prop.to_api() if prop is not None else None
+            name: prop.dict() if prop is not None else None
             for name, prop in properties.items()
         }
 
         if children is not None:
             request["children"] = [
-                child.to_api() for child in children if child is not None
+                child.dict() for child in children if child is not None
             ]
 
         logger.info("Creating page :: %s => %s", parent, title)
@@ -504,7 +489,7 @@ class PagesEndpoint(Endpoint):
             properties = page.properties
 
         props = {
-            name: value.to_api() if value is not None else None
+            name: value.dict() if value is not None else None
             for name, value in properties.items()
         }
 
@@ -529,14 +514,14 @@ class PagesEndpoint(Endpoint):
             props["cover"] = {}
         elif cover is not False:
             logger.info("Setting page cover :: %s => %s", page_id, cover)
-            props["cover"] = cover.to_api()
+            props["cover"] = cover.dict()
 
         if icon is None:
             logger.info("Removing page icon :: %s", page_id)
             props["icon"] = {}
         elif icon is not False:
             logger.info("Setting page icon :: %s => %s", page_id, icon)
-            props["icon"] = icon.to_api()
+            props["icon"] = icon.dict()
 
         if archived is False:
             logger.info("Restoring page :: %s", page_id)
@@ -582,10 +567,11 @@ class UsersEndpoint(Endpoint):
     def list(self):
         """Return an iterator for all users in the workspace."""
 
-        users = EndpointIterator(endpoint=self().list)
         logger.info("Listing known users...")
 
-        return ResultSet(exec=users, cls=User)
+        users = EndpointIterator(endpoint=self().list)
+
+        return users()
 
     # https://developers.notion.com/reference/get-user
     def retrieve(self, user_id):

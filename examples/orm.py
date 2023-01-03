@@ -68,7 +68,7 @@ task = Task.create(
     Title="Hello World",
     Complete=False,
     Priority="High",
-    Tags=["Draft"],
+    Tags=("Draft"),
     DueDate=one_week,
 )
 

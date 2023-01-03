@@ -13,13 +13,13 @@ from pydantic.main import ModelMetaclass, validate_model
 logger = logging.getLogger(__name__)
 
 
-def make_api_safe(data):
+def serialize_to_api(data):
     """Recursively convert the given data to an API-safe form.
 
     This is mostly to handle data types that will not directly serialize to JSON.
     """
 
-    # https://github.com/samuelcolvin/pydantic/issues/1409#issuecomment-877175194
+    # https://github.com/samuelcolvin/pydantic/issues/1409
 
     if isinstance(data, (date, datetime)):
         return data.isoformat()
@@ -30,14 +30,11 @@ def make_api_safe(data):
     if isinstance(data, Enum):
         return data.value
 
+    if isinstance(data, (list, tuple)):
+        return [serialize_to_api(value) for value in data]
+
     if isinstance(data, dict):
-        return {name: make_api_safe(value) for name, value in data.items()}
-
-    if isinstance(data, list):
-        return [make_api_safe(value) for value in data]
-
-    if isinstance(data, tuple):
-        return [make_api_safe(value) for value in data]
+        return {name: serialize_to_api(value) for name, value in data.items()}
 
     return data
 
@@ -84,19 +81,27 @@ class ComposableObjectMeta(ModelMetaclass):
 
         compose_func = self.__compose__
 
-        if type(params) is tuple:
+        # __getitem__ only accepts a single parameter...  if the caller provides
+        # multiple params, they will be converted and passed as a tuple.  this method
+        # also accepts a list for readability when composing from ORM properties
+
+        if params and type(params) in (list, tuple):
             return compose_func(*params)
 
         return compose_func(params)
 
 
 class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
-    """The base for all API objects."""
+    """The base for all API objects.
+
+    As a general convention, data fields in lower case are defined by the
+    Notion API.  Properties in Title Case are provided for convenience.
+    """
 
     def __setattr__(self, name, value):
         """Set the attribute of this object to a given value.
 
-        The implementation of `BaseModel.__setattr__` does not allow for properties.
+        The implementation of `BaseModel.__setattr__` does not support property setters.
 
         See https://github.com/samuelcolvin/pydantic/issues/1577
         """
@@ -104,8 +109,8 @@ class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
             super().__setattr__(name, value)
         except ValueError as err:
             setters = inspect.getmembers(
-                self.__class__,
-                predicate=lambda x: isinstance(x, property) and x.fset is not None,
+                object=self.__class__,
+                predicate=lambda x: isinstance(x, property),
             )
             for setter_name, _ in setters:
                 if setter_name == name:
@@ -115,7 +120,7 @@ class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
                 raise err
 
     @classmethod
-    def _modify_field_(cls, name, default=None):
+    def _set_field_default(cls, name, default=None):
         """Modify the `BaseModel` field information for a specific class instance.
 
         This is necessary in particular for subclasses that change the default values
@@ -124,16 +129,21 @@ class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
         :param name: the named attribute in the class
         :param default: the new default for the named field
         """
+
+        # set the attribute on the class to the given default
         setattr(cls, name, default)
 
-        cls.__fields__[name].default = default
-        cls.__fields__[name].required = default is None
+        # update the model field definition
+        field = cls.__fields__.get(name)
+
+        field.default = default
+        field.required = default is None
 
     # https://github.com/samuelcolvin/pydantic/discussions/3139
-    def refresh(__pydantic_self__, **data):
+    def refresh(__notional_self__, **data):
         """Refresh the internal attributes with new data."""
 
-        values, fields, error = validate_model(__pydantic_self__.__class__, data)
+        values, fields, error = validate_model(__notional_self__.__class__, data)
 
         if error:
             raise error
@@ -141,24 +151,23 @@ class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
         for name in fields:
             value = values[name]
             logger.debug("set object data -- %s => %s", name, value)
-            setattr(__pydantic_self__, name, value)
+            setattr(__notional_self__, name, value)
 
-        return __pydantic_self__
+        return __notional_self__
 
-    def to_api(self):
+    def dict(self, **kwargs):
         """Convert to a suitable representation for the Notion API."""
 
         # the API doesn't like "undefined" values...
+        kwargs["exclude_none"] = True
+        kwargs["by_alias"] = True
 
-        data = self.dict(exclude_none=True, by_alias=True)
-
-        # we need to convert "special" types to string forms to help the JSON encoder.
-        # there are efforts underway in pydantic to make this easier, but for now...
+        obj = super().dict(**kwargs)
 
         # TODO read-only fields should not be sent to the API
         # https://github.com/jheddings/notional/issues/9
 
-        return make_api_safe(data)
+        return serialize_to_api(obj)
 
 
 class NotionObject(GenericObject):
@@ -172,10 +181,10 @@ class NotionObject(GenericObject):
         super().__init_subclass__(**kwargs)
 
         if object is not None:
-            cls._modify_field_("object", default=object)
+            cls._set_field_default("object", default=object)
 
     @validator("object", always=True, pre=False)
-    def _verify_object_name(cls, val):
+    def _verify_object_matches_expected(cls, val):
         """Make sure that the deserialzied object matches the name in this class."""
 
         if val != cls.object:
@@ -213,30 +222,14 @@ class TypedObject(GenericObject):
         """Register the subtypes of the TypedObject subclass."""
         super().__init_subclass__(**kwargs)
 
-        sub_type = cls.__name__ if type is None else type
+        type_name = cls.__name__ if type is None else type
 
-        cls._modify_field_("type", default=sub_type)
-
-        # initialize a __notional_typemap__ map for each direct child of TypedObject
-
-        # this allows different class trees to have the same 'type' name
-        # but point to a different object (e.g. the 'date' type may have
-        # different implementations depending where it is used in the API)
-
-        if TypedObject in cls.__bases__ and not hasattr(cls, "__notional_typemap__"):
-            cls.__notional_typemap__ = {}
-
-        if sub_type in cls.__notional_typemap__:
-            raise ValueError(f"Duplicate subtype for class - {sub_type} :: {cls}")
-
-        logger.debug("registered new subtype: %s => %s", sub_type, cls)
-
-        cls.__notional_typemap__[sub_type] = cls
+        cls._register_type(type_name)
 
     def __call__(self, field=None):
-        """Return nested data from this Block.
+        """Return the nested data object contained by this `TypedObject`.
 
-        If a field is provided, the contents of that field in the NestedData will be
+        If a field is provided, the contents of that field in the nested data will be
         returned.  Otherwise, the full contents of the NestedData will be returned.
         """
 
@@ -255,7 +248,7 @@ class TypedObject(GenericObject):
     @classmethod
     def __get_validators__(cls):
         """Provide `BaseModel` with the means to convert `TypedObject`'s."""
-        yield cls._convert_to_real_type_
+        yield cls._resolve_type
 
     @classmethod
     def parse_obj(cls, obj):
@@ -263,10 +256,32 @@ class TypedObject(GenericObject):
 
         This method overrides `BaseModel.parse_obj()`.
         """
-        return cls._convert_to_real_type_(obj)
+        return cls._resolve_type(obj)
 
     @classmethod
-    def _convert_to_real_type_(cls, data):
+    def _register_type(cls, name):
+        """Register a specific class for the given 'type' name."""
+
+        cls._set_field_default("type", default=name)
+
+        # initialize a __notional_typemap__ map for each direct child of TypedObject
+
+        # this allows different class trees to have the same 'type' name
+        # but point to a different object (e.g. the 'date' type may have
+        # different implementations depending where it is used in the API)
+
+        if not hasattr(cls, "__notional_typemap__"):
+            cls.__notional_typemap__ = {}
+
+        if name in cls.__notional_typemap__:
+            raise ValueError(f"Duplicate subtype for class - {name} :: {cls}")
+
+        logger.debug("registered new subtype: %s => %s", name, cls)
+
+        cls.__notional_typemap__[name] = cls
+
+    @classmethod
+    def _resolve_type(cls, data):
         """Instantiate the correct object based on the 'type' field."""
 
         if isinstance(data, cls):
@@ -275,23 +290,21 @@ class TypedObject(GenericObject):
         if not isinstance(data, dict):
             raise ValueError("Invalid 'data' object")
 
-        data_type = data.get("type")
-
-        if data_type is None:
-            raise ValueError("Missing 'type' in TypedObject")
-
         if not hasattr(cls, "__notional_typemap__"):
-            raise TypeError(
-                f"Invalid TypedObject: {cls} - missing __notional_typemap__"
-            )
+            raise TypeError(f"Missing '__notional_typemap__' in {cls}")
 
-        sub = cls.__notional_typemap__.get(data_type)
+        type_name = data.get("type")
+
+        if type_name is None:
+            raise ValueError("Missing 'type' in data")
+
+        sub = cls.__notional_typemap__.get(type_name)
 
         if sub is None:
-            raise TypeError(f"Unsupported sub-type: {data_type}")
+            raise TypeError(f"Unsupported sub-type: {type_name}")
 
         logger.debug(
-            "initializing typed object %s :: %s => %s -- %s", cls, data_type, sub, data
+            "initializing typed object %s :: %s => %s -- %s", cls, type_name, sub, data
         )
 
         return sub(**data)

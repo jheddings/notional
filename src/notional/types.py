@@ -9,6 +9,8 @@ from datetime import date, datetime
 from typing import List, Optional, Union
 from uuid import UUID
 
+from notion_client import helpers
+
 from .core import GenericObject, NotionObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
@@ -46,6 +48,15 @@ class ObjectReference(GenericObject):
             return ObjectReference[ref.id]
 
         raise ValueError("Unrecognized 'ref' attribute")
+
+    @property
+    def URL(self):
+        """Return the Notion URL for this object reference.
+
+        Note: this is a convenience property only.  It does not guarantee that the
+        URL exists or that it is accessible by the integration.
+        """
+        return helpers.get_url(self.id)
 
 
 # https://developers.notion.com/reference/parent-object
@@ -107,14 +118,6 @@ class WorkspaceRef(ParentRef, type="workspace"):
     workspace: bool = True
 
 
-class ObjectList(NotionObject, TypedObject, object="list"):
-    """A paginated list of objects returned by the Notion API."""
-
-    results: List[GenericObject] = []
-    has_more: bool = False
-    next_cursor: Optional[str] = None
-
-
 class EmojiObject(TypedObject, type="emoji"):
     """A Notion emoji object."""
 
@@ -144,6 +147,11 @@ class FileObject(TypedObject):
     def __str__(self):
         """Return a string representation of this object."""
         return self.name or "__unknown__"
+
+    @property
+    def URL(self):
+        """Return the URL to this FileObject."""
+        return self("url")
 
 
 class HostedFile(FileObject, type="file"):
@@ -331,12 +339,15 @@ class NativeTypeMixin:
     def __eq__(self, other):
         """Determine if this property is equal to the given object."""
 
-        return self.Value == other
+        # if `other` is a NativeTypeMixin, this comparrison will call __eq__ on that
+        # object using this objects `Value` as the value for `other` (allowing callers
+        # to compare using either native types or NativeTypeMixin's)
+
+        return other == self.Value
 
     def __ne__(self, other):
         """Determine if this property is not equal to the given object."""
-
-        return self.Value != other
+        return not self.__eq__(other)
 
     @classmethod
     def __compose__(cls, value):
@@ -422,28 +433,73 @@ class Number(NativeTypeMixin, PropertyValue, type="number"):
 
     number: Optional[Union[float, int]] = None
 
+    def __float__(self):
+        """Return the Number as a `float`."""
+
+        if self.number is None:
+            raise ValueError("Cannot convert 'None' to float")
+
+        return float(self.number)
+
+    def __int__(self):
+        """Return the Number as an `int`."""
+
+        if self.number is None:
+            raise ValueError("Cannot convert 'None' to int")
+
+        return int(self.number)
+
     def __iadd__(self, other):
         """Add the given value to this Number."""
 
-        self.number += other
+        if isinstance(other, Number):
+            self.number += other.Value
+        else:
+            self.number += other
+
         return self
 
     def __isub__(self, other):
         """Subtract the given value from this Number."""
 
-        self.number -= other
+        if isinstance(other, Number):
+            self.number -= other.Value
+        else:
+            self.number -= other
+
         return self
+
+    def __add__(self, other):
+        """Add the value of `other` and returns the result as a Number."""
+        return Number[other + self.Value]
+
+    def __sub__(self, other):
+        """Subtract the value of `other` and returns the result as a Number."""
+        return Number[self.Value - float(other)]
+
+    def __mul__(self, other):
+        """Multiply the value of `other` and returns the result as a Number."""
+        return Number[other * self.Value]
+
+    def __le__(self, other):
+        """Return `True` if this `Number` is less-than-or-equal-to `other`."""
+        return self < other or self == other
+
+    def __lt__(self, other):
+        """Return `True` if this `Number` is less-than `other`."""
+        return other > self.Value
+
+    def __ge__(self, other):
+        """Return `True` if this `Number` is greater-than-or-equal-to `other`."""
+        return self > other or self == other
+
+    def __gt__(self, other):
+        """Return `True` if this `Number` is greater-than `other`."""
+        return other < self.Value
 
     @property
     def Value(self):
         """Get the current value of this property as a native Python number."""
-
-        if self.number is None:
-            return None
-
-        if self.number == int(self.number):
-            return int(self.number)
-
         return self.number
 
 
@@ -557,6 +613,15 @@ class SelectValue(GenericObject):
         """Return a string representation of this property."""
         return self.name
 
+    @classmethod
+    def __compose__(cls, value, color=None):
+        """Create a `SelectValue` property from the given value.
+
+        :param value: a string to use for this property
+        :param color: an optional Color for the value
+        """
+        return cls(name=value, color=color)
+
 
 class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
     """Notion select type."""
@@ -585,11 +650,7 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
         :param value: a string to use for this property
         :param color: an optional Color for the value
         """
-
-        if value is None:
-            raise ValueError("'name' cannot be None")
-
-        return cls(select=SelectValue(name=value, color=color))
+        return cls(select=SelectValue[value, color])
 
     @property
     def Value(self):
@@ -666,13 +727,11 @@ class MultiSelect(PropertyValue, type="multi_select"):
         return iter(self.multi_select)
 
     @classmethod
-    def __compose__(cls, value):
-        """Initialize a new MultiSelect from the given value."""
+    def __compose__(cls, *values):
+        """Initialize a new MultiSelect from the given value(s)."""
+        select = [SelectValue[value] for value in values if value is not None]
 
-        if isinstance(value, list):
-            return cls._compose_from_list(*value)
-
-        return cls._compose_from_list(value)
+        return cls(multi_select=select)
 
     def append(self, *values):
         """Add selected values to this MultiSelect."""
@@ -682,8 +741,7 @@ class MultiSelect(PropertyValue, type="multi_select"):
                 raise ValueError("'None' is an invalid value")
 
             if value not in self:
-                opt = SelectValue(name=value)
-                self.multi_select.append(opt)
+                self.multi_select.append(SelectValue[value])
 
     def remove(self, *values):
         """Remove selected values from this MultiSelect."""
@@ -698,23 +756,6 @@ class MultiSelect(PropertyValue, type="multi_select"):
             return None
 
         return [str(val) for val in self.multi_select if val.name is not None]
-
-    @classmethod
-    def _compose_from_list(cls, *values):
-        """Create a Select block from a list of values.
-
-        All values in the list will be automatically converted to strings.
-        """
-
-        select = []
-
-        for value in values:
-            if value is None:
-                continue
-
-            select.append(SelectValue(name=str(value)))
-
-        return cls(multi_select=select)
 
 
 class People(PropertyValue, type="people"):
@@ -1113,18 +1154,3 @@ class PropertyItem(PropertyValue, NotionObject, object="property_item"):
     This class provides a placeholder for parsing property items, however objects
     parse by this class will likely be `PropertyValue`'s instead.
     """
-
-
-class PropertyItemList(ObjectList, type="property_item"):
-    """A paginated list of property items returned by the Notion API.
-
-    Property item lists contain one or more pages of basic property items.  These types
-    do not typically match the schema for corresponding property values.
-    """
-
-    class _NestedData(GenericObject):
-        id: str = None
-        type: str = None
-        next_url: Optional[str] = None
-
-    property_item: _NestedData = _NestedData()

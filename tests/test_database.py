@@ -2,7 +2,15 @@
 
 import pytest
 
-from notional import schema
+from notional import blocks, schema
+
+
+def test_empty_database():
+    """Create a default Database and verify properties."""
+
+    db = blocks.Database()
+
+    assert db.Title is None
 
 
 @pytest.mark.vcr()

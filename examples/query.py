@@ -44,7 +44,7 @@ query = (
     notion.databases.query(dbid)
     .filter(property="Title", rich_text=TextCondition(contains="project"))
     .filter(property="Cost", number=NumberCondition(greater_than=1000000))
-    .filter(LastEditedTimeFilter.create(DateCondition(past_week={})))
+    .filter(LastEditedTimeFilter[DateCondition(past_week={})])
     .limit(1)
 )
 

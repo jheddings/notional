@@ -106,7 +106,7 @@ class ConnectedProperty:
             prop = value
 
         elif hasattr(self.value_type, "__compose__"):
-            prop = self.value_type.__compose__(value)
+            prop = self.value_type[value]
 
         else:
             raise TypeError(f"Unsupported value type for '{self.type_name}'")
@@ -174,9 +174,13 @@ class ConnectedPage:
     All changes are committed in real time.
     """
 
-    def __init__(self, **data):
-        """Construct a page from the given data dictionary."""
-        self._notional__page = Page(**data) if data else None
+    def __init__(self, page: Page):
+        """Construct a ConnectedPage using the underlying Page object."""
+
+        if page.id is None:
+            raise ValueError("Missing ID for connected page")
+
+        self._notional__page = page
 
     def __init_subclass__(cls, database=None, **kwargs):
         """Register new subclasses of a ConnectedPage."""
@@ -221,7 +225,7 @@ class ConnectedPage:
     def icon(self, icon: Union[str, EmojiObject, ExternalFile]):
         """Set the icon for the Page.
 
-        :param icon: may be either a single emoji string or an `EmojiObject`
+        :param icon: may be an emoji string, `EmojiObject` or `ExternalFile`
         """
 
         if isinstance(icon, str):
@@ -233,9 +237,8 @@ class ConnectedPage:
                 icon = ExternalFile[icon]
             else:
                 raise ValueError(f"Cannot interpret string `{icon}` as icon")
-        elif isinstance(icon, (EmojiObject, ExternalFile)):
-            pass
-        else:
+
+        elif not isinstance(icon, (EmojiObject, ExternalFile)):
             raise ValueError("Invalid icon specifier; unsupported type")
 
         self._notional__session.pages.set(self._notional__page, icon=icon)
@@ -300,8 +303,8 @@ class ConnectedPage:
         This operation takes place on the Notion server, creating the page immediately.
 
         :param kwargs: the properties to initialize for this object as parameters, i.e.
-          `name=value`, where `name` is the attribute in the custom type
-          and `value` is a supported type for composing.
+          `name=value`, where `name` is the attribute in the custom type and `value` is
+          a supported type for composing.
         """
 
         if cls._notional__session is None:
@@ -311,11 +314,12 @@ class ConnectedPage:
             raise ValueError("Cannot create Page; invalid database")
 
         logger.debug("creating new %s :: %s", cls, cls._notional__database)
-
         parent = DatabaseRef(database_id=cls._notional__database)
 
-        connected = cls()
-        connected._notional__page = cls._notional__session.pages.create(parent=parent)
+        page = cls._notional__session.pages.create(parent=parent)
+        logger.debug("=> connected page :: %s", page.id)
+
+        connected = cls(page)
 
         # FIXME it would be better to convert properties to a dict and pass to the API,
         # rather than setting them individually here...
@@ -325,12 +329,12 @@ class ConnectedPage:
         return connected
 
     @classmethod
-    def parse_obj(cls, data):
-        """Invoke the class constructor using the structured data.
+    def parse_obj(cls, obj):
+        """Parse the given object as a ConnectedPage.
 
         Similar to `BaseModel.parse_obj(data)`.
         """
-        return cls(**data)
+        return cls(page=Page(**obj))
 
 
 class ConnectedPageFactory:

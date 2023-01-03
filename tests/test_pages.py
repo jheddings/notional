@@ -40,6 +40,14 @@ def confirm_blocks(notion, parent, *blocks):
     assert num_blocks == len(blocks)
 
 
+def test_empty_page():
+    """Create a default Page and verify properties."""
+
+    page = blocks.Page()
+
+    assert page.Title is None
+
+
 @pytest.mark.vcr()
 def test_iterate_page_blocks(notion, test_area):
     """Iterate over all blocks on the test page and its descendants.

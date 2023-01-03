@@ -74,9 +74,6 @@ class Page(DataRecord, object="page"):
         :param name: the name of the property to get from the internal properties
         """
 
-        if self.properties is None:
-            raise AttributeError("No properties in Page")
-
         prop = self.properties.get(name)
 
         if prop is None:
@@ -111,8 +108,6 @@ class Page(DataRecord, object="page"):
         page properties, looking for the appropriate `title` entry and return as a
         string.
         """
-        if self.properties is None:
-            return None
 
         # the 'title' property may (or may not) be indexed by name...  especially in
         # the case of # database pages.  the only reliable way to find the title is by
@@ -156,9 +151,6 @@ class TextBlock(Block, ABC):
     def __compose__(cls, *text):
         """Compose a `TextBlock` from the given text items."""
 
-        if text is None:
-            return None
-
         obj = cls()
         obj.concat(*text)
 
@@ -167,19 +159,12 @@ class TextBlock(Block, ABC):
     def concat(self, *text):
         """Concatenate text (either `RichTextObject` or `str` items) to this block."""
 
+        rtf = rich_text(*text)
+
         # calling the block returns the nested data...  this helps deal with
         # sublcasses of `TextBlock` that each have different "type" attributes
         nested = self()
-
-        if not hasattr(nested, "rich_text"):
-            raise AttributeError("nested data does not contain rich_text")
-
-        rtf = rich_text(*text)
-
-        if nested.rich_text is None:
-            nested.rich_text = rtf
-        else:
-            nested.rich_text.extend(rtf)
+        nested.rich_text.extend(rtf)
 
     @property
     def PlainText(self):
@@ -211,9 +196,6 @@ class WithChildrenMixin:
             raise ValueError("block cannot be None")
 
         nested = self()
-
-        if not hasattr(nested, "children"):
-            raise TypeError("nested data does not contain children")
 
         if nested.children is None:
             nested.children = []
@@ -333,12 +315,9 @@ class Code(TextBlock, type="code"):
     @classmethod
     def __compose__(cls, text, lang=CodingLanguage.PLAIN_TEXT):
         """Compose a `Code` block from the given text and language."""
-        return Code(
-            code=Code._NestedData(
-                rich_text=[TextObject[text]],
-                language=lang,
-            )
-        )
+        block = super().__compose__(text)
+        block.code.language = lang
+        return block
 
     @property
     def Markdown(self):
@@ -361,9 +340,23 @@ class Callout(TextBlock, WithChildrenMixin, type="callout"):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         icon: Optional[Union[FileObject, EmojiObject]] = None
-        color: FullColor = FullColor.DEFAULT
+        color: FullColor = FullColor.GRAY_BACKGROUND
 
     callout: _NestedData = _NestedData()
+
+    @classmethod
+    def __compose__(cls, text, emoji=None, color=FullColor.GRAY_BACKGROUND):
+        """Compose a `Callout` block from the given text, emoji and color."""
+
+        if emoji is not None:
+            emoji = EmojiObject[emoji]
+
+        nested = Callout._NestedData(icon=emoji, color=color)
+
+        callout = cls(callout=nested)
+        callout.concat(text)
+
+        return callout
 
 
 class BulletedListItem(TextBlock, WithChildrenMixin, type="bulleted_list_item"):

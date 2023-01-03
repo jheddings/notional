@@ -5,7 +5,7 @@ from uuid import uuid4
 import pytest
 
 from notional import blocks, schema, types
-from notional.orm import ConnectedPage, Property, connected_page
+from notional.orm import Property, connected_page
 
 
 def test_property_type():
@@ -43,24 +43,6 @@ def test_session_is_none(local_model):
 
     with pytest.raises(ValueError):
         local_model.create()
-
-
-def test_empty_page(local_model):
-    """Verify expected behavior with an empty page."""
-    empty = local_model()
-
-    assert isinstance(empty, ConnectedPage)
-    assert empty.id is None
-
-    num_children = 0
-
-    for _ in empty.children:
-        num_children += 1
-
-    assert num_children == 0, f"found {num_children} unexpected child(ren) on page"
-
-    with pytest.raises(ValueError):
-        empty += blocks.Divider()
 
 
 def test_custom_model_page_id(local_model):
