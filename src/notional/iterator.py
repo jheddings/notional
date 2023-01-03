@@ -121,13 +121,13 @@ class EndpointIterator:
         this iterator.  The constructor must accept a single argument, which is the
         `NotionObject` contained in the `ObjectList`.
         """
-        self.endpoint = endpoint
+        self._endpoint = endpoint
+        self._datatype = cls
 
         self.has_mode = None
         self.next_cursor = None
         self.total_items = -1
         self.page_num = -1
-        self.cls = cls
 
     def __call__(self, **kwargs):
         """Return a generator for this endpoint using the given parameters."""
@@ -144,17 +144,17 @@ class EndpointIterator:
         while self.has_more:
             self.page_num += 1
 
-            page = self.endpoint(start_cursor=self.next_cursor, **kwargs)
+            page = self._endpoint(start_cursor=self.next_cursor, **kwargs)
 
             api_list = ObjectList.parse_obj(page)
 
             for obj in api_list.results:
                 self.total_items += 1
 
-                if self.cls is None:
+                if self._datatype is None:
                     yield obj
                 else:
-                    yield self.cls(obj)
+                    yield self._datatype(obj)
 
             self.next_cursor = api_list.next_cursor
             self.has_more = api_list.has_more and self.next_cursor is not None
@@ -162,9 +162,9 @@ class EndpointIterator:
     def list(self, **kwargs):
         """Collect all items from the endpoint as a list."""
 
-        all_items = []
+        items = []
 
         for item in self(**kwargs):
-            all_items.append(item)
+            items.append(item)
 
-        return all_items
+        return items
