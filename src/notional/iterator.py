@@ -124,7 +124,7 @@ class EndpointIterator:
         self._endpoint = endpoint
         self._datatype = cls
 
-        self.has_mode = None
+        self.has_more = None
         self.next_cursor = None
         self.total_items = -1
         self.page_num = -1
