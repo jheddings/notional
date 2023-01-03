@@ -110,7 +110,7 @@ class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
         except ValueError as err:
             setters = inspect.getmembers(
                 object=self.__class__,
-                predicate=lambda x: isinstance(x, property),
+                predicate=lambda x: isinstance(x, property) and x.fset is not None,
             )
             for setter_name, _ in setters:
                 if setter_name == name:
