@@ -114,7 +114,7 @@ class EndpointIterator:
     types).
     """
 
-    def __init__(self, endpoint, cls=None):
+    def __init__(self, endpoint, datatype=None):
         """Initialize an object list iterator for the specified endpoint.
 
         If a class is provided, it will be constructued for each result returned by
@@ -122,19 +122,19 @@ class EndpointIterator:
         `NotionObject` contained in the `ObjectList`.
         """
         self._endpoint = endpoint
-        self._datatype = cls
+        self._datatype = datatype
 
         self.has_more = None
-        self.next_cursor = None
-        self.total_items = -1
         self.page_num = -1
+        self.total_items = -1
+        self.next_cursor = None
 
     def __call__(self, **kwargs):
         """Return a generator for this endpoint using the given parameters."""
 
-        self.total_items = 0
-        self.page_num = 0
         self.has_more = True
+        self.page_num = 0
+        self.total_items = 0
 
         if "page_size" not in kwargs:
             kwargs["page_size"] = MAX_PAGE_SIZE

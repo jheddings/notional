@@ -361,7 +361,7 @@ class DatabasesEndpoint(Endpoint):
 
         logger.info("Initializing database query :: {%s} [%s]", dbid, cls)
 
-        return QueryBuilder(endpoint=self().query, cls=cls, database_id=dbid)
+        return QueryBuilder(endpoint=self().query, datatype=cls, database_id=dbid)
 
 
 class PagesEndpoint(Endpoint):

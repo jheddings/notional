@@ -247,16 +247,16 @@ class QueryBuilder:
     """A query builder for the Notion API.
 
     :param endpoint: the session endpoint used to execute the query
-    :param cls: an optional GenericObject class for parsing results
+    :param datatype: an optional class to capture results
     :param params: optional params that will be passed to the query
     """
 
-    def __init__(self, endpoint, cls=None, **params):
+    def __init__(self, endpoint, datatype=None, **params):
         """Initialize a new `QueryBuilder` for the given endpoint."""
 
         self.endpoint = endpoint
+        self.datatype = datatype
         self.params = params
-        self.cls = cls
 
         self.query = Query()
 
@@ -343,7 +343,7 @@ class QueryBuilder:
         if self.params:
             query.update(self.params)
 
-        return EndpointIterator(self.endpoint, cls=self.cls)(**query)
+        return EndpointIterator(self.endpoint, datatype=self.datatype)(**query)
 
     def first(self):
         """Execute the current query and return the first result only."""
