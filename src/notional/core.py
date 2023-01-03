@@ -81,7 +81,11 @@ class ComposableObjectMeta(ModelMetaclass):
 
         compose_func = self.__compose__
 
-        if type(params) is tuple:
+        # __getitem__ only accepts a single parameter...  if the caller provides
+        # multiple params, they will be converted and passed as a tuple.  this method
+        # also accepts a list for readability when composing from ORM properties
+
+        if params and type(params) in (list, tuple):
             return compose_func(*params)
 
         return compose_func(params)

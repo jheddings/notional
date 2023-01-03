@@ -108,16 +108,26 @@ class EndpointIterator:
 
         for items in query(database_id=second_db):
             ...
+
+    Objects returned by the iterator may also be converted to a specific type.  This
+    is most commonly used to wrap API objects with a higher-level object (such as ORM
+    types).
     """
 
-    def __init__(self, endpoint):
-        """Initialize an object list iterator."""
+    def __init__(self, endpoint, cls=None):
+        """Initialize an object list iterator for the specified endpoint.
+
+        If a class is provided, it will be constructued for each result returned by
+        this iterator.  The constructor must accept a single argument, which is the
+        `NotionObject` contained in the `ObjectList`.
+        """
         self.endpoint = endpoint
 
         self.has_mode = None
         self.next_cursor = None
         self.total_items = -1
         self.page_num = -1
+        self.cls = cls
 
     def __call__(self, **kwargs):
         """Return a generator for this endpoint using the given parameters."""
@@ -141,7 +151,10 @@ class EndpointIterator:
             for obj in api_list.results:
                 self.total_items += 1
 
-                yield obj
+                if self.cls is None:
+                    yield obj
+                else:
+                    yield self.cls(obj)
 
             self.next_cursor = api_list.next_cursor
             self.has_more = api_list.has_more and self.next_cursor is not None

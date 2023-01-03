@@ -343,7 +343,7 @@ class QueryBuilder:
         if self.params:
             query.update(self.params)
 
-        return EndpointIterator(self.endpoint)(**query)
+        return EndpointIterator(self.endpoint, cls=self.cls)(**query)
 
     def first(self):
         """Execute the current query and return the first result only."""
