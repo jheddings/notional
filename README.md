@@ -14,7 +14,8 @@ higher-level access to the API.
 and are likely to change.  Furthermore, documentation is pretty sparse so use at your
 own risk!
 
-That being said, if you do use this library, please drop me a message!
+That being said, if you do use this library, please
+[drop me a message](https://github.com/jheddings/notional/discussions)!
 
 ## Installation ##
 
