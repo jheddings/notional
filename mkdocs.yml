@@ -31,6 +31,7 @@ nav:
       - Overview: reference/index.md
       - Blocks: reference/blocks.md
       - Core: reference/core.md
+      - Iterator: reference/iterator.md
       - ORM: reference/orm.md
       - Parser: reference/parser.md
       - Query: reference/query.md
