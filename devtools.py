@@ -89,7 +89,7 @@ def build_docs(deploy):
 
     if deploy:
         info("BEGIN: build_docs [deploy]")
-        exec(["mkdocs", "gh-deploy"])
+        exec(["mkdocs", "gh-deploy", "--force"])
     else:
         info("BEGIN: build_docs [build]")
         exec(["mkdocs", "build"])
