@@ -35,7 +35,6 @@ nav:
       - ORM: reference/orm.md
       - Parser: reference/parser.md
       - Query: reference/query.md
-      - Records: reference/records.md
       - Schema: reference/schema.md
       - Session: reference/session.md
       - Text: reference/text.md

@@ -82,12 +82,17 @@ def preflight():
 ## mkdocs ##
 
 
-@click.command("mkdocs")
-def mkdocs():
-    """Build documentations."""
+@click.command("build_docs")
+@click.option("--deploy", default=False, is_flag=True, help="Deploy to GitHub pages.")
+def build_docs(deploy):
+    """Build site documentation."""
 
-    info("BEGIN: mkdocs")
-    exec(["mkdocs", "build"])
+    if deploy:
+        info("BEGIN: build_docs [deploy]")
+        exec(["mkdocs", "gh-deploy"])
+    else:
+        info("BEGIN: build_docs [build]")
+        exec(["mkdocs", "build"])
 
 
 ################################################################################

@@ -37,8 +37,8 @@ mkdocstrings-python = "^0.8.2"
 
 [tool.poetry.scripts]
 preflight = "devtools:preflight"
-utest = "devtools:run_unit_tests"
-mkdocs = "devtools:mkdocs"
+unit-test = "devtools:run_unit_tests"
+build-docs = "devtools:build_docs"
 cleanup = "devtools:cleanup"
 
 [tool.isort]
