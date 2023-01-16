@@ -583,7 +583,7 @@ class Status(NativeTypeMixin, PropertyValue, type="status"):
         return self.status.name == other
 
     @classmethod
-    def __compose__(cls, name, color=Color.DEFAULT):
+    def __compose__(cls, name, color=None):
         """Create a `Status` property from the given name.
 
         :param name: a string to use for this property
