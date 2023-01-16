@@ -188,7 +188,7 @@ class NotionObject(GenericObject):
         """Make sure that the deserialzied object matches the name in this class."""
 
         if val != cls.object:
-            raise ValueError(f"Invalid object for '{cls.object}' - {val}")
+            raise ValueError(f"Invalid object for {cls.object} - {val}")
 
         return val
 

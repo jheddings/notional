@@ -55,7 +55,7 @@ class ConnectedProperty:
         # this is kind of an ugly way to grab the value type from the schema type...
         # mostly b/c we are using internal knowledge of TypedObject.__notional_typemap__
         if self.type_name not in PropertyValue.__notional_typemap__:
-            raise TypeError(f"Invalid schema; missing value type '{self.type_name}'")
+            raise TypeError(f"Invalid schema; missing value type - {self.type_name}")
 
         self.value_type = PropertyValue.__notional_typemap__[self.type_name]
 
@@ -83,7 +83,7 @@ class ConnectedProperty:
             prop = self.page_data[self.name]
         except AttributeError:
             if self.default == ...:
-                raise AttributeError(f"Missing property: '{self.name}'")
+                raise AttributeError(f"Missing property: {self.name}")
             return self.default
 
         if not isinstance(prop, self.value_type):
@@ -109,7 +109,7 @@ class ConnectedProperty:
             prop = self.value_type[value]
 
         else:
-            raise TypeError(f"Unsupported value type for '{self.type_name}'")
+            raise TypeError(f"Unsupported value type for {self.type_name}")
 
         # update the property on the server (which will refresh the local data)
         self.session.pages.update(self.page_data, **{self.name: prop})
