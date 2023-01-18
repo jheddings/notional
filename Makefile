@@ -11,7 +11,7 @@ WITH_VENV := poetry run
 ################################################################################
 .PHONY: all
 
-all: venv build test
+all: venv preflight build
 
 ################################################################################
 .PHONY: venv
@@ -21,9 +21,9 @@ venv:
 	$(WITH_VENV) pre-commit install --install-hooks --overwrite
 
 ################################################################################
-.PHONY: build-pkg
+.PHONY: build-dist
 
-build-pkg: venv preflight test
+build-dist: preflight
 	poetry --no-interaction build
 
 ################################################################################
@@ -35,19 +35,19 @@ build-docs: venv
 ################################################################################
 .PHONY: build
 
-build: build-pkg
+build: build-dist
 
 ################################################################################
 .PHONY: github-reltag
 
-github-reltag: build test
+github-reltag: preflight
 	git tag "v$(APPVER)" main
 	git push origin "v$(APPVER)"
 
 ################################################################################
 .PHONY: publish-pypi
 
-publish-pypi: venv preflight test build-pkg
+publish-pypi: preflight build-dist
 	poetry publish --no-interaction
 
 ################################################################################
@@ -105,7 +105,7 @@ coverage: coverage-report coverage-html
 ################################################################################
 .PHONY: preflight
 
-preflight: venv static-checks unit-tests coverage-report
+preflight: static-checks unit-tests coverage-report
 
 ################################################################################
 .PHONY: clean
