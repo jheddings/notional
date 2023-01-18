@@ -17,5 +17,6 @@ dist
 lib
 tmp
 site
+htmlcov
 
 *.egg-info
