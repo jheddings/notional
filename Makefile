@@ -98,6 +98,11 @@ coverage-html: venv unit-tests
 	$(WITH_VENV) coverage html
 
 ################################################################################
+.PHONY: coverage
+
+coverage: coverage-report coverage-html
+
+################################################################################
 .PHONY: preflight
 
 preflight: venv static-checks unit-tests coverage-report
