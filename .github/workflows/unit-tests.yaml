@@ -39,7 +39,7 @@ jobs:
 
       - name: Run unit tests
         run: |
-          poetry run unit-test --vcr=none
+          poetry run pytest ./tests --vcr-record=none
         env:
           NOTION_AUTH_TOKEN: ${{ secrets.NOTION_AUTH_TOKEN }}
           NOTION_TEST_AREA: ${{ secrets.NOTION_TEST_AREA }}
