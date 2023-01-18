@@ -6,13 +6,19 @@ SRCDIR ?= $(BASEDIR)/src
 APPNAME ?= $(shell grep -m1 '^name' "$(BASEDIR)/pyproject.toml" | sed -e 's/name.*"\(.*\)"/\1/')
 APPVER ?= $(shell grep -m1 '^version' "$(BASEDIR)/pyproject.toml" | sed -e 's/version.*"\(.*\)"/\1/')
 
-VENV := poetry run
-PY := $(VENV) python3
+WITH_VENV := poetry run
 
 ################################################################################
 .PHONY: all
 
 all: venv build test
+
+################################################################################
+.PHONY: venv
+
+venv:
+	poetry install --sync
+	$(WITH_VENV) pre-commit install --install-hooks --overwrite
 
 ################################################################################
 .PHONY: build-pkg
@@ -24,7 +30,7 @@ build-pkg: venv preflight test
 .PHONY: build-docs
 
 build-docs: venv
-	$(VENV) mkdocs build
+	$(WITH_VENV) mkdocs build
 
 ################################################################################
 .PHONY: build
@@ -48,7 +54,7 @@ publish-pypi: venv preflight test build-pkg
 .PHONY: publish-docs
 
 publish-docs: venv
-	$(VENV) mkdocs gh-deploy --force
+	$(WITH_VENV) mkdocs gh-deploy --force
 
 ################################################################################
 .PHONY: publish
@@ -64,45 +70,37 @@ release: publish github-reltag
 .PHONY: run
 
 run: venv
-	$(PY) -m notional
+	$(WITH_VENV) python3 -m notional
 
 ################################################################################
-.PHONY: preflight
+.PHONY: static-checks
 
-preflight: venv
-	$(VENV) pre-commit run --all-files --verbose
-
-################################################################################
-.PHONY: test
-
-test: venv preflight
-	$(VENV) pytest $(BASEDIR)/tests --vcr-record=once
+static-checks: venv
+	$(WITH_VENV) pre-commit run --all-files --verbose
 
 ################################################################################
-.PHONY: test-coverage
+.PHONY: unit-tests
 
-test-coverage: venv
-	$(VENV) coverage run "--source=$(SRCDIR)" -m \
+unit-tests: venv
+	$(WITH_VENV) coverage run "--source=$(SRCDIR)" -m \
 		pytest $(BASEDIR)/tests --vcr-record=once
 
 ################################################################################
-.PHONY: coverage-txt
+.PHONY: coverage-report
 
-coverage-txt: venv test-coverage
-	$(VENV) coverage report
+coverage-report: venv unit-tests
+	$(WITH_VENV) coverage report
 
 ################################################################################
 .PHONY: coverage-html
 
-coverage-html: venv test-coverage
-	$(VENV) coverage html
+coverage-html: venv unit-tests
+	$(WITH_VENV) coverage html
 
 ################################################################################
-.PHONY: venv
+.PHONY: preflight
 
-venv:
-	poetry install --sync
-	$(VENV) pre-commit install --install-hooks --overwrite
+preflight: venv static-checks unit-tests coverage-report
 
 ################################################################################
 .PHONY: clean

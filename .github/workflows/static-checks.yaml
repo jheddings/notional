@@ -1,5 +1,5 @@
 ---
-name: Preflight Checks
+name: Static Checks
 
 on:
   push:
@@ -8,9 +8,14 @@ on:
     branches: [main]
 
 jobs:
-  pre_commit:
+  static_checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-      - uses: pre-commit/action@v3.0.0
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Run static checks
+        run: make static-checks
