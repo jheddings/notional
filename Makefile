@@ -130,7 +130,7 @@ clean:
 ################################################################################
 .PHONY: clobber
 
-clobber: clean
+clobber: clean reset-vcr
 	rm -Rf "$(BASEDIR)/htmlcov"
 	rm -Rf "$(BASEDIR)/dist"
 	rm -Rf "$(BASEDIR)/site"
