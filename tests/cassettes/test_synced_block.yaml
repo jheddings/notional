@@ -32,6 +32,8 @@ interactions:
       - secret...
       connection:
       - keep-alive
+      cookie:
+      - __cf_bm=II4.VcX5lA.wWRjtj0hlt0IfGgTCBSReV7TChYn8CrY-1674089926-0-AeFgCpDAT2Ye0QP4Lh0pY+jpFMjmVhdc+uJgx3ZlSy2OE1IV5fWNUD66QSVCI3uIRFxnV91cDfM184klkQNwfGI=
       host:
       - api.notion.com
       notion-version:
