@@ -131,6 +131,7 @@ clean:
 .PHONY: clobber
 
 clobber: clean reset-vcr
+	$(WITH_VENV) pre-commit uninstall
 	rm -Rf "$(BASEDIR)/htmlcov"
 	rm -Rf "$(BASEDIR)/dist"
 	rm -Rf "$(BASEDIR)/site"
