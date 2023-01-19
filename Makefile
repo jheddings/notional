@@ -1,5 +1,8 @@
 # Makefile for Notional
 
+# use a local.env file if it exists
+-include local.env
+
 BASEDIR ?= $(PWD)
 SRCDIR ?= $(BASEDIR)/src
 
@@ -7,6 +10,8 @@ APPNAME ?= $(shell grep -m1 '^name' "$(BASEDIR)/pyproject.toml" | sed -e 's/name
 APPVER ?= $(shell grep -m1 '^version' "$(BASEDIR)/pyproject.toml" | sed -e 's/version.*"\(.*\)"/\1/')
 
 WITH_VENV := poetry run
+
+export
 
 ################################################################################
 .PHONY: all
@@ -106,6 +111,12 @@ coverage: coverage-report coverage-html
 .PHONY: preflight
 
 preflight: static-checks unit-tests coverage-report
+
+################################################################################
+.PHONY: reset-vcr
+
+reset-vcr:
+	rm -Rf "$(BASEDIR)/tests/cassettes"
 
 ################################################################################
 .PHONY: clean
