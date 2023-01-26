@@ -4,6 +4,7 @@ Similar to other records, these object provide access to the primitive data stru
 used in the Notion API as well as higher-level methods.
 """
 
+import re
 from abc import ABC, abstractmethod
 from datetime import date, datetime
 from typing import List, Optional, Union
@@ -16,6 +17,35 @@ from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
 from .user import User
 
+_uuid_regex = r"[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}"
+
+notion_id_re = re.compile(_uuid_regex)
+
+page_url_short_re = re.compile(
+    rf"""https://www.notion.so/
+    (?P<page_id>{_uuid_regex})
+    """,
+    flags=re.IGNORECASE | re.X,
+)
+
+page_url_long_re = re.compile(
+    rf"""https://www.notion.so/
+    (?P<title>.*)-
+    (?P<page_id>{_uuid_regex})
+    """,
+    flags=re.IGNORECASE | re.X,
+)
+
+block_url_long_re = re.compile(
+    rf"""https://www.notion.so/
+    (?P<username>.*)/
+    (?P<title>.*)-
+    (?P<page_id>{_uuid_regex})
+    #(?P<block_id>{_uuid_regex})
+    """,
+    flags=re.IGNORECASE | re.X,
+)
+
 
 class ObjectReference(GenericObject):
     """A general-purpose object reference in the Notion API."""
@@ -27,6 +57,8 @@ class ObjectReference(GenericObject):
         """Compose an ObjectReference from the given reference.
 
         `ref` may be a `UUID`, `str`, `ParentRef` or `GenericObject` with an `id`.
+
+        Strings may be either UUID's or URL's to Notion content.
         """
 
         if isinstance(ref, cls):
@@ -36,6 +68,15 @@ class ObjectReference(GenericObject):
             return ObjectReference(id=ref)
 
         if isinstance(ref, str):
+
+            m = page_url_long_re.match(ref)
+            if m is not None:
+                return ObjectReference(id=m.group("page_id"))
+
+            m = page_url_short_re.match(ref)
+            if m is not None:
+                return ObjectReference(id=m.group("page_id"))
+
             # pydantic handles the conversion for us
             return ObjectReference(id=ref)
 
