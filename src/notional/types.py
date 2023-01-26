@@ -4,7 +4,6 @@ Similar to other records, these object provide access to the primitive data stru
 used in the Notion API as well as higher-level methods.
 """
 
-import re
 from abc import ABC, abstractmethod
 from datetime import date, datetime
 from typing import List, Optional, Union
@@ -12,39 +11,11 @@ from uuid import UUID
 
 from notion_client import helpers
 
+from . import util
 from .core import GenericObject, NotionObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
 from .user import User
-
-_uuid_regex = r"[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}"
-
-notion_id_re = re.compile(_uuid_regex)
-
-page_url_short_re = re.compile(
-    rf"""https://www.notion.so/
-    (?P<page_id>{_uuid_regex})
-    """,
-    flags=re.IGNORECASE | re.X,
-)
-
-page_url_long_re = re.compile(
-    rf"""https://www.notion.so/
-    (?P<title>.*)-
-    (?P<page_id>{_uuid_regex})
-    """,
-    flags=re.IGNORECASE | re.X,
-)
-
-block_url_long_re = re.compile(
-    rf"""https://www.notion.so/
-    (?P<username>.*)/
-    (?P<title>.*)-
-    (?P<page_id>{_uuid_regex})
-    #(?P<block_id>{_uuid_regex})
-    """,
-    flags=re.IGNORECASE | re.X,
-)
 
 
 class ObjectReference(GenericObject):
@@ -68,17 +39,9 @@ class ObjectReference(GenericObject):
             return ObjectReference(id=ref)
 
         if isinstance(ref, str):
-
-            m = page_url_long_re.match(ref)
-            if m is not None:
-                return ObjectReference(id=m.group("page_id"))
-
-            m = page_url_short_re.match(ref)
-            if m is not None:
-                return ObjectReference(id=m.group("page_id"))
-
             # pydantic handles the conversion for us
-            return ObjectReference(id=ref)
+            str_id = util.extract_id_from_string(ref)
+            return ObjectReference(id=str_id)
 
         if isinstance(ref, ParentRef):
             # ParentRef's are typed-objects with a nested UUID
