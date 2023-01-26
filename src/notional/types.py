@@ -39,9 +39,10 @@ class ObjectReference(GenericObject):
             return ObjectReference(id=ref)
 
         if isinstance(ref, str):
+            ref = util.extract_id_from_string(ref)
+
             # pydantic handles the conversion for us
-            str_id = util.extract_id_from_string(ref)
-            return ObjectReference(id=str_id)
+            return ObjectReference(id=ref)
 
         if isinstance(ref, ParentRef):
             # ParentRef's are typed-objects with a nested UUID
