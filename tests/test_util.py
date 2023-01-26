@@ -11,13 +11,13 @@ def test_notion_id_regex():
     id = uuid4()
 
     short_uuid = id.hex
-    m = util.notion_id_re.match(short_uuid)
+    m = util.uuid_re.match(short_uuid)
 
     assert m is not None
     assert UUID(m.string) == id
 
     long_uuid = str(id)
-    m = util.notion_id_re.match(long_uuid)
+    m = util.uuid_re.match(long_uuid)
 
     assert m is not None
     assert UUID(m.string) == id
