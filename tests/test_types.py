@@ -39,7 +39,7 @@ def test_obj_reference_from_ref():
     assert new.id == id
 
 
-def test_obj_reference_from_short_url():
+def test_page_reference_from_short_url():
     """Compose an ObjectReference from a short page URL."""
 
     id = uuid4()
@@ -50,7 +50,7 @@ def test_obj_reference_from_short_url():
     assert ref.id == id
 
 
-def test_obj_reference_from_long_url():
+def test_page_reference_from_long_url():
     """Compose an ObjectReference from a long page URL."""
 
     id = uuid4()
@@ -59,6 +59,18 @@ def test_obj_reference_from_long_url():
     ref = types.ObjectReference[page_url]
 
     assert ref.id == id
+
+
+def test_block_reference_from_long_url():
+    """Compose an ObjectReference from a long block URL."""
+
+    page_id = uuid4()
+    block_id = uuid4()
+
+    block_url = f"https://www.notion.so/me/Notional-{page_id.hex}#{block_id.hex}"
+    ref = types.ObjectReference[block_url]
+
+    assert ref.id == block_id
 
 
 def test_invalid_page_reference_from_ref():

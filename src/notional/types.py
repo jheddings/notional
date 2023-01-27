@@ -35,15 +35,6 @@ class ObjectReference(GenericObject):
         if isinstance(ref, cls):
             return ref.copy(deep=True)
 
-        if isinstance(ref, UUID):
-            return ObjectReference(id=ref)
-
-        if isinstance(ref, str):
-            ref = util.extract_id_from_string(ref)
-
-            # pydantic handles the conversion for us
-            return ObjectReference(id=ref)
-
         if isinstance(ref, ParentRef):
             # ParentRef's are typed-objects with a nested UUID
             return ObjectReference(id=ref())
@@ -51,6 +42,15 @@ class ObjectReference(GenericObject):
         if isinstance(ref, GenericObject) and hasattr(ref, "id"):
             # re-compose the ObjectReference from the internal ID
             return ObjectReference[ref.id]
+
+        if isinstance(ref, UUID):
+            return ObjectReference(id=ref)
+
+        if isinstance(ref, str):
+            ref = util.extract_id_from_string(ref)
+
+            if ref is not None:
+                return ObjectReference(id=UUID(ref))
 
         raise ValueError("Unrecognized 'ref' attribute")
 
