@@ -12,7 +12,7 @@ from notional import schema, types, user
 
 
 def test_obj_reference_from_uuid():
-    """Compose a ObjectReference from a UUID."""
+    """Compose an ObjectReference from a UUID."""
     id = uuid4()
 
     ref = types.ObjectReference[id]
@@ -21,7 +21,7 @@ def test_obj_reference_from_uuid():
 
 
 def test_obj_reference_from_str():
-    """Compose a ObjectReference from an ID string."""
+    """Compose an ObjectReference from an ID string."""
     id = uuid4()
 
     ref = types.ObjectReference[id.hex]
@@ -30,7 +30,7 @@ def test_obj_reference_from_str():
 
 
 def test_obj_reference_from_ref():
-    """Compose a ObjectReference from another ref."""
+    """Compose an ObjectReference from another ref."""
     id = uuid4()
 
     orig = types.ObjectReference(id=id)
@@ -39,8 +39,42 @@ def test_obj_reference_from_ref():
     assert new.id == id
 
 
+def test_page_reference_from_short_url():
+    """Compose an ObjectReference from a short page URL."""
+
+    id = uuid4()
+
+    page_url = f"https://www.notion.so/{id.hex}"
+    ref = types.ObjectReference[page_url]
+
+    assert ref.id == id
+
+
+def test_page_reference_from_long_url():
+    """Compose an ObjectReference from a long page URL."""
+
+    id = uuid4()
+
+    page_url = f"https://www.notion.so/Notional-Unit-Tests-{id.hex}"
+    ref = types.ObjectReference[page_url]
+
+    assert ref.id == id
+
+
+def test_block_reference_from_long_url():
+    """Compose an ObjectReference from a long block URL."""
+
+    page_id = uuid4()
+    block_id = uuid4()
+
+    block_url = f"https://www.notion.so/me/Notional-{page_id.hex}#{block_id.hex}"
+    ref = types.ObjectReference[block_url]
+
+    assert ref.id == block_id
+
+
 def test_invalid_page_reference_from_ref():
-    """Try to create a ObjectReference from invalid data."""
+    """Try to create an ObjectReference from invalid data."""
 
     with pytest.raises(ValueError):
         types.ObjectReference[None]

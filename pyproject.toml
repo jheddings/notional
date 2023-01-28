@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "notional"
-version = "0.7.1"
+version = "0.7.2"
 description = "A high-level interface for the Notion SDK."
 license = "MIT"
 authors = ["Jason Heddings <jheddings@gmail.com>"]

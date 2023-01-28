@@ -11,6 +11,7 @@ from uuid import UUID
 
 from notion_client import helpers
 
+from . import util
 from .core import GenericObject, NotionObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
@@ -27,17 +28,12 @@ class ObjectReference(GenericObject):
         """Compose an ObjectReference from the given reference.
 
         `ref` may be a `UUID`, `str`, `ParentRef` or `GenericObject` with an `id`.
+
+        Strings may be either UUID's or URL's to Notion content.
         """
 
         if isinstance(ref, cls):
             return ref.copy(deep=True)
-
-        if isinstance(ref, UUID):
-            return ObjectReference(id=ref)
-
-        if isinstance(ref, str):
-            # pydantic handles the conversion for us
-            return ObjectReference(id=ref)
 
         if isinstance(ref, ParentRef):
             # ParentRef's are typed-objects with a nested UUID
@@ -46,6 +42,15 @@ class ObjectReference(GenericObject):
         if isinstance(ref, GenericObject) and hasattr(ref, "id"):
             # re-compose the ObjectReference from the internal ID
             return ObjectReference[ref.id]
+
+        if isinstance(ref, UUID):
+            return ObjectReference(id=ref)
+
+        if isinstance(ref, str):
+            ref = util.extract_id_from_string(ref)
+
+            if ref is not None:
+                return ObjectReference(id=UUID(ref))
 
         raise ValueError("Unrecognized 'ref' attribute")
 
