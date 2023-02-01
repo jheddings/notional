@@ -31,7 +31,6 @@ print(f"{page.Title} => {page.url}")
 
 # print all current properties on the page...
 for name, value in page.properties.items():
-
     # use the endpoint to retrive the full property data
     prop = notion.pages.properties.retrieve(page_id, value.id)
 

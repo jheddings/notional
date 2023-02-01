@@ -28,7 +28,6 @@ def rich_text(*text):
     rtf = []
 
     for obj in text:
-
         if obj is None:
             continue
 

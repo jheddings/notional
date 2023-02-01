@@ -252,7 +252,6 @@ class QueryBuilder:
         """Add the given filter to the query."""
 
         if filter is None:
-
             if isinstance(self.endpoint, SearchEndpoint):
                 filter = SearchFilter.parse_obj(kwargs)
             elif "property" in kwargs:

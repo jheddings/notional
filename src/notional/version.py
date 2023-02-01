@@ -15,7 +15,6 @@ __version__ = _pkg_dist.version
 
 # if we are running in a local copy, append the repo information
 try:
-
     import git
 
     # the folder containing Notional source
