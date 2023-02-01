@@ -80,7 +80,6 @@ class Session(object):
         error = None
 
         try:
-
             me = self.users.me()
 
             if me is None:
@@ -134,7 +133,6 @@ class BlocksEndpoint(Endpoint):
             data = self().append(block_id=parent_id, children=children)
 
             if "results" in data:
-
                 if len(blocks) == len(data["results"]):
                     for idx in range(len(blocks)):
                         block = blocks[idx]

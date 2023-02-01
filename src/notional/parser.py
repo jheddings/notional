@@ -179,7 +179,6 @@ class CsvParser(DocumentParser):
         self._process(reader)
 
     def _process(self, reader):
-
         # build the schema based on the first row
 
         try:
