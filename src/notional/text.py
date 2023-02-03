@@ -211,7 +211,7 @@ class Annotations(GenericObject):
         If all flags match their defaults, this is considered a "plain" style.
         """
 
-        # XXX a better approach here would be to just compate all fields to defaults
+        # XXX a better approach here would be to just compare all fields to defaults
 
         if self.bold:
             return False
