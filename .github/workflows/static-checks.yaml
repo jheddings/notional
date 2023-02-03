@@ -1,7 +1,8 @@
 ---
 name: Static Checks
 
-on:
+"on":
+
   push:
     branches: [main]
   pull_request:
