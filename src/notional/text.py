@@ -259,6 +259,7 @@ class RichTextObject(TypedObject):
 
         return text
 
+    @classmethod
     def __compose__(cls, text, href=None, style=None):
         """Compose a TextObject from the given properties.
 
@@ -274,7 +275,7 @@ class RichTextObject(TypedObject):
 
         style = deepcopy(style)
 
-        return RichTextObject(text, href=href, annotations=style)
+        return cls(plain_text=text, href=href, annotations=style)
 
 
 class TextObject(RichTextObject, type="text"):
@@ -304,7 +305,7 @@ class TextObject(RichTextObject, type="text"):
         nested = TextObject._NestedData(content=text, link=link)
         style = deepcopy(style)
 
-        return TextObject(
+        return cls(
             plain_text=text,
             text=nested,
             href=href,
