@@ -305,7 +305,7 @@ class TextObject(RichTextObject, type="text"):
         nested = TextObject._NestedData(content=text, link=link)
         style = deepcopy(style)
 
-        return TextObject(
+        return cls(
             plain_text=text,
             text=nested,
             href=href,
