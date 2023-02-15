@@ -22,14 +22,18 @@ all: venv preflight build
 .PHONY: venv
 
 venv:
-	poetry install --sync
+	poetry install --sync --no-interaction
 	$(WITH_VENV) pre-commit install --install-hooks --overwrite
+
+################################################################################
+poetry.lock: venv
+	poetry lock --no-update --no-interaction
 
 ################################################################################
 .PHONY: build-dist
 
 build-dist: preflight
-	poetry --no-interaction build
+	poetry build --no-interaction
 
 ################################################################################
 .PHONY: build-docs
@@ -135,4 +139,4 @@ clobber: clean reset-vcr
 	rm -Rf "$(BASEDIR)/htmlcov"
 	rm -Rf "$(BASEDIR)/dist"
 	rm -Rf "$(BASEDIR)/site"
-	poetry env remove --all
+	poetry env remove --all --no-interaction
