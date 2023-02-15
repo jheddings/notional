@@ -135,4 +135,4 @@ clobber: clean reset-vcr
 	rm -Rf "$(BASEDIR)/htmlcov"
 	rm -Rf "$(BASEDIR)/dist"
 	rm -Rf "$(BASEDIR)/site"
-	rm -Rf "$(BASEDIR)/.venv"
+	poetry env remove --all
