@@ -131,7 +131,7 @@ class AsyncSession(SessionBase):
         self.client = None
 
 
-class Endpoint(object):
+class Endpoint:
     """Notional wrapper for the API endpoints."""
 
     def __init__(self, session: SessionBase):
