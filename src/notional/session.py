@@ -45,7 +45,7 @@ class SessionBase:
         logger.info("Initialized Notion SDK client")
 
     @property
-    def IsActive(self) -> bool:
+    def is_active(self) -> bool:
         """Determine if the current session is active.
 
         The session is considered "active" if it has not been closed.  This does not
@@ -59,7 +59,7 @@ class SessionBase:
         Raises SessionError if there is a problem, otherwise returns True.
         """
 
-        if not self.IsActive:
+        if not self.is_active:
             return False
 
         error = None
@@ -496,6 +496,7 @@ class PagesEndpoint(Endpoint):
 
         logger.info("Retrieving page :: %s", page_id)
 
+        # FIXME find a way to properly await for any endpoint call (or we need async endpoints)
         data = self().retrieve(page_id)
 
         # XXX would it make sense to (optionally) expand the full properties here?
