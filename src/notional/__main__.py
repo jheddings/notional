@@ -6,8 +6,8 @@ At the moment, this simply prints the current version and exits.
 import platform
 import sys
 
-import notional
+from notional import version
 
-print(f"{notional.__pkgname__}: v{notional.__version__}")
+print(f"{version.__pkgname__}: v{version.__version__}")
 print(f"python: v{sys.version}")
 print(f"platform: {platform.platform()}")
