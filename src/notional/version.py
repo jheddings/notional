@@ -1,54 +1,59 @@
 """Consistent version information for notional."""
 
+import importlib.metadata
 import logging
 from pathlib import Path
 
-import pkg_resources
-
 logger = logging.getLogger(__name__)
 
-__pkgname__ = "notional"
 
-_pkg_dist = pkg_resources.get_distribution(__pkgname__)
+def package_version(pkgname):
+    """Determine the version of an installed package."""
+    return importlib.metadata.version(pkgname)
 
-__version__ = _pkg_dist.version
 
-# if we are running in a local copy, append the repo information
-try:
-    import git
+def extended_version(pkgname):
+    """Calculate extended version information for the named package."""
+    version = package_version(pkgname)
 
-    # the folder containing Notional source
-    _srcdir = Path(__file__).parent.resolve()
-
-    # XXX there is probably a better way to do this, but we don't want to inadvertently
-    # pick up another repo (e.g. if we are installed in a .venv of another project)
-    _basedir = _srcdir.parent.parent
-
+    # if we are running in a local copy, append the repo information
     try:
-        _repo = git.Repo(_basedir)
-        _head = _repo.head.commit
+        import git
 
-        assert not _repo.bare
+        # the folder containing notional source
+        srcdir = Path(__file__).parent.resolve()
 
-        __version__ += "-" + _head.hexsha[:7]
+        # XXX there is probably a better way to do this, but we don't want to inadvertently
+        # pick up another repo (e.g. if we are installed in a .venv of another project)
+        basedir = srcdir.parent.parent
 
-        _branch = _repo.active_branch.name
+        try:
+            repo = git.Repo(basedir, search_parent_directories=True)
+            head = repo.head.commit
 
-        if _branch != "main":
-            __version__ += "-" + _branch
+            assert not repo.bare
 
-        if _repo.is_dirty():
-            __version__ += "+"
+            version += "-" + head.hexsha[:7]
 
-    except git.InvalidGitRepositoryError:
-        pass
+            _branch = repo.active_branch.name
 
-# if python-git is not installed...
-except ModuleNotFoundError:
-    logger.debug("repository information not available")
-    pass
+            if _branch != "main":
+                version += "-" + _branch
 
-except Exception:
-    logger.exception("Unexpected exception while looking for version information.")
+            if repo.is_dirty():
+                version += "+"
+
+        except git.InvalidGitRepositoryError:
+            pass
+
+    # if python-git is not installed...
+    except ModuleNotFoundError:
+        logger.debug("repository information not available")
+
+    return version
+
+
+__pkgname__ = "notional"
+__version__ = extended_version(__pkgname__)
 
 logger.info("%s-%s", __pkgname__, __version__)
