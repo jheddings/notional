@@ -44,11 +44,16 @@ def extended_version(pkgname):
                 version += "+"
 
         except git.InvalidGitRepositoryError:
+            logger.debug("repository information not available")
+            pass
+
+        except Exception:
+            logger.debug("error processing repository")
             pass
 
     # if python-git is not installed...
     except ModuleNotFoundError:
-        logger.debug("repository information not available")
+        logger.debug("unable to load git repository")
 
     return version
 
