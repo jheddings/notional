@@ -28,20 +28,20 @@ def extended_version(pkgname):
         basedir = srcdir.parent.parent
 
         try:
-            repo = git.Repo(basedir, search_parent_directories=True)
+            repo = git.Repo(basedir, search_parent_directories=False)
             head = repo.head.commit
 
             assert not repo.bare
 
             version += "-" + head.hexsha[:7]
 
-            _branch = repo.active_branch.name
+            branch = repo.active_branch.name
 
-            if _branch != "main":
-                version += "-" + _branch
+            if branch != "main":
+                version += "+" + branch
 
             if repo.is_dirty():
-                version += "+"
+                version += "*"
 
         except git.InvalidGitRepositoryError:
             logger.debug("repository information not available")
