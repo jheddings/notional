@@ -608,22 +608,46 @@ class ChildDatabase(Block, type="child_database"):
     child_database: _NestedData = _NestedData()
 
 
-class ColumnList(Block, type="column_list"):
-    """A column list block in Notion."""
-
-    class _NestedData(GenericObject):
-        pass
-
-    column_list: _NestedData = _NestedData()
-
-
-class Column(Block, type="column"):
+class Column(Block, WithChildrenMixin, type="column"):
     """A column block in Notion."""
 
     class _NestedData(GenericObject):
-        pass
+        # note that children will not be populated when getting this block
+        # https://developers.notion.com/changelog/column-list-and-column-support
+        children: Optional[List[Block]] = None
 
     column: _NestedData = _NestedData()
+
+    @classmethod
+    def __compose__(cls, *blocks):
+        """Create a new `Column` block with the given blocks as children."""
+        col = cls()
+
+        for block in blocks:
+            col.append(block)
+
+        return col
+
+
+class ColumnList(Block, WithChildrenMixin, type="column_list"):
+    """A column list block in Notion."""
+
+    class _NestedData(GenericObject):
+        # note that children will not be populated when getting this block
+        # https://developers.notion.com/changelog/column-list-and-column-support
+        children: Optional[List[Column]] = None
+
+    column_list: _NestedData = _NestedData()
+
+    @classmethod
+    def __compose__(cls, *columns):
+        """Create a new `Column` block with the given blocks as children."""
+        cols = cls()
+
+        for col in columns:
+            cols.append(col)
+
+        return cols
 
 
 class TableRow(Block, type="table_row"):
@@ -647,6 +671,16 @@ class TableRow(Block, type="table_row"):
     def __getitem__(self, cell_num):
         """Return the cell content for the requested column."""
         return self.table_row[cell_num]
+
+    @classmethod
+    def __compose__(cls, *cells):
+        """Create a new `TableRow` block with the given cell contents."""
+        row = cls()
+
+        for cell in cells:
+            row.append(cell)
+
+        return row
 
     def append(self, text):
         """Append the given text as a new cell in this `TableRow`.
@@ -687,6 +721,16 @@ class Table(Block, WithChildrenMixin, type="table"):
         children: Optional[List[TableRow]] = []
 
     table: _NestedData = _NestedData()
+
+    @classmethod
+    def __compose__(cls, *rows):
+        """Create a new `Table` block with the given rows."""
+        table = cls()
+
+        for row in rows:
+            table.append(row)
+
+        return table
 
     def append(self, block: TableRow):
         """Append the given row to this table.
