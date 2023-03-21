@@ -566,6 +566,20 @@ class LinkPreview(Block, type="link_preview"):
         return ""
 
 
+class Equation(Block, type="equation"):
+    """An equation block in Notion."""
+
+    class _NestedData(GenericObject):
+        expression: str = None
+
+    equation: _NestedData = _NestedData()
+
+    @classmethod
+    def __compose__(cls, expr):
+        """Create a new `Equation` block from the given expression."""
+        return LinkPreview(equation=Equation._NestedData(expression=expr))
+
+
 class File(Block, type="file"):
     """A file block in Notion."""
 
