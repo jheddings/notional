@@ -4,6 +4,8 @@ from enum import Enum
 from typing import Any, List, Optional
 from uuid import UUID
 
+import pydantic
+
 from .core import GenericObject, TypedObject
 from .text import Color
 
@@ -11,14 +13,20 @@ from .text import Color
 class Function(str, Enum):
     """Standard aggregation functions."""
 
-    COUNT_ALL = "count_all"
+    COUNT = "count"
     COUNT_VALUES = "count_values"
-    COUNT_UNIQUE_VALUES = "count_unique_values"
-    COUNT_EMPTY = "count_empty"
-    COUNT_NOT_EMPTY = "count_not_empty"
+    COUNT_PER_GROUP = "count_per_group"
+
+    EMPTY = "empty"
+    NOT_EMPTY = "not_empty"
+
+    CHECKED = "checked"
+    UNCHECKED = "unchecked"
 
     PERCENT_EMPTY = "percent_empty"
     PERCENT_NOT_EMPTY = "percent_not_empty"
+    PERCENT_CHECKED = "percent_checked"
+    PERCENT_PER_GROUP = "percent_per_group"
 
     AVERAGE = "average"
     MIN = "min"
@@ -27,10 +35,13 @@ class Function(str, Enum):
     RANGE = "range"
     SUM = "sum"
 
+    DATE_RANGE = "date_range"
     EARLIEST_DATE = "earliest_date"
     LATEST_DATE = "latest_date"
 
     SHOW_ORIGINAL = "show_original"
+    SHOW_UNIQUE = "show_unique"
+    UNIQUE = "unique"
 
 
 class NumberFormat(str, Enum):
@@ -100,6 +111,12 @@ class Number(PropertyObject, type="number"):
 
     class _NestedData(GenericObject):
         format: NumberFormat = NumberFormat.NUMBER
+
+        # leads to better error messages, see
+        # https://github.com/pydantic/pydantic/issues/355
+        @pydantic.validator("format", pre=True)
+        def validate_enum_field(cls, field: str):
+            return NumberFormat(field)
 
     number: _NestedData = _NestedData()
 
@@ -243,13 +260,19 @@ class Rollup(PropertyObject, type="rollup"):
     """Defines the rollup configuration for a database property."""
 
     class _NestedData(GenericObject):
-        function: Function = Function.COUNT_ALL
+        function: Function = Function.COUNT
 
         relation_property_name: Optional[str] = None
         relation_property_id: Optional[str] = None
 
         rollup_property_name: Optional[str] = None
         rollup_property_id: Optional[str] = None
+
+        # leads to better error messages, see
+        # https://github.com/pydantic/pydantic/issues/355
+        @pydantic.validator("function", pre=True)
+        def validate_enum_field(cls, field: str):
+            return Function(field)
 
     rollup: _NestedData = _NestedData()
 

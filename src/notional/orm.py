@@ -408,7 +408,7 @@ def connected_page(session=None, source_db=None, schema=None, cls=None):
       to the schema provided; defaults to `None`
 
     :param cls: the returned class will inherit from the given class, which must be a
-      sublass of `ConnectedPage`; defaults to `ConnectedPage`
+      subclass of `ConnectedPage`; defaults to `ConnectedPage`
     """
 
     if cls is None:
