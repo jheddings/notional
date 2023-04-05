@@ -62,7 +62,7 @@ def test_bold_text():
     text = TextObject["be BOLD", None, bold]
 
     assert plain_text(text) == "be BOLD"
-    assert markdown(text) == "*be BOLD*"
+    assert markdown(text) == "**be BOLD**"
 
 
 def test_emphasis_text():
@@ -71,7 +71,7 @@ def test_emphasis_text():
     text = TextObject["suggestive", None, style]
 
     assert plain_text(text) == "suggestive"
-    assert markdown(text) == "**suggestive**"
+    assert markdown(text) == "*suggestive*"
 
 
 def test_bold_italic_text():
@@ -86,10 +86,10 @@ def test_bold_italic_text():
 def test_underline_text():
     """Verify text formatting for underline words."""
     underline = Annotations(underline=True)
-    text = TextObject["non-standard", None, underline]
+    text = TextObject["here", None, underline]
 
-    assert plain_text(text) == "non-standard"
-    assert markdown(text) == "_non-standard_"
+    assert plain_text(text) == "here"
+    assert markdown(text) == "<u>here</u>"
 
 
 def test_strikethrough():
