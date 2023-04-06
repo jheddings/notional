@@ -692,14 +692,14 @@ files = [
 
 [[package]]
 name = "mkdocstrings"
-version = "0.21.0"
+version = "0.21.1"
 description = "Automatic documentation from sources, for MkDocs."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mkdocstrings-0.21.0-py3-none-any.whl", hash = "sha256:05c52573366f0a32536f7bf0258f2a8ad180836058bb024b252b8a61a25452b3"},
-    {file = "mkdocstrings-0.21.0.tar.gz", hash = "sha256:df7399cec11bdc12ece9a370a6c37bac70ea0a07f479c051d0c82b07a38a3220"},
+    {file = "mkdocstrings-0.21.1-py3-none-any.whl", hash = "sha256:cf5a2d50bb0ee9c008e714a55ecce5acb7fa1ec9add5d8ad5bc2df6b2cdd3e21"},
+    {file = "mkdocstrings-0.21.1.tar.gz", hash = "sha256:68cb64b9c8e474f654856cd889371f321bed16dfe20f0922c7191efa60a94e5e"},
 ]
 
 [package.dependencies]
@@ -709,6 +709,7 @@ MarkupSafe = ">=1.1"
 mkdocs = ">=1.2"
 mkdocs-autorefs = ">=0.3.1"
 pymdown-extensions = ">=6.3"
+typing-extensions = {version = ">=4.1", markers = "python_version < \"3.10\""}
 
 [package.extras]
 crystal = ["mkdocstrings-crystal (>=0.3.4)"]
@@ -1599,4 +1600,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "52c191910a5ca07d1dea8a40b3c7bc21e11292fbaf2dfee9b0a6626fa95e037c"
+content-hash = "70a71a0a93d789b2905b90749f89fb89e97afe6df86fb857567277294359ffca"
