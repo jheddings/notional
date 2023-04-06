@@ -29,7 +29,7 @@ pytest-vcr = "^1.0.2"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.4.2"
-mkdocstrings = "^0.21.0"
+mkdocstrings = "^0.21.1"
 mkdocs-material = "^9.1.5"
 mkdocstrings-python = "^0.9.0"
 
