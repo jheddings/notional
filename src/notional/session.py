@@ -374,7 +374,7 @@ class PagesEndpoint(Endpoint):
 
         # https://developers.notion.com/reference/retrieve-a-page-property
         def retrieve(self, page_id, property_id):
-            """Return the Property on a specific page Page with the given ID."""
+            """Return the Property on a specific Page with the given ID."""
 
             logger.info("Retrieving property :: %s [%s]", property_id, page_id)
 
@@ -496,7 +496,7 @@ class PagesEndpoint(Endpoint):
         return page.refresh(**data)
 
     def set(self, page, cover=False, icon=False, archived=None):
-        """Set specific page attributes (such as cover, icon, etc) on the server.
+        """Set specific page attributes (such as cover, icon, etc.) on the server.
 
         `page` may be any suitable `PageRef` type.
 

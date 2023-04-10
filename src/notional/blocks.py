@@ -143,7 +143,7 @@ class TextBlock(Block, ABC):
 
     @property
     def __text__(self):
-        """Provide short-hand access to the nested text content in this block."""
+        """Provide shorthand access to the nested text content in this block."""
 
         return self("rich_text")
 

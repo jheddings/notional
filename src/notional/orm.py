@@ -7,11 +7,11 @@ in Notional: `Property()` and `connected_page()`.
 import logging
 from typing import Union
 
-from emoji import emojize
+from emoji import emojize, is_emoji
 
 from .blocks import Page
 from .schema import PropertyObject, RichText
-from .text import is_emoji, make_safe_python_name
+from .text import make_safe_python_name
 from .types import DatabaseRef, EmojiObject, ExternalFile, PropertyValue
 
 logger = logging.getLogger(__name__)
