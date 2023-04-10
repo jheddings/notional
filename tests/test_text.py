@@ -1,7 +1,7 @@
 """Unit tests for text types in Notional."""
 
 from notional import blocks
-from notional.text import Annotations, TextObject, is_emoji, markdown, plain_text
+from notional.text import Annotations, TextObject, markdown, plain_text
 
 
 def confirm_block_markdown(cls, plain, md):
@@ -108,13 +108,3 @@ def test_code_word():
 
     assert plain_text(text) == "keyword"
     assert markdown(text) == "`keyword`"
-
-
-def test_is_emoji():
-    """Test if is_emoji detects single emoji."""
-    assert is_emoji("🍟")
-    assert not is_emoji("no emoji")
-    assert not is_emoji("I love 🍟")
-    assert not is_emoji("🍟🍟")
-    assert not is_emoji("🍟 is my favourite")
-    assert not is_emoji("🍟🍔")
