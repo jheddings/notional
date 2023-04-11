@@ -247,11 +247,11 @@ class RichTextObject(TypedObject):
 
         if self.annotations:
             if self.annotations.bold:
-                text = f"*{text}*"
-            if self.annotations.italic:
                 text = f"**{text}**"
+            if self.annotations.italic:
+                text = f"*{text}*"
             if self.annotations.underline:
-                text = f"_{text}_"
+                text = f"<u>{text}</u>"
             if self.annotations.strikethrough:
                 text = f"~{text}~"
             if self.annotations.code:
