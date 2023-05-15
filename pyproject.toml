@@ -31,7 +31,7 @@ pytest-vcr = "^1.0.2"
 mkdocs = "^1.4.3"
 mkdocstrings = "^0.21.2"
 mkdocs-material = "^9.1.12"
-mkdocstrings-python = "^0.10.1"
+mkdocstrings-python = "^1.0.0"
 
 [tool.isort]
 profile = "black"
