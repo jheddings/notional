@@ -17,7 +17,7 @@ python = "^3.8.1"
 notion-client = "^2.0.0"
 pydantic = "^1.10.7"
 html5lib = "^1.1"
-urllib3 = "^1.26.15"
+urllib3 = "^1.26.16"
 emoji = "^2.2.0"
 
 [tool.poetry.group.dev.dependencies]
