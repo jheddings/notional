@@ -245,13 +245,13 @@ files = [
 
 [[package]]
 name = "emoji"
-version = "2.5.1"
+version = "2.6.0"
 description = "Emoji for Python"
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 files = [
-    {file = "emoji-2.5.1.tar.gz", hash = "sha256:8e5ec80f56dd1fe38f4c4847b9ea6f18d4ad94d0b8dd135b0b2355ddf56d6d62"},
+    {file = "emoji-2.6.0.tar.gz", hash = "sha256:39ad95c9ba270cdfbd141d20c2ebcfc4e295d010b605de66908a098a3ba63a3c"},
 ]
 
 [package.extras]
@@ -1599,4 +1599,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "d36d73547141e0906062288c13d498c17da06c11a82981c1adcc18a85ee2c082"
+content-hash = "b712a5feb8849412d44a6250e121aff113e62733fa94f107ce95f6fbadfab979"
