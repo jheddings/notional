@@ -112,9 +112,8 @@ class Number(PropertyObject, type="number"):
     class _NestedData(GenericObject):
         format: NumberFormat = NumberFormat.NUMBER
 
-        # leads to better error messages, see
-        # https://github.com/pydantic/pydantic/issues/355
-        @pydantic.validator("format", pre=True)
+        # leads to better error messages; see https://github.com/pydantic/pydantic/issues/355
+        @pydantic.field_validator("format", mode="before")
         def validate_enum_field(cls, field: str):
             return NumberFormat(field)
 
@@ -268,9 +267,8 @@ class Rollup(PropertyObject, type="rollup"):
         rollup_property_name: Optional[str] = None
         rollup_property_id: Optional[str] = None
 
-        # leads to better error messages, see
-        # https://github.com/pydantic/pydantic/issues/355
-        @pydantic.validator("function", pre=True)
+        # leads to better error messages; see https://github.com/pydantic/pydantic/issues/355
+        @pydantic.field_validator("function", mode="before")
         def validate_enum_field(cls, field: str):
             return Function(field)
 
