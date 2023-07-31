@@ -7,7 +7,7 @@ from typing import Any, List, Optional, Union
 from uuid import UUID
 
 from notion_client.api_endpoints import SearchEndpoint
-from pydantic import Field, validator
+from pydantic import ConfigDict, Field, field_validator
 
 from .core import GenericObject
 from .iterator import MAX_PAGE_SIZE, EndpointIterator
@@ -189,10 +189,7 @@ class LastEditedTimeFilter(TimestampFilter):
 class CompoundFilter(QueryFilter):
     """Represents a compound filter in Notion."""
 
-    class Config:
-        """Pydantic configuration class to support keyword fields."""
-
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
     and_: Optional[List[QueryFilter]] = Field(None, alias="and")
     or_: Optional[List[QueryFilter]] = Field(None, alias="or")
@@ -221,7 +218,7 @@ class Query(GenericObject):
     start_cursor: Optional[UUID] = None
     page_size: int = MAX_PAGE_SIZE
 
-    @validator("page_size")
+    @field_validator("page_size")
     def valid_page_size(cls, value):
         """Validate that the given page size meets the Notion API requirements."""
 
@@ -325,7 +322,7 @@ class QueryBuilder:
 
         logger.debug("executing query - %s", self.query)
 
-        query = self.query.dict()
+        query = self.query.as_dict()
 
         if self.params:
             query.update(self.params)

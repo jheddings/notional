@@ -33,7 +33,7 @@ class ObjectReference(GenericObject):
         """
 
         if isinstance(ref, cls):
-            return ref.copy(deep=True)
+            return ref.model_copy(deep=True)
 
         if isinstance(ref, ParentRef):
             # ParentRef's are typed-objects with a nested UUID
@@ -1157,5 +1157,5 @@ class PropertyItem(PropertyValue, NotionObject, object="property_item"):
     result, these items share the `PropertyValue` type definitions.
 
     This class provides a placeholder for parsing property items, however objects
-    parse by this class will likely be `PropertyValue`'s instead.
+    parsed by this class will likely be `PropertyValue`'s instead.
     """
