@@ -28,9 +28,9 @@ coverage = "^7.2.7"
 pytest-vcr = "^1.0.2"
 
 [tool.poetry.group.docs.dependencies]
-mkdocs = "^1.4.3"
+mkdocs = "^1.5.1"
 mkdocstrings = "^0.22.0"
-mkdocs-material = "^9.1.19"
+mkdocs-material = "^9.1.21"
 mkdocstrings-python = "^1.2.1"
 
 [tool.isort]
