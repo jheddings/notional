@@ -142,7 +142,7 @@ def test_parse_title_data():
         ],
     }
 
-    title = types.Title.parse_obj(test_data)
+    title = types.Title.deserialize(test_data)
 
     assert title.id == "title"
     assert title.Value == "Buy milk"
@@ -159,7 +159,7 @@ def test_parse_number_data():
 
     test_data = {"id": "XQOP", "type": "number", "number": 42}
 
-    num = types.Number.parse_obj(test_data)
+    num = types.Number.deserialize(test_data)
 
     assert num.type == "number"
     assert num.number == 42
@@ -228,7 +228,7 @@ def test_parse_checkbox_data():
 
     test_data = {"id": "ax{O", "type": "checkbox", "checkbox": False}
 
-    check = types.Checkbox.parse_obj(test_data)
+    check = types.Checkbox.deserialize(test_data)
 
     assert check.type == "checkbox"
     assert not check.checkbox
@@ -261,7 +261,7 @@ def test_parse_single_date():
         "date": {"start": "2020-08-04", "end": None},
     }
 
-    single = types.Date.parse_obj(test_data)
+    single = types.Date.deserialize(test_data)
 
     assert single.type == "date"
     assert single.Start == date(2020, 8, 4)
@@ -281,7 +281,7 @@ def test_parse_date_with_time():
         "date": {"start": "2021-05-04T07:11:03.141Z", "end": None},
     }
 
-    tstamp = types.Date.parse_obj(test_data)
+    tstamp = types.Date.deserialize(test_data)
 
     assert tstamp.type == "date"
     assert tstamp.Start == datetime(2021, 5, 4, 7, 11, 3, 141000, timezone.utc)
@@ -297,7 +297,7 @@ def test_parse_date_range():
         "date": {"start": "1978-11-01", "end": "1978-11-30"},
     }
 
-    span = types.Date.parse_obj(test_data)
+    span = types.Date.deserialize(test_data)
 
     assert span.type == "date"
     assert span.IsRange
@@ -347,7 +347,7 @@ def test_parse_select_one_data():
         },
     }
 
-    priority = types.SelectOne.parse_obj(test_data)
+    priority = types.SelectOne.deserialize(test_data)
 
     assert priority.type == "select"
     assert priority == "High"
@@ -381,7 +381,7 @@ def test_parse_multi_select_data():
         ],
     }
 
-    tags = types.MultiSelect.parse_obj(test_data)
+    tags = types.MultiSelect.deserialize(test_data)
 
     assert tags.type == "multi_select"
     assert "Grocery" in tags
@@ -426,7 +426,7 @@ def test_parse_email_data():
 
     test_data = {"id": "QU|p", "type": "email", "email": "alice@example.com"}
 
-    contact = types.Email.parse_obj(test_data)
+    contact = types.Email.deserialize(test_data)
 
     assert contact.type == "email"
     assert contact.email == "alice@example.com"
@@ -441,7 +441,7 @@ def test_parse_phone_data():
         "phone_number": "555-555-1234",
     }
 
-    contact = types.PhoneNumber.parse_obj(test_data)
+    contact = types.PhoneNumber.deserialize(test_data)
 
     assert contact.type == "phone_number"
     assert contact.phone_number == "555-555-1234"
@@ -456,7 +456,7 @@ def test_parse_url_data():
         "url": "https://en.wikipedia.org/wiki/Milk",
     }
 
-    wiki = types.URL.parse_obj(test_data)
+    wiki = types.URL.deserialize(test_data)
 
     assert wiki.type == "url"
     assert wiki.url == "https://en.wikipedia.org/wiki/Milk"
@@ -471,7 +471,7 @@ def test_parse_string_formula():
         "formula": {"type": "string", "string": "Buy milk [Alice]"},
     }
 
-    title = types.Formula.parse_obj(test_data)
+    title = types.Formula.deserialize(test_data)
 
     assert title.type == "formula"
     assert title.Result == "Buy milk [Alice]"
@@ -486,7 +486,7 @@ def test_parse_number_formula():
         "formula": {"type": "number", "number": 2020},
     }
 
-    year = types.Formula.parse_obj(test_data)
+    year = types.Formula.deserialize(test_data)
 
     assert year.type == "formula"
     assert year.Result == 2020
@@ -501,7 +501,7 @@ def test_parse_date_formula():
         "formula": {"type": "date", "date": {"start": "2020-09-03", "end": None}},
     }
 
-    up = types.Formula.parse_obj(test_data)
+    up = types.Formula.deserialize(test_data)
     real = types.DateRange(start=date(2020, 9, 3))
 
     assert up.type == "formula"
@@ -520,7 +520,7 @@ def test_parse_relation():
         ],
     }
 
-    relation = types.Relation.parse_obj(test_data)
+    relation = types.Relation.deserialize(test_data)
     assert relation.type == "relation"
 
 
@@ -533,7 +533,7 @@ def test_parse_rollup_number():
         "rollup": {"type": "number", "number": 41, "function": "sum"},
     }
 
-    rollup = types.Rollup.parse_obj(test_data)
+    rollup = types.Rollup.deserialize(test_data)
     assert rollup.type == "rollup"
 
     assert rollup.rollup.type == "number"
@@ -554,7 +554,7 @@ def test_parse_rollup_date():
         },
     }
 
-    rollup = types.Rollup.parse_obj(test_data)
+    rollup = types.Rollup.deserialize(test_data)
     assert rollup.type == "rollup"
 
     assert rollup.rollup.type == "date"
@@ -579,7 +579,7 @@ def test_parse_rollup_array():
         },
     }
 
-    rollup = types.Rollup.parse_obj(test_data)
+    rollup = types.Rollup.deserialize(test_data)
     assert rollup.type == "rollup"
 
     assert rollup.rollup.type == "array"
@@ -611,7 +611,7 @@ def test_parse_people_data():
         ],
     }
 
-    owner = types.People.parse_obj(test_data)
+    owner = types.People.deserialize(test_data)
 
     assert owner.type == "people"
     assert "Alice" in owner
@@ -637,7 +637,7 @@ def test_parse_files_data():
         ],
     }
 
-    files = types.Files.parse_obj(test_data)
+    files = types.Files.deserialize(test_data)
 
     assert files.type == "files"
     assert "glass.jpg" in files
@@ -658,7 +658,7 @@ def test_created_time():
         "created_time": "1999-12-31T23:59:59.999Z",
     }
 
-    created = types.CreatedTime.parse_obj(test_data)
+    created = types.CreatedTime.deserialize(test_data)
     assert created.type == "created_time"
 
     assert created.created_time == datetime(
@@ -682,7 +682,7 @@ def test_created_by():
         },
     }
 
-    created = types.CreatedBy.parse_obj(test_data)
+    created = types.CreatedBy.deserialize(test_data)
     assert created.type == "created_by"
 
     author = created.created_by
@@ -698,7 +698,7 @@ def test_last_edited_time():
         "last_edited_time": "2000-01-01T00:00:00.000Z",
     }
 
-    updated = types.LastEditedTime.parse_obj(test_data)
+    updated = types.LastEditedTime.deserialize(test_data)
     assert updated.type == "last_edited_time"
 
     assert updated.last_edited_time == datetime(2000, 1, 1, 0, 0, 0, 0, timezone.utc)
@@ -720,7 +720,7 @@ def test_last_edited_by():
         },
     }
 
-    updated = types.LastEditedBy.parse_obj(test_data)
+    updated = types.LastEditedBy.deserialize(test_data)
     assert updated.type == "last_edited_by"
 
     author = updated.last_edited_by
@@ -746,7 +746,7 @@ def test_parse_mention_user_object():
         },
     }
 
-    at = types.MentionObject.parse_obj(test_data)
+    at = types.MentionObject.deserialize(test_data)
 
     assert at.type == "mention"
     assert at.mention.type == "user"
@@ -778,7 +778,7 @@ def test_parse_mention_date_object():
         "mention": {"type": "date", "date": {"start": "2099-01-01", "end": None}},
     }
 
-    at = types.MentionObject.parse_obj(test_data)
+    at = types.MentionObject.deserialize(test_data)
 
     assert at.type == "mention"
     assert at.mention.type == "date"
@@ -813,7 +813,7 @@ def test_parse_mention_page_object():
         },
     }
 
-    mention = types.MentionObject.parse_obj(test_data)
+    mention = types.MentionObject.deserialize(test_data)
 
     assert mention.type == "mention"
 
@@ -839,7 +839,7 @@ def test_parse_mention_database_object():
         },
     }
 
-    mention = types.MentionObject.parse_obj(test_data)
+    mention = types.MentionObject.deserialize(test_data)
 
     assert mention.type == "mention"
 
@@ -866,7 +866,7 @@ def test_parse_mention_link_preview():
         "href": "https://github.com/jheddings/notional",
     }
 
-    mention = types.MentionObject.parse_obj(test_data)
+    mention = types.MentionObject.deserialize(test_data)
 
     assert mention.type == "mention"
 
@@ -889,7 +889,7 @@ def test_parse_equation_data():
         "equation": {"expression": "1 + 1 = 3"},
     }
 
-    math = types.EquationObject.parse_obj(test_data)
+    math = types.EquationObject.deserialize(test_data)
 
     assert math.type == "equation"
     assert math.equation.expression == "1 + 1 = 3"
@@ -981,6 +981,6 @@ def test_parse_rich_text_data():
         ],
     }
 
-    rtf = types.RichText.parse_obj(test_data)
+    rtf = types.RichText.deserialize(test_data)
     assert rtf.type == "rich_text"
     assert rtf.Value == "Our milk is very old."

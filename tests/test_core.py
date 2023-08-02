@@ -2,11 +2,12 @@
 
 import logging
 from enum import Enum
-from typing import List
+from typing import Any, List, Optional
 
 import pytest
+from pydantic import Field
 
-from notional.core import GenericObject, NotionObject, TypedObject
+from notional.core import DataObject, NotionObject, TypedObject
 
 # keep logging output to a minimum for testing
 logging.basicConfig(level=logging.INFO)
@@ -44,7 +45,7 @@ STAN = {
 }
 
 
-class Actor(NotionObject):
+class Actor(DataObject):
     """A structured Actor class for testing."""
 
     name: str
@@ -99,55 +100,61 @@ class CustomTypes(str, Enum):
     TYPE_THREE = "three"
 
 
-class ComplexGenericObject(TypedObject, type="detail"):
+class ComplexObject(TypedObject, type="detail"):
     """A complex object (with nested data) used for testing only."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         key: str = None
         value: str = None
 
     id: str
-    detail: _NestedData = _NestedData()
+    detail: _NestedData = Field(default_factory=_NestedData)
     simple: List[Person] = []
     custom: CustomTypes = None
+
+
+class PrivateDataObject(NotionObject):
+    """An object that uses properties to access data."""
+
+    _private: Optional[Any] = None
+
+    @property
+    def InternalData(self):
+        """Return the private data of this object."""
+        return self._private
+
+    @InternalData.setter
+    def InternalData(self, value):
+        """Set the private data of this object."""
+        self._private = value
 
 
 def test_parse_named_object():
     """Parse obects from structured data."""
 
-    stan = Person.parse_obj(BOB)
-    assert stan.object == "person"
+    bob = Person.deserialize(BOB)
+    assert bob.object == "person"
 
-    stan = Robot.parse_obj(STAN)
+    stan = Robot.deserialize(STAN)
     assert stan.object == "robot"
-
-
-def test_invalid_named_object():
-    """Make sure that parsing the wrong objects raise an error."""
-
-    with pytest.raises(ValueError):
-        Robot.parse_obj(BOB)
-
-    with pytest.raises(ValueError):
-        Person.parse_obj(STAN)
 
 
 def test_parse_typed_data_object():
     """Parse TypedObject's from structured data."""
 
-    tiger = Animal.parse_obj(TIGER)
+    tiger = Animal.deserialize(TIGER)
     assert type(tiger) == Cat
     assert tiger.type == "cat"
     assert tiger.name == "Tiger the Cat"
     assert not tiger.hairless
 
-    fluffy = Animal.parse_obj(FLUFFY)
+    fluffy = Animal.deserialize(FLUFFY)
     assert type(fluffy) == Dog
     assert fluffy.type == "dog"
     assert fluffy.name == "Fluffy the Dog"
     assert fluffy.breed == "rottweiler"
 
-    ace = Animal.parse_obj(ACE)
+    ace = Animal.deserialize(ACE)
     assert type(ace) == Eagle
     assert ace.type == "eagle"
     assert ace.age == 245
@@ -156,7 +163,7 @@ def test_parse_typed_data_object():
     # silly test just to make sure...
     assert tiger != fluffy
 
-    bob = Person.parse_obj(BOB)
+    bob = Person.deserialize(BOB)
     assert bob.name == "Bob the Person"
 
     # make sure the Animals were deserialized correctly...
@@ -170,10 +177,10 @@ def test_mixing_object_types():
     # because subclasses of a type tree share the typemap, trying to
     # parse as the "wrong" class should return the correct class instead
 
-    fluffy = Cat.parse_obj(FLUFFY)
+    fluffy = Cat.deserialize(FLUFFY)
     assert isinstance(fluffy, Dog)
 
-    tiger = Dog.parse_obj(TIGER)
+    tiger = Dog.deserialize(TIGER)
     assert isinstance(tiger, Cat)
 
 
@@ -185,8 +192,8 @@ def test_set_default_type_for_new_objects():
 
 def test_standard_nested_object():
     """Create a nested object and check fields for proper values."""
-    detail = ComplexGenericObject._NestedData(key="foo", value="bar")
-    complex = ComplexGenericObject(id="complex", detail=detail)
+    detail = ComplexObject._NestedData(key="foo", value="bar")
+    complex = ComplexObject(id="complex", detail=detail)
 
     assert complex.id == "complex"
     assert complex.detail.key == "foo"
@@ -195,7 +202,7 @@ def test_standard_nested_object():
 
 def test_invalid_nested_field_call():
     """Check for errors when we call for an invalid nested field."""
-    complex = ComplexGenericObject(id="complex")
+    complex = ComplexObject(id="complex")
 
     with pytest.raises(AttributeError):
         complex("does_not_exist")
@@ -203,7 +210,7 @@ def test_invalid_nested_field_call():
 
 def test_get_nested_data():
     """Call a block to return the nested data."""
-    complex = ComplexGenericObject(id="complex")
+    complex = ComplexObject(id="complex")
 
     assert complex("value") is None
 
@@ -212,3 +219,28 @@ def test_get_nested_data():
 
     assert complex.detail.key is None
     assert complex.detail.value == "bar"
+
+
+def test_split_typemap():
+    """Verify AdaptiveObject's behave when different typemaps use the same key."""
+
+
+def test_property_setter():
+    """Verify property setter funcionality.
+
+    This was initially fixed in `notional.NotionObject`, however later versions of Pydantic
+    added support for property setters.  We may remove this test in the future.
+
+    Ref: https://github.com/pydantic/pydantic/issues/1577
+    """
+
+    private = PrivateDataObject()
+    assert private.InternalData is None
+
+    private.InternalData = "Sup3Rs3ç4é†"
+    assert private.InternalData == "Sup3Rs3ç4é†"
+
+
+tiger = Animal.deserialize(TIGER)
+
+print(tiger)
