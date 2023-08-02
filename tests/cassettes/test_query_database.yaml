@@ -28,17 +28,17 @@ interactions:
     method: POST
     uri: https://api.notion.com/v1/databases
   response:
-    content: '{"object":"database","id":"cb400d6b-af7b-40ad-8d9a-a2f67f7ba764","cover":null,"icon":null,"created_time":"2023-03-21T19:33:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_time":"2023-03-21T19:33:00.000Z","title":[{"type":"text","text":{"content":"tests/test_query.py::test_query_database
+    content: '{"object":"database","id":"a7d79637-4ba6-4ecb-af89-49558e6bb807","cover":null,"icon":null,"created_time":"2023-08-02T04:40:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_time":"2023-08-02T04:40:00.000Z","title":[{"type":"text","text":{"content":"tests/test_query.py::test_query_database
       (setup)","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"tests/test_query.py::test_query_database
-      (setup)","href":null}],"description":[],"is_inline":false,"properties":{"Complete":{"id":"GnaM","name":"Complete","type":"checkbox","checkbox":{}},"Tags":{"id":"Nn%7BR","name":"Tags","type":"multi_select","multi_select":{"options":[]}},"Due
-      Date":{"id":"P%40DS","name":"Due Date","type":"date","date":{}},"Notes":{"id":"_wvT","name":"Notes","type":"rich_text","rich_text":{}},"Index":{"id":"~ORm","name":"Index","type":"number","number":{"format":"number"}},"Name":{"id":"title","name":"Name","type":"title","title":{}}},"parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"url":"https://www.notion.so/cb400d6baf7b40ad8d9aa2f67f7ba764","archived":false}'
+      (setup)","href":null}],"description":[],"is_inline":false,"properties":{"Due
+      Date":{"id":"CZD~","name":"Due Date","type":"date","date":{}},"Tags":{"id":"KGuK","name":"Tags","type":"multi_select","multi_select":{"options":[]}},"Complete":{"id":"Y%5EzE","name":"Complete","type":"checkbox","checkbox":{}},"Index":{"id":"_XAS","name":"Index","type":"number","number":{"format":"number"}},"Notes":{"id":"jZ%5D%60","name":"Notes","type":"rich_text","rich_text":{}},"Name":{"id":"title","name":"Name","type":"title","title":{}}},"parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"url":"https://www.notion.so/a7d796374ba64ecbaf8949558e6bb807","public_url":null,"archived":false}'
     headers: {}
     http_version: HTTP/1.1
     status_code: 200
 - request:
-    body: '{"parent": {"type": "database_id", "database_id": "cb400d6b-af7b-40ad-8d9a-a2f67f7ba764"},
+    body: '{"parent": {"type": "database_id", "database_id": "a7d79637-4ba6-4ecb-af89-49558e6bb807"},
       "properties": {"title": {"type": "title", "title": [{"type": "text", "plain_text":
-      "Find Me!", "text": {"content": "Find Me!"}}]}}}'
+      "Find Me!"}]}}}'
     headers:
       accept:
       - '*/*'
@@ -49,11 +49,11 @@ interactions:
       connection:
       - keep-alive
       content-length:
-      - '222'
+      - '189'
       content-type:
       - application/json
       cookie:
-      - __cf_bm=A715lZEx9jZimIGNfCr0pbDk20adO1gFF.UBnIlds8g-1679427237-0-AZhcDeVlFQmzH5Ng5GJOIMfglC27K13xLQ825xXIN5zPqCbBO0L2fhITMdTfFv4sT0eiIGGWpaqUf88NLlDfPL8=
+      - __cf_bm=yAU_pQgupmA5biqNBDfSyY8OO7zrizGzaeNcSefaBDI-1690951241-0-ATTLpTiwtqe0QFGP3DbHgOg376gEppvDLQpTfU+O7RtwceVoGKMnSGP+xrBrs4RNyVgzHHOq1TvLt0x7riti/Oo=
       host:
       - api.notion.com
       notion-version:
@@ -61,44 +61,14 @@ interactions:
     method: POST
     uri: https://api.notion.com/v1/pages
   response:
-    content: '{"object":"page","id":"419cd17f-fd89-4504-b34d-8ef141365c82","created_time":"2023-03-21T19:33:00.000Z","last_edited_time":"2023-03-21T19:33:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"database_id","database_id":"cb400d6b-af7b-40ad-8d9a-a2f67f7ba764"},"archived":false,"properties":{"Complete":{"id":"GnaM","type":"checkbox","checkbox":false},"Tags":{"id":"Nn%7BR","type":"multi_select","multi_select":[]},"Due
-      Date":{"id":"P%40DS","type":"date","date":null},"Notes":{"id":"_wvT","type":"rich_text","rich_text":[]},"Index":{"id":"~ORm","type":"number","number":null},"Name":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"Find
-      Me!","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Find
-      Me!","href":null}]}},"url":"https://www.notion.so/Find-Me-419cd17ffd894504b34d8ef141365c82"}'
+    content: '{"object":"error","status":400,"code":"validation_error","message":"body
+      failed validation. Fix one:\nbody.properties.title.title[0].text should be defined,
+      instead was `undefined`.\nbody.properties.title.title[0].mention should be defined,
+      instead was `undefined`.\nbody.properties.title.title[0].equation should be
+      defined, instead was `undefined`."}'
     headers: {}
     http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: '{"page_size": 100}'
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      authorization:
-      - secret...
-      connection:
-      - keep-alive
-      content-length:
-      - '18'
-      content-type:
-      - application/json
-      cookie:
-      - __cf_bm=A715lZEx9jZimIGNfCr0pbDk20adO1gFF.UBnIlds8g-1679427237-0-AZhcDeVlFQmzH5Ng5GJOIMfglC27K13xLQ825xXIN5zPqCbBO0L2fhITMdTfFv4sT0eiIGGWpaqUf88NLlDfPL8=
-      host:
-      - api.notion.com
-      notion-version:
-      - '2022-06-28'
-    method: POST
-    uri: https://api.notion.com/v1/databases/cb400d6b-af7b-40ad-8d9a-a2f67f7ba764/query
-  response:
-    content: '{"object":"list","results":[{"object":"page","id":"419cd17f-fd89-4504-b34d-8ef141365c82","created_time":"2023-03-21T19:33:00.000Z","last_edited_time":"2023-03-21T19:33:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":null,"icon":null,"parent":{"type":"database_id","database_id":"cb400d6b-af7b-40ad-8d9a-a2f67f7ba764"},"archived":false,"properties":{"Complete":{"id":"GnaM","type":"checkbox","checkbox":false},"Tags":{"id":"Nn%7BR","type":"multi_select","multi_select":[]},"Due
-      Date":{"id":"P%40DS","type":"date","date":null},"Notes":{"id":"_wvT","type":"rich_text","rich_text":[]},"Index":{"id":"~ORm","type":"number","number":null},"Name":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"Find
-      Me!","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Find
-      Me!","href":null}]}},"url":"https://www.notion.so/Find-Me-419cd17ffd894504b34d8ef141365c82"}],"next_cursor":null,"has_more":false,"type":"page","page":{}}'
-    headers: {}
-    http_version: HTTP/1.1
-    status_code: 200
+    status_code: 400
 - request:
     body: ''
     headers:
@@ -111,15 +81,15 @@ interactions:
       connection:
       - keep-alive
       cookie:
-      - __cf_bm=A715lZEx9jZimIGNfCr0pbDk20adO1gFF.UBnIlds8g-1679427237-0-AZhcDeVlFQmzH5Ng5GJOIMfglC27K13xLQ825xXIN5zPqCbBO0L2fhITMdTfFv4sT0eiIGGWpaqUf88NLlDfPL8=
+      - __cf_bm=yAU_pQgupmA5biqNBDfSyY8OO7zrizGzaeNcSefaBDI-1690951241-0-ATTLpTiwtqe0QFGP3DbHgOg376gEppvDLQpTfU+O7RtwceVoGKMnSGP+xrBrs4RNyVgzHHOq1TvLt0x7riti/Oo=
       host:
       - api.notion.com
       notion-version:
       - '2022-06-28'
     method: DELETE
-    uri: https://api.notion.com/v1/blocks/cb400d6b-af7b-40ad-8d9a-a2f67f7ba764
+    uri: https://api.notion.com/v1/blocks/a7d79637-4ba6-4ecb-af89-49558e6bb807
   response:
-    content: '{"object":"block","id":"cb400d6b-af7b-40ad-8d9a-a2f67f7ba764","parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"created_time":"2023-03-21T19:33:00.000Z","last_edited_time":"2023-03-21T19:33:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":true,"type":"child_database","child_database":{"title":"tests/test_query.py::test_query_database
+    content: '{"object":"block","id":"a7d79637-4ba6-4ecb-af89-49558e6bb807","parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"created_time":"2023-08-02T04:40:00.000Z","last_edited_time":"2023-08-02T04:40:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":true,"type":"child_database","child_database":{"title":"tests/test_query.py::test_query_database
       (setup)"}}'
     headers: {}
     http_version: HTTP/1.1

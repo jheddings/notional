@@ -17,13 +17,13 @@ interactions:
     method: GET
     uri: https://api.notion.com/v1/pages/250662d9-783d-483c-b131-341ed479f96c
   response:
-    content: '{"object":"page","id":"250662d9-783d-483c-b131-341ed479f96c","created_time":"2021-08-03T13:21:00.000Z","last_edited_time":"2023-03-21T19:32:00.000Z","created_by":{"object":"user","id":"ea74294e-d4c7-41f0-8929-805c80ea0d7f"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":{"type":"external","external":{"url":"https://images.unsplash.com/photo-1562380156-9a99cd92484c?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb"}},"icon":null,"parent":{"type":"page_id","page_id":"931a3b8b-875e-462d-a31d-29b49475d922"},"archived":false,"properties":{"title":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"Notional","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Notional","href":null}]}},"url":"https://www.notion.so/Notional-250662d9783d483cb131341ed479f96c"}'
+    content: '{"object":"page","id":"250662d9-783d-483c-b131-341ed479f96c","created_time":"2021-08-03T13:21:00.000Z","last_edited_time":"2023-08-02T04:39:00.000Z","created_by":{"object":"user","id":"ea74294e-d4c7-41f0-8929-805c80ea0d7f"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"cover":{"type":"external","external":{"url":"https://images.unsplash.com/photo-1562380156-9a99cd92484c?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb"}},"icon":null,"parent":{"type":"page_id","page_id":"931a3b8b-875e-462d-a31d-29b49475d922"},"archived":false,"properties":{"title":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"Notional","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Notional","href":null}]}},"url":"https://www.notion.so/Notional-250662d9783d483cb131341ed479f96c","public_url":null}'
     headers: {}
     http_version: HTTP/1.1
     status_code: 200
 - request:
     body: '{"children": [{"type": "image", "object": "block", "has_children": false,
-      "archived": false, "image": {"type": "external", "external": {"url": "https://raw.githubusercontent.com/jheddings/notional/main/tests/data/loved.png"}}}]}'
+      "archived": false, "image": {"type": "external"}}]}'
     headers:
       accept:
       - '*/*'
@@ -34,11 +34,11 @@ interactions:
       connection:
       - keep-alive
       content-length:
-      - '228'
+      - '125'
       content-type:
       - application/json
       cookie:
-      - __cf_bm=BF2H4xSuUwfTlPXuuHzDBM7VZh1L3R3C0I7c1PXyiC0-1679427154-0-Ab4SYZyb07xkGgobTW/OIAAl2cx91Ub+RQwzDOIxMR2ZYuMfTdkl2gKe5vZxyY0C+7+Df+CbAszzLMZ6vHN8hJ0=
+      - __cf_bm=guP3lv4i_j8TY_Vial_5A6vgJ5yzg4ktuRYYvYd1VuE-1690951161-0-AVmTHanSmaBtHL/VyPY6d2GXiR1A0PhcClRgxw48GRIh/Ww7S0i/ejDTAs9D/7Xo9E8ymFSMMMq9vs73sRLSM2E=
       host:
       - api.notion.com
       notion-version:
@@ -46,56 +46,10 @@ interactions:
     method: PATCH
     uri: https://api.notion.com/v1/blocks/250662d9-783d-483c-b131-341ed479f96c/children
   response:
-    content: '{"object":"list","results":[{"object":"block","id":"514afaac-2c85-49b7-bc38-e7beb93f661b","parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"created_time":"2023-03-21T19:32:00.000Z","last_edited_time":"2023-03-21T19:32:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":false,"type":"image","image":{"caption":[],"type":"external","external":{"url":"https://raw.githubusercontent.com/jheddings/notional/main/tests/data/loved.png"}}}],"next_cursor":null,"has_more":false,"type":"block","block":{}}'
+    content: '{"object":"error","status":400,"code":"validation_error","message":"body
+      failed validation: body.children[0].image.external should be defined, instead
+      was `undefined`."}'
     headers: {}
     http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      authorization:
-      - secret...
-      connection:
-      - keep-alive
-      cookie:
-      - __cf_bm=BF2H4xSuUwfTlPXuuHzDBM7VZh1L3R3C0I7c1PXyiC0-1679427154-0-Ab4SYZyb07xkGgobTW/OIAAl2cx91Ub+RQwzDOIxMR2ZYuMfTdkl2gKe5vZxyY0C+7+Df+CbAszzLMZ6vHN8hJ0=
-      host:
-      - api.notion.com
-      notion-version:
-      - '2022-06-28'
-    method: GET
-    uri: https://api.notion.com/v1/blocks/514afaac-2c85-49b7-bc38-e7beb93f661b
-  response:
-    content: '{"object":"block","id":"514afaac-2c85-49b7-bc38-e7beb93f661b","parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"created_time":"2023-03-21T19:32:00.000Z","last_edited_time":"2023-03-21T19:32:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":false,"type":"image","image":{"caption":[],"type":"external","external":{"url":"https://raw.githubusercontent.com/jheddings/notional/main/tests/data/loved.png"}}}'
-    headers: {}
-    http_version: HTTP/1.1
-    status_code: 200
-- request:
-    body: ''
-    headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      authorization:
-      - secret...
-      connection:
-      - keep-alive
-      cookie:
-      - __cf_bm=BF2H4xSuUwfTlPXuuHzDBM7VZh1L3R3C0I7c1PXyiC0-1679427154-0-Ab4SYZyb07xkGgobTW/OIAAl2cx91Ub+RQwzDOIxMR2ZYuMfTdkl2gKe5vZxyY0C+7+Df+CbAszzLMZ6vHN8hJ0=
-      host:
-      - api.notion.com
-      notion-version:
-      - '2022-06-28'
-    method: DELETE
-    uri: https://api.notion.com/v1/blocks/514afaac-2c85-49b7-bc38-e7beb93f661b
-  response:
-    content: '{"object":"block","id":"514afaac-2c85-49b7-bc38-e7beb93f661b","parent":{"type":"page_id","page_id":"250662d9-783d-483c-b131-341ed479f96c"},"created_time":"2023-03-21T19:32:00.000Z","last_edited_time":"2023-03-21T19:32:00.000Z","created_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"last_edited_by":{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1"},"has_children":false,"archived":true,"type":"image","image":{"caption":[],"type":"external","external":{"url":"https://raw.githubusercontent.com/jheddings/notional/main/tests/data/loved.png"}}}'
-    headers: {}
-    http_version: HTTP/1.1
-    status_code: 200
+    status_code: 400
 version: 1
