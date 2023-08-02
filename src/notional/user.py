@@ -1,9 +1,10 @@
 """Wrapper for Notion user objects."""
 
 from enum import Enum
-from typing import Optional
+from typing import Literal, Optional
+from uuid import UUID
 
-from .core import GenericObject, NotionObject
+from .core import NotionObject, TypedObject
 
 
 class UserType(str, Enum):
@@ -13,36 +14,19 @@ class UserType(str, Enum):
     BOT = "bot"
 
 
-class User(NotionObject, object="user"):
+class User(TypedObject):
     """Represents a User in Notion."""
 
-    # XXX why isn't this a TypedObject ?
-
-    type: Optional[UserType] = None
+    object: Literal["user"] = "user"
+    id: Optional[UUID] = None
     name: Optional[str] = None
     avatar_url: Optional[str] = None
 
-    @classmethod
-    def parse_obj(cls, obj):
-        """Attempt to parse the given object data into the correct `User` type."""
 
-        if obj is None:
-            return None
-
-        if "type" in obj:
-            if obj["type"] == "person":
-                return Person(**obj)
-
-            if obj["type"] == "bot":
-                return Bot(**obj)
-
-        return cls(obj)
-
-
-class Person(User):
+class Person(User, type="person"):
     """Represents a Person in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         email: str
 
     person: _NestedData = None
@@ -52,10 +36,10 @@ class Person(User):
         return f"[@{self.name}]"
 
 
-class Bot(User):
+class Bot(User, type="bot"):
     """Represents a Bot in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         pass
 
     bot: _NestedData = None

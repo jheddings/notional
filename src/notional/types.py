@@ -12,13 +12,13 @@ from uuid import UUID
 from notion_client import helpers
 
 from . import util
-from .core import GenericObject, NotionObject, TypedObject
+from .core import DataObject, NotionObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
 from .user import User
 
 
-class ObjectReference(GenericObject):
+class ObjectReference(NotionObject):
     """A general-purpose object reference in the Notion API."""
 
     id: UUID
@@ -27,7 +27,7 @@ class ObjectReference(GenericObject):
     def __compose__(cls, ref):
         """Compose an ObjectReference from the given reference.
 
-        `ref` may be a `UUID`, `str`, `ParentRef` or `GenericObject` with an `id`.
+        `ref` may be a `UUID`, `str`, `ParentRef` or `NotionObject` with an `id`.
 
         Strings may be either UUID's or URL's to Notion content.
         """
@@ -39,7 +39,7 @@ class ObjectReference(GenericObject):
             # ParentRef's are typed-objects with a nested UUID
             return ObjectReference(id=ref())
 
-        if isinstance(ref, GenericObject) and hasattr(ref, "id"):
+        if isinstance(ref, NotionObject) and hasattr(ref, "id"):
             # re-compose the ObjectReference from the internal ID
             return ObjectReference[ref.id]
 
@@ -162,7 +162,7 @@ class FileObject(TypedObject):
 class HostedFile(FileObject, type="file"):
     """A Notion file object."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         url: str
         expiry_time: Optional[datetime] = None
 
@@ -172,7 +172,7 @@ class HostedFile(FileObject, type="file"):
 class ExternalFile(FileObject, type="external"):
     """An external file object."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         url: str
 
     external: _NestedData
@@ -192,7 +192,7 @@ class ExternalFile(FileObject, type="external"):
         return cls(name=name, external=cls._NestedData(url=url))
 
 
-class DateRange(GenericObject):
+class DateRange(NotionObject):
     """A Notion date range, with an optional end date."""
 
     start: Union[date, datetime]
@@ -277,7 +277,7 @@ class MentionLinkPreview(MentionData, type="link_preview"):
     These objects cannot be created via the API.
     """
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         url: str
 
     link_preview: _NestedData
@@ -314,7 +314,7 @@ class MentionObject(RichTextObject, type="mention"):
 class EquationObject(RichTextObject, type="equation"):
     """Notion equation element."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         expression: str
 
     equation: _NestedData
@@ -562,7 +562,7 @@ class Date(PropertyValue, type="date"):
 class Status(NativeTypeMixin, PropertyValue, type="status"):
     """Notion status property."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         name: str = None
         id: Optional[Union[UUID, str]] = None
         color: Optional[Color] = None
@@ -607,7 +607,7 @@ class Status(NativeTypeMixin, PropertyValue, type="status"):
         return self.status.name
 
 
-class SelectValue(GenericObject):
+class SelectValue(NotionObject):
     """Values for select & multi-select properties."""
 
     name: str
@@ -1150,7 +1150,7 @@ class LastEditedBy(PropertyValue, type="last_edited_by"):
 
 
 # https://developers.notion.com/reference/property-item-object
-class PropertyItem(PropertyValue, NotionObject, object="property_item"):
+class PropertyItem(PropertyValue, DataObject, object="property_item"):
     """A `PropertyItem` returned by the Notion API.
 
     Basic property items have a similar schema to corresponding property values.  As a

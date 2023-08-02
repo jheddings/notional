@@ -1,42 +1,28 @@
 """Base classes for working with the Notion API."""
 
-import inspect
 import logging
-from datetime import date, datetime
+from abc import ABC
 from enum import Enum
-from typing import Optional
+from typing import Optional, TypeVar
 from uuid import UUID
 
-from pydantic import BaseModel, validator
-from pydantic.main import ModelMetaclass, validate_model
+from pydantic import BaseModel
+
+# https://github.com/pydantic/pydantic/issues/6381
+from pydantic._internal._model_construction import ModelMetaclass
 
 logger = logging.getLogger(__name__)
 
 
-def serialize_to_api(data):
-    """Recursively convert the given data to an API-safe form.
+_T = TypeVar("_T")
 
-    This is mostly to handle data types that will not directly serialize to JSON.
-    """
 
-    # https://github.com/samuelcolvin/pydantic/issues/1409
+class SerializationMode(str, Enum):
+    """Serialization mode for Notional objects."""
 
-    if isinstance(data, (date, datetime)):
-        return data.isoformat()
-
-    if isinstance(data, UUID):
-        return str(data)
-
-    if isinstance(data, Enum):
-        return data.value
-
-    if isinstance(data, (list, tuple)):
-        return [serialize_to_api(value) for value in data]
-
-    if isinstance(data, dict):
-        return {name: serialize_to_api(value) for name, value in data.items()}
-
-    return data
+    JSON = "json"
+    PYTHON = "python"
+    API = PYTHON
 
 
 class ComposableObjectMeta(ModelMetaclass):
@@ -66,7 +52,7 @@ class ComposableObjectMeta(ModelMetaclass):
     that the parameters are specified correctly.
     """
 
-    def __getitem__(self, params):
+    def __getitem__(cls: type[_T], params) -> _T:
         """Return the requested class by composing using the given param.
 
         Types found in `params` will be compared to expected types in the `__compose__`
@@ -76,124 +62,203 @@ class ComposableObjectMeta(ModelMetaclass):
         an exception.
         """
 
-        if not hasattr(self, "__compose__"):
-            raise NotImplementedError(f"{self} does not support object composition")
-
-        compose_func = self.__compose__
+        if not hasattr(cls, "__compose__"):
+            raise NotImplementedError(f"{cls} does not support object composition")
 
         # __getitem__ only accepts a single parameter...  if the caller provides
         # multiple params, they will be converted and passed as a tuple.  this method
         # also accepts a list for readability when composing from ORM properties
 
         if params and type(params) in (list, tuple):
-            return compose_func(*params)
+            return cls.__compose__(*params)
 
-        return compose_func(params)
+        return cls.__compose__(params)
 
 
-class GenericObject(BaseModel, metaclass=ComposableObjectMeta):
-    """The base for all API objects.
+class NotionObject(BaseModel, metaclass=ComposableObjectMeta):
+    """The base for all Notion API objects.
 
-    As a general convention, data fields in lower case are defined by the
-    Notion API.  Properties in Title Case are provided for convenience.
+    As a general convention, data fields in lower case are defined by the Notion API.
+    Properties in Title Case are provided for convenience (e.g. computed fields).
     """
 
-    def __setattr__(self, name, value):
-        """Set the attribute of this object to a given value.
-
-        The implementation of `BaseModel.__setattr__` does not support property setters.
-
-        See https://github.com/samuelcolvin/pydantic/issues/1577
-        """
-        try:
-            super().__setattr__(name, value)
-        except ValueError as err:
-            setters = inspect.getmembers(
-                object=self.__class__,
-                predicate=lambda x: isinstance(x, property) and x.fset is not None,
-            )
-            for setter_name, _ in setters:
-                if setter_name == name:
-                    object.__setattr__(self, name, value)
-                    break
-            else:
-                raise err
-
-    @classmethod
-    def _set_field_default(cls, name, default=None):
-        """Modify the `BaseModel` field information for a specific class instance.
-
-        This is necessary in particular for subclasses that change the default values
-        of a model when defined.  Notable examples are `TypedObject` and `NotionObject`.
-
-        :param name: the named attribute in the class
-        :param default: the new default for the named field
-        """
-
-        # set the attribute on the class to the given default
-        setattr(cls, name, default)
-
-        # update the model field definition
-        field = cls.__fields__.get(name)
-
-        field.default = default
-        field.required = default is None
-
-    # https://github.com/samuelcolvin/pydantic/discussions/3139
-    def refresh(__notional_self__, **data):
+    def refresh(self, **data):
         """Refresh the internal attributes with new data."""
 
-        values, fields, error = validate_model(__notional_self__.__class__, data)
+        # Ref: https://github.com/pydantic/pydantic/discussions/3139
 
-        if error:
-            raise error
+        # model_data = self.model_dump()
+        # model_data.update(data)
 
-        for name in fields:
-            value = values[name]
+        partial_model = self.model_validate(data)
+        partial_data = partial_model.model_dump(exclude_defaults=True)
+
+        for name, value in partial_data.items():
             logger.debug("set object data -- %s => %s", name, value)
-            setattr(__notional_self__, name, value)
+            setattr(self, name, value)
 
-        return __notional_self__
+        return self
 
-    def dict(self, **kwargs):
+    def serialize(self, mode=SerializationMode.API):
         """Convert to a suitable representation for the Notion API."""
-
-        # the API doesn't like "undefined" values...
-        kwargs["exclude_none"] = True
-        kwargs["by_alias"] = True
-
-        obj = super().dict(**kwargs)
 
         # TODO read-only fields should not be sent to the API
         # https://github.com/jheddings/notional/issues/9
 
-        return serialize_to_api(obj)
+        if mode == SerializationMode.PYTHON:
+            return self.model_dump(mode="json", exclude_none=True, by_alias=True)
+
+        if mode == SerializationMode.JSON:
+            return self.model_dump_json(indent=None, exclude_none=True, by_alias=True)
+
+        raise NotImplementedError(f"unsupported serialization mode: {mode}")
+
+    @classmethod
+    def deserialize(cls, data: [str, dict, list]):
+        """Parse this object from the Notion API."""
+
+        if isinstance(data, (str, bytes)):
+            return cls.model_validate_json(data)
+
+        return cls.model_validate(data)
 
 
-class NotionObject(GenericObject):
-    """A top-level Notion API resource."""
+class AdaptiveObject(NotionObject, ABC):
+    """Objects that may change type based on keywords.
+
+    Subclasses of `AdaptiveObject` may define additional keywords which will serve as
+    defaults for the named fields as well as discriminators for concrete subclasses.
+
+    This approach allows Notional to define new object types without requiring each
+    object to enumerate all possible types.  For example, the `TextObject` may be
+    represented as a `RichTextObject` or a `MentionObject` depending on the contents.
+
+    Rather than using a discriminated union, Notional will use the `__notional_typemap__`
+    to determine the concrete type of the object.  This allows the API to define new
+    types without requiring changes to the Notional codebase.
+    """
+
+    # modified from the methods described in these discussions:
+    # - https://github.com/pydantic/pydantic/discussions/3091
+    # - https://github.com/pydantic/pydantic/discussions/5785
+
+    @classmethod
+    def __pydantic_init_subclass__(cls, **kwargs):
+        """Initialize the subclass fields with the given keyword arguments."""
+        super().__pydantic_init_subclass__(**kwargs)
+
+        for name, value in kwargs.items():
+            cls._update_field_info(name, default=value)
+
+        # rebuild the internal model with the updated field info
+        # https://github.com/pydantic/pydantic/issues/6966
+
+        cls.model_rebuild(force=True)
+
+    @classmethod
+    def _update_field_info(cls, name, default=...):
+        """Update the field definition for the given name.
+
+        Note that this will only update the field definition; it will not update the
+        internal model.  This is primarily used to update the default value for a field.
+        """
+
+        field = cls.model_fields.get(name)
+
+        if not field:
+            raise ValueError(f"unknown field: {name}")
+
+        logger.debug("updating field info -- %s.%s => %s", cls.__name__, name, default)
+
+        # set the default and freeze the field if it is given a value
+        if default is not Ellipsis:
+            field.default = default
+            field.frozen = True
+            field.validate_default = False
+
+    @classmethod
+    def _register_adaptive_type(cls, name, value):
+        """Register the current class as an adaptive type."""
+
+        if not hasattr(cls, "__notional_typemap__"):
+            logger.debug("initializing typemap for %s", cls)
+            cls.__notional_typemap__ = {}
+
+        typemap = cls.__notional_typemap__.get(name)
+
+        if typemap is None:
+            typemap = {}
+
+        if value in typemap:
+            raise ValueError(f"Duplicate subtype for class - {name} [{value}] => {cls}")
+
+        if value is not None:
+            typemap[value] = cls
+
+        logger.debug("registered new subtype: %s [%s] => %s", name, value, cls)
+
+        cls.__notional_typemap__[name] = typemap
+
+    @classmethod
+    def model_validate(cls, obj):
+        """Instantiate the correct object based on the AdaptiveObject's typemap.
+
+        This method overrides BaseModel.model_validate to allow for the creation of
+        concrete objects based on available adaptive types.
+        """
+
+        # FIXME there is probably a better way to do this in Pydantic v2, but for now
+        # we use the same approach that was applied while using Pydantic v1
+        # specifically, we need to figure out which class to instantiate based on the
+        # typemap defined in the current class and the data in the object
+
+        # if the object is already an instance of the requested class, return it
+        if isinstance(obj, cls):
+            return obj
+
+        # XXX are there other cases we should handle?
+        if not isinstance(obj, dict):
+            raise ValueError("Invalid object")
+
+        # this will only happen if subclasses forget to register adaptive types
+        if not hasattr(cls, "__notional_typemap__"):
+            raise TypeError(f"Missing typemap in {cls}")
+
+        # check the typemap for an existing type discriminator
+        for name, typemap in cls.__notional_typemap__.items():
+            value = obj.get(name)
+
+            if value is None:
+                continue
+
+            sub = typemap.get(value)
+
+            if sub is None:
+                raise TypeError(f"Unsupported sub-type: {name}={value}")
+
+            logger.debug(
+                "initializing adaptive object %s:%s => %s", cls.__name__, name, sub
+            )
+
+            return sub(**obj)
+
+        return super().model_validate(obj)
+
+
+class DataObject(AdaptiveObject):
+    """A top-level Notion data object."""
 
     object: str
     id: Optional[UUID] = None
 
     def __init_subclass__(cls, object=None, **kwargs):
-        """Update `GenericObject` defaults for the named object."""
+        """Initialize subtypes of this DataObject."""
         super().__init_subclass__(**kwargs)
 
-        if object is not None:
-            cls._set_field_default("object", default=object)
-
-    @validator("object", always=True, pre=False)
-    def _verify_object_matches_expected(cls, val):
-        """Make sure that the deserialzied object matches the name in this class."""
-
-        if val != cls.object:
-            raise ValueError(f"Invalid object for {cls.object} - {val}")
-
-        return val
+        cls._register_adaptive_type("object", object)
 
 
-class TypedObject(GenericObject):
+class TypedObject(AdaptiveObject):
     """A type-referenced object.
 
     Many objects in the Notion API follow a standard pattern with a 'type' property
@@ -215,16 +280,11 @@ class TypedObject(GenericObject):
 
     type: str
 
-    # modified from the methods described in this discussion:
-    # - https://github.com/samuelcolvin/pydantic/discussions/3091
-
-    def __init_subclass__(cls, type=None, **kwargs):
-        """Register the subtypes of the TypedObject subclass."""
+    def __init_subclass__(cls, type: str = None, **kwargs):
+        """Register subtypes of this TypedObject."""
         super().__init_subclass__(**kwargs)
 
-        type_name = cls.__name__ if type is None else type
-
-        cls._register_type(type_name)
+        cls._register_adaptive_type("type", type)
 
     def __call__(self, field=None):
         """Return the nested data object contained by this `TypedObject`.
@@ -244,67 +304,3 @@ class TypedObject(GenericObject):
             nested = getattr(nested, field)
 
         return nested
-
-    @classmethod
-    def __get_validators__(cls):
-        """Provide `BaseModel` with the means to convert `TypedObject`'s."""
-        yield cls._resolve_type
-
-    @classmethod
-    def parse_obj(cls, obj):
-        """Parse the structured object data into an instance of `TypedObject`.
-
-        This method overrides `BaseModel.parse_obj()`.
-        """
-        return cls._resolve_type(obj)
-
-    @classmethod
-    def _register_type(cls, name):
-        """Register a specific class for the given 'type' name."""
-
-        cls._set_field_default("type", default=name)
-
-        # initialize a __notional_typemap__ map for each direct child of TypedObject
-
-        # this allows different class trees to have the same 'type' name
-        # but point to a different object (e.g. the 'date' type may have
-        # different implementations depending where it is used in the API)
-
-        if not hasattr(cls, "__notional_typemap__"):
-            cls.__notional_typemap__ = {}
-
-        if name in cls.__notional_typemap__:
-            raise ValueError(f"Duplicate subtype for class - {name} :: {cls}")
-
-        logger.debug("registered new subtype: %s => %s", name, cls)
-
-        cls.__notional_typemap__[name] = cls
-
-    @classmethod
-    def _resolve_type(cls, data):
-        """Instantiate the correct object based on the 'type' field."""
-
-        if isinstance(data, cls):
-            return data
-
-        if not isinstance(data, dict):
-            raise ValueError("Invalid 'data' object")
-
-        if not hasattr(cls, "__notional_typemap__"):
-            raise TypeError(f"Missing '__notional_typemap__' in {cls}")
-
-        type_name = data.get("type")
-
-        if type_name is None:
-            raise ValueError("Missing 'type' in data")
-
-        sub = cls.__notional_typemap__.get(type_name)
-
-        if sub is None:
-            raise TypeError(f"Unsupported sub-type: {type_name}")
-
-        logger.debug(
-            "initializing typed object %s :: %s => %s -- %s", cls, type_name, sub, data
-        )
-
-        return sub(**data)

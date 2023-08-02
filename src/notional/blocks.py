@@ -6,9 +6,10 @@ Blocks are the base for all Notion content.
 from abc import ABC
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
-from uuid import UUID
 
-from .core import GenericObject, NotionObject, TypedObject
+from pydantic import Field
+
+from .core import DataObject, NotionObject, TypedObject
 from .schema import PropertyObject
 from .text import (
     CodingLanguage,
@@ -23,10 +24,8 @@ from .types import BlockRef, EmojiObject, FileObject, ParentRef, PropertyValue
 from .user import User
 
 
-class DataRecord(NotionObject):
+class DataRecord(DataObject):
     """The base type for all Notion API records."""
-
-    id: UUID = None
 
     parent: ParentRef = None
     has_children: bool = False
@@ -130,7 +129,7 @@ class Block(DataRecord, TypedObject, object="block"):
 class UnsupportedBlock(Block, type="unsupported"):
     """A placeholder for unsupported blocks in the API."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         pass
 
     unsupported: Optional[_NestedData] = None
@@ -208,12 +207,12 @@ class WithChildrenMixin:
 class Paragraph(TextBlock, WithChildrenMixin, type="paragraph"):
     """A paragraph block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    paragraph: _NestedData = _NestedData()
+    paragraph: _NestedData = Field(default_factory=_NestedData)
 
     @property
     def Markdown(self):
@@ -228,11 +227,11 @@ class Paragraph(TextBlock, WithChildrenMixin, type="paragraph"):
 class Heading1(TextBlock, type="heading_1"):
     """A heading_1 block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
-    heading_1: _NestedData = _NestedData()
+    heading_1: _NestedData = Field(default_factory=_NestedData)
 
     @property
     def Markdown(self):
@@ -247,11 +246,11 @@ class Heading1(TextBlock, type="heading_1"):
 class Heading2(TextBlock, type="heading_2"):
     """A heading_2 block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
-    heading_2: _NestedData = _NestedData()
+    heading_2: _NestedData = Field(default_factory=_NestedData)
 
     @property
     def Markdown(self):
@@ -266,11 +265,11 @@ class Heading2(TextBlock, type="heading_2"):
 class Heading3(TextBlock, type="heading_3"):
     """A heading_3 block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
-    heading_3: _NestedData = _NestedData()
+    heading_3: _NestedData = Field(default_factory=_NestedData)
 
     @property
     def Markdown(self):
@@ -285,12 +284,12 @@ class Heading3(TextBlock, type="heading_3"):
 class Quote(TextBlock, WithChildrenMixin, type="quote"):
     """A quote block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    quote: _NestedData = _NestedData()
+    quote: _NestedData = Field(default_factory=_NestedData)
 
     @property
     def Markdown(self):
@@ -305,12 +304,12 @@ class Quote(TextBlock, WithChildrenMixin, type="quote"):
 class Code(TextBlock, type="code"):
     """A code block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         rich_text: List[RichTextObject] = []
         caption: List[RichTextObject] = []
         language: CodingLanguage = CodingLanguage.PLAIN_TEXT
 
-    code: _NestedData = _NestedData()
+    code: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, text, lang=CodingLanguage.PLAIN_TEXT):
@@ -336,13 +335,13 @@ class Code(TextBlock, type="code"):
 class Callout(TextBlock, WithChildrenMixin, type="callout"):
     """A callout block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         icon: Optional[Union[FileObject, EmojiObject]] = None
         color: FullColor = FullColor.GRAY_BACKGROUND
 
-    callout: _NestedData = _NestedData()
+    callout: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, text, emoji=None, color=FullColor.GRAY_BACKGROUND):
@@ -362,12 +361,12 @@ class Callout(TextBlock, WithChildrenMixin, type="callout"):
 class BulletedListItem(TextBlock, WithChildrenMixin, type="bulleted_list_item"):
     """A bulleted list item in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    bulleted_list_item: _NestedData = _NestedData()
+    bulleted_list_item: _NestedData = Field(default_factory=_NestedData)
 
     @property
     def Markdown(self):
@@ -382,12 +381,12 @@ class BulletedListItem(TextBlock, WithChildrenMixin, type="bulleted_list_item"):
 class NumberedListItem(TextBlock, WithChildrenMixin, type="numbered_list_item"):
     """A numbered list item in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    numbered_list_item: _NestedData = _NestedData()
+    numbered_list_item: _NestedData = Field(default_factory=_NestedData)
 
     @property
     def Markdown(self):
@@ -402,13 +401,13 @@ class NumberedListItem(TextBlock, WithChildrenMixin, type="numbered_list_item"):
 class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
     """A todo list item in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         rich_text: List[RichTextObject] = []
         checked: bool = False
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    to_do: _NestedData = _NestedData()
+    to_do: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, text, checked=False, href=None):
@@ -444,12 +443,12 @@ class ToDo(TextBlock, WithChildrenMixin, type="to_do"):
 class Toggle(TextBlock, WithChildrenMixin, type="toggle"):
     """A toggle list item in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    toggle: _NestedData = _NestedData()
+    toggle: _NestedData = Field(default_factory=_NestedData)
 
 
 class Divider(Block, type="divider"):
@@ -466,28 +465,28 @@ class Divider(Block, type="divider"):
 class TableOfContents(Block, type="table_of_contents"):
     """A table_of_contents block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         color: FullColor = FullColor.DEFAULT
 
-    table_of_contents: _NestedData = _NestedData()
+    table_of_contents: _NestedData = Field(default_factory=_NestedData)
 
 
 class Breadcrumb(Block, type="breadcrumb"):
     """A breadcrumb block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         pass
 
-    breadcrumb: _NestedData = _NestedData()
+    breadcrumb: _NestedData = Field(default_factory=_NestedData)
 
 
 class Embed(Block, type="embed"):
     """An embed block in Notion."""
 
-    class _NestedData(GenericObject):
-        url: str = None
+    class _NestedData(NotionObject):
+        url: str
 
-    embed: _NestedData = _NestedData()
+    embed: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, url):
@@ -512,11 +511,11 @@ class Embed(Block, type="embed"):
 class Bookmark(Block, type="bookmark"):
     """A bookmark block in Notion."""
 
-    class _NestedData(GenericObject):
-        url: str = None
+    class _NestedData(NotionObject):
+        url: str
         caption: Optional[List[RichTextObject]] = None
 
-    bookmark: _NestedData = _NestedData()
+    bookmark: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, url):
@@ -541,10 +540,10 @@ class Bookmark(Block, type="bookmark"):
 class LinkPreview(Block, type="link_preview"):
     """A link_preview block in Notion."""
 
-    class _NestedData(GenericObject):
-        url: str = None
+    class _NestedData(NotionObject):
+        url: str
 
-    link_preview: _NestedData = _NestedData()
+    link_preview: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, url):
@@ -569,10 +568,10 @@ class LinkPreview(Block, type="link_preview"):
 class Equation(Block, type="equation"):
     """An equation block in Notion."""
 
-    class _NestedData(GenericObject):
-        expression: str = None
+    class _NestedData(NotionObject):
+        expression: str
 
-    equation: _NestedData = _NestedData()
+    equation: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, expr):
@@ -607,30 +606,30 @@ class PDF(Block, type="pdf"):
 class ChildPage(Block, type="child_page"):
     """A child page block in Notion."""
 
-    class _NestedData(GenericObject):
-        title: str = None
+    class _NestedData(NotionObject):
+        title: str
 
-    child_page: _NestedData = _NestedData()
+    child_page: _NestedData = Field(default_factory=_NestedData)
 
 
 class ChildDatabase(Block, type="child_database"):
     """A child database block in Notion."""
 
-    class _NestedData(GenericObject):
-        title: str = None
+    class _NestedData(NotionObject):
+        title: str
 
-    child_database: _NestedData = _NestedData()
+    child_database: _NestedData = Field(default_factory=_NestedData)
 
 
 class Column(Block, WithChildrenMixin, type="column"):
     """A column block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         # note that children will not be populated when getting this block
         # https://developers.notion.com/changelog/column-list-and-column-support
         children: Optional[List[Block]] = None
 
-    column: _NestedData = _NestedData()
+    column: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, *blocks):
@@ -646,12 +645,12 @@ class Column(Block, WithChildrenMixin, type="column"):
 class ColumnList(Block, WithChildrenMixin, type="column_list"):
     """A column list block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         # note that children will not be populated when getting this block
         # https://developers.notion.com/changelog/column-list-and-column-support
         children: Optional[List[Column]] = None
 
-    column_list: _NestedData = _NestedData()
+    column_list: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, *columns):
@@ -667,7 +666,7 @@ class ColumnList(Block, WithChildrenMixin, type="column_list"):
 class TableRow(Block, type="table_row"):
     """A table_row block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         cells: List[List[RichTextObject]] = None
 
         def __getitem__(self, col):
@@ -680,7 +679,7 @@ class TableRow(Block, type="table_row"):
 
             return self.cells[col]
 
-    table_row: _NestedData = _NestedData()
+    table_row: _NestedData = Field(default_factory=_NestedData)
 
     def __getitem__(self, cell_num):
         """Return the cell content for the requested column."""
@@ -725,7 +724,7 @@ class TableRow(Block, type="table_row"):
 class Table(Block, WithChildrenMixin, type="table"):
     """A table block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         table_width: int = 0
         has_column_header: bool = False
         has_row_header: bool = False
@@ -734,7 +733,7 @@ class Table(Block, WithChildrenMixin, type="table"):
         # https://developers.notion.com/reference/block#table-blocks
         children: Optional[List[TableRow]] = []
 
-    table: _NestedData = _NestedData()
+    table: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, *rows):
@@ -784,11 +783,11 @@ class LinkToPage(Block, type="link_to_page"):
 class SyncedBlock(Block, WithChildrenMixin, type="synced_block"):
     """A synced_block block in Notion - either original or synced."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         synced_from: Optional[BlockRef] = None
         children: Optional[List[Block]] = None
 
-    synced_block: _NestedData = _NestedData()
+    synced_block: _NestedData = Field(default_factory=_NestedData)
 
     @property
     def IsOriginal(self):
@@ -802,8 +801,8 @@ class SyncedBlock(Block, WithChildrenMixin, type="synced_block"):
 class Template(Block, WithChildrenMixin, type="template"):
     """A template block in Notion."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         rich_text: Optional[List[RichTextObject]] = None
         children: Optional[List[Block]] = None
 
-    template: _NestedData = _NestedData()
+    template: _NestedData = Field(default_factory=_NestedData)

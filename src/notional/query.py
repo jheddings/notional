@@ -9,13 +9,13 @@ from uuid import UUID
 from notion_client.api_endpoints import SearchEndpoint
 from pydantic import ConfigDict, Field, field_validator
 
-from .core import GenericObject
+from .core import NotionObject
 from .iterator import MAX_PAGE_SIZE, EndpointIterator
 
 logger = logging.getLogger(__name__)
 
 
-class TextCondition(GenericObject):
+class TextCondition(NotionObject):
     """Represents text criteria in Notion."""
 
     equals: Optional[str] = None
@@ -28,7 +28,7 @@ class TextCondition(GenericObject):
     is_not_empty: Optional[bool] = None
 
 
-class NumberCondition(GenericObject):
+class NumberCondition(NotionObject):
     """Represents number criteria in Notion."""
 
     equals: Optional[Union[float, int]] = None
@@ -41,14 +41,14 @@ class NumberCondition(GenericObject):
     is_not_empty: Optional[bool] = None
 
 
-class CheckboxCondition(GenericObject):
+class CheckboxCondition(NotionObject):
     """Represents checkbox criteria in Notion."""
 
     equals: Optional[bool] = None
     does_not_equal: Optional[bool] = None
 
 
-class SelectCondition(GenericObject):
+class SelectCondition(NotionObject):
     """Represents select criteria in Notion."""
 
     equals: Optional[str] = None
@@ -57,7 +57,7 @@ class SelectCondition(GenericObject):
     is_not_empty: Optional[bool] = None
 
 
-class MultiSelectCondition(GenericObject):
+class MultiSelectCondition(NotionObject):
     """Represents a multi_select criteria in Notion."""
 
     contains: Optional[str] = None
@@ -66,7 +66,7 @@ class MultiSelectCondition(GenericObject):
     is_not_empty: Optional[bool] = None
 
 
-class DateCondition(GenericObject):
+class DateCondition(NotionObject):
     """Represents date criteria in Notion."""
 
     equals: Optional[Union[date, datetime]] = None
@@ -86,7 +86,7 @@ class DateCondition(GenericObject):
     next_year: Optional[Any] = None
 
 
-class PeopleCondition(GenericObject):
+class PeopleCondition(NotionObject):
     """Represents people criteria in Notion."""
 
     contains: Optional[UUID] = None
@@ -95,14 +95,14 @@ class PeopleCondition(GenericObject):
     is_not_empty: Optional[bool] = None
 
 
-class FilesCondition(GenericObject):
+class FilesCondition(NotionObject):
     """Represents files criteria in Notion."""
 
     is_empty: Optional[bool] = None
     is_not_empty: Optional[bool] = None
 
 
-class RelationCondition(GenericObject):
+class RelationCondition(NotionObject):
     """Represents relation criteria in Notion."""
 
     contains: Optional[UUID] = None
@@ -111,7 +111,7 @@ class RelationCondition(GenericObject):
     is_not_empty: Optional[bool] = None
 
 
-class FormulaCondition(GenericObject):
+class FormulaCondition(NotionObject):
     """Represents formula criteria in Notion."""
 
     string: Optional[TextCondition] = None
@@ -120,7 +120,7 @@ class FormulaCondition(GenericObject):
     date: Optional[DateCondition] = None
 
 
-class QueryFilter(GenericObject):
+class QueryFilter(NotionObject):
     """Base class for query filters."""
 
 
@@ -202,7 +202,7 @@ class SortDirection(str, Enum):
     DESCENDING = "descending"
 
 
-class PropertySort(GenericObject):
+class PropertySort(NotionObject):
     """Represents a sort instruction in Notion."""
 
     property: Optional[str] = None
@@ -210,7 +210,7 @@ class PropertySort(GenericObject):
     direction: Optional[SortDirection] = None
 
 
-class Query(GenericObject):
+class Query(NotionObject):
     """Represents a query object in Notion."""
 
     sorts: Optional[List[PropertySort]] = None
@@ -322,7 +322,7 @@ class QueryBuilder:
 
         logger.debug("executing query - %s", self.query)
 
-        query = self.query.as_dict()
+        query = self.query.serialize()
 
         if self.params:
             query.update(self.params)

@@ -128,7 +128,7 @@ class BlocksEndpoint(Endpoint):
 
             parent_id = ObjectReference[parent].id
 
-            children = [block.as_dict() for block in blocks if block is not None]
+            children = [block.serialize() for block in blocks if block is not None]
 
             logger.info("Appending %d blocks to %s ...", len(children), parent_id)
 
@@ -186,7 +186,7 @@ class BlocksEndpoint(Endpoint):
 
         data = self().delete(block_id)
 
-        return Block.parse_obj(data)
+        return Block.deserialize(data)
 
     def restore(self, block):
         """Restore (unarchive) the specified Block.
@@ -199,7 +199,7 @@ class BlocksEndpoint(Endpoint):
 
         data = self().update(block_id, archived=False)
 
-        return Block.parse_obj(data)
+        return Block.deserialize(data)
 
     # https://developers.notion.com/reference/retrieve-a-block
     def retrieve(self, block):
@@ -213,7 +213,7 @@ class BlocksEndpoint(Endpoint):
 
         data = self().retrieve(block_id)
 
-        return Block.parse_obj(data)
+        return Block.deserialize(data)
 
     # https://developers.notion.com/reference/update-a-block
     def update(self, block: Block):
@@ -224,7 +224,7 @@ class BlocksEndpoint(Endpoint):
 
         logger.info("Updating block :: %s", block.id)
 
-        data = self().update(block.id.hex, block.as_dict())
+        data = self().update(block.id.hex, block.serialize())
 
         return block.refresh(**data)
 
@@ -250,15 +250,15 @@ class DatabasesEndpoint(Endpoint):
         request = {}
 
         if parent is not None:
-            request["parent"] = parent.as_dict()
+            request["parent"] = parent.serialize()
 
         if title is not None:
             prop = TextObject[title]
-            request["title"] = [prop.as_dict()]
+            request["title"] = [prop.serialize()]
 
         if schema is not None:
             request["properties"] = {
-                name: value.as_dict() if value is not None else None
+                name: value.serialize() if value is not None else None
                 for name, value in schema.items()
             }
 
@@ -279,7 +279,7 @@ class DatabasesEndpoint(Endpoint):
 
         data = self().create(**request)
 
-        return Database.parse_obj(data)
+        return Database.deserialize(data)
 
     # https://developers.notion.com/reference/retrieve-a-database
     def retrieve(self, dbref):
@@ -294,7 +294,7 @@ class DatabasesEndpoint(Endpoint):
 
         data = self().retrieve(dbid)
 
-        return Database.parse_obj(data)
+        return Database.deserialize(data)
 
     # https://developers.notion.com/reference/update-a-database
     def update(self, dbref, title=None, schema: Dict[str, PropertyObject] = None):
@@ -412,7 +412,7 @@ class PagesEndpoint(Endpoint):
         elif not isinstance(parent, ParentRef):
             raise ValueError("Unsupported 'parent'")
 
-        request = {"parent": parent.as_dict()}
+        request = {"parent": parent.serialize()}
 
         # the API requires a properties object, even if empty
         if properties is None:
@@ -422,13 +422,13 @@ class PagesEndpoint(Endpoint):
             properties["title"] = Title[title]
 
         request["properties"] = {
-            name: prop.as_dict() if prop is not None else None
+            name: prop.serialize() if prop is not None else None
             for name, prop in properties.items()
         }
 
         if children is not None:
             request["children"] = [
-                child.as_dict() for child in children if child is not None
+                child.serialize() for child in children if child is not None
             ]
 
         logger.info("Creating page :: %s => %s", parent, title)
@@ -489,7 +489,7 @@ class PagesEndpoint(Endpoint):
             properties = page.properties
 
         props = {
-            name: value.as_dict() if value is not None else None
+            name: value.serialize() if value is not None else None
             for name, value in properties.items()
         }
 
@@ -514,14 +514,14 @@ class PagesEndpoint(Endpoint):
             props["cover"] = {}
         elif cover is not False:
             logger.info("Setting page cover :: %s => %s", page_id, cover)
-            props["cover"] = cover.as_dict()
+            props["cover"] = cover.serialize()
 
         if icon is None:
             logger.info("Removing page icon :: %s", page_id)
             props["icon"] = {}
         elif icon is not False:
             logger.info("Setting page icon :: %s => %s", page_id, icon)
-            props["icon"] = icon.as_dict()
+            props["icon"] = icon.serialize()
 
         if archived is False:
             logger.info("Restoring page :: %s", page_id)
@@ -581,7 +581,7 @@ class UsersEndpoint(Endpoint):
 
         data = self().retrieve(user_id)
 
-        return User.parse_obj(data)
+        return User.deserialize(data)
 
     # https://developers.notion.com/reference/get-self
     def me(self):
@@ -591,4 +591,4 @@ class UsersEndpoint(Endpoint):
 
         data = self().me()
 
-        return User.parse_obj(data)
+        return User.deserialize(data)

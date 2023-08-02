@@ -5,7 +5,9 @@ from copy import deepcopy
 from enum import Enum
 from typing import Optional
 
-from .core import GenericObject, TypedObject
+from pydantic import Field
+
+from .core import NotionObject, TypedObject
 
 # this might be a place to capture other utilities for working with markdown, text
 # rich text, etc...  the challenge is not importing types due to a circular ref.
@@ -47,7 +49,7 @@ def markdown(*rtf):
     return "".join(str(text) for text in rtf if text)
 
 
-def chunky(text, length=MAX_TEXT_OBJECT_SIZE):
+def chunkify(text, length=MAX_TEXT_OBJECT_SIZE):
     """Break the given `text` into chunks of at most `length` size."""
     return (text[idx : idx + length] for idx in range(0, len(text), length))
 
@@ -58,7 +60,7 @@ def text_blocks(text: str):
     If the test is larger than the maximum block size for the Notion API, it will be
     broken into multiple blocks.
     """
-    return [TextObject[chunk] for chunk in chunky(text)]
+    return [TextObject[chunk] for chunk in chunkify(text)]
 
 
 def truncate(text, length=-1, trail="..."):
@@ -126,18 +128,21 @@ def strip(*rtf):
     rstrip(*rtf)
 
 
-def make_safe_python_name(name):
+def make_safe_python_name(name, placeholder="_"):
     """Make the given string safe for use as a Python identifier.
 
     This will remove any leading characters that are not valid and change all
-    invalid interior sequences to underscore.
+    invalid interior sequences to the given placeholder.
     """
 
-    s = re.sub(r"[^0-9a-zA-Z_]+", "_", name)
+    # replace all invalid chars with placeholders
+    s = re.sub(r"[^0-9a-zA-Z_]+", placeholder, name)
+
+    # remove invalid leading characters
     s = re.sub(r"^[^a-zA-Z]+", "", s)
 
-    # remove trailing underscores
-    return s.rstrip("_")
+    # remove trailing placeholders (converted from invalid chars above)
+    return s.rstrip(placeholder)
 
 
 class Color(str, Enum):
@@ -180,14 +185,14 @@ class FullColor(str, Enum):
     RED_BACKGROUND = "red_background"
 
 
-class LinkObject(GenericObject):
+class LinkObject(NotionObject):
     """Reference a URL."""
 
     type: str = "url"
     url: str = None
 
 
-class Annotations(GenericObject):
+class Annotations(NotionObject):
     """Style information for RichTextObject's."""
 
     bold: bool = False
@@ -274,11 +279,11 @@ class RichTextObject(TypedObject):
 class TextObject(RichTextObject, type="text"):
     """Notion text element."""
 
-    class _NestedData(GenericObject):
-        content: str = None
+    class _NestedData(NotionObject):
+        content: str
         link: Optional[LinkObject] = None
 
-    text: _NestedData = _NestedData()
+    text: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, text, href=None, style=None):

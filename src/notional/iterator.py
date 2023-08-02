@@ -3,10 +3,10 @@
 import logging
 from typing import Any, List, Optional
 
-from pydantic import validator
+from pydantic import Field, field_validator
 
 from .blocks import Block, Database, Page
-from .core import GenericObject, NotionObject, TypedObject
+from .core import DataObject, NotionObject, TypedObject
 from .types import PropertyItem
 from .user import User
 
@@ -15,36 +15,38 @@ MAX_PAGE_SIZE = 100
 logger = logging.getLogger(__name__)
 
 
-class ObjectList(NotionObject, TypedObject, object="list"):
+class ObjectList(DataObject, TypedObject, object="list"):
     """A paginated list of objects returned by the Notion API."""
 
-    results: List[NotionObject] = []
+    results: List[DataObject] = []
     has_more: bool = False
     next_cursor: Optional[str] = None
 
-    @validator("results", pre=True, each_item=True)
+    @field_validator("results", mode="before")
     def _convert_results_list(cls, val):
         """Convert the results list to specifc objects."""
+
+        # TODO can this be achieved using DataObject.deserialize?
 
         if "object" not in val:
             raise ValueError("Unknown object in results")
 
         if val["object"] == BlockList.type:
-            return Block.parse_obj(val)
+            return Block.deserialize(val)
 
         if val["object"] == PageList.type:
-            return Page.parse_obj(val)
+            return Page.deserialize(val)
 
         if val["object"] == DatabaseList.type:
-            return Database.parse_obj(val)
+            return Database.deserialize(val)
 
         if val["object"] == PropertyItemList.type:
-            return PropertyItem.parse_obj(val)
+            return PropertyItem.deserialize(val)
 
         if val["object"] == UserList.type:
-            return User.parse_obj(val)
+            return User.deserialize(val)
 
-        return GenericObject.parse_obj(val)
+        return NotionObject.deserialize(val)
 
 
 class BlockList(ObjectList, type="block"):
@@ -84,12 +86,12 @@ class PropertyItemList(ObjectList, type="property_item"):
     do not typically match the schema for corresponding property values.
     """
 
-    class _NestedData(GenericObject):
-        id: str = None
-        type: str = None
+    class _NestedData(NotionObject):
+        id: str
+        type: str
         next_url: Optional[str] = None
 
-    property_item: _NestedData = _NestedData()
+    property_item: _NestedData = Field(default_factory=_NestedData)
 
 
 class EndpointIterator:
@@ -119,7 +121,7 @@ class EndpointIterator:
 
         If a class is provided, it will be constructued for each result returned by
         this iterator.  The constructor must accept a single argument, which is the
-        `NotionObject` contained in the `ObjectList`.
+        `DataObject` contained in the `ObjectList`.
         """
         self._endpoint = endpoint
         self._datatype = datatype
@@ -146,7 +148,7 @@ class EndpointIterator:
 
             page = self._endpoint(start_cursor=self.next_cursor, **kwargs)
 
-            api_list = ObjectList.parse_obj(page)
+            api_list = ObjectList.deserialize(page)
 
             for obj in api_list.results:
                 self.total_items += 1

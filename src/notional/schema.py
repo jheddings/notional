@@ -4,9 +4,9 @@ from enum import Enum
 from typing import Any, List, Optional
 from uuid import UUID
 
-import pydantic
+from pydantic import Field, field_validator
 
-from .core import GenericObject, TypedObject
+from .core import NotionObject, TypedObject
 from .text import Color
 
 
@@ -109,15 +109,15 @@ class RichText(PropertyObject, type="rich_text"):
 class Number(PropertyObject, type="number"):
     """Defines the number configuration for a database property."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         format: NumberFormat = NumberFormat.NUMBER
 
         # leads to better error messages; see https://github.com/pydantic/pydantic/issues/355
-        @pydantic.field_validator("format", mode="before")
+        @field_validator("format", mode="before")
         def validate_enum_field(cls, field: str):
             return NumberFormat(field)
 
-    number: _NestedData = _NestedData()
+    number: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, format):
@@ -125,7 +125,7 @@ class Number(PropertyObject, type="number"):
         return cls(number=cls._NestedData(format=format))
 
 
-class SelectOption(GenericObject):
+class SelectOption(NotionObject):
     """Options for select & multi-select objects."""
 
     name: str
@@ -141,10 +141,10 @@ class SelectOption(GenericObject):
 class Select(PropertyObject, type="select"):
     """Defines the select configuration for a database property."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         options: List[SelectOption] = []
 
-    select: _NestedData = _NestedData()
+    select: _NestedData = Field(default_factory=_NestedData)
 
     @classmethod
     def __compose__(cls, options):
@@ -155,10 +155,10 @@ class Select(PropertyObject, type="select"):
 class MultiSelect(PropertyObject, type="multi_select"):
     """Defines the multi-select configuration for a database property."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         options: List[SelectOption] = []
 
-    multi_select: _NestedData = _NestedData()
+    multi_select: _NestedData = Field(default_factory=_NestedData)
 
 
 class Status(PropertyObject, type="status"):
@@ -212,10 +212,10 @@ class PhoneNumber(PropertyObject, type="phone_number"):
 class Formula(PropertyObject, type="formula"):
     """Defines the formula configuration for a database property."""
 
-    class _NestedData(GenericObject):
-        expression: str = None
+    class _NestedData(NotionObject):
+        expression: str
 
-    formula: _NestedData = _NestedData()
+    formula: _NestedData = Field(default_factory=_NestedData)
 
 
 class PropertyRelation(TypedObject):
@@ -242,23 +242,23 @@ class SinglePropertyRelation(PropertyRelation, type="single_property"):
 class DualPropertyRelation(PropertyRelation, type="dual_property"):
     """Defines a dual-property relation configuration for a database property."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         synced_property_name: Optional[str] = None
         synced_property_id: Optional[str] = None
 
-    dual_property: _NestedData = _NestedData()
+    dual_property: _NestedData = Field(default_factory=_NestedData)
 
 
 class Relation(PropertyObject, type="relation"):
     """Defines the relation configuration for a database property."""
 
-    relation: PropertyRelation = PropertyRelation()
+    relation: PropertyRelation = Field(default_factory=PropertyRelation)
 
 
 class Rollup(PropertyObject, type="rollup"):
     """Defines the rollup configuration for a database property."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         function: Function = Function.COUNT
 
         relation_property_name: Optional[str] = None
@@ -268,11 +268,11 @@ class Rollup(PropertyObject, type="rollup"):
         rollup_property_id: Optional[str] = None
 
         # leads to better error messages; see https://github.com/pydantic/pydantic/issues/355
-        @pydantic.field_validator("function", mode="before")
+        @field_validator("function", mode="before")
         def validate_enum_field(cls, field: str):
             return Function(field)
 
-    rollup: _NestedData = _NestedData()
+    rollup: _NestedData = Field(default_factory=_NestedData)
 
 
 class CreatedTime(PropertyObject, type="created_time"):
