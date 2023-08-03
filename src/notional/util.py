@@ -36,7 +36,7 @@ block_url_long_re = re.compile(
 )
 
 
-def extract_id_from_string(string):
+def extract_id_from_string(string) -> str:
     """Examine the given string to find a valid Notion object ID."""
 
     m = uuid_re.match(string)
@@ -55,4 +55,4 @@ def extract_id_from_string(string):
     if m is not None:
         return m.group("block_id")
 
-    return None
+    raise ValueError(f"invalid Notion ID string: {string}")

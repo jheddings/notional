@@ -2,7 +2,7 @@
 
 import logging
 from inspect import isclass
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 import notion_client
 from httpx import ConnectError
@@ -139,7 +139,7 @@ class BlocksEndpoint(Endpoint):
                     for idx in range(len(blocks)):
                         block = blocks[idx]
                         result = data["results"][idx]
-                        block.refresh(**result)
+                        block.update(**result)
 
                 else:
                     logger.warning("Unable to refresh results; size mismatch")
@@ -222,11 +222,14 @@ class BlocksEndpoint(Endpoint):
         The block info will be refreshed to the latest version from the server.
         """
 
+        if block.id is None:
+            raise ValueError("Page ID is missing")
+
         logger.info("Updating block :: %s", block.id)
 
         data = self().update(block.id.hex, block.serialize())
 
-        return block.refresh(**data)
+        return block.update(**data)
 
 
 class DatabasesEndpoint(Endpoint):
@@ -238,9 +241,9 @@ class DatabasesEndpoint(Endpoint):
 
     def _build_request(
         self,
-        parent: ParentRef = None,
-        schema: Dict[str, PropertyObject] = None,
-        title=None,
+        parent: Optional[ParentRef] = None,
+        schema: Optional[Dict[str, PropertyObject]] = None,
+        title: Optional[str] = None,
     ):
         """Build a request payload from the given items.
 
@@ -253,8 +256,8 @@ class DatabasesEndpoint(Endpoint):
             request["parent"] = parent.serialize()
 
         if title is not None:
-            prop = TextObject[title]
-            request["title"] = [prop.serialize()]
+            title_prop = TextObject[title]
+            request["title"] = [title_prop.serialize()]
 
         if schema is not None:
             request["properties"] = {
@@ -297,7 +300,12 @@ class DatabasesEndpoint(Endpoint):
         return Database.deserialize(data)
 
     # https://developers.notion.com/reference/update-a-database
-    def update(self, dbref, title=None, schema: Dict[str, PropertyObject] = None):
+    def update(
+        self,
+        dbref,
+        title: Optional[str] = None,
+        schema: Optional[Dict[str, PropertyObject]] = None,
+    ):
         """Update the Database object on the server.
 
         The database info will be refreshed to the latest version from the server.
@@ -313,7 +321,7 @@ class DatabasesEndpoint(Endpoint):
 
         if request:
             data = self().update(dbid, **request)
-            dbref = dbref.refresh(**data)
+            dbref = dbref.update(**data)
 
         return dbref
 
@@ -483,6 +491,9 @@ class PagesEndpoint(Endpoint):
         The page info will be refreshed to the latest version from the server.
         """
 
+        if page.id is None:
+            raise ValueError("Page ID is missing")
+
         logger.info("Updating page info :: %s", page.id)
 
         if not properties:
@@ -495,7 +506,7 @@ class PagesEndpoint(Endpoint):
 
         data = self().update(page.id.hex, properties=props)
 
-        return page.refresh(**data)
+        return page.update(**data)
 
     def set(self, page, cover=False, icon=False, archived=None):
         """Set specific page attributes (such as cover, icon, etc.) on the server.
@@ -532,7 +543,7 @@ class PagesEndpoint(Endpoint):
 
         data = self().update(page_id.hex, **props)
 
-        return page.refresh(**data)
+        return page.update(**data)
 
 
 class SearchEndpoint(Endpoint):

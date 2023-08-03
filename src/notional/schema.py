@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Any, List, Optional
 from uuid import UUID
 
-from pydantic import Field, field_validator
+from pydantic import field_validator
 
 from .core import NotionObject, TypedObject
 from .text import Color
@@ -117,7 +117,7 @@ class Number(PropertyObject, type="number"):
         def validate_enum_field(cls, field: str):
             return NumberFormat(field)
 
-    number: _NestedData = Field(default_factory=_NestedData)
+    number: _NestedData
 
     @classmethod
     def __compose__(cls, format):
@@ -129,7 +129,7 @@ class SelectOption(NotionObject):
     """Options for select & multi-select objects."""
 
     name: str
-    id: str = None
+    id: Optional[str] = None
     color: str = Color.DEFAULT
 
     @classmethod
@@ -144,7 +144,7 @@ class Select(PropertyObject, type="select"):
     class _NestedData(NotionObject):
         options: List[SelectOption] = []
 
-    select: _NestedData = Field(default_factory=_NestedData)
+    select: _NestedData
 
     @classmethod
     def __compose__(cls, options):
@@ -158,7 +158,7 @@ class MultiSelect(PropertyObject, type="multi_select"):
     class _NestedData(NotionObject):
         options: List[SelectOption] = []
 
-    multi_select: _NestedData = Field(default_factory=_NestedData)
+    multi_select: _NestedData
 
 
 class Status(PropertyObject, type="status"):
@@ -215,13 +215,13 @@ class Formula(PropertyObject, type="formula"):
     class _NestedData(NotionObject):
         expression: str
 
-    formula: _NestedData = Field(default_factory=_NestedData)
+    formula: _NestedData
 
 
 class PropertyRelation(TypedObject):
     """Defines common configuration for a property relation."""
 
-    database_id: UUID = None
+    database_id: UUID
 
 
 class SinglePropertyRelation(PropertyRelation, type="single_property"):
@@ -246,13 +246,13 @@ class DualPropertyRelation(PropertyRelation, type="dual_property"):
         synced_property_name: Optional[str] = None
         synced_property_id: Optional[str] = None
 
-    dual_property: _NestedData = Field(default_factory=_NestedData)
+    dual_property: _NestedData
 
 
 class Relation(PropertyObject, type="relation"):
     """Defines the relation configuration for a database property."""
 
-    relation: PropertyRelation = Field(default_factory=PropertyRelation)
+    relation: PropertyRelation
 
 
 class Rollup(PropertyObject, type="rollup"):
@@ -272,7 +272,7 @@ class Rollup(PropertyObject, type="rollup"):
         def validate_enum_field(cls, field: str):
             return Function(field)
 
-    rollup: _NestedData = Field(default_factory=_NestedData)
+    rollup: _NestedData
 
 
 class CreatedTime(PropertyObject, type="created_time"):

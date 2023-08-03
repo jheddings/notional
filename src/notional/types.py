@@ -24,10 +24,8 @@ class ObjectReference(NotionObject):
     id: UUID
 
     @classmethod
-    def __compose__(cls, ref):
+    def __compose__(cls, ref: Union[str, UUID, "ParentRef", NotionObject]):
         """Compose an ObjectReference from the given reference.
-
-        `ref` may be a `UUID`, `str`, `ParentRef` or `NotionObject` with an `id`.
 
         Strings may be either UUID's or URL's to Notion content.
         """
@@ -55,13 +53,13 @@ class ObjectReference(NotionObject):
         raise ValueError("Unrecognized 'ref' attribute")
 
     @property
-    def URL(self):
+    def URL(self) -> str:
         """Return the Notion URL for this object reference.
 
         Note: this is a convenience property only.  It does not guarantee that the
         URL exists or that it is accessible by the integration.
         """
-        return helpers.get_url(self.id)
+        return helpers.get_url(self.id.hex)
 
 
 # https://developers.notion.com/reference/parent-object
@@ -78,11 +76,8 @@ class DatabaseRef(ParentRef, type="database_id"):
     database_id: UUID
 
     @classmethod
-    def __compose__(cls, db_ref):
-        """Compose a DatabaseRef from the given reference object.
-
-        `db_ref` can be either a string, UUID, or database.
-        """
+    def __compose__(cls, db_ref: Union[str, UUID, DataObject]):
+        """Compose a DatabaseRef from the given reference object."""
         ref = ObjectReference[db_ref]
         return DatabaseRef(database_id=ref.id)
 
@@ -93,11 +88,8 @@ class PageRef(ParentRef, type="page_id"):
     page_id: UUID
 
     @classmethod
-    def __compose__(cls, page_ref):
-        """Compose a PageRef from the given reference object.
-
-        `page_ref` can be either a string, UUID, or page.
-        """
+    def __compose__(cls, page_ref: Union[str, UUID, DataObject]):
+        """Compose a PageRef from the given reference object."""
         ref = ObjectReference[page_ref]
         return PageRef(page_id=ref.id)
 
@@ -108,11 +100,8 @@ class BlockRef(ParentRef, type="block_id"):
     block_id: UUID
 
     @classmethod
-    def __compose__(cls, block_ref):
-        """Compose a BlockRef from the given reference object.
-
-        `block_ref` can be either a string, UUID, or block.
-        """
+    def __compose__(cls, block_ref: Union[str, UUID, DataObject]):
+        """Compose a BlockRef from the given reference object."""
         ref = ObjectReference[block_ref]
         return BlockRef(block_id=ref.id)
 
@@ -128,7 +117,7 @@ class EmojiObject(TypedObject, type="emoji"):
 
     emoji: str
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return this EmojiObject as a simple string."""
         return self.emoji
 
@@ -149,7 +138,7 @@ class FileObject(TypedObject):
 
     name: Optional[str] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this object."""
         return self.name or "__unknown__"
 
@@ -177,7 +166,7 @@ class ExternalFile(FileObject, type="external"):
 
     external: _NestedData
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this object."""
         name = super().__str__()
 
@@ -198,7 +187,7 @@ class DateRange(NotionObject):
     start: Union[date, datetime]
     end: Optional[Union[date, datetime]] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this object."""
 
         if self.end is None:
@@ -319,7 +308,7 @@ class EquationObject(RichTextObject, type="equation"):
 
     equation: _NestedData
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this object."""
 
         if self.equation is None:
@@ -331,7 +320,7 @@ class EquationObject(RichTextObject, type="equation"):
 class NativeTypeMixin:
     """Mixin class for properties that can be represented as native Python types."""
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this object."""
 
         value = self.Value
@@ -530,7 +519,7 @@ class Date(PropertyValue, type="date"):
 
         return self.Start <= other <= self.End
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return "" if self.date is None else str(self.date)
 
@@ -563,13 +552,13 @@ class Status(NativeTypeMixin, PropertyValue, type="status"):
     """Notion status property."""
 
     class _NestedData(NotionObject):
-        name: str = None
+        name: str
         id: Optional[Union[UUID, str]] = None
         color: Optional[Color] = None
 
     status: Optional[_NestedData] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return self.Value or ""
 
@@ -614,7 +603,7 @@ class SelectValue(NotionObject):
     id: Optional[Union[UUID, str]] = None
     color: Optional[Color] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return self.name
 
@@ -633,7 +622,7 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
 
     select: Optional[SelectValue] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return self.Value or ""
 
@@ -672,7 +661,7 @@ class MultiSelect(PropertyValue, type="multi_select"):
 
     multi_select: List[SelectValue] = []
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return ", ".join(self.Values)
 
@@ -807,7 +796,7 @@ class People(PropertyValue, type="people"):
 
         return self.people[index]
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return ", ".join([str(user) for user in self.people])
 
@@ -850,7 +839,7 @@ class Files(PropertyValue, type="files"):
 
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return "; ".join([str(file) for file in self.files])
 
@@ -918,7 +907,7 @@ class FormulaResult(TypedObject):
     This object contains the result of the expression in the database properties.
     """
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the formula result as a string."""
         return self.Result or ""
 
@@ -977,7 +966,7 @@ class Formula(PropertyValue, type="formula"):
 
     formula: Optional[FormulaResult] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the result of this formula as a string."""
         return str(self.Result or "")
 
@@ -1104,7 +1093,7 @@ class Rollup(PropertyValue, type="rollup"):
 
     rollup: Optional[RollupObject] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this Rollup property."""
 
         if self.rollup is None:
@@ -1128,7 +1117,7 @@ class CreatedBy(PropertyValue, type="created_by"):
 
     created_by: User
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the contents of this property as a string."""
         return str(self.created_by)
 
@@ -1144,7 +1133,7 @@ class LastEditedBy(PropertyValue, type="last_edited_by"):
 
     last_edited_by: User
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the contents of this property as a string."""
         return str(self.last_edited_by)
 

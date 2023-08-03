@@ -191,8 +191,8 @@ class CompoundFilter(QueryFilter):
 
     model_config = ConfigDict(populate_by_name=True)
 
-    and_: Optional[List[QueryFilter]] = Field(None, alias="and")
-    or_: Optional[List[QueryFilter]] = Field(None, alias="or")
+    and_: Optional[List[QueryFilter]] = Field(..., alias="and")
+    or_: Optional[List[QueryFilter]] = Field(..., alias="or")
 
 
 class SortDirection(str, Enum):

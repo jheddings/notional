@@ -29,9 +29,9 @@ class Person(User, type="person"):
     class _NestedData(NotionObject):
         email: str
 
-    person: _NestedData = None
+    person: _NestedData
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this `Person`."""
         return f"[@{self.name}]"
 
@@ -42,8 +42,8 @@ class Bot(User, type="bot"):
     class _NestedData(NotionObject):
         pass
 
-    bot: _NestedData = None
+    bot: _NestedData
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this `Bot`."""
         return f"[%{self.name}]"

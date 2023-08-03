@@ -3,7 +3,7 @@
 import logging
 from typing import Any, List, Optional
 
-from pydantic import Field, field_validator
+from pydantic import field_validator
 
 from .blocks import Block, Database, Page
 from .core import DataObject, NotionObject, TypedObject
@@ -91,7 +91,7 @@ class PropertyItemList(ObjectList, type="property_item"):
         type: str
         next_url: Optional[str] = None
 
-    property_item: _NestedData = Field(default_factory=_NestedData)
+    property_item: _NestedData
 
 
 class EndpointIterator:

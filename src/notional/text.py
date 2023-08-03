@@ -3,9 +3,7 @@
 import re
 from copy import deepcopy
 from enum import Enum
-from typing import Optional
-
-from pydantic import Field
+from typing import Literal, Optional
 
 from .core import NotionObject, TypedObject
 
@@ -188,8 +186,8 @@ class FullColor(str, Enum):
 class LinkObject(NotionObject):
     """Reference a URL."""
 
-    type: str = "url"
-    url: str = None
+    url: str
+    type: Literal["url"] = "url"
 
 
 class Annotations(NotionObject):
@@ -200,7 +198,7 @@ class Annotations(NotionObject):
     strikethrough: bool = False
     underline: bool = False
     code: bool = False
-    color: FullColor = None
+    color: Optional[FullColor] = None
 
     @property
     def is_plain(self):
@@ -233,7 +231,7 @@ class RichTextObject(TypedObject):
     href: Optional[str] = None
     annotations: Optional[Annotations] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this object."""
 
         if self.href is None:
@@ -283,7 +281,7 @@ class TextObject(RichTextObject, type="text"):
         content: str
         link: Optional[LinkObject] = None
 
-    text: _NestedData = Field(default_factory=_NestedData)
+    text: _NestedData
 
     @classmethod
     def __compose__(cls, text, href=None, style=None):
