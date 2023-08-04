@@ -116,9 +116,28 @@ class NotionObject(BaseModel, ABC, metaclass=ComposableObjectMeta):
     def deserialize(cls, data: Union[str, bytes, dict, list]):
         """Parse the given object as a Notion API object."""
 
+        if isinstance(data, (str, bytes)):
+            return cls.model_validate_json(data)
+
+        return cls.model_validate(data)
+
+
+class AdaptiveObject(NotionObject, ABC):
+    """Objects that may change type based on content.
+
+    To determine the concrete type of an API object, AdaptiveObject's will examine all
+    available subclasses and attempt to deserialize the given data.  The first object
+    that successfully deserializes will be returned.
+    """
+
+    @classmethod
+    def deserialize(cls, data: Union[str, bytes, dict, list]):
+        """Parse the given object as a Notion API object."""
+
         # make a list of all subclasses and their subclasses
         types = cls._find_all_possible_types()
 
+        # build a TypeAdapter for the list of possible types
         if len(types) > 1:
             adapter = TypeAdapter(Union[*types])
         elif len(types) > 0:
@@ -135,6 +154,7 @@ class NotionObject(BaseModel, ABC, metaclass=ComposableObjectMeta):
     def _find_all_possible_types(cls):
         all_types = []
 
+        # skip abstract classes in the list of possible types
         if ABC not in cls.__bases__:
             all_types.append(cls)
 
@@ -145,128 +165,7 @@ class NotionObject(BaseModel, ABC, metaclass=ComposableObjectMeta):
         return all_types
 
 
-class AdaptiveObject(NotionObject, ABC):
-    """Objects that may change type based on content.
-
-    Subclasses of `AdaptiveObject` must register each subclass with the appropriate
-    keywords.  This allows the `AdaptiveObject` to determine the correct type when
-    deserializing from the Notion API.  To register a subclass as an adaptive type,
-    call the `_register_adaptive_type` method with the appropriate keywords.  This
-    is typically done in the `__init_subclass__` method of the parent class.
-
-    This approach allows Notional to define new object types without requiring each
-    object to enumerate all possible types.  For example, the `TextObject` may be
-    represented as a `RichTextObject` or a `MentionObject` depending on the contents.
-
-    Rather than using a discriminated union, Notional will use the `__notional_typemap__`
-    to determine the concrete type of the object.  This allows the API to define new
-    types without requiring changes to the Notional codebase.
-    """
-
-    # modified from the methods described in these discussions:
-    # - https://github.com/pydantic/pydantic/discussions/3091
-    # - https://github.com/pydantic/pydantic/discussions/5785
-
-    @classmethod
-    def __pydantic_init_subclass__(cls, **kwargs):
-        """Initialize the subclass fields with the given keyword arguments."""
-        super().__pydantic_init_subclass__(**kwargs)
-
-        for name, value in kwargs.items():
-            cls._update_field_schema(name, default=value)
-
-        # rebuild the internal model with the updated field info
-        # https://github.com/pydantic/pydantic/issues/6966
-
-        cls.model_rebuild(force=True)
-
-    @classmethod
-    def _update_field_schema(cls, name, frozen=True, default=...):
-        """Update the field definition for the given name.
-
-        Note that this will only update the field definition; it will not update the
-        internal model.  This is primarily used to update the default value for a field.
-        """
-
-        field = cls.model_fields.get(name)
-
-        if not field:
-            raise ValueError(f"unknown field: {name}")
-
-        logger.debug("updating field info -- %s.%s => %s", cls.__name__, name, default)
-
-        if default is not Ellipsis:
-            field.default = default
-            field.validate_default = False
-
-        if frozen:
-            field.frozen = True
-            # field.annotation = Literal[default]
-
-    @classmethod
-    def _register_adaptive_type(cls, name, value):
-        """Register the current class as an adaptive type."""
-
-        if not hasattr(cls, "__notional_typemap__"):
-            logger.debug("initializing typemap for %s", cls)
-            cls.__notional_typemap__ = {}
-
-        typemap = cls.__notional_typemap__.get(name)
-
-        if typemap is None:
-            typemap = {}
-
-        if value in typemap:
-            raise ValueError(f"Duplicate subtype for class - {name} [{value}] => {cls}")
-
-        if value is not None:
-            typemap[value] = cls
-
-        logger.debug("registered new subtype: %s [%s] => %s", name, value, cls)
-
-        cls.__notional_typemap__[name] = typemap
-
-    @classmethod
-    def _resolve_adaptive_type(cls, obj: Union[dict, "AdaptiveObject"]):
-        """Instantiate the correct object based on the AdaptiveObject's typemap."""
-
-        # if the object is already an instance of the requested class, return it
-        if isinstance(obj, cls):
-            return obj
-
-        # XXX are there other cases we should handle?
-        if not isinstance(obj, dict):
-            raise ValueError("Invalid object")
-
-        # this will only happen if subclasses forget to register adaptive types
-        if not hasattr(cls, "__notional_typemap__"):
-            raise TypeError(f"Missing typemap in {cls}")
-
-        # check the typemap for an existing type discriminator
-        for name, typemap in cls.__notional_typemap__.items():
-            value = obj.get(name)
-
-            if value is None:
-                continue
-
-            sub = typemap.get(value)
-
-            if sub is None:
-                raise TypeError(f"Unsupported sub-type: {name}={value}")
-
-            logger.debug(
-                "initializing adaptive object %s:%s => %s",
-                cls.__name__,
-                name,
-                sub.__name__,
-            )
-
-            return sub.model_validate(obj)
-
-        return super().model_validate(obj)
-
-
-class DataObject(NotionObject, ABC):
+class DataObject(AdaptiveObject, ABC):
     """A top-level Notion data object."""
 
     object: str
@@ -278,7 +177,7 @@ class DataObject(NotionObject, ABC):
     #    cls._register_adaptive_type("object", object)
 
 
-class TypedObject(NotionObject, ABC):
+class TypedObject(AdaptiveObject, ABC):
     """A type-referenced object.
 
     Many objects in the Notion API follow a standard pattern with a 'type' property
