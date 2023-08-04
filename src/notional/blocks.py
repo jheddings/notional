@@ -7,6 +7,8 @@ from abc import ABC
 from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional, Union
 
+from pydantic import Field
+
 from .core import DataObject, NotionObject, TypedObject
 from .schema import PropertyObject
 from .text import (
@@ -215,7 +217,7 @@ class Paragraph(TextBlock, WithChildrenMixin):
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    paragraph: _NestedData
+    paragraph: _NestedData = Field(default_factory=_NestedData)
     type: Literal["paragraph"] = "paragraph"
 
     @property
@@ -235,7 +237,7 @@ class Heading1(TextBlock):
         rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
-    heading_1: _NestedData
+    heading_1: _NestedData = Field(default_factory=_NestedData)
     type: Literal["heading_1"] = "heading_1"
 
     @property
@@ -255,7 +257,7 @@ class Heading2(TextBlock):
         rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
-    heading_2: _NestedData
+    heading_2: _NestedData = Field(default_factory=_NestedData)
     type: Literal["heading_2"] = "heading_2"
 
     @property
@@ -275,7 +277,7 @@ class Heading3(TextBlock):
         rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
-    heading_3: _NestedData
+    heading_3: _NestedData = Field(default_factory=_NestedData)
     type: Literal["heading_3"] = "heading_3"
 
     @property
@@ -296,7 +298,7 @@ class Quote(TextBlock, WithChildrenMixin):
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    quote: _NestedData
+    quote: _NestedData = Field(default_factory=_NestedData)
     type: Literal["quote"] = "quote"
 
     @property
@@ -317,7 +319,7 @@ class Code(TextBlock):
         caption: List[RichTextObject] = []
         language: CodingLanguage = CodingLanguage.PLAIN_TEXT
 
-    code: _NestedData
+    code: _NestedData = Field(default_factory=_NestedData)
     type: Literal["code"] = "code"
 
     @classmethod
@@ -350,7 +352,7 @@ class Callout(TextBlock, WithChildrenMixin):
         icon: Optional[Union[FileObject, EmojiObject]] = None
         color: FullColor = FullColor.GRAY_BACKGROUND
 
-    callout: _NestedData
+    callout: _NestedData = Field(default_factory=_NestedData)
     type: Literal["callout"] = "callout"
 
     @classmethod
@@ -376,7 +378,7 @@ class BulletedListItem(TextBlock, WithChildrenMixin):
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    bulleted_list_item: _NestedData
+    bulleted_list_item: _NestedData = Field(default_factory=_NestedData)
     type: Literal["bulleted_list_item"] = "bulleted_list_item"
 
     @property
@@ -397,7 +399,7 @@ class NumberedListItem(TextBlock, WithChildrenMixin):
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    numbered_list_item: _NestedData
+    numbered_list_item: _NestedData = Field(default_factory=_NestedData)
     type: Literal["numbered_list_item"] = "numbered_list_item"
 
     @property
@@ -419,7 +421,7 @@ class ToDo(TextBlock, WithChildrenMixin):
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    to_do: _NestedData
+    to_do: _NestedData = Field(default_factory=_NestedData)
     type: Literal["to_do"] = "to_do"
 
     @classmethod
@@ -461,7 +463,7 @@ class Toggle(TextBlock, WithChildrenMixin):
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
-    toggle: _NestedData
+    toggle: _NestedData = Field(default_factory=_NestedData)
     type: Literal["toggle"] = "toggle"
 
 
