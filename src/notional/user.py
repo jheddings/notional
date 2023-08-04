@@ -47,7 +47,7 @@ class Bot(User):
     """Represents a Bot in Notion."""
 
     class _NestedData(NotionObject):
-        owner: BotOwner
+        owner: Optional[BotOwner] = None
         workspace_name: Optional[str] = None
 
     bot: _NestedData
