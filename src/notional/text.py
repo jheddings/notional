@@ -1,6 +1,7 @@
 """Utilities for working text, markdown & Rich Text in Notion."""
 
 import re
+from abc import ABC
 from copy import deepcopy
 from enum import Enum
 from typing import Literal, Optional
@@ -224,7 +225,7 @@ class Annotations(NotionObject):
         return True
 
 
-class RichTextObject(TypedObject):
+class RichTextObject(TypedObject, ABC):
     """Base class for Notion rich text elements."""
 
     plain_text: str
@@ -274,7 +275,7 @@ class RichTextObject(TypedObject):
         return cls(plain_text=text, href=href, annotations=style)
 
 
-class TextObject(RichTextObject, type="text"):
+class TextObject(RichTextObject):
     """Notion text element."""
 
     class _NestedData(NotionObject):
@@ -282,6 +283,7 @@ class TextObject(RichTextObject, type="text"):
         link: Optional[LinkObject] = None
 
     text: _NestedData
+    type: Literal["text"] = "text"
 
     @classmethod
     def __compose__(cls, text, href=None, style=None):

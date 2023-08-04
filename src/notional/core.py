@@ -3,10 +3,10 @@
 import logging
 from abc import ABC
 from enum import Enum
-from typing import Optional, TypeVar
+from typing import Any, Callable, Dict, Optional, TypeVar, Union
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, TypeAdapter
 
 # https://github.com/pydantic/pydantic/issues/6381
 from pydantic._internal._model_construction import ModelMetaclass
@@ -52,17 +52,16 @@ class ComposableObjectMeta(ModelMetaclass):
     that the parameters are specified correctly.
     """
 
-    def __getitem__(cls: type[_T], params) -> _T:
-        """Return the requested class by composing using the given param.
-
-        Types found in `params` will be compared to expected types in the `__compose__`
-        method.
+    def __getitem__(cls: type[_T], params: Any) -> _T:
+        """Return the requested class by composing using the given parameters.
 
         If the requested class does not expose the `__compose__` method, this will raise
         an exception.
         """
 
-        if not hasattr(cls, "__compose__"):
+        compose: Callable[[Dict[str, Any]], _T] = getattr(cls, "__compose__", None)
+
+        if compose is None:
             raise NotImplementedError(f"{cls} does not support object composition")
 
         # __getitem__ only accepts a single parameter...  if the caller provides
@@ -70,19 +69,19 @@ class ComposableObjectMeta(ModelMetaclass):
         # also accepts a list for readability when composing from ORM properties
 
         if params and type(params) in (list, tuple):
-            return cls.__compose__(*params)
+            return compose(*params)
 
-        return cls.__compose__(params)
+        return compose(params)
 
 
-class NotionObject(BaseModel, metaclass=ComposableObjectMeta):
+class NotionObject(BaseModel, ABC, metaclass=ComposableObjectMeta):
     """The base for all Notion API objects.
 
     As a general convention, data fields in lower case are defined by the Notion API.
     Properties in Title Case are provided for convenience (e.g. computed fields).
     """
 
-    def refresh(self, **data):
+    def update(self, **data):
         """Refresh the internal attributes with new data."""
 
         # Ref: https://github.com/pydantic/pydantic/discussions/3139
@@ -114,20 +113,46 @@ class NotionObject(BaseModel, metaclass=ComposableObjectMeta):
         raise NotImplementedError(f"unsupported serialization mode: {mode}")
 
     @classmethod
-    def deserialize(cls, data: [str, dict, list]):
-        """Parse this object from the Notion API."""
+    def deserialize(cls, data: Union[str, bytes, dict, list]):
+        """Parse the given object as a Notion API object."""
+
+        # make a list of all subclasses and their subclasses
+        types = cls._find_all_possible_types()
+
+        if len(types) > 1:
+            adapter = TypeAdapter(Union[*types])
+        elif len(types) > 0:
+            adapter = TypeAdapter(types[0])
+        else:
+            raise RuntimeError(f"no available types for {cls}")
 
         if isinstance(data, (str, bytes)):
-            return cls.model_validate_json(data)
+            return adapter.validate_json(data)
 
-        return cls.model_validate(data)
+        return adapter.validate_python(data)
+
+    @classmethod
+    def _find_all_possible_types(cls):
+        all_types = []
+
+        if ABC not in cls.__bases__:
+            all_types.append(cls)
+
+        for subclass in cls.__subclasses__():
+            more_types = subclass._find_all_possible_types()
+            all_types.extend(more_types)
+
+        return all_types
 
 
 class AdaptiveObject(NotionObject, ABC):
-    """Objects that may change type based on keywords.
+    """Objects that may change type based on content.
 
-    Subclasses of `AdaptiveObject` may define additional keywords which will serve as
-    defaults for the named fields as well as discriminators for concrete subclasses.
+    Subclasses of `AdaptiveObject` must register each subclass with the appropriate
+    keywords.  This allows the `AdaptiveObject` to determine the correct type when
+    deserializing from the Notion API.  To register a subclass as an adaptive type,
+    call the `_register_adaptive_type` method with the appropriate keywords.  This
+    is typically done in the `__init_subclass__` method of the parent class.
 
     This approach allows Notional to define new object types without requiring each
     object to enumerate all possible types.  For example, the `TextObject` may be
@@ -148,7 +173,7 @@ class AdaptiveObject(NotionObject, ABC):
         super().__pydantic_init_subclass__(**kwargs)
 
         for name, value in kwargs.items():
-            cls._update_field_info(name, default=value)
+            cls._update_field_schema(name, default=value)
 
         # rebuild the internal model with the updated field info
         # https://github.com/pydantic/pydantic/issues/6966
@@ -156,7 +181,7 @@ class AdaptiveObject(NotionObject, ABC):
         cls.model_rebuild(force=True)
 
     @classmethod
-    def _update_field_info(cls, name, default=...):
+    def _update_field_schema(cls, name, frozen=True, default=...):
         """Update the field definition for the given name.
 
         Note that this will only update the field definition; it will not update the
@@ -170,11 +195,13 @@ class AdaptiveObject(NotionObject, ABC):
 
         logger.debug("updating field info -- %s.%s => %s", cls.__name__, name, default)
 
-        # set the default and freeze the field if it is given a value
         if default is not Ellipsis:
             field.default = default
-            field.frozen = True
             field.validate_default = False
+
+        if frozen:
+            field.frozen = True
+            # field.annotation = Literal[default]
 
     @classmethod
     def _register_adaptive_type(cls, name, value):
@@ -200,17 +227,8 @@ class AdaptiveObject(NotionObject, ABC):
         cls.__notional_typemap__[name] = typemap
 
     @classmethod
-    def model_validate(cls, obj):
-        """Instantiate the correct object based on the AdaptiveObject's typemap.
-
-        This method overrides BaseModel.model_validate to allow for the creation of
-        concrete objects based on available adaptive types.
-        """
-
-        # FIXME there is probably a better way to do this in Pydantic v2, but for now
-        # we use the same approach that was applied while using Pydantic v1
-        # specifically, we need to figure out which class to instantiate based on the
-        # typemap defined in the current class and the data in the object
+    def _resolve_adaptive_type(cls, obj: Union[dict, "AdaptiveObject"]):
+        """Instantiate the correct object based on the AdaptiveObject's typemap."""
 
         # if the object is already an instance of the requested class, return it
         if isinstance(obj, cls):
@@ -237,28 +255,30 @@ class AdaptiveObject(NotionObject, ABC):
                 raise TypeError(f"Unsupported sub-type: {name}={value}")
 
             logger.debug(
-                "initializing adaptive object %s:%s => %s", cls.__name__, name, sub
+                "initializing adaptive object %s:%s => %s",
+                cls.__name__,
+                name,
+                sub.__name__,
             )
 
-            return sub(**obj)
+            return sub.model_validate(obj)
 
         return super().model_validate(obj)
 
 
-class DataObject(AdaptiveObject):
+class DataObject(NotionObject, ABC):
     """A top-level Notion data object."""
 
     object: str
     id: Optional[UUID] = None
 
-    def __init_subclass__(cls, object=None, **kwargs):
-        """Initialize subtypes of this DataObject."""
-        super().__init_subclass__(**kwargs)
+    # def __init_subclass__(cls, object: Optional[str] = None, **kwargs):
+    #    """Initialize subtypes of this DataObject."""
+    #    super().__init_subclass__(**kwargs)
+    #    cls._register_adaptive_type("object", object)
 
-        cls._register_adaptive_type("object", object)
 
-
-class TypedObject(AdaptiveObject):
+class TypedObject(NotionObject, ABC):
     """A type-referenced object.
 
     Many objects in the Notion API follow a standard pattern with a 'type' property
@@ -280,13 +300,12 @@ class TypedObject(AdaptiveObject):
 
     type: str
 
-    def __init_subclass__(cls, type: str = None, **kwargs):
-        """Register subtypes of this TypedObject."""
-        super().__init_subclass__(**kwargs)
+    # def __init_subclass__(cls, type: Optional[str] = None, **kwargs):
+    #    """Register subtypes of this TypedObject."""
+    #    super().__init_subclass__(**kwargs)
+    #    cls._register_adaptive_type("type", type)
 
-        cls._register_adaptive_type("type", type)
-
-    def __call__(self, field=None):
+    def __call__(self, field: Optional[str] = None) -> Any:
         """Return the nested data object contained by this `TypedObject`.
 
         If a field is provided, the contents of that field in the nested data will be
