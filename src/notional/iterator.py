@@ -24,19 +24,6 @@ class ObjectList(DataObject, TypedObject, ABC):
     object: Literal["list"] = "list"
 
 
-#    @field_validator("results", mode="before")
-#    def _convert_results_list(cls, val):
-#        """Convert the results list to specifc objects."""
-#
-#        if "object" not in val:
-#            raise ValueError("Unknown object in results")
-#
-#        if val["object"] == PropertyItemList.type:
-#            return PropertyItem.deserialize(val)
-#
-#        return NotionObject.deserialize(val)
-
-
 class BlockList(ObjectList):
     """A list of Block objects returned by the Notion API."""
 
@@ -46,7 +33,7 @@ class BlockList(ObjectList):
     @field_validator("results", mode="before")
     def _convert_results_list(cls, val):
         """Convert the results list to specifc objects."""
-        return Block.deserialize(val)
+        return [Block.deserialize(obj) for obj in val]
 
 
 class PageList(ObjectList):
@@ -58,7 +45,7 @@ class PageList(ObjectList):
     @field_validator("results", mode="before")
     def _convert_results_list(cls, val):
         """Convert the results list to specifc objects."""
-        return Page.deserialize(val)
+        return [Page.deserialize(obj) for obj in val]
 
 
 class DatabaseList(ObjectList):
@@ -70,7 +57,7 @@ class DatabaseList(ObjectList):
     @field_validator("results", mode="before")
     def _convert_results_list(cls, val):
         """Convert the results list to specifc objects."""
-        return Database.deserialize(val)
+        return [Database.deserialize(obj) for obj in val]
 
 
 class PageOrDatabaseList(ObjectList):
@@ -82,7 +69,7 @@ class PageOrDatabaseList(ObjectList):
     @field_validator("results", mode="before")
     def _convert_results_list(cls, val):
         """Convert the results list to specifc objects."""
-        return DataRecord.deserialize(val)
+        return [DataRecord.deserialize(obj) for obj in val]
 
 
 class UserList(ObjectList):
@@ -94,7 +81,7 @@ class UserList(ObjectList):
     @field_validator("results", mode="before")
     def _convert_results_list(cls, val):
         """Convert the results list to specifc objects."""
-        return User.deserialize(val)
+        return [User.deserialize(obj) for obj in val]
 
 
 class PropertyItemList(ObjectList):
