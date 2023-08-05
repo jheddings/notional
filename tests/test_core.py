@@ -105,6 +105,11 @@ class Robot(Actor):
 
     object: Literal["robot"] = "robot"
 
+    @classmethod
+    def __compose__(cls, name):
+        """Compose a Robot object with the given name."""
+        return Robot(name=name)
+
 
 class DetailedObject(TypedObject):
     """A complex object (with nested data) used for testing only."""
@@ -219,6 +224,15 @@ def test_get_nested_data():
     assert complex.detail.value == "bar"
 
     assert complex("value") == "bar"
+
+
+def test_composable_object():
+    """Compose an object with a simple __compose__ method."""
+    stella = Robot["Stella"]
+
+    assert isinstance(stella, Robot)
+    assert stella.name == "Stella"
+    assert stella.object == "robot"
 
 
 def test_property_setter():
