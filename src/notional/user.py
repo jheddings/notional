@@ -14,12 +14,17 @@ class UserType(str, Enum):
     BOT = "bot"
 
 
-class User(DataObject, TypedObject, ABC):
+class PartialUser(DataObject):
+    """Represents a partial User in Notion."""
+
+    object: Literal["user"] = "user"
+
+
+class User(PartialUser, TypedObject, ABC):
     """Represents a User in Notion."""
 
     name: Optional[str] = None
     avatar_url: Optional[str] = None
-    object: Literal["user"] = "user"
 
 
 class Person(User):
