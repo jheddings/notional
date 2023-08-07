@@ -5,12 +5,11 @@ Blocks are the base for all Notion content.
 
 from abc import ABC
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, List, Literal, Optional, Union
 
 from pydantic import Field
 
 from .core import DataObject, NotionObject, TypedObject
-from .schema import PropertyObject
 from .text import (
     CodingLanguage,
     FullColor,
@@ -20,35 +19,42 @@ from .text import (
     plain_text,
     rich_text,
 )
-from .types import BlockRef, EmojiObject, FileObject, ParentRef, PropertyValue
-from .user import User
+from .types import (
+    BlockRef,
+    EmojiObject,
+    ExternalFile,
+    FileObject,
+    ParentRef,
+    PropertyValue,
+)
+from .user import PartialUser
 
 
 class DataRecord(DataObject, ABC):
     """The base type for all Notion API records."""
 
-    parent: Optional[ParentRef] = None
+    # parent: Optional[ParentRef] = None
     has_children: bool = False
 
     archived: bool = False
 
     created_time: Optional[datetime] = None
-    created_by: Optional[User] = None
+    created_by: Optional[PartialUser] = None
 
     last_edited_time: Optional[datetime] = None
-    last_edited_by: Optional[User] = None
+    last_edited_by: Optional[PartialUser] = None
 
 
 class Database(DataRecord):
     """A database record type."""
 
     object: Literal["database"] = "database"
-    title: List[RichTextObject] = []
+    # title: List[RichTextObject] = []
     url: Optional[str] = None
-    icon: Optional[Union[FileObject, EmojiObject]] = None
-    cover: Optional[FileObject] = None
-    properties: Dict[str, PropertyObject] = {}
-    description: Optional[List[RichTextObject]] = None
+    icon: Optional[Union[ExternalFile, EmojiObject]] = None
+    cover: Optional[ExternalFile] = None
+    # properties: Dict[str, PropertyObject] = {}
+    # description: Optional[List[RichTextObject]] = None
     is_inline: bool = False
 
     @property
@@ -65,9 +71,9 @@ class Page(DataRecord):
 
     object: Literal["page"] = "page"
     url: Optional[str] = None
-    icon: Optional[Union[FileObject, EmojiObject]] = None
-    cover: Optional[FileObject] = None
-    properties: Dict[str, PropertyValue] = {}
+    icon: Optional[Union[ExternalFile, EmojiObject]] = None
+    cover: Optional[ExternalFile] = None
+    # properties: Dict[str, PropertyValue] = {}
 
     def __getitem__(self, name):
         """Indexer for the given property name.
@@ -710,7 +716,7 @@ class TableRow(Block):
 
             return self.cells[col]
 
-    table_row: _NestedData
+    table_row: _NestedData = Field(default_factory=_NestedData)
     type: Literal["table_row"] = "table_row"
 
     def __getitem__(self, cell_num):
@@ -765,7 +771,7 @@ class Table(Block, WithChildrenMixin):
         # https://developers.notion.com/reference/block#table-blocks
         children: Optional[List[TableRow]] = []
 
-    table: _NestedData
+    table: _NestedData = Field(default_factory=_NestedData)
     type: Literal["table"] = "table"
 
     @classmethod
