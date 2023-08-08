@@ -5,11 +5,12 @@ Blocks are the base for all Notion content.
 
 from abc import ABC
 from datetime import datetime
-from typing import Any, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import Field
 
 from .core import DataObject, NotionObject, TypedObject
+from .schema import PropertyObject
 from .text import (
     CodingLanguage,
     FullColor,
@@ -49,12 +50,12 @@ class Database(DataRecord):
     """A database record type."""
 
     object: Literal["database"] = "database"
-    # title: List[RichTextObject] = []
+    title: List[RichTextObject] = []
     url: Optional[str] = None
     icon: Optional[Union[ExternalFile, EmojiObject]] = None
     cover: Optional[ExternalFile] = None
-    # properties: Dict[str, PropertyObject] = {}
-    # description: Optional[List[RichTextObject]] = None
+    properties: Dict[str, PropertyObject] = {}
+    description: Optional[List[RichTextObject]] = None
     is_inline: bool = False
 
     @property
@@ -73,7 +74,7 @@ class Page(DataRecord):
     url: Optional[str] = None
     icon: Optional[Union[ExternalFile, EmojiObject]] = None
     cover: Optional[ExternalFile] = None
-    # properties: Dict[str, PropertyValue] = {}
+    properties: Dict[str, PropertyValue] = {}
 
     def __getitem__(self, name):
         """Indexer for the given property name.
