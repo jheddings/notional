@@ -364,24 +364,33 @@ class NativeTypeMixin:
     def __compose__(cls, value):
         """Build the property value from the native Python value."""
 
-        # use type-name field to instantiate the class when possible
-        if hasattr(cls, "type"):
-            return cls(**{cls.type: value})
+        attr = cls.model_fields.get("type", None)
 
-        raise NotImplementedError()
+        if attr is None:
+            raise AttributeError(name="type")
+
+        type = attr.default
+
+        if type is None:
+            raise AttributeError(name=attr)
+
+        return cls(**{type: value})
 
     @property
     def Value(self):
         """Get the current value of this property as a native Python type."""
 
-        cls = self.__class__
+        attr = getattr(self, "type", None)
 
-        # check to see if the object has a field with the type-name
-        # (this is assigned by TypedObject during subclass creation)
-        if hasattr(cls, "type") and hasattr(self, cls.type):
-            return getattr(self, cls.type)
+        if attr is None:
+            raise AttributeError(name="type")
 
-        raise NotImplementedError()
+        value = getattr(self, attr, ...)
+
+        if value is Ellipsis:
+            raise AttributeError(name=attr)
+
+        return value
 
 
 class PropertyValue(TypedObject, ABC):
@@ -390,7 +399,7 @@ class PropertyValue(TypedObject, ABC):
     id: Optional[str] = None
 
 
-class Title(NativeTypeMixin, PropertyValue):
+class Title(PropertyValue, NativeTypeMixin):
     """Notion title type."""
 
     title: List[RichTextObject] = []
@@ -416,7 +425,7 @@ class Title(NativeTypeMixin, PropertyValue):
         return plain_text(*self.title)
 
 
-class RichText(NativeTypeMixin, PropertyValue):
+class RichText(PropertyValue, NativeTypeMixin):
     """Notion rich text type."""
 
     rich_text: List[RichTextObject] = []
@@ -441,7 +450,7 @@ class RichText(NativeTypeMixin, PropertyValue):
         return plain_text(*self.rich_text)
 
 
-class Number(NativeTypeMixin, PropertyValue):
+class Number(PropertyValue, NativeTypeMixin):
     """Simple number type."""
 
     number: Optional[Union[float, int]] = None
@@ -517,7 +526,7 @@ class Number(NativeTypeMixin, PropertyValue):
         return self.number
 
 
-class Checkbox(NativeTypeMixin, PropertyValue):
+class Checkbox(PropertyValue, NativeTypeMixin):
     """Simple checkbox type; represented as a boolean."""
 
     checkbox: Optional[bool] = None
@@ -570,7 +579,7 @@ class Date(PropertyValue):
         return None if self.date is None else self.date.end
 
 
-class Status(NativeTypeMixin, PropertyValue):
+class Status(PropertyValue, NativeTypeMixin):
     """Notion status property."""
 
     class _NestedData(NotionObject):
@@ -640,7 +649,7 @@ class SelectValue(NotionObject):
         return cls(name=value, color=color)
 
 
-class SelectOne(NativeTypeMixin, PropertyValue):
+class SelectOne(PropertyValue, NativeTypeMixin):
     """Notion select type."""
 
     select: Optional[SelectValue] = None
@@ -827,21 +836,21 @@ class People(PropertyValue):
         return ", ".join([str(user) for user in self.people])
 
 
-class URL(NativeTypeMixin, PropertyValue):
+class URL(PropertyValue, NativeTypeMixin):
     """Notion URL type."""
 
     url: Optional[str] = None
     type: Literal["url"] = "url"
 
 
-class Email(NativeTypeMixin, PropertyValue):
+class Email(PropertyValue, NativeTypeMixin):
     """Notion email type."""
 
     email: Optional[str] = None
     type: Literal["email"] = "email"
 
 
-class PhoneNumber(NativeTypeMixin, PropertyValue):
+class PhoneNumber(PropertyValue, NativeTypeMixin):
     """Notion phone type."""
 
     phone_number: Optional[str] = None
@@ -1148,7 +1157,7 @@ class Rollup(PropertyValue):
         return str(value)
 
 
-class CreatedTime(NativeTypeMixin, PropertyValue):
+class CreatedTime(PropertyValue, NativeTypeMixin):
     """A Notion created-time property value."""
 
     created_time: datetime
@@ -1166,7 +1175,7 @@ class CreatedBy(PropertyValue):
         return str(self.created_by)
 
 
-class LastEditedTime(NativeTypeMixin, PropertyValue):
+class LastEditedTime(PropertyValue, NativeTypeMixin):
     """A Notion last-edited-time property value."""
 
     last_edited_time: datetime
