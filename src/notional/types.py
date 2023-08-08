@@ -1129,7 +1129,7 @@ class RollupDate(RollupObject):
 class RollupArray(RollupObject):
     """A Notion rollup array property value."""
 
-    array: List[PropertyValue]
+    array: List[PropertyValue] = []
     type: Literal["array"] = "array"
 
     @property
