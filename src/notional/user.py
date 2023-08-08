@@ -4,6 +4,8 @@ from abc import ABC
 from enum import Enum
 from typing import Literal, Optional
 
+from pydantic import Field
+
 from .core import DataObject, NotionObject, TypedObject
 
 
@@ -31,9 +33,9 @@ class Person(User):
     """Represents a Person in Notion."""
 
     class _NestedData(NotionObject):
-        email: str
+        email: Optional[str] = None
 
-    person: _NestedData
+    person: _NestedData = Field(default_factory=_NestedData)
     type: Literal["person"] = "person"
 
     def __str__(self) -> str:
@@ -44,8 +46,8 @@ class Person(User):
 class BotOwner(TypedObject):
     """Represents a Bot Owner in Notion."""
 
-    workspace: bool = False
     type: Literal["user", "workspace"]
+    workspace: bool = False
 
 
 class Bot(User):
@@ -55,7 +57,7 @@ class Bot(User):
         owner: Optional[BotOwner] = None
         workspace_name: Optional[str] = None
 
-    bot: _NestedData
+    bot: _NestedData = Field(default_factory=_NestedData)
     type: Literal["bot"] = "bot"
 
     def __str__(self) -> str:
