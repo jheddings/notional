@@ -98,7 +98,7 @@ class NotionObject(BaseModel, ABC, metaclass=ComposableObjectMeta):
 
         return self
 
-    def serialize(self, mode=SerializationMode.API):
+    def serialize(self, mode: SerializationMode = SerializationMode.API):
         """Convert to a suitable representation for the Notion API."""
 
         # TODO read-only fields should not be sent to the API
@@ -171,11 +171,6 @@ class DataObject(AdaptiveObject, ABC):
     object: str
     id: Optional[UUID] = None
 
-    # def __init_subclass__(cls, object: Optional[str] = None, **kwargs):
-    #    """Initialize subtypes of this DataObject."""
-    #    super().__init_subclass__(**kwargs)
-    #    cls._register_adaptive_type("object", object)
-
 
 class TypedObject(AdaptiveObject, ABC):
     """A type-referenced object.
@@ -198,11 +193,6 @@ class TypedObject(AdaptiveObject, ABC):
     """
 
     type: str
-
-    # def __init_subclass__(cls, type: Optional[str] = None, **kwargs):
-    #    """Register subtypes of this TypedObject."""
-    #    super().__init_subclass__(**kwargs)
-    #    cls._register_adaptive_type("type", type)
 
     def __call__(self, field: Optional[str] = None) -> Any:
         """Return the nested data object contained by this `TypedObject`.
