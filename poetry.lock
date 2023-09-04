@@ -331,13 +331,13 @@ gitdb = ">=4.0.1,<5"
 
 [[package]]
 name = "griffe"
-version = "0.33.0"
+version = "0.36.0"
 description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "griffe-0.33.0-py3-none-any.whl", hash = "sha256:16af15d0140c0a5f0b2628d33235fef91a6d8a832dd7cff5759dfe6b7d7a7a49"},
-    {file = "griffe-0.33.0.tar.gz", hash = "sha256:783bcb7e7f0d346fcb0cb8072667ca8f6ce7ff776bb278fbccf8a3a753a793e4"},
+    {file = "griffe-0.36.0-py3-none-any.whl", hash = "sha256:4235df397b7b56192cbfda601e458526279bdaf3bf1f59d0be368abac72bf42d"},
+    {file = "griffe-0.36.0.tar.gz", hash = "sha256:ccf062126041d19cc4d9850ca46a555a656e738f5e83feb78f36b05fec5974ad"},
 ]
 
 [package.dependencies]
@@ -687,17 +687,17 @@ python-legacy = ["mkdocstrings-python-legacy (>=0.2.1)"]
 
 [[package]]
 name = "mkdocstrings-python"
-version = "1.5.0"
+version = "1.6.1"
 description = "A Python handler for mkdocstrings."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "mkdocstrings_python-1.5.0-py3-none-any.whl", hash = "sha256:f95055a23c42dd6c861f8e10201ada246c5c34def22a74dd5f73ead59c0d8958"},
-    {file = "mkdocstrings_python-1.5.0.tar.gz", hash = "sha256:1b56a66b600df09b3bc787f27b86592fb4cb02e62e08e68053538725a0489175"},
+    {file = "mkdocstrings_python-1.6.1-py3-none-any.whl", hash = "sha256:c3228bda9665421121ecbc711cedc513f5d6e871b334e317809dfab099569197"},
+    {file = "mkdocstrings_python-1.6.1.tar.gz", hash = "sha256:ae6aa7d91d3bfc1f12ea51ff2f027285c42223996c97c0ed27f3f6f322306977"},
 ]
 
 [package.dependencies]
-griffe = ">=0.33"
+griffe = ">=0.35"
 mkdocstrings = ">=0.20"
 
 [[package]]
@@ -1649,4 +1649,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "bc4c282f31d45a48065cbc651abd8c645076b37f9d6aaab3d2e1f6503669738c"
+content-hash = "63586f37c30bc7f1bd90e7747b8b121e5c3c4c6518eb88190094fde6d1f7b9a8"
