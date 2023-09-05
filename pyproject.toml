@@ -32,7 +32,7 @@ mypy = "^1.5.1"
 mkdocs = "^1.5.2"
 mkdocstrings = "^0.23.0"
 mkdocs-material = "^9.2.8"
-mkdocstrings-python = "^1.6.1"
+mkdocstrings-python = "^1.6.2"
 
 [tool.isort]
 profile = "black"

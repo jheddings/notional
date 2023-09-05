@@ -688,13 +688,13 @@ python-legacy = ["mkdocstrings-python-legacy (>=0.2.1)"]
 
 [[package]]
 name = "mkdocstrings-python"
-version = "1.6.1"
+version = "1.6.2"
 description = "A Python handler for mkdocstrings."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "mkdocstrings_python-1.6.1-py3-none-any.whl", hash = "sha256:c3228bda9665421121ecbc711cedc513f5d6e871b334e317809dfab099569197"},
-    {file = "mkdocstrings_python-1.6.1.tar.gz", hash = "sha256:ae6aa7d91d3bfc1f12ea51ff2f027285c42223996c97c0ed27f3f6f322306977"},
+    {file = "mkdocstrings_python-1.6.2-py3-none-any.whl", hash = "sha256:cf560df975faf712808e44c1c2e52b8267f17bc89c8b23e7b9bfe679561adf4d"},
+    {file = "mkdocstrings_python-1.6.2.tar.gz", hash = "sha256:edf0f81899bee8024971bf2c18b6fc17f66085992f01c72840a3ee0ee42113fb"},
 ]
 
 [package.dependencies]
@@ -1650,4 +1650,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "51d05350844c75479f8decdb5c4c4fc31434ce622ef7db49ab61257e7c35caa9"
+content-hash = "5663ccd7d42d3605ae503e429050b66e2943a01a377649d495bc7d3b21fc7fd9"
