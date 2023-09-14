@@ -52,11 +52,11 @@ def notion():
 
     notion = notional.connect(auth=auth_token)
 
-    assert notion.IsActive
+    assert notion.is_active
 
     yield notion
 
-    if notion.IsActive:
+    if notion.is_active:
         notion.close()
 
 

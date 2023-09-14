@@ -29,18 +29,12 @@ class SessionError(Exception):
         super().__init__(message)
 
 
-class Session(object):
-    """An active session with the Notion SDK."""
+class SessionBase:
+    """Manage common session endpoints."""
 
-    def __init__(self, **kwargs):
-        """Initialize the `Session` object and the endpoints.
-
-        `kwargs` will be passed direction to the Notion SDK Client.  For more details,
-        see the (full docs)[https://ramnes.github.io/notion-sdk-py/reference/client/].
-
-        :param auth: bearer token for authentication
-        """
-        self.client = notion_client.Client(**kwargs)
+    def __init__(self, client: Union[notion_client.Client, notion_client.AsyncClient]):
+        """Inialize session endpoints using the given client."""
+        self.client = client
 
         self.blocks = BlocksEndpoint(self)
         self.databases = DatabasesEndpoint(self)
@@ -51,7 +45,7 @@ class Session(object):
         logger.info("Initialized Notion SDK client")
 
     @property
-    def IsActive(self):
+    def is_active(self) -> bool:
         """Determine if the current session is active.
 
         The session is considered "active" if it has not been closed.  This does not
@@ -59,22 +53,13 @@ class Session(object):
         """
         return self.client is not None
 
-    def close(self):
-        """Close the session and release resources."""
-
-        if self.client is None:
-            raise SessionError("Session is not active.")
-
-        self.client.close()
-        self.client = None
-
-    def ping(self):
+    def ping(self) -> bool:
         """Confirm that the session is active and able to connect to Notion.
 
         Raises SessionError if there is a problem, otherwise returns True.
         """
 
-        if self.IsActive is False:
+        if not self.is_active:
             return False
 
         error = None
@@ -97,10 +82,59 @@ class Session(object):
         return True
 
 
-class Endpoint(object):
+class Session(SessionBase):
+    """An active session with the Notion SDK."""
+
+    def __init__(self, **kwargs):
+        """Initialize the `Session` object and the endpoints.
+
+        `kwargs` will be passed direction to the Notion SDK Client.  For more details,
+        see the (full docs)[https://ramnes.github.io/notion-sdk-py/reference/client/].
+
+        :param auth: bearer token for authentication
+        """
+        self.client = notion_client.Client(**kwargs)
+        super().__init__(client=self.client)
+
+    def close(self):
+        """Close the session and release resources."""
+
+        if self.client is None:
+            raise SessionError("Session is not active.")
+
+        self.client.close()
+        self.client = None
+
+
+class AsyncSession(SessionBase):
+    """An `async` session with the Notion SDK."""
+
+    def __init__(self, **kwargs):
+        """Initialize the `AsyncSession` object and the endpoints.
+
+        `kwargs` will be passed direction to the Notion SDK Client.  For more details,
+        see the (full docs)[https://ramnes.github.io/notion-sdk-py/reference/client/].
+
+        :param auth: bearer token for authentication
+        """
+        self.client = notion_client.AsyncClient(**kwargs)
+        super().__init__(client=self.client)
+
+    async def close(self):
+        """Close the session and release resources."""
+
+        if self.client is None:
+            raise SessionError("Session is not active.")
+
+        await self.client.aclose()
+
+        self.client = None
+
+
+class Endpoint:
     """Notional wrapper for the API endpoints."""
 
-    def __init__(self, session: Session):
+    def __init__(self, session: SessionBase):
         """Initialize the `Endpoint` for the supplied session."""
         self.session = session
 
@@ -462,6 +496,7 @@ class PagesEndpoint(Endpoint):
 
         logger.info("Retrieving page :: %s", page_id)
 
+        # FIXME find a way to properly await for any endpoint call (or we need async endpoints)
         data = self().retrieve(page_id)
 
         # XXX would it make sense to (optionally) expand the full properties here?
