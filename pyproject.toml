@@ -31,7 +31,7 @@ mypy = "^1.6.1"
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.5.3"
 mkdocstrings = "^0.23.0"
-mkdocs-material = "^9.4.7"
+mkdocs-material = "^9.4.8"
 mkdocstrings-python = "^1.7.3"
 
 [tool.isort]
