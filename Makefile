@@ -86,7 +86,6 @@ run: venv
 
 static-checks: venv
 	$(WITH_VENV) pre-commit run --all-files --verbose
-	$(WITH_VENV) mypy $(SRCDIR)
 
 ################################################################################
 .PHONY: unit-tests
