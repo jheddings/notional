@@ -126,8 +126,8 @@ class AdaptiveObject(NotionObject, ABC):
     """Objects that may change type based on content.
 
     To determine the concrete type of an API object, AdaptiveObject's will examine all
-    available subclasses and attempt to deserialize the given data.  The first object
-    that successfully deserializes will be returned.
+    available subclasses of the requested class and attempt to deserialize the given
+    data.  The first object that successfully deserializes will be returned.
     """
 
     @classmethod
@@ -163,6 +163,13 @@ class AdaptiveObject(NotionObject, ABC):
             all_types.extend(more_types)
 
         return all_types
+
+    # @model_validator(mode='before')
+    def _make_the_right_object_from_data(cls, data: Any) -> Any:
+        if isinstance(data, cls):
+            return data
+
+        return cls.deserialize(data)
 
 
 class DataObject(AdaptiveObject, ABC):
