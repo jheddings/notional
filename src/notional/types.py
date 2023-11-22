@@ -305,14 +305,21 @@ class MentionTemplateUser(MentionTemplateData):
 class MentionTemplate(MentionData):
     """Nested template data for `Mention` properties."""
 
-    template_mention: MentionTemplateData
+    template_mention: Union[MentionTemplateDate, MentionTemplateUser]
     type: Literal["template_mention"] = "template_mention"
 
 
 class MentionObject(RichTextObject):
     """Notion mention element."""
 
-    mention: MentionData
+    mention: Union[
+        MentionDatabase,
+        MentionDate,
+        MentionLinkPreview,
+        MentionPage,
+        MentionTemplate,
+        MentionUser,
+    ]
     type: Literal["mention"] = "mention"
 
 
@@ -334,8 +341,14 @@ class EquationObject(RichTextObject):
         return self.equation.expression
 
 
-class NativeTypeMixin:
-    """Mixin class for properties that can be represented as native Python types."""
+class PropertyValue(TypedObject, ABC):
+    """Base class for Notion property values."""
+
+    id: Optional[str] = None
+
+
+class NativePropertyValue(PropertyValue, ABC):
+    """Base class for properties that can be represented as native Python types."""
 
     def __str__(self) -> str:
         """Return a string representation of this object."""
@@ -350,9 +363,13 @@ class NativeTypeMixin:
     def __eq__(self, other):
         """Determine if this property is equal to the given object."""
 
-        # if `other` is a NativeTypeMixin, this comparrison will call __eq__ on that
+        # if both objects are PropertyValue's, use the parent __eq__ method
+        if isinstance(other, PropertyValue):
+            return PropertyValue.__eq__(self, other)
+
+        # if `other` is a NativePropertyValue, this comparrison will call __eq__ on that
         # object using this objects `Value` as the value for `other` (allowing callers
-        # to compare using either native types or NativeTypeMixin's)
+        # to compare using either native types or NativePropertyValue's)
 
         return other == self.Value
 
@@ -393,13 +410,7 @@ class NativeTypeMixin:
         return value
 
 
-class PropertyValue(TypedObject, ABC):
-    """Base class for Notion property values."""
-
-    id: Optional[str] = None
-
-
-class Title(PropertyValue, NativeTypeMixin):
+class Title(NativePropertyValue):
     """Notion title type."""
 
     title: List[RichTextObject] = []
@@ -425,7 +436,7 @@ class Title(PropertyValue, NativeTypeMixin):
         return plain_text(*self.title)
 
 
-class RichText(PropertyValue, NativeTypeMixin):
+class RichText(NativePropertyValue):
     """Notion rich text type."""
 
     rich_text: List[RichTextObject] = []
@@ -450,7 +461,7 @@ class RichText(PropertyValue, NativeTypeMixin):
         return plain_text(*self.rich_text)
 
 
-class Number(PropertyValue, NativeTypeMixin):
+class Number(NativePropertyValue):
     """Simple number type."""
 
     number: Optional[Union[float, int]] = None
@@ -526,7 +537,7 @@ class Number(PropertyValue, NativeTypeMixin):
         return self.number
 
 
-class Checkbox(PropertyValue, NativeTypeMixin):
+class Checkbox(NativePropertyValue):
     """Simple checkbox type; represented as a boolean."""
 
     checkbox: Optional[bool] = None
@@ -579,7 +590,7 @@ class Date(PropertyValue):
         return None if self.date is None else self.date.end
 
 
-class Status(PropertyValue, NativeTypeMixin):
+class Status(NativePropertyValue):
     """Notion status property."""
 
     class _NestedData(NotionObject):
@@ -649,7 +660,7 @@ class SelectValue(NotionObject):
         return cls(name=value, color=color)
 
 
-class SelectOne(PropertyValue, NativeTypeMixin):
+class SelectOne(NativePropertyValue):
     """Notion select type."""
 
     select: Optional[SelectValue] = None
@@ -836,21 +847,21 @@ class People(PropertyValue):
         return ", ".join([str(user) for user in self.people])
 
 
-class URL(PropertyValue, NativeTypeMixin):
+class URL(NativePropertyValue):
     """Notion URL type."""
 
     url: Optional[str] = None
     type: Literal["url"] = "url"
 
 
-class Email(PropertyValue, NativeTypeMixin):
+class Email(NativePropertyValue):
     """Notion email type."""
 
     email: Optional[str] = None
     type: Literal["email"] = "email"
 
 
-class PhoneNumber(PropertyValue, NativeTypeMixin):
+class PhoneNumber(NativePropertyValue):
     """Notion phone type."""
 
     phone_number: Optional[str] = None
@@ -1129,6 +1140,8 @@ class RollupDate(RollupObject):
 class RollupArray(RollupObject):
     """A Notion rollup array property value."""
 
+    # FIXME the array may contain any PropertyValue, which means we need a way to
+    # deserialize the concrete type rather than the base PropertyValue type
     array: List[PropertyValue] = []
     type: Literal["array"] = "array"
 
@@ -1157,7 +1170,7 @@ class Rollup(PropertyValue):
         return str(value)
 
 
-class CreatedTime(PropertyValue, NativeTypeMixin):
+class CreatedTime(NativePropertyValue):
     """A Notion created-time property value."""
 
     created_time: datetime
@@ -1175,7 +1188,7 @@ class CreatedBy(PropertyValue):
         return str(self.created_by)
 
 
-class LastEditedTime(PropertyValue, NativeTypeMixin):
+class LastEditedTime(NativePropertyValue):
     """A Notion last-edited-time property value."""
 
     last_edited_time: datetime

@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Any, Callable, Dict, Optional, TypeVar, Union
 from uuid import UUID
 
-from pydantic import BaseModel, TypeAdapter
+from pydantic import BaseModel, TypeAdapter, ValidationError
 
 # https://github.com/pydantic/pydantic/issues/6381
 from pydantic._internal._model_construction import ModelMetaclass
@@ -162,11 +162,15 @@ class AdaptiveObject(NotionObject, ABC):
         return all_types
 
     # @model_validator(mode='before')
-    def _make_the_right_object_from_data(cls, data: Any) -> Any:
-        if isinstance(data, cls):
-            return data
+    def _make_the_right_object_from_data(cls, data: dict) -> Any:
+        # try to deserialize the data for each possible type
+        for subcls in cls._find_all_possible_types():
+            try:
+                return subcls(**data)
+            except ValidationError:
+                pass
 
-        return cls.deserialize(data)
+        raise ValidationError(f"unable to deserialize data as {cls}")
 
 
 class DataObject(AdaptiveObject, ABC):

@@ -759,7 +759,7 @@ def test_parse_mention_user_object():
 def test_compose_mention_user():
     """Test the compose interface for mentioning users."""
 
-    alice = user.User(id="62e40b6e-3f05-494f-9220-d68a1995b54f", name="Alice")
+    alice = user.Person(id="62e40b6e-3f05-494f-9220-d68a1995b54f", name="Alice")
     at = types.MentionUser[alice]
 
     assert at.type == "mention"
