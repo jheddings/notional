@@ -15,24 +15,24 @@ classifiers=[
 [tool.poetry.dependencies]
 python = "^3.8.1"
 notion-client = "^2.0.0"
-pydantic = "^2.1.1"
+pydantic = "^2.5.1"
 html5lib = "^1.1"
-urllib3 = "^1.26.16"
+urllib3 = "^1.26.18"
 emoji = "^2.8.0"
 
 [tool.poetry.group.dev.dependencies]
-GitPython = "^3.1.34"
-pre-commit = "^3.4.0"
-pytest = "^7.4.1"
-coverage = "^7.3.0"
+GitPython = "^3.1.40"
+pre-commit = "^3.5.0"
+pytest = "^7.4.3"
+coverage = "^7.3.2"
 pytest-vcr = "^1.0.2"
-mypy = "^1.5.1"
+mypy = "^1.7.0"
 
 [tool.poetry.group.docs.dependencies]
-mkdocs = "^1.5.2"
-mkdocstrings = "^0.23.0"
-mkdocs-material = "^9.2.8"
-mkdocstrings-python = "^1.6.2"
+mkdocs = "^1.5.3"
+mkdocstrings = "^0.24.0"
+mkdocs-material = "^9.4.10"
+mkdocstrings-python = "^1.7.5"
 
 [tool.isort]
 profile = "black"
