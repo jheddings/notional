@@ -9,11 +9,8 @@ The script accepts two command line arguments:
 The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 """
 
-import logging
 import os
 import sys
-
-logging.basicConfig(level=logging.INFO)
 
 import notional
 from notional.parser import CsvParser, HtmlParser
@@ -37,7 +34,7 @@ if ext == ".html" or ext == ".htm":
     parser = HtmlParser(base="https://www.example.com/")
 
     # parse the source content
-    with open(filename, "r") as fp:
+    with open(filename) as fp:
         parser.parse(fp)
 
     # create the page and upload the parsed content
@@ -55,7 +52,7 @@ elif ext == ".csv":
     parser = CsvParser(header_row=True, title_column=0)
 
     # parse the source content
-    with open(filename, "r") as fp:
+    with open(filename) as fp:
         parser.parse(fp)
 
     # create the page and upload the parsed content

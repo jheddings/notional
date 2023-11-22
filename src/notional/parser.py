@@ -184,7 +184,7 @@ class CsvParser(DocumentParser):
         try:
             header = next(reader)
         except StopIteration:
-            raise ValueError("Invalid CSV: empty data")
+            raise ValueError("Invalid CSV: empty data") from None
 
         if self._has_header:
             self._build_schema(*header)

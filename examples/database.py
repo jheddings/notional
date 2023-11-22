@@ -8,11 +8,8 @@ retrieve the Database and display the schema.
 The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 """
 
-import logging
 import os
 import sys
-
-logging.basicConfig(level=logging.INFO)
 
 import notional
 

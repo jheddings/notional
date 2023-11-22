@@ -13,8 +13,7 @@ def iterate_blocks(notion, parent, include_children=False):
         yield block
 
         if block.has_children and include_children:
-            for child in iterate_blocks(notion, block, include_children=True):
-                yield child
+            yield from iterate_blocks(notion, block, include_children=True)
 
 
 def find_block_on_page(notion, parent, block_id):
