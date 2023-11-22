@@ -34,7 +34,7 @@ from .user import PartialUser
 class DataRecord(DataObject, ABC):
     """The base type for all Notion API records."""
 
-    # parent: Optional[ParentRef] = None
+    parent: Optional[ParentRef] = None
     has_children: bool = False
 
     archived: bool = False

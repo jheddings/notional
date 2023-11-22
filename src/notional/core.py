@@ -84,10 +84,7 @@ class NotionObject(BaseModel, ABC, metaclass=ComposableObjectMeta):
     def update(self, **data):
         """Refresh the internal attributes with new data."""
 
-        # Ref: https://github.com/pydantic/pydantic/discussions/3139
-
-        # model_data = self.model_dump()
-        # model_data.update(data)
+        # ref: https://github.com/pydantic/pydantic/discussions/3139
 
         partial_model = self.model_validate(data)
         partial_data = partial_model.model_dump(exclude_defaults=True)
