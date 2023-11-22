@@ -8,11 +8,8 @@ query the database for all results and display some information.
 The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 """
 
-import logging
 import os
 import sys
-
-logging.basicConfig(level=logging.INFO)
 
 import notional
 from notional.query import (

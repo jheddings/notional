@@ -81,9 +81,9 @@ class ConnectedProperty:
 
         try:
             prop = self.page_data[self.name]
-        except AttributeError:
+        except AttributeError as err:
             if self.default == ...:
-                raise AttributeError(f"Missing property: {self.name}")
+                raise err
             return self.default
 
         if not isinstance(prop, self.value_type):

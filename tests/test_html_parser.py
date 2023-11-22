@@ -101,7 +101,7 @@ def dormouse():
     parser = HtmlParser()
 
     filename = os.path.join(BASEDIR, "dormouse.html")
-    with open(filename, "r") as fp:
+    with open(filename) as fp:
         html = fp.read()
 
     parser.parse(html)

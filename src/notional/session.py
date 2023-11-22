@@ -31,7 +31,7 @@ class SessionError(Exception):
         super().__init__(message)
 
 
-class Session(object):
+class Session:
     """An active session with the Notion SDK."""
 
     def __init__(self, **kwargs):
@@ -99,7 +99,7 @@ class Session(object):
         return True
 
 
-class Endpoint(object):
+class Endpoint:
     """Notional wrapper for the API endpoints."""
 
     def __init__(self, session: Session):

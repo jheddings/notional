@@ -8,17 +8,12 @@ add a mention object to that page for the current user.
 The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 """
 
-import logging
 import os
 import sys
 from datetime import date, timedelta
 
-from notional import user
-
-logging.basicConfig(level=logging.INFO)
-
 import notional
-from notional import blocks, types
+from notional import blocks, types, user
 
 page_id = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")

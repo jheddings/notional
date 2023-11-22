@@ -8,16 +8,12 @@ create two databases using related fields and build ORM objects from the new dat
 The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 """
 
-import logging
 import os
 import sys
 
-from notional.orm import connected_page
-
-logging.basicConfig(level=logging.INFO)
-
 import notional
 from notional import schema, types
+from notional.orm import connected_page
 
 page_id = sys.argv[1]
 auth_token = os.getenv("NOTION_AUTH_TOKEN")
