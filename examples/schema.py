@@ -11,12 +11,9 @@ are set using the `types` imports.
 The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 """
 
-import logging
 import os
 import sys
 from datetime import date, timedelta
-
-logging.basicConfig(level=logging.INFO)
 
 import notional
 from notional import schema, types

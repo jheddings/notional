@@ -8,11 +8,8 @@ use the query endpoint to display all records in the database.
 The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 """
 
-import logging
 import os
 import sys
-
-logging.basicConfig(level=logging.INFO)
 
 import notional
 from notional.iterator import EndpointIterator

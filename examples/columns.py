@@ -8,11 +8,8 @@ create a column list on the page with two columns containing blocks.
 The caller must set `NOTION_AUTH_TOKEN` to a valid integration token.
 """
 
-import logging
 import os
 import sys
-
-logging.basicConfig(level=logging.INFO)
 
 import notional
 from notional import blocks
