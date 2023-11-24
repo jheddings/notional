@@ -32,7 +32,7 @@ ruff = "^0.1.6"
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.5.3"
 mkdocstrings = "^0.24.0"
-mkdocs-material = "^9.4.11"
+mkdocs-material = "^9.4.12"
 mkdocstrings-python = "^1.7.5"
 
 [tool.ruff]
