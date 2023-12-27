@@ -52,7 +52,7 @@ class Database(DataRecord):
     object: Literal["database"] = "database"
     title: List[RichTextObject] = []
     url: Optional[str] = None
-    icon: Optional[Union[ExternalFile, EmojiObject]] = None
+    icon: Optional[FileObject] = None
     cover: Optional[ExternalFile] = None
     properties: Dict[str, PropertyObject] = {}
     description: Optional[List[RichTextObject]] = None
@@ -72,7 +72,7 @@ class Page(DataRecord):
 
     object: Literal["page"] = "page"
     url: Optional[str] = None
-    icon: Optional[Union[ExternalFile, EmojiObject]] = None
+    icon: Optional[FileObject] = None
     cover: Optional[ExternalFile] = None
     properties: Dict[str, PropertyValue] = {}
 
@@ -140,10 +140,7 @@ class Block(DataRecord, TypedObject, ABC):
 class UnsupportedBlock(Block):
     """A placeholder for unsupported blocks in the API."""
 
-    class _NestedData(NotionObject):
-        pass
-
-    unsupported: Optional[_NestedData] = None
+    unsupported: Optional[Any] = {}
     type: Literal["unsupported"] = "unsupported"
 
 
@@ -153,8 +150,11 @@ class TextBlock(Block, ABC):
     # text blocks have a nested object with 'type' name and a 'rich_text' child
 
     @property
-    def __text__(self):
+    def __text__(self) -> List[RichTextObject]:
         """Provide shorthand access to the nested text content in this block."""
+
+        # calling the block returns the nested data...  this helps deal with
+        # subclasses of `TextBlock` that each have different "type" attributes
 
         return self("rich_text")
 
@@ -169,21 +169,20 @@ class TextBlock(Block, ABC):
 
     def concat(self, *text):
         """Concatenate text (either `RichTextObject` or `str` items) to this block."""
-
         rtf = rich_text(*text)
-
-        # calling the block returns the nested data...  this helps deal with
-        # sublcasses of `TextBlock` that each have different "type" attributes
-        nested = self()
-        nested.rich_text.extend(rtf)
+        self.__text__.extend(rtf)
 
     @property
     def PlainText(self):
         """Return the contents of this Block as plain text."""
 
+        # retrieve the nested text content and convert to plain text
         content = self.__text__
 
-        return None if content is None else plain_text(*content)
+        if content is None:
+            return None
+
+        return plain_text(*content)
 
 
 class WithChildrenMixin:
@@ -434,12 +433,9 @@ class ToDo(TextBlock, WithChildrenMixin):
     @classmethod
     def __compose__(cls, text, checked=False, href=None):
         """Compose a ToDo block from the given text and checked state."""
-        return ToDo(
-            to_do=ToDo._NestedData(
-                rich_text=[TextObject[text, href]],
-                checked=checked,
-            )
-        )
+        txt = TextObject[text, href]
+        nested = ToDo._NestedData(checked=checked, rich_text=[txt])
+        return ToDo(to_do=nested)
 
     @property
     def IsChecked(self):
@@ -477,8 +473,8 @@ class Toggle(TextBlock, WithChildrenMixin):
 class Divider(Block):
     """A divider block in Notion."""
 
-    divider: Any = {}
     type: Literal["divider"] = "divider"
+    divider: Optional[Any] = {}
 
     @property
     def Markdown(self):
@@ -499,10 +495,7 @@ class TableOfContents(Block):
 class Breadcrumb(Block):
     """A breadcrumb block in Notion."""
 
-    class _NestedData(NotionObject):
-        pass
-
-    breadcrumb: _NestedData
+    breadcrumb: Optional[Any] = {}
     type: Literal["breadcrumb"] = "breadcrumb"
 
 
@@ -518,7 +511,8 @@ class Embed(Block):
     @classmethod
     def __compose__(cls, url):
         """Create a new `Embed` block from the given URL."""
-        return Embed(embed=Embed._NestedData(url=url))
+        nested = Embed._NestedData(url=url)
+        return Embed(embed=nested)
 
     @property
     def URL(self):
@@ -548,7 +542,8 @@ class Bookmark(Block):
     @classmethod
     def __compose__(cls, url):
         """Compose a new `Bookmark` block from a specific URL."""
-        return Bookmark(bookmark=Bookmark._NestedData(url=url))
+        nested = Bookmark._NestedData(url=url)
+        return Bookmark(bookmark=nested)
 
     @property
     def URL(self):
@@ -577,7 +572,8 @@ class LinkPreview(Block):
     @classmethod
     def __compose__(cls, url):
         """Create a new `LinkPreview` block from the given URL."""
-        return LinkPreview(link_preview=LinkPreview._NestedData(url=url))
+        nested = LinkPreview._NestedData(url=url)
+        return LinkPreview(link_preview=nested)
 
     @property
     def URL(self):
@@ -606,7 +602,8 @@ class Equation(Block):
     @classmethod
     def __compose__(cls, expr):
         """Create a new `Equation` block from the given expression."""
-        return LinkPreview(equation=Equation._NestedData(expression=expr))
+        nested = Equation._NestedData(expression=expr)
+        return Equation(equation=nested)
 
 
 class File(Block):
