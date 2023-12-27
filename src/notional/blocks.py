@@ -434,8 +434,13 @@ class ToDo(TextBlock, WithChildrenMixin):
     def __compose__(cls, text, checked=False, href=None):
         """Compose a ToDo block from the given text and checked state."""
         txt = TextObject[text, href]
-        nested = ToDo._NestedData(checked=checked, rich_text=[txt])
-        return ToDo(to_do=nested)
+
+        nested = ToDo._NestedData(
+            checked=checked,
+            rich_text=[txt],
+        )
+
+        return cls(to_do=nested)
 
     @property
     def IsChecked(self):
@@ -512,7 +517,7 @@ class Embed(Block):
     def __compose__(cls, url):
         """Create a new `Embed` block from the given URL."""
         nested = Embed._NestedData(url=url)
-        return Embed(embed=nested)
+        return cls(embed=nested)
 
     @property
     def URL(self):
@@ -543,7 +548,7 @@ class Bookmark(Block):
     def __compose__(cls, url):
         """Compose a new `Bookmark` block from a specific URL."""
         nested = Bookmark._NestedData(url=url)
-        return Bookmark(bookmark=nested)
+        return cls(bookmark=nested)
 
     @property
     def URL(self):
@@ -573,7 +578,7 @@ class LinkPreview(Block):
     def __compose__(cls, url):
         """Create a new `LinkPreview` block from the given URL."""
         nested = LinkPreview._NestedData(url=url)
-        return LinkPreview(link_preview=nested)
+        return cls(link_preview=nested)
 
     @property
     def URL(self):
@@ -603,7 +608,7 @@ class Equation(Block):
     def __compose__(cls, expr):
         """Create a new `Equation` block from the given expression."""
         nested = Equation._NestedData(expression=expr)
-        return Equation(equation=nested)
+        return cls(equation=nested)
 
 
 class File(Block):

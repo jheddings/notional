@@ -80,7 +80,7 @@ class DatabaseRef(ParentRef):
     def __compose__(cls, db_ref: Union[str, UUID, DataObject]):
         """Compose a DatabaseRef from the given reference object."""
         ref = ObjectReference[db_ref]
-        return DatabaseRef(database_id=ref.id)
+        return cls(database_id=ref.id)
 
 
 class PageRef(ParentRef):
@@ -93,7 +93,7 @@ class PageRef(ParentRef):
     def __compose__(cls, page_ref: Union[str, UUID, DataObject]):
         """Compose a PageRef from the given reference object."""
         ref = ObjectReference[page_ref]
-        return PageRef(page_id=ref.id)
+        return cls(page_id=ref.id)
 
 
 class BlockRef(ParentRef):
@@ -106,7 +106,7 @@ class BlockRef(ParentRef):
     def __compose__(cls, block_ref: Union[str, UUID, DataObject]):
         """Compose a BlockRef from the given reference object."""
         ref = ObjectReference[block_ref]
-        return BlockRef(block_id=ref.id)
+        return cls(block_id=ref.id)
 
 
 class WorkspaceRef(ParentRef):
@@ -129,7 +129,7 @@ class EmojiObject(TypedObject):
     @classmethod
     def __compose__(cls, emoji):
         """Compose an EmojiObject from the given emoji string."""
-        return EmojiObject(emoji=emoji)
+        return cls(emoji=emoji)
 
 
 class FileObject(TypedObject, ABC):
@@ -185,7 +185,8 @@ class ExternalFile(FileObject):
     @classmethod
     def __compose__(cls, url, name=None):
         """Create a new `ExternalFile` from the given URL."""
-        return cls(name=name, external=cls._NestedData(url=url))
+        nested = cls._NestedData(url=url)
+        return cls(name=name, external=nested)
 
 
 class DateRange(NotionObject):
@@ -221,7 +222,10 @@ class MentionUser(MentionData):
         if they do not match the specific type returned from the API.
         """
 
-        return MentionObject(plain_text=str(user), mention=MentionUser(user=user))
+        return MentionObject(
+            plain_text=str(user),
+            mention=MentionUser(user=user),
+        )
 
 
 class MentionPage(MentionData):
@@ -236,7 +240,10 @@ class MentionPage(MentionData):
 
         ref = ObjectReference[page_ref]
 
-        return MentionObject(plain_text=str(ref), mention=MentionPage(page=ref))
+        return MentionObject(
+            plain_text=str(ref),
+            mention=MentionPage(page=ref),
+        )
 
 
 class MentionDatabase(MentionData):
@@ -251,7 +258,10 @@ class MentionDatabase(MentionData):
 
         ref = ObjectReference[page]
 
-        return MentionObject(plain_text=str(ref), mention=MentionDatabase(database=ref))
+        return MentionObject(
+            plain_text=str(ref),
+            mention=MentionDatabase(database=ref),
+        )
 
 
 class MentionDate(MentionData):
@@ -267,7 +277,8 @@ class MentionDate(MentionData):
         date_obj = DateRange(start=start, end=end)
 
         return MentionObject(
-            plain_text=str(date_obj), mention=MentionDate(date=date_obj)
+            plain_text=str(date_obj),
+            mention=MentionDate(date=date_obj),
         )
 
 
@@ -616,7 +627,9 @@ class Status(NativePropertyValue):
         if name is None:
             raise ValueError("'name' cannot be None")
 
-        return cls(status=Status._NestedData(name=name, color=color))
+        nested = Status._NestedData(name=name, color=color)
+
+        return cls(status=nested)
 
     @property
     def Value(self):
