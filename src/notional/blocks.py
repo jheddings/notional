@@ -189,10 +189,19 @@ class WithChildrenMixin:
     """Mixin for blocks that support children blocks."""
 
     @property
-    def __children__(self):
+    def __children__(self) -> Optional[List[Block]]:
         """Provide short-hand access to the children in this block."""
 
         return self("children")
+
+    def __iter__(self):
+        """Iterate over the children in this block.
+
+        Note that this does not support pagination.  This will only iterate over the
+        children that are currently loaded in the block.
+        """
+
+        return iter(self.__children__)
 
     def __iadd__(self, block):
         """Append the given block to the children of this parent in place."""
