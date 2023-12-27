@@ -207,6 +207,12 @@ class WithChildrenMixin:
 
         nested = self()
 
+        if nested is None:
+            raise TypeError("unable to retrieve nested data")
+
+        if not hasattr(nested, "children"):
+            raise TypeError("block does not support children")
+
         if nested.children is None:
             nested.children = []
 
