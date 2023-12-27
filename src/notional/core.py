@@ -87,10 +87,10 @@ class NotionObject(BaseModel, ABC, metaclass=ComposableObjectMeta):
         # ref: https://github.com/pydantic/pydantic/discussions/3139
 
         partial_model = self.model_validate(data)
-        partial_data = partial_model.model_dump(exclude_defaults=True)
 
-        for name, value in partial_data.items():
-            logger.debug("set object data -- %s => %s", name, value)
+        for name in data.keys():
+            value = getattr(partial_model, name)
+            logger.debug("update object -- %s => %s", name, value)
             setattr(self, name, value)
 
         return self
