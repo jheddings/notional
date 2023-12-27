@@ -14,25 +14,25 @@ classifiers=[
 
 [tool.poetry.dependencies]
 python = "^3.10"
-notion-client = "^2.1.0"
+notion-client = "^2.2.0"
 pydantic = "^2.5.1"
 html5lib = "^1.1"
 urllib3 = "^1.26.18"
-emoji = "^2.8.0"
+emoji = "^2.9.0"
 
 [tool.poetry.group.dev.dependencies]
 GitPython = "^3.1.40"
 pre-commit = "^3.5.0"
 pytest = "^7.4.3"
-coverage = "^7.3.2"
+coverage = "^7.3.4"
 pytest-vcr = "^1.0.2"
-mypy = "^1.7.0"
-ruff = "^0.1.6"
+mypy = "^1.8.0"
+ruff = "^0.1.9"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.5.3"
 mkdocstrings = "^0.24.0"
-mkdocs-material = "^9.4.10"
+mkdocs-material = "^9.5.3"
 mkdocstrings-python = "^1.7.5"
 
 [tool.ruff]
