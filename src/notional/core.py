@@ -212,7 +212,10 @@ class TypedObject(AdaptiveObject, ABC):
         type = getattr(self, "type", None)
 
         if type is None:
-            raise AttributeError("type not specified")
+            raise AttributeError("type not specified", name="type")
+
+        if not hasattr(self, type):
+            raise AttributeError(f"missing nested data: {type}", name=type)
 
         nested = getattr(self, type)
 

@@ -396,18 +396,9 @@ class NativePropertyValue(PropertyValue, ABC):
     @property
     def Value(self):
         """Get the current value of this property as a native Python type."""
-
-        attr = getattr(self, "type", None)
-
-        if attr is None:
-            raise AttributeError(name="type")
-
-        value = getattr(self, attr, ...)
-
-        if value is Ellipsis:
-            raise AttributeError(name=attr)
-
-        return value
+        # all NativePropertyValue's are TypeObject's with a single nested field
+        # containing the native value... simply call the object to get the value
+        return self()
 
 
 class Title(NativePropertyValue):
@@ -531,11 +522,6 @@ class Number(NativePropertyValue):
         """Return `True` if this `Number` is greater-than `other`."""
         return other < self.Value
 
-    @property
-    def Value(self):
-        """Get the current value of this property as a native Python number."""
-        return self.number
-
 
 class Checkbox(NativePropertyValue):
     """Simple checkbox type; represented as a boolean."""
@@ -635,7 +621,6 @@ class Status(NativePropertyValue):
     @property
     def Value(self):
         """Return the value of this property as a string."""
-
         return self.status.name
 
 
