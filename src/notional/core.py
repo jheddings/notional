@@ -89,7 +89,11 @@ class NotionObject(BaseModel, ABC, metaclass=ComposableObjectMeta):
         partial_model = self.model_validate(data)
 
         for name in data.keys():
+            if not hasattr(partial_model, name):
+                raise AttributeError(f"{type(partial_model)}: {name}", name=name)
+
             value = getattr(partial_model, name)
+
             logger.debug("update object -- %s => %s", name, value)
             setattr(self, name, value)
 
