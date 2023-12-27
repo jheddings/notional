@@ -219,7 +219,7 @@ class TypedObject(AdaptiveObject, ABC):
 
         nested = getattr(self, type)
 
-        if field is not None:
+        if field is not None and nested is not None:
             nested = getattr(nested, field)
 
         return nested
