@@ -6,10 +6,12 @@ from enum import Enum
 from typing import Any, Callable, Dict, Optional, TypeVar, Union
 from uuid import UUID
 
-from pydantic import BaseModel, TypeAdapter, ValidationError
+from pydantic import BaseModel, ValidationError, model_validator
+from pydantic._internal._model_construction import ModelMetaclass
+from pydantic_core import PydanticCustomError
 
 # https://github.com/pydantic/pydantic/issues/6381
-from pydantic._internal._model_construction import ModelMetaclass
+# https://github.com/pydantic/pydantic/discussions/7008
 
 logger = logging.getLogger(__name__)
 
@@ -124,57 +126,59 @@ class NotionObject(BaseModel, ABC, metaclass=ComposableObjectMeta):
 
 
 class AdaptiveObject(NotionObject, ABC):
-    """Objects that may change type based on content.
+    """An abstract object that may be one of several concrete types.
 
     To determine the concrete type of an API object, AdaptiveObject's will examine all
-    available subclasses of the requested class and attempt to deserialize the given
-    data.  The first object that successfully deserializes will be returned.
+    available subclasses of the requested class and attempt to validate the given data.
+    The first object that successfully validates will be created and returned.
+
+    This approach allows objects to contain similar fields without causing conflicts
+    during resolution.  For example, a `Person` object may contain a `name` field, but a
+    `Pet` object may also contain a `name` field.  If the `Person` object is requested,
+    the `Pet` object will not be considered for resolution.
     """
 
+    @model_validator(mode="wrap")
     @classmethod
-    def deserialize(cls, data: Union[str, bytes, dict, list]):
-        """Parse the given object as a Notion API object."""
+    def _resolve_adaptive_object(cls, data: dict, handler) -> Any:
+        if not isinstance(data, dict):
+            return handler(data)
 
-        # make a list of all subclasses and their subclasses
-        types = cls._find_all_possible_types()
+        # if cls is not abstract, there's nothing to do
+        if ABC not in cls.__bases__:
+            return handler(data)
 
-        # build a TypeAdapter for the list of possible types
-        if len(types) > 1:
-            adapter = TypeAdapter(Union[*types])
-        elif len(types) > 0:
-            adapter = TypeAdapter(types[0])
-        else:
-            raise RuntimeError(f"no available types for {cls}")
+        # try to validate the data for each possible type
+        for subcls in cls._find_all_possible_types():
+            try:
+                obj = subcls.model_validate(data)
+            except ValidationError:
+                continue
 
-        if isinstance(data, (str, bytes)):
-            return adapter.validate_json(data)
+            logger.debug("deserialized '%s' as '%s'", cls, subcls)
 
-        return adapter.validate_python(data)
+            return obj
+
+        raise PydanticCustomError(
+            "adaptive-object",
+            "unable to resolve input",
+        )
 
     @classmethod
     def _find_all_possible_types(cls):
-        all_types = []
+        """Recursively generate all possible types for this object.
 
-        # skip abstract classes in the list of possible types
+        Possible types include this class or any of its subclasses that are not
+        abstract.
+        """
+
+        # any concrete subclass is a possible type
         if ABC not in cls.__bases__:
-            all_types.append(cls)
+            yield cls
 
+        # continue looking for possible types in subclasses
         for subclass in cls.__subclasses__():
-            more_types = subclass._find_all_possible_types()
-            all_types.extend(more_types)
-
-        return all_types
-
-    # @model_validator(mode='before')
-    def _make_the_right_object_from_data(cls, data: dict) -> Any:
-        # try to deserialize the data for each possible type
-        for subcls in cls._find_all_possible_types():
-            try:
-                return subcls(**data)
-            except ValidationError:
-                pass
-
-        raise ValidationError(f"unable to deserialize data as {cls}")
+            yield from subclass._find_all_possible_types()
 
 
 class DataObject(AdaptiveObject, ABC):

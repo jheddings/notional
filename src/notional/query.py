@@ -1,9 +1,8 @@
 """Provides an interactive query builder for Notion databases."""
 
 import logging
-from datetime import date, datetime
 from enum import Enum
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 from uuid import UUID
 
 from notion_client.api_endpoints import SearchEndpoint
@@ -11,6 +10,7 @@ from pydantic import ConfigDict, Field, field_validator
 
 from .core import NotionObject
 from .iterator import MAX_PAGE_SIZE, EndpointIterator
+from .types import NotionalDate, NotionalNumber
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +31,12 @@ class TextCondition(NotionObject):
 class NumberCondition(NotionObject):
     """Represents number criteria in Notion."""
 
-    equals: Optional[Union[float, int]] = None
-    does_not_equal: Optional[Union[float, int]] = None
-    greater_than: Optional[Union[float, int]] = None
-    less_than: Optional[Union[float, int]] = None
-    greater_than_or_equal_to: Optional[Union[float, int]] = None
-    less_than_or_equal_to: Optional[Union[float, int]] = None
+    equals: Optional[NotionalNumber] = None
+    does_not_equal: Optional[NotionalNumber] = None
+    greater_than: Optional[NotionalNumber] = None
+    less_than: Optional[NotionalNumber] = None
+    greater_than_or_equal_to: Optional[NotionalNumber] = None
+    less_than_or_equal_to: Optional[NotionalNumber] = None
     is_empty: Optional[bool] = None
     is_not_empty: Optional[bool] = None
 
@@ -69,11 +69,11 @@ class MultiSelectCondition(NotionObject):
 class DateCondition(NotionObject):
     """Represents date criteria in Notion."""
 
-    equals: Optional[Union[date, datetime]] = None
-    before: Optional[Union[date, datetime]] = None
-    after: Optional[Union[date, datetime]] = None
-    on_or_before: Optional[Union[date, datetime]] = None
-    on_or_after: Optional[Union[date, datetime]] = None
+    equals: Optional[NotionalDate] = None
+    before: Optional[NotionalDate] = None
+    after: Optional[NotionalDate] = None
+    on_or_before: Optional[NotionalDate] = None
+    on_or_after: Optional[NotionalDate] = None
 
     is_empty: Optional[bool] = None
     is_not_empty: Optional[bool] = None

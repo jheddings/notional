@@ -17,6 +17,12 @@ from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
 from .user import Person, User
 
+# several types in Notion may be respresented by multiple types in Python
+NotionalDate = Union[date, datetime]
+NotionalID = Union[UUID, str]
+NotionalNumber = Union[int, float]
+NotionalRef = Union[str, UUID, DataObject]
+
 
 class ObjectReference(NotionObject, ABC):
     """A general-purpose object reference in the Notion API."""
@@ -77,7 +83,7 @@ class DatabaseRef(ParentRef):
     type: Literal["database_id"] = "database_id"
 
     @classmethod
-    def __compose__(cls, db_ref: Union[str, UUID, DataObject]):
+    def __compose__(cls, db_ref: NotionalRef):
         """Compose a DatabaseRef from the given reference object."""
         ref = ObjectReference[db_ref]
         return cls(database_id=ref.id)
@@ -90,7 +96,7 @@ class PageRef(ParentRef):
     type: Literal["page_id"] = "page_id"
 
     @classmethod
-    def __compose__(cls, page_ref: Union[str, UUID, DataObject]):
+    def __compose__(cls, page_ref: NotionalRef):
         """Compose a PageRef from the given reference object."""
         ref = ObjectReference[page_ref]
         return cls(page_id=ref.id)
@@ -103,7 +109,7 @@ class BlockRef(ParentRef):
     type: Literal["block_id"] = "block_id"
 
     @classmethod
-    def __compose__(cls, block_ref: Union[str, UUID, DataObject]):
+    def __compose__(cls, block_ref: NotionalRef):
         """Compose a BlockRef from the given reference object."""
         ref = ObjectReference[block_ref]
         return cls(block_id=ref.id)
@@ -192,8 +198,8 @@ class ExternalFile(FileObject):
 class DateRange(NotionObject):
     """A Notion date range, with an optional end date."""
 
-    start: Union[date, datetime]
-    end: Optional[Union[date, datetime]] = None
+    start: NotionalDate
+    end: Optional[NotionalDate] = None
 
     def __str__(self) -> str:
         """Return a string representation of this object."""
@@ -316,21 +322,14 @@ class MentionTemplateUser(MentionTemplateData):
 class MentionTemplate(MentionData):
     """Nested template data for `Mention` properties."""
 
-    template_mention: Union[MentionTemplateDate, MentionTemplateUser]
+    template_mention: MentionTemplateData
     type: Literal["template_mention"] = "template_mention"
 
 
 class MentionObject(RichTextObject):
     """Notion mention element."""
 
-    mention: Union[
-        MentionDatabase,
-        MentionDate,
-        MentionLinkPreview,
-        MentionPage,
-        MentionTemplate,
-        MentionUser,
-    ]
+    mention: MentionData
     type: Literal["mention"] = "mention"
 
 
@@ -466,7 +465,7 @@ class RichText(NativePropertyValue):
 class Number(NativePropertyValue):
     """Simple number type."""
 
-    number: Optional[Union[float, int]] = None
+    number: Optional[NotionalNumber] = None
     type: Literal["number"] = "number"
 
     def __float__(self):
@@ -592,7 +591,7 @@ class Status(NativePropertyValue):
 
     class _NestedData(NotionObject):
         name: str
-        id: Optional[Union[UUID, str]] = None
+        id: Optional[NotionalID] = None
         color: Optional[Color] = None
 
     status: Optional[_NestedData] = None
@@ -641,7 +640,7 @@ class SelectValue(NotionObject):
     """Values for select & multi-select properties."""
 
     name: str
-    id: Optional[Union[UUID, str]] = None
+    id: Optional[NotionalID] = None
     color: Optional[Color] = None
 
     def __str__(self) -> str:
@@ -869,7 +868,7 @@ class PhoneNumber(NativePropertyValue):
 class Files(PropertyValue):
     """Notion files type."""
 
-    files: List[Union[HostedFile, ExternalFile]] = []
+    files: List[FileObject] = []
     type: Literal["files"] = "files"
 
     def __contains__(self, other):
@@ -980,7 +979,7 @@ class StringFormula(FormulaResult):
 class NumberFormula(FormulaResult):
     """A Notion number formula result."""
 
-    number: Optional[Union[float, int]] = None
+    number: Optional[NotionalNumber] = None
     type: Literal["number"] = "number"
 
     @property
@@ -1016,9 +1015,7 @@ class BooleanFormula(FormulaResult):
 class Formula(PropertyValue):
     """A Notion formula property value."""
 
-    formula: Optional[
-        Union[StringFormula, NumberFormula, DateFormula, BooleanFormula]
-    ] = None
+    formula: Optional[FormulaResult] = None
     type: Literal["formula"] = "formula"
 
     def __str__(self) -> str:
@@ -1114,7 +1111,7 @@ class RollupObject(TypedObject, ABC):
 class RollupNumber(RollupObject):
     """A Notion rollup number property value."""
 
-    number: Optional[Union[float, int]] = None
+    number: Optional[NotionalNumber] = None
     type: Literal["number"] = "number"
 
     @property
@@ -1152,7 +1149,7 @@ class RollupArray(RollupObject):
 class Rollup(PropertyValue):
     """A Notion rollup property value."""
 
-    rollup: Optional[Union[RollupNumber, RollupDate, RollupArray]] = None
+    rollup: Optional[RollupObject] = None
     type: Literal["rollup"] = "rollup"
 
     def __str__(self) -> str:
