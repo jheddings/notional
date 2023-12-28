@@ -878,13 +878,13 @@ setuptools = "*"
 
 [[package]]
 name = "notion-client"
-version = "2.2.0"
+version = "2.2.1"
 description = "Python client for the official Notion API"
 optional = false
 python-versions = ">=3.7, <4"
 files = [
-    {file = "notion-client-2.2.0.tar.gz", hash = "sha256:5a7fbd60984b032ad66fea661ec29b5847862d4f0753b8114233ca4e162f58a4"},
-    {file = "notion_client-2.2.0-py2.py3-none-any.whl", hash = "sha256:eab506e25d3de05016c07dccd58c6f810e30caaaf91d49798f66082dc7c2a74c"},
+    {file = "notion-client-2.2.1.tar.gz", hash = "sha256:3827e381ccb5a21aeb606686787edfb6c7a10681cb3507c4d606a1918e791061"},
+    {file = "notion_client-2.2.1-py2.py3-none-any.whl", hash = "sha256:4ecf9ec527a124462f7bd407d9c9ead9853a9b2c8f00e56f3fa8fb15106ad871"},
 ]
 
 [package.dependencies]
@@ -1697,4 +1697,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "3142b279f2dab523a42c0cbb29da19f201cc7a0a9b19f0ff62c3f63cd1136b39"
+content-hash = "ec1b912c69c117db8cefdb959f54e500e6cee7cd0b9f31174bbd5e4e5ca7aea1"
