@@ -1,13 +1,14 @@
 """Unit tests for Notional core objects."""
 
+import json
 import logging
 from abc import ABC
-from typing import Any, List, Literal, Optional, Union
+from typing import Any, List, Literal, Optional
 
 import pytest
-from pydantic import Field, ValidationError
+from pydantic import Field, SerializeAsAny, ValidationError
 
-from notional.core import DataObject, NotionObject, TypedObject
+from notional.core import DataObject, NotionObject, SerializationMode, TypedObject
 
 # keep logging output to a minimum for testing
 logging.basicConfig(level=logging.INFO)
@@ -96,7 +97,7 @@ class Bird(Animal):
 class Person(Actor):
     """A structured Person class for testing."""
 
-    pets: List[Union[Cat, Dog]] = []
+    pets: List[SerializeAsAny[Pet]] = []
     object: Literal["person"] = "person"
 
 
@@ -140,6 +141,52 @@ class PrivateDataObject(NotionObject):
         self._private = value
 
 
+def test_serialize_json():
+    """Serialize objects to JSON and verify contents."""
+
+    jack = Person(name="Jack the Person")
+    raw = jack.serialize(SerializationMode.JSON)
+
+    # make sure we can parse the JSON
+    data = json.loads(raw)
+
+    assert data["object"] == "person"
+    assert data["name"] == "Jack the Person"
+    assert len(data["pets"]) == 0
+
+
+def test_serialize_dict():
+    """Serialize objects to Python objects and verify contents."""
+    tiger = Cat(name="Tiger", age=9, hairless=True)
+    data = tiger.serialize(SerializationMode.PYTHON)
+
+    assert data["name"] == "Tiger"
+    assert data["hairless"] is True
+
+
+def test_serialize_adaptive_types():
+    """Serialize objects with abstract types."""
+
+    # objects that have fields with abstract types can be problematic
+    # in this case, we have a Person with a list of Pets that should be
+    # serialized as a list of concrete types
+
+    tiger = Cat(name="Tiger", age=9, hairless=True)
+    fluffy = Dog(name="Fluffy", age=4, breed="poodle")
+    jill = Person(name="Jill with Pets", pets=[tiger, fluffy])
+
+    data = jill.serialize()
+
+    assert data["object"] == "person"
+    assert data["name"] == "Jill with Pets"
+
+    assert "pets" in data
+    assert len(data["pets"]) == 2
+
+    assert data["pets"][0] == tiger.serialize()
+    assert data["pets"][1] == fluffy.serialize()
+
+
 def test_parse_named_object():
     """Parse obects from structured data."""
 
@@ -175,11 +222,11 @@ def test_parse_typed_data_object():
     assert tiger != fluffy
 
 
-def test_lists_of_polymorphic_types():
+def test_deserialize_adaptive_types():
     """Verify that adaptive types are always deserialized correctly.
 
-    In particular, types that are declared inside of a collection (e.g. a list) are
-    not always deserialized correctly.
+    In particular, abstract types that are declared inside of a collection (e.g. a list)
+    can be problematic.
     """
 
     alice = Person.deserialize(ALICE)
@@ -189,6 +236,7 @@ def test_lists_of_polymorphic_types():
     assert alice.pets[0] == Cat.deserialize(TIGER)
     assert alice.pets[1] == Dog.deserialize(FLUFFY)
 
+    # BOB is not a valid Person because he has a Bird as a pet
     with pytest.raises(ValidationError):
         _ = Person.deserialize(BOB)
 

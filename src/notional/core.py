@@ -155,6 +155,7 @@ class AdaptiveObject(NotionObject, ABC):
             except ValidationError:
                 continue
 
+            # return the first successful validation
             logger.debug("deserialized '%s' as '%s'", cls, subcls)
 
             return obj
@@ -172,7 +173,7 @@ class AdaptiveObject(NotionObject, ABC):
         abstract.
         """
 
-        # any concrete subclass is a possible type
+        # any concrete class is a possible type
         if ABC not in cls.__bases__:
             yield cls
 
