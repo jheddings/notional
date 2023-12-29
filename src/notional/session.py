@@ -139,7 +139,7 @@ class BlocksEndpoint(Endpoint):
                     for idx in range(len(blocks)):
                         block = blocks[idx]
                         result = data["results"][idx]
-                        block.update(**result)
+                        block.model_update(**result)
 
                 else:
                     logger.warning("Unable to refresh results; size mismatch")
@@ -229,7 +229,7 @@ class BlocksEndpoint(Endpoint):
 
         data = self().update(block.id.hex, block.serialize())
 
-        return block.update(**data)
+        return block.model_update(**data)
 
 
 class DatabasesEndpoint(Endpoint):
@@ -506,7 +506,7 @@ class PagesEndpoint(Endpoint):
 
         data = self().update(page.id.hex, properties=props)
 
-        return page.update(**data)
+        return page.model_update(**data)
 
     def set(self, page, cover=False, icon=False, archived=None):
         """Set specific page attributes (such as cover, icon, etc.) on the server.

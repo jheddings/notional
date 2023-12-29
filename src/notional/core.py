@@ -1,19 +1,20 @@
 """Base classes for working with the Notion API."""
 
-import logging
 from abc import ABC
 from enum import Enum
 from typing import Any, Callable, Dict, Optional, TypeVar, Union
 from uuid import UUID
 
-from pydantic import BaseModel, ValidationError, model_validator
+from pydantic import (
+    BaseModel,
+    ValidationError,
+    model_validator,
+)
 from pydantic._internal._model_construction import ModelMetaclass
 from pydantic_core import PydanticCustomError
 
 # https://github.com/pydantic/pydantic/issues/6381
 # https://github.com/pydantic/pydantic/discussions/7008
-
-logger = logging.getLogger(__name__)
 
 
 _T = TypeVar("_T")
@@ -83,7 +84,7 @@ class NotionObject(BaseModel, ABC, metaclass=ComposableObjectMeta):
     Properties in Title Case are provided for convenience (e.g. computed fields).
     """
 
-    def update(self, **data):
+    def model_update(self, **data):
         """Refresh the internal attributes with new data."""
 
         # ref: https://github.com/pydantic/pydantic/discussions/3139
@@ -96,7 +97,6 @@ class NotionObject(BaseModel, ABC, metaclass=ComposableObjectMeta):
 
             value = getattr(partial_model, name)
 
-            logger.debug("update object -- %s => %s", name, value)
             setattr(self, name, value)
 
         return self
@@ -151,14 +151,10 @@ class AdaptiveObject(NotionObject, ABC):
         # try to validate the data for each possible type
         for subcls in cls._find_all_possible_types():
             try:
-                obj = subcls.model_validate(data)
+                # return the first successful validation
+                return subcls.model_validate(data)
             except ValidationError:
                 continue
-
-            # return the first successful validation
-            logger.debug("deserialized '%s' as '%s'", cls, subcls)
-
-            return obj
 
         raise PydanticCustomError(
             "adaptive-object",
