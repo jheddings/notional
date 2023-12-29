@@ -24,7 +24,7 @@ NotionalNumber = Union[int, float]
 NotionalRef = Union[str, UUID, DataObject]
 
 
-class ObjectReference(NotionObject, ABC):
+class ObjectReference(NotionObject):
     """A general-purpose object reference in the Notion API."""
 
     id: UUID
