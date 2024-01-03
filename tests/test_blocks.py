@@ -65,10 +65,12 @@ def test_create_block(notion, test_area):
     """Create a single block and confirm its contents."""
     block = blocks.Divider()
 
+    # this should update our block with data from the API
     notion.blocks.children.append(test_area, block)
     assert block.id is not None
     assert block.archived is False
 
+    # retrieving the block should give us the same data
     new_block = notion.blocks.retrieve(block.id)
     assert new_block == block
 

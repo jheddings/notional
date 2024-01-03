@@ -1,21 +1,21 @@
 """Provides an interactive query builder for Notion databases."""
 
 import logging
-from datetime import date, datetime
 from enum import Enum
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 from uuid import UUID
 
 from notion_client.api_endpoints import SearchEndpoint
-from pydantic import Field, validator
+from pydantic import ConfigDict, Field, field_validator
 
-from .core import GenericObject
+from .core import NotionObject
 from .iterator import MAX_PAGE_SIZE, EndpointIterator
+from .types import NotionalDate, NotionalNumber
 
 logger = logging.getLogger(__name__)
 
 
-class TextCondition(GenericObject):
+class TextCondition(NotionObject):
     """Represents text criteria in Notion."""
 
     equals: Optional[str] = None
@@ -28,27 +28,27 @@ class TextCondition(GenericObject):
     is_not_empty: Optional[bool] = None
 
 
-class NumberCondition(GenericObject):
+class NumberCondition(NotionObject):
     """Represents number criteria in Notion."""
 
-    equals: Optional[Union[float, int]] = None
-    does_not_equal: Optional[Union[float, int]] = None
-    greater_than: Optional[Union[float, int]] = None
-    less_than: Optional[Union[float, int]] = None
-    greater_than_or_equal_to: Optional[Union[float, int]] = None
-    less_than_or_equal_to: Optional[Union[float, int]] = None
+    equals: Optional[NotionalNumber] = None
+    does_not_equal: Optional[NotionalNumber] = None
+    greater_than: Optional[NotionalNumber] = None
+    less_than: Optional[NotionalNumber] = None
+    greater_than_or_equal_to: Optional[NotionalNumber] = None
+    less_than_or_equal_to: Optional[NotionalNumber] = None
     is_empty: Optional[bool] = None
     is_not_empty: Optional[bool] = None
 
 
-class CheckboxCondition(GenericObject):
+class CheckboxCondition(NotionObject):
     """Represents checkbox criteria in Notion."""
 
     equals: Optional[bool] = None
     does_not_equal: Optional[bool] = None
 
 
-class SelectCondition(GenericObject):
+class SelectCondition(NotionObject):
     """Represents select criteria in Notion."""
 
     equals: Optional[str] = None
@@ -57,7 +57,7 @@ class SelectCondition(GenericObject):
     is_not_empty: Optional[bool] = None
 
 
-class MultiSelectCondition(GenericObject):
+class MultiSelectCondition(NotionObject):
     """Represents a multi_select criteria in Notion."""
 
     contains: Optional[str] = None
@@ -66,14 +66,14 @@ class MultiSelectCondition(GenericObject):
     is_not_empty: Optional[bool] = None
 
 
-class DateCondition(GenericObject):
+class DateCondition(NotionObject):
     """Represents date criteria in Notion."""
 
-    equals: Optional[Union[date, datetime]] = None
-    before: Optional[Union[date, datetime]] = None
-    after: Optional[Union[date, datetime]] = None
-    on_or_before: Optional[Union[date, datetime]] = None
-    on_or_after: Optional[Union[date, datetime]] = None
+    equals: Optional[NotionalDate] = None
+    before: Optional[NotionalDate] = None
+    after: Optional[NotionalDate] = None
+    on_or_before: Optional[NotionalDate] = None
+    on_or_after: Optional[NotionalDate] = None
 
     is_empty: Optional[bool] = None
     is_not_empty: Optional[bool] = None
@@ -86,7 +86,7 @@ class DateCondition(GenericObject):
     next_year: Optional[Any] = None
 
 
-class PeopleCondition(GenericObject):
+class PeopleCondition(NotionObject):
     """Represents people criteria in Notion."""
 
     contains: Optional[UUID] = None
@@ -95,14 +95,14 @@ class PeopleCondition(GenericObject):
     is_not_empty: Optional[bool] = None
 
 
-class FilesCondition(GenericObject):
+class FilesCondition(NotionObject):
     """Represents files criteria in Notion."""
 
     is_empty: Optional[bool] = None
     is_not_empty: Optional[bool] = None
 
 
-class RelationCondition(GenericObject):
+class RelationCondition(NotionObject):
     """Represents relation criteria in Notion."""
 
     contains: Optional[UUID] = None
@@ -111,7 +111,7 @@ class RelationCondition(GenericObject):
     is_not_empty: Optional[bool] = None
 
 
-class FormulaCondition(GenericObject):
+class FormulaCondition(NotionObject):
     """Represents formula criteria in Notion."""
 
     string: Optional[TextCondition] = None
@@ -120,7 +120,7 @@ class FormulaCondition(GenericObject):
     date: Optional[DateCondition] = None
 
 
-class QueryFilter(GenericObject):
+class QueryFilter(NotionObject):
     """Base class for query filters."""
 
 
@@ -189,13 +189,10 @@ class LastEditedTimeFilter(TimestampFilter):
 class CompoundFilter(QueryFilter):
     """Represents a compound filter in Notion."""
 
-    class Config:
-        """Pydantic configuration class to support keyword fields."""
+    model_config = ConfigDict(populate_by_name=True)
 
-        allow_population_by_field_name = True
-
-    and_: Optional[List[QueryFilter]] = Field(None, alias="and")
-    or_: Optional[List[QueryFilter]] = Field(None, alias="or")
+    and_: Optional[List[QueryFilter]] = Field(..., alias="and")
+    or_: Optional[List[QueryFilter]] = Field(..., alias="or")
 
 
 class SortDirection(str, Enum):
@@ -205,7 +202,7 @@ class SortDirection(str, Enum):
     DESCENDING = "descending"
 
 
-class PropertySort(GenericObject):
+class PropertySort(NotionObject):
     """Represents a sort instruction in Notion."""
 
     property: Optional[str] = None
@@ -213,7 +210,7 @@ class PropertySort(GenericObject):
     direction: Optional[SortDirection] = None
 
 
-class Query(GenericObject):
+class Query(NotionObject):
     """Represents a query object in Notion."""
 
     sorts: Optional[List[PropertySort]] = None
@@ -221,7 +218,7 @@ class Query(GenericObject):
     start_cursor: Optional[UUID] = None
     page_size: int = MAX_PAGE_SIZE
 
-    @validator("page_size")
+    @field_validator("page_size")
     def valid_page_size(cls, value):
         """Validate that the given page size meets the Notion API requirements."""
 
@@ -325,7 +322,7 @@ class QueryBuilder:
 
         logger.debug("executing query - %s", self.query)
 
-        query = self.query.dict()
+        query = self.query.serialize()
 
         if self.params:
             query.update(self.params)

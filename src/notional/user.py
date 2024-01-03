@@ -1,9 +1,12 @@
 """Wrapper for Notion user objects."""
 
+from abc import ABC
 from enum import Enum
-from typing import Optional
+from typing import Literal, Optional
 
-from .core import GenericObject, NotionObject
+from pydantic import Field
+
+from .core import DataObject, NotionObject, TypedObject
 
 
 class UserType(str, Enum):
@@ -13,53 +16,50 @@ class UserType(str, Enum):
     BOT = "bot"
 
 
-class User(NotionObject, object="user"):
+class PartialUser(DataObject):
+    """Represents a partial User in Notion."""
+
+    object: Literal["user"] = "user"
+
+
+class User(PartialUser, TypedObject, ABC):
     """Represents a User in Notion."""
 
-    # XXX why isn't this a TypedObject ?
-
-    type: Optional[UserType] = None
     name: Optional[str] = None
     avatar_url: Optional[str] = None
-
-    @classmethod
-    def parse_obj(cls, obj):
-        """Attempt to parse the given object data into the correct `User` type."""
-
-        if obj is None:
-            return None
-
-        if "type" in obj:
-            if obj["type"] == "person":
-                return Person(**obj)
-
-            if obj["type"] == "bot":
-                return Bot(**obj)
-
-        return cls(obj)
 
 
 class Person(User):
     """Represents a Person in Notion."""
 
-    class _NestedData(GenericObject):
-        email: str
+    class _NestedData(NotionObject):
+        email: Optional[str] = None
 
-    person: _NestedData = None
+    person: _NestedData = Field(default_factory=_NestedData)
+    type: Literal["person"] = "person"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this `Person`."""
         return f"[@{self.name}]"
+
+
+class BotOwner(TypedObject):
+    """Represents a Bot Owner in Notion."""
+
+    type: Literal["user", "workspace"]
+    workspace: bool = False
 
 
 class Bot(User):
     """Represents a Bot in Notion."""
 
-    class _NestedData(GenericObject):
-        pass
+    class _NestedData(NotionObject):
+        owner: Optional[BotOwner] = None
+        workspace_name: Optional[str] = None
 
-    bot: _NestedData = None
+    bot: _NestedData = Field(default_factory=_NestedData)
+    type: Literal["bot"] = "bot"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this `Bot`."""
         return f"[%{self.name}]"

@@ -5,11 +5,11 @@ in Notional: `Property()` and `connected_page()`.
 """
 
 import logging
-from typing import Union
+from typing import Self, Union
 
 from emoji import emojize, is_emoji
 
-from .blocks import Page
+from .blocks import Block, Page
 from .schema import PropertyObject, RichText
 from .text import make_safe_python_name
 from .types import DatabaseRef, EmojiObject, ExternalFile, PropertyValue
@@ -243,7 +243,7 @@ class ConnectedPage:
 
         self._notional__session.pages.set(self._notional__page, icon=icon)
 
-    def __iadd__(self, block):
+    def __iadd__(self, block: Block) -> Self:
         """Append the given block to this page.
 
         This operation takes place on the Notion server, causing the page to save
@@ -254,7 +254,7 @@ class ConnectedPage:
 
         return self
 
-    def append(self, *blocks):
+    def append(self, *blocks: Block):
         """Append the given blocks as children of this ConnectedPage.
 
         This operation takes place on the Notion server, causing the page to update

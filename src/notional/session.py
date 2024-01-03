@@ -2,12 +2,12 @@
 
 import logging
 from inspect import isclass
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 import notion_client
 from httpx import ConnectError
 from notion_client.errors import APIResponseError
-from pydantic import parse_obj_as
+from pydantic import TypeAdapter
 
 from .blocks import Block, Database, Page
 from .iterator import EndpointIterator, PropertyItemList
@@ -19,6 +19,8 @@ from .types import DatabaseRef, ObjectReference, PageRef, ParentRef, PropertyIte
 from .user import User
 
 logger = logging.getLogger(__name__)
+
+_PagePropertiesAdapter = TypeAdapter(Union[PropertyItem, PropertyItemList])
 
 
 class SessionError(Exception):
@@ -35,7 +37,7 @@ class Session:
     def __init__(self, **kwargs):
         """Initialize the `Session` object and the endpoints.
 
-        `kwargs` will be passed direction to the Notion SDK Client.  For more details,
+        `kwargs` will be passed directly to the Notion SDK Client.  For more details,
         see the (full docs)[https://ramnes.github.io/notion-sdk-py/reference/client/].
 
         :param auth: bearer token for authentication
@@ -126,7 +128,7 @@ class BlocksEndpoint(Endpoint):
 
             parent_id = ObjectReference[parent].id
 
-            children = [block.dict() for block in blocks if block is not None]
+            children = [block.serialize() for block in blocks if block is not None]
 
             logger.info("Appending %d blocks to %s ...", len(children), parent_id)
 
@@ -137,7 +139,7 @@ class BlocksEndpoint(Endpoint):
                     for idx in range(len(blocks)):
                         block = blocks[idx]
                         result = data["results"][idx]
-                        block.refresh(**result)
+                        block.model_update(**result)
 
                 else:
                     logger.warning("Unable to refresh results; size mismatch")
@@ -184,7 +186,7 @@ class BlocksEndpoint(Endpoint):
 
         data = self().delete(block_id)
 
-        return Block.parse_obj(data)
+        return Block.deserialize(data)
 
     def restore(self, block):
         """Restore (unarchive) the specified Block.
@@ -197,7 +199,7 @@ class BlocksEndpoint(Endpoint):
 
         data = self().update(block_id, archived=False)
 
-        return Block.parse_obj(data)
+        return Block.deserialize(data)
 
     # https://developers.notion.com/reference/retrieve-a-block
     def retrieve(self, block):
@@ -211,7 +213,7 @@ class BlocksEndpoint(Endpoint):
 
         data = self().retrieve(block_id)
 
-        return Block.parse_obj(data)
+        return Block.deserialize(data)
 
     # https://developers.notion.com/reference/update-a-block
     def update(self, block: Block):
@@ -220,11 +222,14 @@ class BlocksEndpoint(Endpoint):
         The block info will be refreshed to the latest version from the server.
         """
 
+        if block.id is None:
+            raise ValueError("Page ID is missing")
+
         logger.info("Updating block :: %s", block.id)
 
-        data = self().update(block.id.hex, **block.dict())
+        data = self().update(block.id.hex, block.serialize())
 
-        return block.refresh(**data)
+        return block.model_update(**data)
 
 
 class DatabasesEndpoint(Endpoint):
@@ -236,9 +241,9 @@ class DatabasesEndpoint(Endpoint):
 
     def _build_request(
         self,
-        parent: ParentRef = None,
-        schema: Dict[str, PropertyObject] = None,
-        title=None,
+        parent: Optional[ParentRef] = None,
+        schema: Optional[Dict[str, PropertyObject]] = None,
+        title: Optional[str] = None,
     ):
         """Build a request payload from the given items.
 
@@ -248,15 +253,15 @@ class DatabasesEndpoint(Endpoint):
         request = {}
 
         if parent is not None:
-            request["parent"] = parent.dict()
+            request["parent"] = parent.serialize()
 
         if title is not None:
-            prop = TextObject[title]
-            request["title"] = [prop.dict()]
+            title_prop = TextObject[title]
+            request["title"] = [title_prop.serialize()]
 
         if schema is not None:
             request["properties"] = {
-                name: value.dict() if value is not None else None
+                name: value.serialize() if value is not None else None
                 for name, value in schema.items()
             }
 
@@ -277,7 +282,7 @@ class DatabasesEndpoint(Endpoint):
 
         data = self().create(**request)
 
-        return Database.parse_obj(data)
+        return Database.deserialize(data)
 
     # https://developers.notion.com/reference/retrieve-a-database
     def retrieve(self, dbref):
@@ -292,10 +297,15 @@ class DatabasesEndpoint(Endpoint):
 
         data = self().retrieve(dbid)
 
-        return Database.parse_obj(data)
+        return Database.deserialize(data)
 
     # https://developers.notion.com/reference/update-a-database
-    def update(self, dbref, title=None, schema: Dict[str, PropertyObject] = None):
+    def update(
+        self,
+        dbref,
+        title: Optional[str] = None,
+        schema: Optional[Dict[str, PropertyObject]] = None,
+    ):
         """Update the Database object on the server.
 
         The database info will be refreshed to the latest version from the server.
@@ -311,7 +321,7 @@ class DatabasesEndpoint(Endpoint):
 
         if request:
             data = self().update(dbid, **request)
-            dbref = dbref.refresh(**data)
+            dbref = dbref.update(**data)
 
         return dbref
 
@@ -381,7 +391,7 @@ class PagesEndpoint(Endpoint):
             data = self().retrieve(page_id, property_id)
 
             # TODO should PropertyListItem return an iterator instead?
-            return parse_obj_as(Union[PropertyItem, PropertyItemList], obj=data)
+            return _PagePropertiesAdapter.validate_python(data)
 
     def __init__(self, *args, **kwargs):
         """Initialize the `pages` endpoint for the Notion API."""
@@ -410,7 +420,7 @@ class PagesEndpoint(Endpoint):
         elif not isinstance(parent, ParentRef):
             raise ValueError("Unsupported 'parent'")
 
-        request = {"parent": parent.dict()}
+        request = {"parent": parent.serialize()}
 
         # the API requires a properties object, even if empty
         if properties is None:
@@ -420,20 +430,20 @@ class PagesEndpoint(Endpoint):
             properties["title"] = Title[title]
 
         request["properties"] = {
-            name: prop.dict() if prop is not None else None
+            name: prop.serialize() if prop is not None else None
             for name, prop in properties.items()
         }
 
         if children is not None:
             request["children"] = [
-                child.dict() for child in children if child is not None
+                child.serialize() for child in children if child is not None
             ]
 
         logger.info("Creating page :: %s => %s", parent, title)
 
         data = self().create(**request)
 
-        return Page.parse_obj(data)
+        return Page.model_validate(data)
 
     def delete(self, page):
         """Delete (archive) the specified Page.
@@ -467,7 +477,7 @@ class PagesEndpoint(Endpoint):
         # XXX would it make sense to (optionally) expand the full properties here?
         # e.g. call the PropertiesEndpoint to make sure all data is retrieved
 
-        return Page.parse_obj(data)
+        return Page.model_validate(data)
 
     # https://developers.notion.com/reference/patch-page
     def update(self, page: Page, **properties):
@@ -481,19 +491,22 @@ class PagesEndpoint(Endpoint):
         The page info will be refreshed to the latest version from the server.
         """
 
+        if page.id is None:
+            raise ValueError("Page ID is missing")
+
         logger.info("Updating page info :: %s", page.id)
 
         if not properties:
             properties = page.properties
 
         props = {
-            name: value.dict() if value is not None else None
+            name: value.serialize() if value is not None else None
             for name, value in properties.items()
         }
 
         data = self().update(page.id.hex, properties=props)
 
-        return page.refresh(**data)
+        return page.model_update(**data)
 
     def set(self, page, cover=False, icon=False, archived=None):
         """Set specific page attributes (such as cover, icon, etc.) on the server.
@@ -512,14 +525,14 @@ class PagesEndpoint(Endpoint):
             props["cover"] = {}
         elif cover is not False:
             logger.info("Setting page cover :: %s => %s", page_id, cover)
-            props["cover"] = cover.dict()
+            props["cover"] = cover.serialize()
 
         if icon is None:
             logger.info("Removing page icon :: %s", page_id)
             props["icon"] = {}
         elif icon is not False:
             logger.info("Setting page icon :: %s => %s", page_id, icon)
-            props["icon"] = icon.dict()
+            props["icon"] = icon.serialize()
 
         if archived is False:
             logger.info("Restoring page :: %s", page_id)
@@ -530,7 +543,7 @@ class PagesEndpoint(Endpoint):
 
         data = self().update(page_id.hex, **props)
 
-        return page.refresh(**data)
+        return page.update(**data)
 
 
 class SearchEndpoint(Endpoint):
@@ -579,7 +592,7 @@ class UsersEndpoint(Endpoint):
 
         data = self().retrieve(user_id)
 
-        return User.parse_obj(data)
+        return User.deserialize(data)
 
     # https://developers.notion.com/reference/get-self
     def me(self):
@@ -589,4 +602,4 @@ class UsersEndpoint(Endpoint):
 
         data = self().me()
 
-        return User.parse_obj(data)
+        return User.deserialize(data)

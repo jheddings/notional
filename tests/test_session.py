@@ -3,10 +3,11 @@
 import pytest
 
 from notional.blocks import DataRecord
+from notional.session import Session
 
 
 @pytest.mark.vcr()
-def test_active_session(notion):
+def test_active_session(notion: Session):
     """Verify the session reports as active."""
     assert notion.IsActive
 
@@ -15,13 +16,13 @@ def test_active_session(notion):
 
 
 @pytest.mark.vcr()
-def test_ping_session(notion):
+def test_ping_session(notion: Session):
     """Verify the active session responds to a ping."""
     assert notion.ping()
 
 
 @pytest.mark.vcr()
-def test_simple_search(notion):
+def test_simple_search(notion: Session):
     """Make sure search returns some results."""
 
     search = notion.search()

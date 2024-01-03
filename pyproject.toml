@@ -13,9 +13,9 @@ classifiers=[
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8.1"
+python = "^3.10"
 notion-client = "^2.2.1"
-pydantic = "^1.10.13"
+pydantic = "^2.5.3"
 html5lib = "^1.1"
 urllib3 = "^1.26.18"
 emoji = "^2.9.0"
@@ -64,6 +64,11 @@ line-ending = "auto"
 
 [tool.ruff.isort]
 known-first-party = ["notional"]
+
+[tool.mypy]
+no_implicit_optional = true
+warn_return_any = true
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

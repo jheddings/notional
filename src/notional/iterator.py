@@ -1,13 +1,13 @@
 """Iterator classes for working with paginated API responses."""
 
 import logging
-from typing import Any, List, Optional
+from abc import ABC
+from typing import Any, List, Literal, Optional
 
-from pydantic import validator
+from pydantic import field_validator
 
-from .blocks import Block, Database, Page
-from .core import GenericObject, NotionObject, TypedObject
-from .types import PropertyItem
+from .blocks import Block, Database, DataRecord, Page
+from .core import DataObject, NotionObject, TypedObject
 from .user import User
 
 MAX_PAGE_SIZE = 100
@@ -15,81 +15,89 @@ MAX_PAGE_SIZE = 100
 logger = logging.getLogger(__name__)
 
 
-class ObjectList(NotionObject, TypedObject, object="list"):
+class ObjectList(DataObject, TypedObject, ABC):
     """A paginated list of objects returned by the Notion API."""
 
-    results: List[NotionObject] = []
+    results: List[DataObject] = []
     has_more: bool = False
     next_cursor: Optional[str] = None
-
-    @validator("results", pre=True, each_item=True)
-    def _convert_results_list(cls, val):
-        """Convert the results list to specifc objects."""
-
-        if "object" not in val:
-            raise ValueError("Unknown object in results")
-
-        if val["object"] == BlockList.type:
-            return Block.parse_obj(val)
-
-        if val["object"] == PageList.type:
-            return Page.parse_obj(val)
-
-        if val["object"] == DatabaseList.type:
-            return Database.parse_obj(val)
-
-        if val["object"] == PropertyItemList.type:
-            return PropertyItem.parse_obj(val)
-
-        if val["object"] == UserList.type:
-            return User.parse_obj(val)
-
-        return GenericObject.parse_obj(val)
+    object: Literal["list"] = "list"
 
 
-class BlockList(ObjectList, type="block"):
+class BlockList(ObjectList):
     """A list of Block objects returned by the Notion API."""
 
     block: Any = {}
+    type: Literal["block"] = "block"
+
+    @field_validator("results", mode="before")
+    def _convert_results_list(cls, val):
+        """Convert the results list to specifc objects."""
+        return [Block.deserialize(obj) for obj in val]
 
 
-class PageList(ObjectList, type="page"):
+class PageList(ObjectList):
     """A list of Page objects returned by the Notion API."""
 
     page: Any = {}
+    type: Literal["page"] = "page"
+
+    @field_validator("results", mode="before")
+    def _convert_results_list(cls, val):
+        """Convert the results list to specifc objects."""
+        return [Page.deserialize(obj) for obj in val]
 
 
-class DatabaseList(ObjectList, type="database"):
+class DatabaseList(ObjectList):
     """A list of Database objects returned by the Notion API."""
 
     database: Any = {}
+    type: Literal["database"] = "database"
+
+    @field_validator("results", mode="before")
+    def _convert_results_list(cls, val):
+        """Convert the results list to specifc objects."""
+        return [Database.deserialize(obj) for obj in val]
 
 
-class PageOrDatabaseList(ObjectList, type="page_or_database"):
+class PageOrDatabaseList(ObjectList):
     """A list of Page or Database objects returned by the Notion API."""
 
     page_or_database: Any = {}
+    type: Literal["page_or_database"] = "page_or_database"
+
+    @field_validator("results", mode="before")
+    def _convert_results_list(cls, val):
+        """Convert the results list to specifc objects."""
+        return [DataRecord.deserialize(obj) for obj in val]
 
 
-class UserList(ObjectList, type="user"):
+class UserList(ObjectList):
     """A list of User objects returned by the Notion API."""
 
     user: Any = {}
+    type: Literal["user"] = "user"
+
+    @field_validator("results", mode="before")
+    def _convert_results_list(cls, val):
+        """Convert the results list to specifc objects."""
+        return [User.deserialize(obj) for obj in val]
 
 
-class PropertyItemList(ObjectList, type="property_item"):
+class PropertyItemList(ObjectList):
     """A paginated list of property items returned by the Notion API.
 
     Property item lists contain one or more pages of basic property items.  These types
     do not typically match the schema for corresponding property values.
     """
 
-    class _NestedData(GenericObject):
-        id: str = None
-        type: str = None
+    class _NestedData(NotionObject):
+        id: str
+        type: str
         next_url: Optional[str] = None
 
-    property_item: _NestedData = _NestedData()
+    property_item: _NestedData
+    type: Literal["property_item"] = "property_item"
 
 
 class EndpointIterator:
@@ -119,7 +127,7 @@ class EndpointIterator:
 
         If a class is provided, it will be constructued for each result returned by
         this iterator.  The constructor must accept a single argument, which is the
-        `NotionObject` contained in the `ObjectList`.
+        `DataObject` contained in the `ObjectList`.
         """
         self._endpoint = endpoint
         self._datatype = datatype
@@ -146,7 +154,7 @@ class EndpointIterator:
 
             page = self._endpoint(start_cursor=self.next_cursor, **kwargs)
 
-            api_list = ObjectList.parse_obj(page)
+            api_list = ObjectList.deserialize(page)
 
             for obj in api_list.results:
                 self.total_items += 1
