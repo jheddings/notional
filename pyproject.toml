@@ -21,7 +21,7 @@ urllib3 = "^1.26.18"
 emoji = "^2.9.0"
 
 [tool.poetry.group.dev.dependencies]
-GitPython = "^3.1.40"
+GitPython = "^3.1.41"
 pre-commit = "^3.5.0"
 pytest = "^7.4.4"
 coverage = "^7.4.0"
