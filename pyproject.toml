@@ -23,7 +23,7 @@ emoji = "^2.10.1"
 [tool.poetry.group.dev.dependencies]
 GitPython = "^3.1.42"
 pre-commit = "^3.5.0"
-pytest = "^8.0.2"
+pytest = "^8.1.0"
 coverage = "^7.4.3"
 pytest-vcr = "^1.0.2"
 mypy = "^1.8.0"
