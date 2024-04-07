@@ -377,6 +377,7 @@ class CodingLanguage(str, Enum):
     SHELL = "shell"
     SQL = "sql"
     SWIFT = "swift"
+    TOML = "toml"
     TYPESCRIPT = "typescript"
     VB_NET = "vb.net"
     VERILOG = "verilog"
