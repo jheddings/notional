@@ -15,11 +15,10 @@
        source .venv/bin/activate
        ```
 
-    2. Install dependencies:
+    2. Install dependencies (using [poetry](https://python-poetry.org/)):
 
        ```shell
-       pip3 install -r requirements/core.txt
-       pip3 install -r requirements/dev.txt
+       poetry install
        ```
 
     3. Install `pre-commit` hooks:
