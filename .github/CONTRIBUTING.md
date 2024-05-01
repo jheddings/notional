@@ -27,8 +27,6 @@
        pre-commit install
        ```
 
-   Alternatively, use `make devenv` to set this all up for you.
-
 4. Follow the standards enforced by the tools.  At any time, you may use the
    `preflight` target to run the unit tests and code checks.
 
