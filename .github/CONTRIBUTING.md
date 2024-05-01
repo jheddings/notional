@@ -61,6 +61,18 @@ code coverage may be enforced for new commits.
 If it is not practical to develop a unit test, evidence of working code must
 be provided in the pull request.
 
+To run the unittests, you can set up new integration in notion, create new empty
+page and give integration access to the page. Then export two env variables:
+
+```shell
+export NOTION_AUTH_TOKEN="secret_tOkEn"
+export NOTION_TEST_AREA="TEST_PAGE_ID (not the URL)"
+```
+
+before running the tests (`make unit-tests`). Tests are recorded by
+[pytest-vcr](https://pytest-vcr.readthedocs.io/en/latest/), `make reset-vcr`
+will reset recorded data.
+
 ## Submitting Issues & Requests ##
 
 Please review the open issues and feature requests.  This is a great place to start if
