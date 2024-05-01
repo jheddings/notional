@@ -379,3 +379,22 @@ def test_synced_block(notion):
 
     assert isinstance(sync_block, blocks.SyncedBlock)
     assert not sync_block.IsOriginal
+
+
+def test_append_block_after(notion, test_area):
+    first_block = blocks.Paragraph["first"]
+    second_block = blocks.Paragraph["second"]
+    notion.blocks.children.append(test_area, first_block, second_block)
+
+    added_blocks = list(notion.blocks.children.list(test_area))
+    assert added_blocks == [first_block, second_block]
+
+    inserted_block = blocks.Paragraph["inserted"]
+    notion.blocks.children.append(test_area, inserted_block, after=first_block)
+
+    added_blocks = list(notion.blocks.children.list(test_area))
+    assert added_blocks == [first_block, inserted_block, second_block]
+
+    notion.blocks.delete(first_block)
+    notion.blocks.delete(inserted_block)
+    notion.blocks.delete(second_block)
