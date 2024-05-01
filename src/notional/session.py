@@ -116,8 +116,10 @@ class BlocksEndpoint(Endpoint):
             return self.session.client.blocks.children
 
         # https://developers.notion.com/reference/patch-block-children
-        def append(self, parent, *blocks: Block):
+        def append(self, parent, *blocks: Block, after: Block = None):
             """Add the given blocks as children of the specified parent.
+
+            If `after` keyword is specified, they are appended after given Block.
 
             The blocks info will be refreshed based on returned data.
 
@@ -130,10 +132,17 @@ class BlocksEndpoint(Endpoint):
 
             logger.info("Appending %d blocks to %s ...", len(children), parent_id)
 
-            data = self().append(block_id=parent_id, children=children)
+            if after is None:
+                data = self().append(block_id=parent_id, children=children)
+            else:
+                after_id = str(after.id) if isinstance(after, Block) else after
+                data = self().append(
+                    block_id=parent_id, children=children, after=after_id
+                )
 
             if "results" in data:
-                if len(blocks) == len(data["results"]):
+                # in case of `after`, there is second result
+                if len(blocks) == len(data["results"]) or after is not None:
                     for idx in range(len(blocks)):
                         block = blocks[idx]
                         result = data["results"][idx]
