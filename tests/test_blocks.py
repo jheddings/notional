@@ -381,6 +381,7 @@ def test_synced_block(notion):
     assert not sync_block.IsOriginal
 
 
+@pytest.mark.vcr()
 def test_append_block_after(notion, test_area):
     first_block = blocks.Paragraph["first"]
     second_block = blocks.Paragraph["second"]
