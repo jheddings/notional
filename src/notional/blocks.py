@@ -37,7 +37,7 @@ class DataRecord(DataObject, ABC):
     parent: Optional[ParentRef] = None
     has_children: bool = False
 
-    archived: bool = False
+    in_trash: bool = False
 
     created_time: Optional[datetime] = None
     created_by: Optional[PartialUser] = None
