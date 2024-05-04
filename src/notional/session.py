@@ -185,7 +185,7 @@ class BlocksEndpoint(Endpoint):
 
     # https://developers.notion.com/reference/delete-a-block
     def delete(self, block):
-        """Delete (archive) the specified Block.
+        """Delete the specified Block.
 
         `block` may be any suitable `ObjectReference` type.
         """
@@ -198,7 +198,7 @@ class BlocksEndpoint(Endpoint):
         return Block.deserialize(data)
 
     def restore(self, block):
-        """Restore (unarchive) the specified Block.
+        """Restore the specified Block.
 
         `block` may be any suitable `ObjectReference` type.
         """
@@ -206,7 +206,7 @@ class BlocksEndpoint(Endpoint):
         block_id = ObjectReference[block].id
         logger.info("Restoring block :: %s", block_id)
 
-        data = self().update(block_id, archived=False)
+        data = self().update(block_id, in_trash=False)
 
         return Block.deserialize(data)
 
@@ -335,7 +335,7 @@ class DatabasesEndpoint(Endpoint):
         return dbref
 
     def delete(self, dbref):
-        """Delete (archive) the specified Database.
+        """Delete the specified Database.
 
         `dbref` may be any suitable `DatabaseRef` type.
         """
@@ -347,7 +347,7 @@ class DatabasesEndpoint(Endpoint):
         return self.session.blocks.delete(dbid)
 
     def restore(self, dbref):
-        """Restore (unarchive) the specified Database.
+        """Restore the specified Database.
 
         `dbref` may be any suitable `DatabaseRef` type.
         """
@@ -455,20 +455,20 @@ class PagesEndpoint(Endpoint):
         return Page.model_validate(data)
 
     def delete(self, page):
-        """Delete (archive) the specified Page.
+        """Delete the specified Page.
 
         `page` may be any suitable `PageRef` type.
         """
 
-        return self.set(page, archived=True)
+        return self.set(page, in_trash=True)
 
     def restore(self, page):
-        """Restore (unarchive) the specified Page.
+        """Restore the specified Page.
 
         `page` may be any suitable `PageRef` type.
         """
 
-        return self.set(page, archived=False)
+        return self.set(page, in_trash=False)
 
     # https://developers.notion.com/reference/retrieve-a-page
     def retrieve(self, page):
@@ -517,7 +517,7 @@ class PagesEndpoint(Endpoint):
 
         return page.model_update(**data)
 
-    def set(self, page, cover=False, icon=False, archived=None):
+    def set(self, page, cover=False, icon=False, in_trash=None):
         """Set specific page attributes (such as cover, icon, etc.) on the server.
 
         `page` may be any suitable `PageRef` type.
@@ -543,12 +543,12 @@ class PagesEndpoint(Endpoint):
             logger.info("Setting page icon :: %s => %s", page_id, icon)
             props["icon"] = icon.serialize()
 
-        if archived is False:
+        if in_trash is False:
             logger.info("Restoring page :: %s", page_id)
-            props["archived"] = False
-        elif archived is True:
-            logger.info("Archiving page :: %s", page_id)
-            props["archived"] = True
+            props["in_trash"] = False
+        elif in_trash is True:
+            logger.info("Deleting page :: %s", page_id)
+            props["in_trash"] = True
 
         data = self().update(page_id.hex, **props)
 
