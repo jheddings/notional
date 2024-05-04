@@ -381,3 +381,23 @@ def test_synced_block(notion):
 
     assert isinstance(sync_block, blocks.SyncedBlock)
     assert not sync_block.IsOriginal
+
+
+@pytest.mark.vcr()
+def test_append_block_after(notion, blank_page):
+    first_block = blocks.Paragraph["first"]
+    second_block = blocks.Paragraph["second"]
+    notion.blocks.children.append(blank_page, first_block, second_block)
+
+    added_blocks = list(notion.blocks.children.list(blank_page))
+    assert added_blocks == [first_block, second_block]
+
+    inserted_block = blocks.Paragraph["inserted"]
+    notion.blocks.children.append(blank_page, inserted_block, after=first_block)
+
+    added_blocks = list(notion.blocks.children.list(blank_page))
+    assert added_blocks == [first_block, inserted_block, second_block]
+
+    notion.blocks.delete(first_block)
+    notion.blocks.delete(inserted_block)
+    notion.blocks.delete(second_block)

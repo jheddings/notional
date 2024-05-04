@@ -15,11 +15,10 @@
        source .venv/bin/activate
        ```
 
-    2. Install dependencies:
+    2. Install dependencies (using [poetry](https://python-poetry.org/)):
 
        ```shell
-       pip3 install -r requirements/core.txt
-       pip3 install -r requirements/dev.txt
+       poetry install
        ```
 
     3. Install `pre-commit` hooks:
@@ -27,8 +26,6 @@
        ```shell
        pre-commit install
        ```
-
-   Alternatively, use `make devenv` to set this all up for you.
 
 4. Follow the standards enforced by the tools.  At any time, you may use the
    `preflight` target to run the unit tests and code checks.
@@ -63,6 +60,18 @@ code coverage may be enforced for new commits.
 
 If it is not practical to develop a unit test, evidence of working code must
 be provided in the pull request.
+
+To run the unittests, you can set up new integration in notion, create new empty
+page and give integration access to the page. Then export two env variables:
+
+```shell
+export NOTION_AUTH_TOKEN="secret_tOkEn"
+export NOTION_TEST_AREA="TEST_PAGE_ID (not the URL)"
+```
+
+before running the tests (`make unit-tests`). Tests are recorded by
+[pytest-vcr](https://pytest-vcr.readthedocs.io/en/latest/), `make reset-vcr`
+will reset recorded data.
 
 ## Submitting Issues & Requests ##
 

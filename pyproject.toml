@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "notional"
-version = "0.8.1"
+version = "0.8.2"
 description = "A high-level interface for the Notion SDK."
 license = "MIT"
 authors = ["Jason Heddings <jheddings@gmail.com>"]
@@ -18,22 +18,22 @@ notion-client = "^2.2.1"
 pydantic = "^2.5.3"
 html5lib = "^1.1"
 urllib3 = "^1.26.18"
-emoji = "^2.11.0"
+emoji = "^2.11.1"
 
 [tool.poetry.group.dev.dependencies]
 GitPython = "^3.1.43"
 pre-commit = "^3.5.0"
-pytest = "^8.1.0"
-coverage = "^7.4.4"
+pytest = "^8.2.0"
+coverage = "^7.5.0"
 pytest-vcr = "^1.0.2"
-mypy = "^1.9.0"
-ruff = "^0.3.5"
+mypy = "^1.10.0"
+ruff = "^0.4.3"
 
 [tool.poetry.group.docs.dependencies]
-mkdocs = "^1.5.3"
-mkdocstrings = "^0.24.2"
-mkdocs-material = "^9.5.17"
-mkdocstrings-python = "^1.9.2"
+mkdocs = "^1.6.0"
+mkdocstrings = "^0.25.0"
+mkdocs-material = "^9.5.21"
+mkdocstrings-python = "^1.10.0"
 
 [tool.ruff]
 line-length = 88
