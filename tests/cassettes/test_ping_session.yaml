@@ -19,7 +19,7 @@ interactions:
   response:
     content: '{"object":"user","id":"6860cd48-ced8-41b3-b824-c7d039085db1","name":"SDK
       Development","avatar_url":null,"type":"bot","bot":{"owner":{"type":"workspace","workspace":true},"workspace_name":"Jason''s
-      Notion"},"request_id":"24bf76e5-152d-47ab-8cfb-7d0ed4768832"}'
+      Notion"},"request_id":"c7d131ff-3351-47b0-9df3-1beba10645c7"}'
     headers: {}
     http_version: HTTP/1.1
     status_code: 200
