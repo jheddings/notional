@@ -4,6 +4,7 @@
     "python.testing.pytestEnabled": true,
     "python.testing.pytestArgs": [
         "${workspaceFolder}/tests",
+        "--vcr-record=all"
     ],
 
     "python.testing.unittestEnabled": false,
