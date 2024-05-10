@@ -13,7 +13,7 @@ classifiers=[
 ]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
 notion-client = "^2.2.1"
 pydantic = "^2.7.1"
 html5lib = "^1.1"
