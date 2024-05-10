@@ -14,7 +14,7 @@ from notion_client import helpers
 from . import util
 from .core import DataObject, NotionObject, TypedObject
 from .schema import Function
-from .text import Color, RichTextObject, plain_text, rich_text
+from .text import Color, RichTextObject, TextObject, plain_text, rich_text
 from .user import Person, User
 
 # several types in Notion may be respresented by multiple types in Python
@@ -1213,3 +1213,7 @@ class PropertyItem(PropertyValue, DataObject):
     """
 
     object: Literal["property_item"] = "property_item"
+
+
+NotionalIcon = Union[HostedFile, ExternalFile, EmojiObject]
+NotionalText = Union[TextObject, MentionObject, EquationObject]

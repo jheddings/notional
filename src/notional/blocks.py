@@ -5,7 +5,7 @@ Blocks are the base for all Notion content.
 
 from abc import ABC
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import Field
 
@@ -25,6 +25,8 @@ from .types import (
     EmojiObject,
     ExternalFile,
     FileObject,
+    NotionalIcon,
+    NotionalText,
     ParentRef,
     PropertyValue,
 )
@@ -50,12 +52,12 @@ class Database(DataRecord):
     """A database record type."""
 
     object: Literal["database"] = "database"
-    title: List[RichTextObject] = []
+    title: List[NotionalText] = []
     url: Optional[str] = None
-    icon: Optional[FileObject] = None
+    icon: Optional[NotionalIcon] = None
     cover: Optional[ExternalFile] = None
     properties: Dict[str, PropertyObject] = {}
-    description: Optional[List[RichTextObject]] = None
+    description: Optional[List[NotionalText]] = None
     is_inline: bool = False
 
     @property
@@ -72,7 +74,7 @@ class Page(DataRecord):
 
     object: Literal["page"] = "page"
     url: Optional[str] = None
-    icon: Optional[FileObject] = None
+    icon: Optional[NotionalIcon] = None
     cover: Optional[ExternalFile] = None
     properties: Dict[str, PropertyValue] = {}
 
@@ -234,7 +236,7 @@ class Paragraph(TextBlock, WithChildrenMixin):
     """A paragraph block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[RichTextObject] = []
+        rich_text: List[NotionalText] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -255,7 +257,7 @@ class Heading1(TextBlock):
     """A heading_1 block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[RichTextObject] = []
+        rich_text: List[NotionalText] = []
         color: FullColor = FullColor.DEFAULT
 
     heading_1: _NestedData = Field(default_factory=_NestedData)
@@ -275,7 +277,7 @@ class Heading2(TextBlock):
     """A heading_2 block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[RichTextObject] = []
+        rich_text: List[NotionalText] = []
         color: FullColor = FullColor.DEFAULT
 
     heading_2: _NestedData = Field(default_factory=_NestedData)
@@ -295,7 +297,7 @@ class Heading3(TextBlock):
     """A heading_3 block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[RichTextObject] = []
+        rich_text: List[NotionalText] = []
         color: FullColor = FullColor.DEFAULT
 
     heading_3: _NestedData = Field(default_factory=_NestedData)
@@ -315,7 +317,7 @@ class Quote(TextBlock, WithChildrenMixin):
     """A quote block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[RichTextObject] = []
+        rich_text: List[NotionalText] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -336,8 +338,8 @@ class Code(TextBlock):
     """A code block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[RichTextObject] = []
-        caption: List[RichTextObject] = []
+        rich_text: List[NotionalText] = []
+        caption: List[NotionalText] = []
         language: CodingLanguage = CodingLanguage.PLAIN_TEXT
 
     code: _NestedData = Field(default_factory=_NestedData)
@@ -368,9 +370,9 @@ class Callout(TextBlock, WithChildrenMixin):
     """A callout block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[RichTextObject] = []
+        rich_text: List[NotionalText] = []
         children: Optional[List[Block]] = None
-        icon: Optional[Union[FileObject, EmojiObject]] = None
+        icon: Optional[NotionalIcon] = None
         color: FullColor = FullColor.GRAY_BACKGROUND
 
     callout: _NestedData = Field(default_factory=_NestedData)
@@ -395,7 +397,7 @@ class BulletedListItem(TextBlock, WithChildrenMixin):
     """A bulleted list item in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[RichTextObject] = []
+        rich_text: List[NotionalText] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -416,7 +418,7 @@ class NumberedListItem(TextBlock, WithChildrenMixin):
     """A numbered list item in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[RichTextObject] = []
+        rich_text: List[NotionalText] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -437,7 +439,7 @@ class ToDo(TextBlock, WithChildrenMixin):
     """A todo list item in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[RichTextObject] = []
+        rich_text: List[NotionalText] = []
         checked: bool = False
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
@@ -482,7 +484,7 @@ class Toggle(TextBlock, WithChildrenMixin):
     """A toggle list item in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[RichTextObject] = []
+        rich_text: List[NotionalText] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -554,7 +556,7 @@ class Bookmark(Block):
 
     class _NestedData(NotionObject):
         url: str
-        caption: Optional[List[RichTextObject]] = None
+        caption: Optional[List[NotionalText]] = None
 
     bookmark: _NestedData
     type: Literal["bookmark"] = "bookmark"
@@ -722,7 +724,7 @@ class TableRow(Block):
     """A table_row block in Notion."""
 
     class _NestedData(NotionObject):
-        cells: List[List[RichTextObject]] = []
+        cells: List[List[NotionalText]] = []
 
         def __getitem__(self, col):
             """Return the cell content for the requested column.
@@ -864,7 +866,7 @@ class Template(Block, WithChildrenMixin):
     """A template block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: Optional[List[RichTextObject]] = None
+        rich_text: Optional[List[NotionalText]] = None
         children: Optional[List[Block]] = None
 
     template: _NestedData
