@@ -137,14 +137,13 @@ class BlocksEndpoint(Endpoint):
             if after is None:
                 data = self().append(block_id=parent_id, children=children)
             else:
-                after_id = str(after.id) if isinstance(after, Block) else after
+                after_id = ObjectReference[after].id
                 data = self().append(
                     block_id=parent_id, children=children, after=after_id
                 )
 
             if "results" in data:
-                # in case of `after`, there is second result
-                if len(blocks) == len(data["results"]) or after is not None:
+                if len(blocks) == len(data["results"]):
                     for idx in range(len(blocks)):
                         block = blocks[idx]
                         result = data["results"][idx]
