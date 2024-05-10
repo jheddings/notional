@@ -205,7 +205,7 @@ class BlocksEndpoint(Endpoint):
         block_id = ObjectReference[block].id
         logger.info("Restoring block :: %s", block_id)
 
-        data = self().update(block_id, in_trash=False)
+        data = self().update(block_id, archived=False)
 
         return Block.deserialize(data)
 
@@ -235,7 +235,8 @@ class BlocksEndpoint(Endpoint):
 
         logger.info("Updating block :: %s", block.id)
 
-        data = self().update(block.id.hex, block.serialize())
+        content = block.serialize()
+        data = self().update(block.id.hex, **content)
 
         return block.model_update(**data)
 
@@ -459,7 +460,7 @@ class PagesEndpoint(Endpoint):
         `page` may be any suitable `PageRef` type.
         """
 
-        return self.set(page, in_trash=True)
+        return self.set(page, archived=True)
 
     def restore(self, page):
         """Restore the specified Page.
@@ -467,7 +468,7 @@ class PagesEndpoint(Endpoint):
         `page` may be any suitable `PageRef` type.
         """
 
-        return self.set(page, in_trash=False)
+        return self.set(page, archived=False)
 
     # https://developers.notion.com/reference/retrieve-a-page
     def retrieve(self, page):
@@ -516,7 +517,7 @@ class PagesEndpoint(Endpoint):
 
         return page.model_update(**data)
 
-    def set(self, page, cover=False, icon=False, in_trash=None):
+    def set(self, page, cover=False, icon=False, archived=None):
         """Set specific page attributes (such as cover, icon, etc.) on the server.
 
         `page` may be any suitable `PageRef` type.
@@ -542,12 +543,12 @@ class PagesEndpoint(Endpoint):
             logger.info("Setting page icon :: %s => %s", page_id, icon)
             props["icon"] = icon.serialize()
 
-        if in_trash is False:
+        if archived is False:
             logger.info("Restoring page :: %s", page_id)
-            props["in_trash"] = False
-        elif in_trash is True:
+            props["archived"] = False
+        elif archived is True:
             logger.info("Deleting page :: %s", page_id)
-            props["in_trash"] = True
+            props["archived"] = True
 
         data = self().update(page_id.hex, **props)
 

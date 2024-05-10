@@ -1217,3 +1217,4 @@ class PropertyItem(PropertyValue, DataObject):
 
 NotionalIcon = Union[HostedFile, ExternalFile, EmojiObject]
 NotionalText = Union[TextObject, MentionObject, EquationObject]
+NotionalFile = Union[HostedFile, ExternalFile]

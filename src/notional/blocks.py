@@ -24,7 +24,7 @@ from .types import (
     BlockRef,
     EmojiObject,
     ExternalFile,
-    FileObject,
+    NotionalFile,
     NotionalIcon,
     NotionalText,
     ParentRef,
@@ -39,7 +39,7 @@ class DataRecord(DataObject, ABC):
     parent: Optional[ParentRef] = None
     has_children: bool = False
 
-    in_trash: bool = False
+    archived: bool = False
 
     created_time: Optional[datetime] = None
     created_by: Optional[PartialUser] = None
@@ -637,28 +637,28 @@ class Equation(Block):
 class File(Block):
     """A file block in Notion."""
 
-    file: FileObject
+    file: NotionalFile
     type: Literal["file"] = "file"
 
 
 class Image(Block):
     """An image block in Notion."""
 
-    image: FileObject
+    image: NotionalFile
     type: Literal["image"] = "image"
 
 
 class Video(Block):
     """A video block in Notion."""
 
-    video: FileObject
+    video: NotionalFile
     type: Literal["video"] = "video"
 
 
 class PDF(Block):
     """A pdf block in Notion."""
 
-    pdf: FileObject
+    pdf: NotionalFile
     type: Literal["pdf"] = "pdf"
 
 

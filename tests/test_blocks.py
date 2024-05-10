@@ -68,7 +68,7 @@ def test_create_block(notion, test_area):
     # this should update our block with data from the API
     notion.blocks.children.append(test_area, block)
     assert block.id is not None
-    assert block.in_trash is False
+    assert block.archived is False
 
     # retrieving the block should give us the same data
     new_block = notion.blocks.retrieve(block.id)
@@ -87,7 +87,7 @@ def test_delete_block(notion, test_area):
 
     deleted = notion.blocks.retrieve(block.id)
 
-    assert deleted.in_trash is True
+    assert deleted.archived is True
     assert deleted == block
 
 
@@ -98,7 +98,7 @@ def test_restore_block(notion, test_area):
 
     notion.blocks.children.append(test_area, block)
     deleted = notion.blocks.delete(block)
-    assert deleted.in_trash is True
+    assert deleted.archived is True
 
     # restore and capture the target block
     block = notion.blocks.restore(block)
@@ -106,7 +106,7 @@ def test_restore_block(notion, test_area):
     # get the new restored back from the API
     restored = notion.blocks.retrieve(block.id)
 
-    assert restored.in_trash is False
+    assert restored.archived is False
     assert restored == block
 
     notion.blocks.delete(restored)
