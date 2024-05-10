@@ -510,8 +510,14 @@ class TableOfContents(Block):
     class _NestedData(NotionObject):
         color: FullColor = FullColor.DEFAULT
 
-    table_of_contents: _NestedData
+    table_of_contents: _NestedData = Field(default_factory=_NestedData)
     type: Literal["table_of_contents"] = "table_of_contents"
+
+    @classmethod
+    def __compose__(cls, color):
+        """Compose a TableOfContents block with the given color."""
+        nested = TableOfContents._NestedData(color=color)
+        return cls(table_of_contents=nested)
 
 
 class Breadcrumb(Block):
