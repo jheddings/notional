@@ -2,25 +2,29 @@
 repos:
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: "v4.5.0"
     hooks:
       - id: check-case-conflict
       - id: check-merge-conflict
       - id: check-toml
       - id: trailing-whitespace
 
+  - repo: https://github.com/psf/black
+    rev: "24.4.2"
+    hooks:
+      - id: black
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.4
+    rev: "v0.4.4"
     hooks:
       - id: ruff
-      - id: ruff-format
 
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.35.1
+    rev: "v1.35.1"
     hooks:
       - id: yamllint
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.13.0
+    rev: "v0.13.0"
     hooks:
       - id: markdownlint-cli2
