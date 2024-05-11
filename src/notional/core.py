@@ -81,7 +81,7 @@ class NotionObject(BaseModel, ABC, metaclass=ComposableObjectMeta):
     """The base for all Notion API objects.
 
     As a general convention, data fields in lower case are defined by the Notion API.
-    Properties in Title Case are provided for convenience (e.g. computed fields).
+    Properties in TitleCase are provided for convenience (e.g. computed fields).
     """
 
     def model_update(self, **data):

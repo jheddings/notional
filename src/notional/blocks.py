@@ -24,9 +24,8 @@ from .types import (
     BlockRef,
     EmojiObject,
     ExternalFile,
-    NotionalFile,
+    FileObject,
     NotionalIcon,
-    NotionalText,
     ParentRef,
     PropertyValue,
 )
@@ -52,12 +51,12 @@ class Database(DataRecord):
     """A database record type."""
 
     object: Literal["database"] = "database"
-    title: List[NotionalText] = []
+    title: List[RichTextObject] = []
     url: Optional[str] = None
     icon: Optional[NotionalIcon] = None
     cover: Optional[ExternalFile] = None
     properties: Dict[str, PropertyObject] = {}
-    description: Optional[List[NotionalText]] = None
+    description: Optional[List[RichTextObject]] = None
     is_inline: bool = False
 
     @property
@@ -236,7 +235,7 @@ class Paragraph(TextBlock, WithChildrenMixin):
     """A paragraph block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[NotionalText] = []
+        rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -257,7 +256,7 @@ class Heading1(TextBlock):
     """A heading_1 block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[NotionalText] = []
+        rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
     heading_1: _NestedData = Field(default_factory=_NestedData)
@@ -277,7 +276,7 @@ class Heading2(TextBlock):
     """A heading_2 block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[NotionalText] = []
+        rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
     heading_2: _NestedData = Field(default_factory=_NestedData)
@@ -297,7 +296,7 @@ class Heading3(TextBlock):
     """A heading_3 block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[NotionalText] = []
+        rich_text: List[RichTextObject] = []
         color: FullColor = FullColor.DEFAULT
 
     heading_3: _NestedData = Field(default_factory=_NestedData)
@@ -317,7 +316,7 @@ class Quote(TextBlock, WithChildrenMixin):
     """A quote block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[NotionalText] = []
+        rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -338,8 +337,8 @@ class Code(TextBlock):
     """A code block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[NotionalText] = []
-        caption: List[NotionalText] = []
+        rich_text: List[RichTextObject] = []
+        caption: List[RichTextObject] = []
         language: CodingLanguage = CodingLanguage.PLAIN_TEXT
 
     code: _NestedData = Field(default_factory=_NestedData)
@@ -370,7 +369,7 @@ class Callout(TextBlock, WithChildrenMixin):
     """A callout block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[NotionalText] = []
+        rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         icon: Optional[NotionalIcon] = None
         color: FullColor = FullColor.GRAY_BACKGROUND
@@ -397,7 +396,7 @@ class BulletedListItem(TextBlock, WithChildrenMixin):
     """A bulleted list item in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[NotionalText] = []
+        rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -418,7 +417,7 @@ class NumberedListItem(TextBlock, WithChildrenMixin):
     """A numbered list item in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[NotionalText] = []
+        rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -439,7 +438,7 @@ class ToDo(TextBlock, WithChildrenMixin):
     """A todo list item in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[NotionalText] = []
+        rich_text: List[RichTextObject] = []
         checked: bool = False
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
@@ -484,7 +483,7 @@ class Toggle(TextBlock, WithChildrenMixin):
     """A toggle list item in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: List[NotionalText] = []
+        rich_text: List[RichTextObject] = []
         children: Optional[List[Block]] = None
         color: FullColor = FullColor.DEFAULT
 
@@ -562,7 +561,7 @@ class Bookmark(Block):
 
     class _NestedData(NotionObject):
         url: str
-        caption: Optional[List[NotionalText]] = None
+        caption: Optional[List[RichTextObject]] = None
 
     bookmark: _NestedData
     type: Literal["bookmark"] = "bookmark"
@@ -637,28 +636,28 @@ class Equation(Block):
 class File(Block):
     """A file block in Notion."""
 
-    file: NotionalFile
+    file: FileObject
     type: Literal["file"] = "file"
 
 
 class Image(Block):
     """An image block in Notion."""
 
-    image: NotionalFile
+    image: FileObject
     type: Literal["image"] = "image"
 
 
 class Video(Block):
     """A video block in Notion."""
 
-    video: NotionalFile
+    video: FileObject
     type: Literal["video"] = "video"
 
 
 class PDF(Block):
     """A pdf block in Notion."""
 
-    pdf: NotionalFile
+    pdf: FileObject
     type: Literal["pdf"] = "pdf"
 
 
@@ -730,7 +729,7 @@ class TableRow(Block):
     """A table_row block in Notion."""
 
     class _NestedData(NotionObject):
-        cells: List[List[NotionalText]] = []
+        cells: List[List[RichTextObject]] = []
 
         def __getitem__(self, col):
             """Return the cell content for the requested column.
@@ -872,7 +871,7 @@ class Template(Block, WithChildrenMixin):
     """A template block in Notion."""
 
     class _NestedData(NotionObject):
-        rich_text: Optional[List[NotionalText]] = None
+        rich_text: Optional[List[RichTextObject]] = None
         children: Optional[List[Block]] = None
 
     template: _NestedData
