@@ -27,7 +27,7 @@ pytest = "^8.2.0"
 coverage = "^7.5.1"
 pytest-vcr = "^1.0.2"
 mypy = "^1.10.0"
-ruff = "^0.4.3"
+ruff = "^0.4.4"
 black = "^24.4.2"
 
 [tool.poetry.group.docs.dependencies]
