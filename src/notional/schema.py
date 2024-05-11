@@ -1,12 +1,12 @@
 """Objects representing a database schema."""
 
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Any, List, Literal, Optional, Union
 from uuid import UUID
 
-import pydantic
+from pydantic import field_validator
 
-from .core import GenericObject, TypedObject
+from .core import NotionObject, TypedObject
 from .text import Color
 
 
@@ -94,31 +94,33 @@ class PropertyObject(TypedObject):
     name: Optional[str] = None
 
 
-class Title(PropertyObject, type="title"):
+class Title(PropertyObject):
     """Defines the title configuration for a database property."""
 
     title: Any = {}
+    type: Literal["title"] = "title"
 
 
-class RichText(PropertyObject, type="rich_text"):
+class RichText(PropertyObject):
     """Defines the rich text configuration for a database property."""
 
     rich_text: Any = {}
+    type: Literal["rich_text"] = "rich_text"
 
 
-class Number(PropertyObject, type="number"):
+class Number(PropertyObject):
     """Defines the number configuration for a database property."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         format: NumberFormat = NumberFormat.NUMBER
 
-        # leads to better error messages, see
-        # https://github.com/pydantic/pydantic/issues/355
-        @pydantic.validator("format", pre=True)
+        # leads to better error messages; see https://github.com/pydantic/pydantic/issues/355
+        @field_validator("format", mode="before")
         def validate_enum_field(cls, field: str):
             return NumberFormat(field)
 
-    number: _NestedData = _NestedData()
+    number: _NestedData
+    type: Literal["number"] = "number"
 
     @classmethod
     def __compose__(cls, format):
@@ -126,11 +128,11 @@ class Number(PropertyObject, type="number"):
         return cls(number=cls._NestedData(format=format))
 
 
-class SelectOption(GenericObject):
+class SelectOption(NotionObject):
     """Options for select & multi-select objects."""
 
     name: str
-    id: str = None
+    id: Optional[str] = None
     color: str = Color.DEFAULT
 
     @classmethod
@@ -139,13 +141,14 @@ class SelectOption(GenericObject):
         return cls(name=name, color=color)
 
 
-class Select(PropertyObject, type="select"):
+class Select(PropertyObject):
     """Defines the select configuration for a database property."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         options: List[SelectOption] = []
 
-    select: _NestedData = _NestedData()
+    select: _NestedData
+    type: Literal["select"] = "select"
 
     @classmethod
     def __compose__(cls, options):
@@ -153,113 +156,122 @@ class Select(PropertyObject, type="select"):
         return cls(select=cls._NestedData(options=options))
 
 
-class MultiSelect(PropertyObject, type="multi_select"):
+class MultiSelect(PropertyObject):
     """Defines the multi-select configuration for a database property."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         options: List[SelectOption] = []
 
-    multi_select: _NestedData = _NestedData()
+    multi_select: _NestedData
+    type: Literal["multi_select"] = "multi_select"
 
 
-class Status(PropertyObject, type="status"):
+class Status(PropertyObject):
     """Defines the status configuration for a database property."""
 
     status: Any = {}
+    type: Literal["status"] = "status"
 
 
-class Date(PropertyObject, type="date"):
+class Date(PropertyObject):
     """Defines the date configuration for a database property."""
 
     date: Any = {}
+    type: Literal["date"] = "date"
 
 
-class People(PropertyObject, type="people"):
+class People(PropertyObject):
     """Defines the people configuration for a database property."""
 
     people: Any = {}
+    type: Literal["people"] = "people"
 
 
-class Files(PropertyObject, type="files"):
+class Files(PropertyObject):
     """Defines the files configuration for a database property."""
 
     files: Any = {}
+    type: Literal["files"] = "files"
 
 
-class Checkbox(PropertyObject, type="checkbox"):
+class Checkbox(PropertyObject):
     """Defines the checkbox configuration for a database property."""
 
     checkbox: Any = {}
+    type: Literal["checkbox"] = "checkbox"
 
 
-class Email(PropertyObject, type="email"):
+class Email(PropertyObject):
     """Defines the email configuration for a database property."""
 
     email: Any = {}
+    type: Literal["email"] = "email"
 
 
-class URL(PropertyObject, type="url"):
+class URL(PropertyObject):
     """Defines the URL configuration for a database property."""
 
     url: Any = {}
+    type: Literal["url"] = "url"
 
 
-class PhoneNumber(PropertyObject, type="phone_number"):
+class PhoneNumber(PropertyObject):
     """Defines the phone number configuration for a database property."""
 
     phone_number: Any = {}
+    type: Literal["phone_number"] = "phone_number"
 
 
-class Formula(PropertyObject, type="formula"):
+class Formula(PropertyObject):
     """Defines the formula configuration for a database property."""
 
-    class _NestedData(GenericObject):
-        expression: str = None
+    class _NestedData(NotionObject):
+        expression: str
 
-    formula: _NestedData = _NestedData()
+    formula: _NestedData
+    type: Literal["formula"] = "formula"
 
 
 class PropertyRelation(TypedObject):
     """Defines common configuration for a property relation."""
 
-    database_id: UUID = None
+    database_id: UUID
 
 
-class SinglePropertyRelation(PropertyRelation, type="single_property"):
+class SinglePropertyRelation(PropertyRelation):
     """Defines a single-property relation configuration for a database property."""
 
     single_property: Any = {}
+    type: Literal["single_property"] = "single_property"
 
     @classmethod
-    def __compose__(cls, dbref):
-        """Create a `single_property` relation using the target database reference.
-
-        `dbref` must be either a string or UUID.
-        """
-
+    def __compose__(cls, dbref: Union[str, UUID]):
+        """Create a `single_property` relation using the target database reference."""
         return Relation(relation=SinglePropertyRelation(database_id=dbref))
 
 
-class DualPropertyRelation(PropertyRelation, type="dual_property"):
+class DualPropertyRelation(PropertyRelation):
     """Defines a dual-property relation configuration for a database property."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         synced_property_name: Optional[str] = None
         synced_property_id: Optional[str] = None
 
-    dual_property: _NestedData = _NestedData()
+    dual_property: _NestedData
+    type: Literal["dual_property"] = "dual_property"
 
 
-class Relation(PropertyObject, type="relation"):
+class Relation(PropertyObject):
     """Defines the relation configuration for a database property."""
 
-    relation: PropertyRelation = PropertyRelation()
+    relation: Union[SinglePropertyRelation, DualPropertyRelation]
+    type: Literal["relation"] = "relation"
 
 
-class Rollup(PropertyObject, type="rollup"):
+class Rollup(PropertyObject):
     """Defines the rollup configuration for a database property."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         function: Function = Function.COUNT
 
         relation_property_name: Optional[str] = None
@@ -268,34 +280,38 @@ class Rollup(PropertyObject, type="rollup"):
         rollup_property_name: Optional[str] = None
         rollup_property_id: Optional[str] = None
 
-        # leads to better error messages, see
-        # https://github.com/pydantic/pydantic/issues/355
-        @pydantic.validator("function", pre=True)
+        # leads to better error messages; see https://github.com/pydantic/pydantic/issues/355
+        @field_validator("function", mode="before")
         def validate_enum_field(cls, field: str):
             return Function(field)
 
-    rollup: _NestedData = _NestedData()
+    rollup: _NestedData
+    type: Literal["rollup"] = "rollup"
 
 
-class CreatedTime(PropertyObject, type="created_time"):
+class CreatedTime(PropertyObject):
     """Defines the created-time configuration for a database property."""
 
     created_time: Any = {}
+    type: Literal["created_time"] = "created_time"
 
 
-class CreatedBy(PropertyObject, type="created_by"):
+class CreatedBy(PropertyObject):
     """Defines the created-by configuration for a database property."""
 
     created_by: Any = {}
+    type: Literal["created_by"] = "created_by"
 
 
-class LastEditedBy(PropertyObject, type="last_edited_by"):
+class LastEditedBy(PropertyObject):
     """Defines the last-edited-by configuration for a database property."""
 
     last_edited_by: Any = {}
+    type: Literal["last_edited_by"] = "last_edited_by"
 
 
-class LastEditedTime(PropertyObject, type="last_edited_time"):
+class LastEditedTime(PropertyObject):
     """Defines the last-edited-time configuration for a database property."""
 
     last_edited_time: Any = {}
+    type: Literal["last_edited_time"] = "last_edited_time"

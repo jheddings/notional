@@ -13,16 +13,16 @@ classifiers=[
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8.1"
+python = "^3.12"
 notion-client = "^2.2.1"
-pydantic = "^1.10.15"
+pydantic = "^2.7.1"
 html5lib = "^1.1"
 urllib3 = "^1.26.18"
 emoji = "^2.11.1"
 
 [tool.poetry.group.dev.dependencies]
 GitPython = "^3.1.43"
-pre-commit = "^3.5.0"
+pre-commit = "^3.7.0"
 pytest = "^8.2.0"
 coverage = "^7.5.1"
 pytest-vcr = "^1.0.2"
@@ -58,6 +58,11 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["notional"]
+
+[tool.mypy]
+no_implicit_optional = true
+warn_return_any = true
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=1.9.0"]

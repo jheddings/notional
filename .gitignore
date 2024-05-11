@@ -8,6 +8,10 @@ __pycache__
 *.prof
 .coverage
 
+.mypy_cache
+.pytest_cache
+.ruff_cache
+
 .venv
 
 local.env

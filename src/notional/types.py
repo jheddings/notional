@@ -6,40 +6,44 @@ used in the Notion API as well as higher-level methods.
 
 from abc import ABC, abstractmethod
 from datetime import date, datetime
-from typing import List, Optional, Union
+from typing import List, Literal, Optional, Union
 from uuid import UUID
 
 from notion_client import helpers
 
 from . import util
-from .core import GenericObject, NotionObject, TypedObject
+from .core import DataObject, NotionObject, TypedObject
 from .schema import Function
 from .text import Color, RichTextObject, plain_text, rich_text
-from .user import User
+from .user import Person, User
+
+# several types in Notion may be respresented by multiple types in Python
+NotionalDate = Union[date, datetime]
+NotionalID = Union[UUID, str]
+NotionalNumber = Union[int, float]
+NotionalRef = Union[str, UUID, DataObject]
 
 
-class ObjectReference(GenericObject):
+class ObjectReference(NotionObject):
     """A general-purpose object reference in the Notion API."""
 
     id: UUID
 
     @classmethod
-    def __compose__(cls, ref):
+    def __compose__(cls, ref: Union[str, UUID, "ParentRef", NotionObject]):
         """Compose an ObjectReference from the given reference.
-
-        `ref` may be a `UUID`, `str`, `ParentRef` or `GenericObject` with an `id`.
 
         Strings may be either UUID's or URL's to Notion content.
         """
 
         if isinstance(ref, cls):
-            return ref.copy(deep=True)
+            return ref.model_copy(deep=True)
 
         if isinstance(ref, ParentRef):
             # ParentRef's are typed-objects with a nested UUID
             return ObjectReference(id=ref())
 
-        if isinstance(ref, GenericObject) and hasattr(ref, "id"):
+        if isinstance(ref, NotionObject) and hasattr(ref, "id"):
             # re-compose the ObjectReference from the internal ID
             return ObjectReference[ref.id]
 
@@ -55,90 +59,86 @@ class ObjectReference(GenericObject):
         raise ValueError("Unrecognized 'ref' attribute")
 
     @property
-    def URL(self):
+    def URL(self) -> str:
         """Return the Notion URL for this object reference.
 
         Note: this is a convenience property only.  It does not guarantee that the
         URL exists or that it is accessible by the integration.
         """
-        return helpers.get_url(self.id)
+        return helpers.get_url(self.id.hex)
 
 
 # https://developers.notion.com/reference/parent-object
-class ParentRef(TypedObject):
+class ParentRef(TypedObject, ABC):
     """Reference another block as a parent."""
 
     # note that this class is simply a placeholder for the typed concrete *Ref classes
     # callers should always instantiate the intended concrete versions
 
 
-class DatabaseRef(ParentRef, type="database_id"):
+class DatabaseRef(ParentRef):
     """Reference a database."""
 
     database_id: UUID
+    type: Literal["database_id"] = "database_id"
 
     @classmethod
-    def __compose__(cls, db_ref):
-        """Compose a DatabaseRef from the given reference object.
-
-        `db_ref` can be either a string, UUID, or database.
-        """
+    def __compose__(cls, db_ref: NotionalRef):
+        """Compose a DatabaseRef from the given reference object."""
         ref = ObjectReference[db_ref]
-        return DatabaseRef(database_id=ref.id)
+        return cls(database_id=ref.id)
 
 
-class PageRef(ParentRef, type="page_id"):
+class PageRef(ParentRef):
     """Reference a page."""
 
     page_id: UUID
+    type: Literal["page_id"] = "page_id"
 
     @classmethod
-    def __compose__(cls, page_ref):
-        """Compose a PageRef from the given reference object.
-
-        `page_ref` can be either a string, UUID, or page.
-        """
+    def __compose__(cls, page_ref: NotionalRef):
+        """Compose a PageRef from the given reference object."""
         ref = ObjectReference[page_ref]
-        return PageRef(page_id=ref.id)
+        return cls(page_id=ref.id)
 
 
-class BlockRef(ParentRef, type="block_id"):
+class BlockRef(ParentRef):
     """Reference a block."""
 
     block_id: UUID
+    type: Literal["block_id"] = "block_id"
 
     @classmethod
-    def __compose__(cls, block_ref):
-        """Compose a BlockRef from the given reference object.
-
-        `block_ref` can be either a string, UUID, or block.
-        """
+    def __compose__(cls, block_ref: NotionalRef):
+        """Compose a BlockRef from the given reference object."""
         ref = ObjectReference[block_ref]
-        return BlockRef(block_id=ref.id)
+        return cls(block_id=ref.id)
 
 
-class WorkspaceRef(ParentRef, type="workspace"):
+class WorkspaceRef(ParentRef):
     """Reference the workspace."""
 
     workspace: bool = True
+    type: Literal["workspace"] = "workspace"
 
 
-class EmojiObject(TypedObject, type="emoji"):
+class EmojiObject(TypedObject):
     """A Notion emoji object."""
 
     emoji: str
+    type: Literal["emoji"] = "emoji"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return this EmojiObject as a simple string."""
         return self.emoji
 
     @classmethod
     def __compose__(cls, emoji):
         """Compose an EmojiObject from the given emoji string."""
-        return EmojiObject(emoji=emoji)
+        return cls(emoji=emoji)
 
 
-class FileObject(TypedObject):
+class FileObject(TypedObject, ABC):
     """A Notion file object.
 
     Depending on the context, a FileObject may require a name (such as in the `Files`
@@ -149,7 +149,7 @@ class FileObject(TypedObject):
 
     name: Optional[str] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this object."""
         return self.name or "__unknown__"
 
@@ -159,25 +159,27 @@ class FileObject(TypedObject):
         return self("url")
 
 
-class HostedFile(FileObject, type="file"):
+class HostedFile(FileObject):
     """A Notion file object."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         url: str
         expiry_time: Optional[datetime] = None
 
     file: _NestedData
+    type: Literal["file"] = "file"
 
 
-class ExternalFile(FileObject, type="external"):
+class ExternalFile(FileObject):
     """An external file object."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         url: str
 
     external: _NestedData
+    type: Literal["external"] = "external"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this object."""
         name = super().__str__()
 
@@ -189,16 +191,17 @@ class ExternalFile(FileObject, type="external"):
     @classmethod
     def __compose__(cls, url, name=None):
         """Create a new `ExternalFile` from the given URL."""
-        return cls(name=name, external=cls._NestedData(url=url))
+        nested = cls._NestedData(url=url)
+        return cls(name=name, external=nested)
 
 
-class DateRange(GenericObject):
+class DateRange(NotionObject):
     """A Notion date range, with an optional end date."""
 
-    start: Union[date, datetime]
-    end: Optional[Union[date, datetime]] = None
+    start: NotionalDate
+    end: Optional[NotionalDate] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this object."""
 
         if self.end is None:
@@ -207,14 +210,15 @@ class DateRange(GenericObject):
         return f"{self.start} :: {self.end}"
 
 
-class MentionData(TypedObject):
+class MentionData(TypedObject, ABC):
     """Base class for typed `Mention` data objects."""
 
 
-class MentionUser(MentionData, type="user"):
+class MentionUser(MentionData):
     """Nested user data for `Mention` properties."""
 
     user: User
+    type: Literal["user"] = "user"
 
     @classmethod
     def __compose__(cls, user: User):
@@ -224,13 +228,17 @@ class MentionUser(MentionData, type="user"):
         if they do not match the specific type returned from the API.
         """
 
-        return MentionObject(plain_text=str(user), mention=MentionUser(user=user))
+        return MentionObject(
+            plain_text=str(user),
+            mention=MentionUser(user=user),
+        )
 
 
-class MentionPage(MentionData, type="page"):
+class MentionPage(MentionData):
     """Nested page data for `Mention` properties."""
 
     page: ObjectReference
+    type: Literal["page"] = "page"
 
     @classmethod
     def __compose__(cls, page_ref):
@@ -238,13 +246,17 @@ class MentionPage(MentionData, type="page"):
 
         ref = ObjectReference[page_ref]
 
-        return MentionObject(plain_text=str(ref), mention=MentionPage(page=ref))
+        return MentionObject(
+            plain_text=str(ref),
+            mention=MentionPage(page=ref),
+        )
 
 
-class MentionDatabase(MentionData, type="database"):
+class MentionDatabase(MentionData):
     """Nested database information for `Mention` properties."""
 
     database: ObjectReference
+    type: Literal["database"] = "database"
 
     @classmethod
     def __compose__(cls, page):
@@ -252,13 +264,17 @@ class MentionDatabase(MentionData, type="database"):
 
         ref = ObjectReference[page]
 
-        return MentionObject(plain_text=str(ref), mention=MentionDatabase(database=ref))
+        return MentionObject(
+            plain_text=str(ref),
+            mention=MentionDatabase(database=ref),
+        )
 
 
-class MentionDate(MentionData, type="date"):
+class MentionDate(MentionData):
     """Nested date data for `Mention` properties."""
 
     date: DateRange
+    type: Literal["date"] = "date"
 
     @classmethod
     def __compose__(cls, start, end=None):
@@ -267,59 +283,66 @@ class MentionDate(MentionData, type="date"):
         date_obj = DateRange(start=start, end=end)
 
         return MentionObject(
-            plain_text=str(date_obj), mention=MentionDate(date=date_obj)
+            plain_text=str(date_obj),
+            mention=MentionDate(date=date_obj),
         )
 
 
-class MentionLinkPreview(MentionData, type="link_preview"):
+class MentionLinkPreview(MentionData):
     """Nested url data for `Mention` properties.
 
     These objects cannot be created via the API.
     """
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         url: str
 
     link_preview: _NestedData
+    type: Literal["link_preview"] = "link_preview"
 
 
-class MentionTemplateData(TypedObject):
+class MentionTemplateData(TypedObject, ABC):
     """Nested template data for `Mention` properties."""
 
 
-class MentionTemplateDate(MentionTemplateData, type="template_mention_date"):
+class MentionTemplateDate(MentionTemplateData):
     """Nested date template data for `Mention` properties."""
 
     template_mention_date: str
+    type: Literal["template_mention_date"] = "template_mention_date"
 
 
-class MentionTemplateUser(MentionTemplateData, type="template_mention_user"):
+class MentionTemplateUser(MentionTemplateData):
     """Nested user template data for `Mention` properties."""
 
     template_mention_user: str
+    type: Literal["template_mention_user"] = "template_mention_user"
 
 
-class MentionTemplate(MentionData, type="template_mention"):
+class MentionTemplate(MentionData):
     """Nested template data for `Mention` properties."""
 
     template_mention: MentionTemplateData
+    type: Literal["template_mention"] = "template_mention"
 
 
-class MentionObject(RichTextObject, type="mention"):
+class MentionObject(RichTextObject):
     """Notion mention element."""
 
     mention: MentionData
+    type: Literal["mention"] = "mention"
 
 
-class EquationObject(RichTextObject, type="equation"):
+class EquationObject(RichTextObject):
     """Notion equation element."""
 
-    class _NestedData(GenericObject):
+    class _NestedData(NotionObject):
         expression: str
 
     equation: _NestedData
+    type: Literal["equation"] = "equation"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this object."""
 
         if self.equation is None:
@@ -328,10 +351,16 @@ class EquationObject(RichTextObject, type="equation"):
         return self.equation.expression
 
 
-class NativeTypeMixin:
-    """Mixin class for properties that can be represented as native Python types."""
+class PropertyValue(TypedObject, ABC):
+    """Base class for Notion property values."""
 
-    def __str__(self):
+    id: Optional[str] = None
+
+
+class NativePropertyValue(PropertyValue, ABC):
+    """Base class for properties that can be represented as native Python types."""
+
+    def __str__(self) -> str:
         """Return a string representation of this object."""
 
         value = self.Value
@@ -344,9 +373,13 @@ class NativeTypeMixin:
     def __eq__(self, other):
         """Determine if this property is equal to the given object."""
 
-        # if `other` is a NativeTypeMixin, this comparrison will call __eq__ on that
+        # if both objects are PropertyValue's, use the parent __eq__ method
+        if isinstance(other, PropertyValue):
+            return PropertyValue.__eq__(self, other)
+
+        # if `other` is a NativePropertyValue, this comparrison will call __eq__ on that
         # object using this objects `Value` as the value for `other` (allowing callers
-        # to compare using either native types or NativeTypeMixin's)
+        # to compare using either native types or NativePropertyValue's)
 
         return other == self.Value
 
@@ -358,36 +391,31 @@ class NativeTypeMixin:
     def __compose__(cls, value):
         """Build the property value from the native Python value."""
 
-        # use type-name field to instantiate the class when possible
-        if hasattr(cls, "type"):
-            return cls(**{cls.type: value})
+        attr = cls.model_fields.get("type", None)
 
-        raise NotImplementedError()
+        if attr is None:
+            raise AttributeError(name="type")
+
+        type = attr.default
+
+        if type is None:
+            raise AttributeError(name=attr)
+
+        return cls(**{type: value})
 
     @property
     def Value(self):
         """Get the current value of this property as a native Python type."""
-
-        cls = self.__class__
-
-        # check to see if the object has a field with the type-name
-        # (this is assigned by TypedObject during subclass creation)
-        if hasattr(cls, "type") and hasattr(self, cls.type):
-            return getattr(self, cls.type)
-
-        raise NotImplementedError()
+        # all NativePropertyValue's are TypeObject's with a single nested field
+        # containing the native value... simply call the object to get the value
+        return self()
 
 
-class PropertyValue(TypedObject):
-    """Base class for Notion property values."""
-
-    id: Optional[str] = None
-
-
-class Title(NativeTypeMixin, PropertyValue, type="title"):
+class Title(NativePropertyValue):
     """Notion title type."""
 
     title: List[RichTextObject] = []
+    type: Literal["title"] = "title"
 
     def __len__(self):
         """Return the number of object in the Title object."""
@@ -409,10 +437,11 @@ class Title(NativeTypeMixin, PropertyValue, type="title"):
         return plain_text(*self.title)
 
 
-class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
+class RichText(NativePropertyValue):
     """Notion rich text type."""
 
     rich_text: List[RichTextObject] = []
+    type: Literal["rich_text"] = "rich_text"
 
     def __len__(self):
         """Return the number of object in the RichText object."""
@@ -433,10 +462,11 @@ class RichText(NativeTypeMixin, PropertyValue, type="rich_text"):
         return plain_text(*self.rich_text)
 
 
-class Number(NativeTypeMixin, PropertyValue, type="number"):
+class Number(NativePropertyValue):
     """Simple number type."""
 
-    number: Optional[Union[float, int]] = None
+    number: Optional[NotionalNumber] = None
+    type: Literal["number"] = "number"
 
     def __float__(self):
         """Return the Number as a `float`."""
@@ -502,22 +532,19 @@ class Number(NativeTypeMixin, PropertyValue, type="number"):
         """Return `True` if this `Number` is greater-than `other`."""
         return other < self.Value
 
-    @property
-    def Value(self):
-        """Get the current value of this property as a native Python number."""
-        return self.number
 
-
-class Checkbox(NativeTypeMixin, PropertyValue, type="checkbox"):
+class Checkbox(NativePropertyValue):
     """Simple checkbox type; represented as a boolean."""
 
     checkbox: Optional[bool] = None
+    type: Literal["checkbox"] = "checkbox"
 
 
-class Date(PropertyValue, type="date"):
+class Date(PropertyValue):
     """Notion complex date type - may include timestamp and/or be a date range."""
 
     date: Optional[DateRange] = None
+    type: Literal["date"] = "date"
 
     def __contains__(self, other):
         """Determine if the given date is in the range (inclusive) of this Date.
@@ -530,7 +557,7 @@ class Date(PropertyValue, type="date"):
 
         return self.Start <= other <= self.End
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return "" if self.date is None else str(self.date)
 
@@ -559,17 +586,18 @@ class Date(PropertyValue, type="date"):
         return None if self.date is None else self.date.end
 
 
-class Status(NativeTypeMixin, PropertyValue, type="status"):
+class Status(NativePropertyValue):
     """Notion status property."""
 
-    class _NestedData(GenericObject):
-        name: str = None
-        id: Optional[Union[UUID, str]] = None
+    class _NestedData(NotionObject):
+        name: str
+        id: Optional[NotionalID] = None
         color: Optional[Color] = None
 
     status: Optional[_NestedData] = None
+    type: Literal["status"] = "status"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return self.Value or ""
 
@@ -598,23 +626,24 @@ class Status(NativeTypeMixin, PropertyValue, type="status"):
         if name is None:
             raise ValueError("'name' cannot be None")
 
-        return cls(status=Status._NestedData(name=name, color=color))
+        nested = Status._NestedData(name=name, color=color)
+
+        return cls(status=nested)
 
     @property
     def Value(self):
         """Return the value of this property as a string."""
-
         return self.status.name
 
 
-class SelectValue(GenericObject):
+class SelectValue(NotionObject):
     """Values for select & multi-select properties."""
 
     name: str
-    id: Optional[Union[UUID, str]] = None
+    id: Optional[NotionalID] = None
     color: Optional[Color] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return self.name
 
@@ -628,12 +657,13 @@ class SelectValue(GenericObject):
         return cls(name=value, color=color)
 
 
-class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
+class SelectOne(NativePropertyValue):
     """Notion select type."""
 
     select: Optional[SelectValue] = None
+    type: Literal["select"] = "select"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return self.Value or ""
 
@@ -667,12 +697,13 @@ class SelectOne(NativeTypeMixin, PropertyValue, type="select"):
         return str(self.select)
 
 
-class MultiSelect(PropertyValue, type="multi_select"):
+class MultiSelect(PropertyValue):
     """Notion multi-select type."""
 
     multi_select: List[SelectValue] = []
+    type: Literal["multi_select"] = "multi_select"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return ", ".join(self.Values)
 
@@ -763,10 +794,11 @@ class MultiSelect(PropertyValue, type="multi_select"):
         return [str(val) for val in self.multi_select if val.name is not None]
 
 
-class People(PropertyValue, type="people"):
+class People(PropertyValue):
     """Notion people type."""
 
-    people: List[User] = []
+    people: List[Person] = []
+    type: Literal["people"] = "people"
 
     def __iter__(self):
         """Iterate over the User's in this property."""
@@ -807,33 +839,37 @@ class People(PropertyValue, type="people"):
 
         return self.people[index]
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return ", ".join([str(user) for user in self.people])
 
 
-class URL(NativeTypeMixin, PropertyValue, type="url"):
+class URL(NativePropertyValue):
     """Notion URL type."""
 
     url: Optional[str] = None
+    type: Literal["url"] = "url"
 
 
-class Email(NativeTypeMixin, PropertyValue, type="email"):
+class Email(NativePropertyValue):
     """Notion email type."""
 
     email: Optional[str] = None
+    type: Literal["email"] = "email"
 
 
-class PhoneNumber(NativeTypeMixin, PropertyValue, type="phone_number"):
+class PhoneNumber(NativePropertyValue):
     """Notion phone type."""
 
     phone_number: Optional[str] = None
+    type: Literal["phone_number"] = "phone_number"
 
 
-class Files(PropertyValue, type="files"):
+class Files(PropertyValue):
     """Notion files type."""
 
     files: List[FileObject] = []
+    type: Literal["files"] = "files"
 
     def __contains__(self, other):
         """Determine if the given FileObject or name is in the property."""
@@ -850,7 +886,7 @@ class Files(PropertyValue, type="files"):
 
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this property."""
         return "; ".join([str(file) for file in self.files])
 
@@ -912,13 +948,13 @@ class Files(PropertyValue, type="files"):
         self.files.remove(obj)
 
 
-class FormulaResult(TypedObject):
+class FormulaResult(TypedObject, ABC):
     """A Notion formula result.
 
     This object contains the result of the expression in the database properties.
     """
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the formula result as a string."""
         return self.Result or ""
 
@@ -928,10 +964,11 @@ class FormulaResult(TypedObject):
         raise NotImplementedError("Result unavailable")
 
 
-class StringFormula(FormulaResult, type="string"):
+class StringFormula(FormulaResult):
     """A Notion string formula result."""
 
     string: Optional[str] = None
+    type: Literal["string"] = "string"
 
     @property
     def Result(self):
@@ -939,10 +976,11 @@ class StringFormula(FormulaResult, type="string"):
         return self.string
 
 
-class NumberFormula(FormulaResult, type="number"):
+class NumberFormula(FormulaResult):
     """A Notion number formula result."""
 
-    number: Optional[Union[float, int]] = None
+    number: Optional[NotionalNumber] = None
+    type: Literal["number"] = "number"
 
     @property
     def Result(self):
@@ -950,10 +988,11 @@ class NumberFormula(FormulaResult, type="number"):
         return self.number
 
 
-class DateFormula(FormulaResult, type="date"):
+class DateFormula(FormulaResult):
     """A Notion date formula result."""
 
     date: Optional[DateRange] = None
+    type: Literal["date"] = "date"
 
     @property
     def Result(self):
@@ -961,10 +1000,11 @@ class DateFormula(FormulaResult, type="date"):
         return self.date
 
 
-class BooleanFormula(FormulaResult, type="boolean"):
+class BooleanFormula(FormulaResult):
     """A Notion boolean formula result."""
 
     boolean: Optional[bool] = None
+    type: Literal["boolean"] = "boolean"
 
     @property
     def Result(self):
@@ -972,12 +1012,13 @@ class BooleanFormula(FormulaResult, type="boolean"):
         return self.boolean
 
 
-class Formula(PropertyValue, type="formula"):
+class Formula(PropertyValue):
     """A Notion formula property value."""
 
     formula: Optional[FormulaResult] = None
+    type: Literal["formula"] = "formula"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the result of this formula as a string."""
         return str(self.Result or "")
 
@@ -991,11 +1032,12 @@ class Formula(PropertyValue, type="formula"):
         return self.formula.Result
 
 
-class Relation(PropertyValue, type="relation"):
+class Relation(PropertyValue):
     """A Notion relation property value."""
 
     relation: List[ObjectReference] = []
     has_more: bool = False
+    type: Literal["relation"] = "relation"
 
     @classmethod
     def __compose__(cls, *pages):
@@ -1066,10 +1108,11 @@ class RollupObject(TypedObject, ABC):
         """Return the native representation of this Rollup object."""
 
 
-class RollupNumber(RollupObject, type="number"):
+class RollupNumber(RollupObject):
     """A Notion rollup number property value."""
 
-    number: Optional[Union[float, int]] = None
+    number: Optional[NotionalNumber] = None
+    type: Literal["number"] = "number"
 
     @property
     def Value(self):
@@ -1077,10 +1120,11 @@ class RollupNumber(RollupObject, type="number"):
         return self.number
 
 
-class RollupDate(RollupObject, type="date"):
+class RollupDate(RollupObject):
     """A Notion rollup date property value."""
 
     date: Optional[DateRange] = None
+    type: Literal["date"] = "date"
 
     @property
     def Value(self):
@@ -1088,10 +1132,13 @@ class RollupDate(RollupObject, type="date"):
         return self.date
 
 
-class RollupArray(RollupObject, type="array"):
+class RollupArray(RollupObject):
     """A Notion rollup array property value."""
 
-    array: List[PropertyValue]
+    # FIXME the array may contain any PropertyValue, which means we need a way to
+    # deserialize the concrete type rather than the base PropertyValue type
+    array: List[PropertyValue] = []
+    type: Literal["array"] = "array"
 
     @property
     def Value(self):
@@ -1099,12 +1146,13 @@ class RollupArray(RollupObject, type="array"):
         return self.array
 
 
-class Rollup(PropertyValue, type="rollup"):
+class Rollup(PropertyValue):
     """A Notion rollup property value."""
 
     rollup: Optional[RollupObject] = None
+    type: Literal["rollup"] = "rollup"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this Rollup property."""
 
         if self.rollup is None:
@@ -1117,45 +1165,54 @@ class Rollup(PropertyValue, type="rollup"):
         return str(value)
 
 
-class CreatedTime(NativeTypeMixin, PropertyValue, type="created_time"):
+class CreatedTime(NativePropertyValue):
     """A Notion created-time property value."""
 
     created_time: datetime
+    type: Literal["created_time"] = "created_time"
 
 
-class CreatedBy(PropertyValue, type="created_by"):
+class CreatedBy(PropertyValue):
     """A Notion created-by property value."""
 
     created_by: User
+    type: Literal["created_by"] = "created_by"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the contents of this property as a string."""
         return str(self.created_by)
 
 
-class LastEditedTime(NativeTypeMixin, PropertyValue, type="last_edited_time"):
+class LastEditedTime(NativePropertyValue):
     """A Notion last-edited-time property value."""
 
     last_edited_time: datetime
+    type: Literal["last_edited_time"] = "last_edited_time"
 
 
-class LastEditedBy(PropertyValue, type="last_edited_by"):
+class LastEditedBy(PropertyValue):
     """A Notion last-edited-by property value."""
 
     last_edited_by: User
+    type: Literal["last_edited_by"] = "last_edited_by"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the contents of this property as a string."""
         return str(self.last_edited_by)
 
 
 # https://developers.notion.com/reference/property-item-object
-class PropertyItem(PropertyValue, NotionObject, object="property_item"):
+class PropertyItem(PropertyValue, DataObject):
     """A `PropertyItem` returned by the Notion API.
 
     Basic property items have a similar schema to corresponding property values.  As a
     result, these items share the `PropertyValue` type definitions.
 
     This class provides a placeholder for parsing property items, however objects
-    parse by this class will likely be `PropertyValue`'s instead.
+    parsed by this class will likely be `PropertyValue`'s instead.
     """
+
+    object: Literal["property_item"] = "property_item"
+
+
+NotionalIcon = Union[HostedFile, ExternalFile, EmojiObject]

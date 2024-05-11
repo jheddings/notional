@@ -6,7 +6,7 @@ import notion_client
 import pytest
 
 from notional import blocks, types
-from notional.text import CodingLanguage
+from notional.text import CodingLanguage, FullColor
 
 
 def add_verify(notion, page, block):
@@ -65,10 +65,12 @@ def test_create_block(notion, test_area):
     """Create a single block and confirm its contents."""
     block = blocks.Divider()
 
+    # this should update our block with data from the API
     notion.blocks.children.append(test_area, block)
     assert block.id is not None
     assert block.archived is False
 
+    # retrieving the block should give us the same data
     new_block = notion.blocks.retrieve(block.id)
     assert new_block == block
 
@@ -337,10 +339,19 @@ def test_callout(notion, test_page):
 
 
 @pytest.mark.vcr()
-def test_toc(notion, test_page):
+def test_toc_default(notion, test_page):
     """Verify that table_of_contents are handled correctly."""
     toc = blocks.TableOfContents()
     assert toc.type == "table_of_contents"
+    add_verify(notion, test_page, toc)
+
+
+@pytest.mark.vcr()
+def test_toc_color(notion, test_page):
+    """Verify that table_of_contents with color are handled correctly."""
+    toc = blocks.TableOfContents[FullColor.GREEN_BACKGROUND]
+    assert toc.type == "table_of_contents"
+    assert toc.table_of_contents.color == FullColor.GREEN_BACKGROUND
     add_verify(notion, test_page, toc)
 
 

@@ -1,18 +1,25 @@
 """Unit tests for Notional core objects."""
 
+import json
 import logging
-from enum import Enum
-from typing import List
+from abc import ABC
+from typing import Any, List, Literal, Optional
 
 import pytest
+from pydantic import Field, SerializeAsAny, ValidationError
 
-from notional.core import GenericObject, NotionObject, TypedObject
+from notional.core import DataObject, NotionObject, SerializationMode, TypedObject
 
 # keep logging output to a minimum for testing
 logging.basicConfig(level=logging.INFO)
 
 
-TIGER = {"type": "cat", "name": "Tiger the Cat", "color": "tabby", "age": 9}
+TIGER = {
+    "type": "cat",
+    "name": "Tiger the Cat",
+    "color": "tabby",
+    "age": 9,
+}
 
 FLUFFY = {
     "type": "dog",
@@ -22,180 +29,231 @@ FLUFFY = {
     "breed": "rottweiler",
 }
 
-ACE = {"type": "eagle", "age": 245, "color": "gray", "species": "bald"}
-
-ALICE = {
-    "id": "5e3204b7-f2d8-496c-876f-7db2d16e5805",
-    "object": "person",
-    "name": "Alice the Person",
+ACE = {
+    "type": "bird",
+    "age": 42,
+    "color": "gray",
+    "species": "eagle",
 }
 
-BOB = {
-    "id": "e9de0b88-5ace-47e9-b569-1a8b01569e21",
+ALICE = {
     "object": "person",
-    "name": "Bob the Person",
+    "name": "Alice the Person",
     "pets": [TIGER, FLUFFY],
 }
 
+BOB = {
+    "object": "person",
+    "name": "Bob the Person",
+    "pets": [FLUFFY, ACE],
+}
+
 STAN = {
-    "id": "1e0042be-9407-4064-9bea-ecdcf6c2d78b",
     "object": "robot",
     "name": "Stanley",
 }
 
 
-class Actor(NotionObject):
+class Actor(DataObject, ABC):
     """A structured Actor class for testing."""
 
     name: str
 
 
-class Animal(TypedObject):
+class Animal(TypedObject, ABC):
     """A structured Animal class for testing."""
 
     age: int
-    color: str = None
+    color: Optional[str] = None
 
 
-class Pet(Animal):
+class Pet(Animal, ABC):
     """A structured Pet class for testing."""
 
     name: str
 
 
-class Cat(Pet, type="cat"):
+class Cat(Pet):
     """A structured Cat class for testing."""
 
     hairless: bool = False
+    type: Literal["cat"] = "cat"
 
 
-class Dog(Pet, type="dog"):
+class Dog(Pet):
     """A structured Dog class for testing."""
 
     breed: str
+    type: Literal["dog"] = "dog"
 
 
-class Eagle(Animal, type="eagle"):
-    """A structured Eagle class for testing."""
+class Bird(Animal):
+    """A structured Bird class for testing."""
 
     species: str
+    type: Literal["bird"] = "bird"
 
 
-class Person(Actor, object="person"):
+class Person(Actor):
     """A structured Person class for testing."""
 
-    pets: List[Pet] = None
+    pets: List[SerializeAsAny[Pet]] = []
+    object: Literal["person"] = "person"
 
 
-class Robot(Actor, object="robot"):
+class Robot(Actor):
     """A structured Robot class for testing."""
 
+    object: Literal["robot"] = "robot"
 
-class CustomTypes(str, Enum):
-    """Defines custom types for testing."""
-
-    TYPE_ONE = "one"
-    TYPE_TWO = "two"
-    TYPE_THREE = "three"
+    @classmethod
+    def __compose__(cls, name):
+        """Compose a Robot object with the given name."""
+        return Robot(name=name)
 
 
-class ComplexGenericObject(TypedObject, type="detail"):
+class DetailedObject(TypedObject):
     """A complex object (with nested data) used for testing only."""
 
-    class _NestedData(GenericObject):
-        key: str = None
-        value: str = None
+    class _NestedData(NotionObject):
+        key: Optional[str] = None
+        value: Optional[str] = None
 
     id: str
-    detail: _NestedData = _NestedData()
     simple: List[Person] = []
-    custom: CustomTypes = None
+    detail: _NestedData = Field(default_factory=_NestedData)
+    type: Literal["detail"] = "detail"
+
+
+class PrivateDataObject(NotionObject):
+    """An object that uses properties to access data."""
+
+    _private: Optional[Any] = None
+
+    @property
+    def InternalData(self):
+        """Return the private data of this object."""
+        return self._private
+
+    @InternalData.setter
+    def InternalData(self, value):
+        """Set the private data of this object."""
+        self._private = value
+
+
+def test_serialize_json():
+    """Serialize objects to JSON and verify contents."""
+
+    jack = Person(name="Jack the Person")
+    raw = jack.serialize(SerializationMode.JSON)
+
+    # make sure we can parse the JSON
+    data = json.loads(raw)
+
+    assert data["object"] == "person"
+    assert data["name"] == "Jack the Person"
+    assert len(data["pets"]) == 0
+
+
+def test_serialize_dict():
+    """Serialize objects to Python objects and verify contents."""
+    tiger = Cat(name="Tiger", age=9, hairless=True)
+    data = tiger.serialize(SerializationMode.PYTHON)
+
+    assert data["name"] == "Tiger"
+    assert data["hairless"] is True
+
+
+def test_serialize_adaptive_types():
+    """Serialize objects with abstract types."""
+
+    # objects that have fields with abstract types can be problematic
+    # in this case, we have a Person with a list of Pets that should be
+    # serialized as a list of concrete types
+
+    tiger = Cat(name="Tiger", age=9, hairless=True)
+    fluffy = Dog(name="Fluffy", age=4, breed="poodle")
+    jill = Person(name="Jill with Pets", pets=[tiger, fluffy])
+
+    data = jill.serialize()
+
+    assert data["object"] == "person"
+    assert data["name"] == "Jill with Pets"
+
+    assert "pets" in data
+    assert len(data["pets"]) == 2
+
+    assert data["pets"][0] == tiger.serialize()
+    assert data["pets"][1] == fluffy.serialize()
 
 
 def test_parse_named_object():
     """Parse obects from structured data."""
 
-    stan = Person.parse_obj(BOB)
-    assert stan.object == "person"
+    alice = Person.deserialize(ALICE)
+    assert alice.object == "person"
 
-    stan = Robot.parse_obj(STAN)
+    stan = Robot.deserialize(STAN)
     assert stan.object == "robot"
-
-
-def test_invalid_named_object():
-    """Make sure that parsing the wrong objects raise an error."""
-
-    with pytest.raises(ValueError):
-        Robot.parse_obj(BOB)
-
-    with pytest.raises(ValueError):
-        Person.parse_obj(STAN)
 
 
 def test_parse_typed_data_object():
     """Parse TypedObject's from structured data."""
 
-    tiger = Animal.parse_obj(TIGER)
+    tiger = Animal.deserialize(TIGER)
     assert type(tiger) == Cat
     assert tiger.type == "cat"
     assert tiger.name == "Tiger the Cat"
     assert not tiger.hairless
 
-    fluffy = Animal.parse_obj(FLUFFY)
+    fluffy = Animal.deserialize(FLUFFY)
     assert type(fluffy) == Dog
     assert fluffy.type == "dog"
     assert fluffy.name == "Fluffy the Dog"
     assert fluffy.breed == "rottweiler"
 
-    ace = Animal.parse_obj(ACE)
-    assert type(ace) == Eagle
-    assert ace.type == "eagle"
-    assert ace.age == 245
-    assert ace.species == "bald"
+    ace = Animal.deserialize(ACE)
+    assert type(ace) == Bird
+    assert ace.type == "bird"
+    assert ace.age == 42
+    assert ace.species == "eagle"
 
-    # silly test just to make sure...
+    # just to make sure...
     assert tiger != fluffy
 
-    bob = Person.parse_obj(BOB)
-    assert bob.name == "Bob the Person"
+
+def test_deserialize_adaptive_types():
+    """Verify that adaptive types are always deserialized correctly.
+
+    In particular, abstract types that are declared inside of a collection (e.g. a list)
+    can be problematic.
+    """
+
+    alice = Person.deserialize(ALICE)
+    assert alice.name == "Alice the Person"
 
     # make sure the Animals were deserialized correctly...
-    for pet in bob.pets:
-        assert pet in [fluffy, tiger]
+    assert alice.pets[0] == Cat.deserialize(TIGER)
+    assert alice.pets[1] == Dog.deserialize(FLUFFY)
+
+    # BOB is not a valid Person because he has a Bird as a pet
+    with pytest.raises(ValidationError):
+        _ = Person.deserialize(BOB)
 
 
 def test_mixing_object_types():
-    """Make sure that parsing the wrong objects returns the correct type."""
+    """Make sure that parsing the wrong objects fails."""
 
-    # because subclasses of a type tree share the typemap, trying to
-    # parse as the "wrong" class should return the correct class instead
+    with pytest.raises(ValidationError):
+        Cat.deserialize(FLUFFY)
 
-    fluffy = Cat.parse_obj(FLUFFY)
-    assert isinstance(fluffy, Dog)
-
-    tiger = Dog.parse_obj(TIGER)
-    assert isinstance(tiger, Cat)
-
-
-def test_set_default_type_for_new_objects():
-    """Verify that "type" is set when creating new TypedObject's."""
-    bruce = Dog(name="bruce", age=3, breed="collie")
-    assert bruce.type == "dog"
-
-
-def test_standard_nested_object():
-    """Create a nested object and check fields for proper values."""
-    detail = ComplexGenericObject._NestedData(key="foo", value="bar")
-    complex = ComplexGenericObject(id="complex", detail=detail)
-
-    assert complex.id == "complex"
-    assert complex.detail.key == "foo"
-    assert complex.detail.value == "bar"
+    with pytest.raises(ValidationError):
+        Dog.deserialize(TIGER)
 
 
 def test_invalid_nested_field_call():
     """Check for errors when we call for an invalid nested field."""
-    complex = ComplexGenericObject(id="complex")
+    complex = DetailedObject(id="boring_object")
 
     with pytest.raises(AttributeError):
         complex("does_not_exist")
@@ -203,7 +261,7 @@ def test_invalid_nested_field_call():
 
 def test_get_nested_data():
     """Call a block to return the nested data."""
-    complex = ComplexGenericObject(id="complex")
+    complex = DetailedObject(id="interactive_object")
 
     assert complex("value") is None
 
@@ -212,3 +270,30 @@ def test_get_nested_data():
 
     assert complex.detail.key is None
     assert complex.detail.value == "bar"
+
+    assert complex("value") == "bar"
+
+
+def test_composable_object():
+    """Compose an object with a simple __compose__ method."""
+    stella = Robot["Stella"]
+
+    assert isinstance(stella, Robot)
+    assert stella.name == "Stella"
+    assert stella.object == "robot"
+
+
+def test_property_setter():
+    """Verify property setter funcionality.
+
+    This was initially fixed in `notional.NotionObject`, however later versions of Pydantic
+    added support for property setters.  We may remove this test in the future.
+
+    Ref: https://github.com/pydantic/pydantic/issues/1577
+    """
+
+    private = PrivateDataObject()
+    assert private.InternalData is None
+
+    private.InternalData = "Sup3Rs3ç4é†"
+    assert private.InternalData == "Sup3Rs3ç4é†"
