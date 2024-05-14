@@ -810,18 +810,18 @@ python-legacy = ["mkdocstrings-python-legacy (>=0.2.1)"]
 
 [[package]]
 name = "mkdocstrings-python"
-version = "1.10.0"
+version = "1.10.1"
 description = "A Python handler for mkdocstrings."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "mkdocstrings_python-1.10.0-py3-none-any.whl", hash = "sha256:ba833fbd9d178a4b9d5cb2553a4df06e51dc1f51e41559a4d2398c16a6f69ecc"},
-    {file = "mkdocstrings_python-1.10.0.tar.gz", hash = "sha256:71678fac657d4d2bb301eed4e4d2d91499c095fd1f8a90fa76422a87a5693828"},
+    {file = "mkdocstrings_python-1.10.1-py3-none-any.whl", hash = "sha256:7fcfefba80d2f05f198ec072e404d216b969cdff9ebe2d4903b2f7d515f910e1"},
+    {file = "mkdocstrings_python-1.10.1.tar.gz", hash = "sha256:5fd41a603bc6d80ff21a3c42413fe51f1d22afde09ee419eab1e2b8e9cdaf5c4"},
 ]
 
 [package.dependencies]
 griffe = ">=0.44"
-mkdocstrings = ">=0.24.2"
+mkdocstrings = ">=0.25"
 
 [[package]]
 name = "multidict"
@@ -1836,4 +1836,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "2a51a26bc4fe8e974d3c8331df4fc26b984734508a0c4c5e0633eea33dcb711e"
+content-hash = "ba023e775618fcba0b1398950e44aa61803c31bc0b20e513a9445236277a697d"
