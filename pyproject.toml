@@ -33,7 +33,7 @@ black = "^24.4.2"
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
 mkdocstrings = "^0.25.1"
-mkdocs-material = "^9.5.22"
+mkdocs-material = "^9.5.23"
 mkdocstrings-python = "^1.10.1"
 
 [tool.black]
