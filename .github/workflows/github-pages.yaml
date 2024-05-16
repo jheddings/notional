@@ -11,7 +11,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.5
+      - uses: actions/checkout@v4.1.6
       - uses: actions/setup-python@v5.1.0
       - name: Install Poetry
         uses: snok/install-poetry@v1.3.4
