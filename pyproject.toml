@@ -29,6 +29,7 @@ pytest-vcr = "^1.0.2"
 mypy = "^1.10.0"
 ruff = "^0.4.4"
 black = "^24.4.2"
+isort = "^5.13.2"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
@@ -39,9 +40,11 @@ mkdocstrings-python = "^1.10.2"
 [tool.black]
 line_length = 88
 
+[tool.isort]
+profile = "black"
+
 [tool.ruff.lint]
 select = [
-    "I",   # isort
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
     "F",   # pyflakes
@@ -55,9 +58,6 @@ select = [
 ignore = [
     "E501", # line-too-long
 ]
-
-[tool.ruff.lint.isort]
-known-first-party = ["notional"]
 
 [build-system]
 requires = ["poetry-core>=1.9.0"]
