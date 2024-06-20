@@ -15,7 +15,7 @@ classifiers=[
 [tool.poetry.dependencies]
 python = "^3.8.1"
 notion-client = "^2.2.1"
-pydantic = "^1.10.16"
+pydantic = "^1.10.17"
 html5lib = "^1.1"
 urllib3 = "^1.26.19"
 emoji = "^2.12.1"
