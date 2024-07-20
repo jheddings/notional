@@ -1185,13 +1185,13 @@ extra = ["pygments (>=2.12)"]
 
 [[package]]
 name = "pytest"
-version = "8.3.0"
+version = "8.3.1"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pytest-8.3.0-py3-none-any.whl", hash = "sha256:a1b30492f2676b476266a87f6551345fb25c0484fb6d09c86aa2eb07b5f71c2f"},
-    {file = "pytest-8.3.0.tar.gz", hash = "sha256:0fe75465746a643f2485f642edf5eb7af7918135177230471150409343f84a6b"},
+    {file = "pytest-8.3.1-py3-none-any.whl", hash = "sha256:e9600ccf4f563976e2c99fa02c7624ab938296551f280835ee6516df8bc4ae8c"},
+    {file = "pytest-8.3.1.tar.gz", hash = "sha256:7e8e5c5abd6e93cb1cc151f23e57adc31fcf8cfd2a3ff2da63e23f732de35db6"},
 ]
 
 [package.dependencies]
@@ -1847,4 +1847,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "3d27a9ff8ec42a2922ae7d0f70c331f9ee081680474a3db6c61af492e6ae68f5"
+content-hash = "db90976db757fae7af3e58bf7d00387bdf721a4c0a491004eb35241480057e28"
