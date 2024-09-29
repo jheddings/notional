@@ -4,15 +4,15 @@
 [![LICENSE](https://img.shields.io/github/license/jheddings/notional)](LICENSE)
 [![Style](https://img.shields.io/badge/style-black-black)](https://github.com/ambv/black)
 
+> :warning: **Discontinued**: I have moved away from Notion to [Obsidian](https://obsidian.md)
+> and will no longer update this project. If someone is interested in taking it over, please
+> reach out.  A great place to start is to complete the Pydantic v2 PR that is open.
+
 A high level interface and object model for the Notion SDK.  This is loosely modeled
 after concepts found in [SQLAlchemy](http://www.sqlalchemy.org) and
 [MongoEngine](http://mongoengine.org).  Built on the excellent
 [notion-sdk-py](https://github.com/ramnes/notion-sdk-py) library, this module provides
 higher-level access to the API.
-
-> :warning: **Work In Progress**: The interfaces in this module are still in development
-and are likely to change.  Furthermore, documentation is pretty sparse so use at your
-own risk!
 
 That being said, if you do use this library, please
 [drop me a message](https://github.com/jheddings/notional/discussions)!
