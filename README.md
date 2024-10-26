@@ -5,8 +5,9 @@
 [![Style](https://img.shields.io/badge/style-black-black)](https://github.com/ambv/black)
 
 > :warning: **Discontinued**: I have moved away from Notion to [Obsidian](https://obsidian.md)
-> and will no longer update this project. If someone is interested in taking it over, please
-> reach out.  A great place to start is to complete the Pydantic v2 PR that is open.
+> and will no longer update this project. If you are looking for an alternative, be sure to
+> check out [Ultimate Notion](https://github.com/ultimate-notion/ultimate-notion/tree/main)
+> which includes some of the original Notional code.
 
 A high level interface and object model for the Notion SDK.  This is loosely modeled
 after concepts found in [SQLAlchemy](http://www.sqlalchemy.org) and
